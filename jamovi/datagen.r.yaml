@@ -1,0 +1,43 @@
+---
+name:  testMe
+title: Testing
+jrs: '1.0'
+
+
+items:
+
+  - name: info
+    title: Some Info
+    type: Table
+    columns:
+       - name: info
+         type: text
+         title: ""
+         combineBelow: true
+
+       - name: specs
+         type: text
+         title: ""
+       - name: value
+         type: number
+         title: A number
+    clearWith:
+        - dep
+
+
+
+  - name: residuals
+    title: Residuals Vales
+    type: Output            
+    varTitle: '`TEST_${ dep }`'
+    varDescription: test values
+    clearWith:
+        - dep
+
+  - name: multi_residuals
+    title: Multicolumn 
+    type: Output            
+    varDescription: test values
+    clearWith:
+        - dep
+
