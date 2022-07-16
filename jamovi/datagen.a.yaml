@@ -1,7 +1,7 @@
 ---
-name: testMe
-title: Testing
-menuGroup: Tests
+name: datagen
+title: Data Generator
+menuGroup: jpower
 version: '0.0.1'
 jas: '1.2'
 export: true
@@ -9,12 +9,6 @@ completeWhenFilled: false
 description:
     main: |
            Something here
-    R:
-        dontrun: true
-        usage: |
-            some code here
-            
-
 
 options:
     - name: data
@@ -23,27 +17,78 @@ options:
           R: the data as a data frame
 
     - name: dep
-      title: Dependent Variable
-      type: Variable
-      default:
-      suggested:
-        - continuous
-        - ordinal
-      permitted:
-        - numeric
-      description:
-          R: >
-            a string naming the dependent variable from `data`, variable
-            must be numeric
+      title: Name 
+      type:  String
+    - name: dep_n
+      title: N per cluster 
+      type:  Number
+      default: 50
+
+    - name: covs
+      type: Array
+      default: []
+      template:
+          type: String
+
+    - name: factors
+      title: Factors (K levels)
+      type: Array
+      template:
+        type: Group
+        elements:
+          - name: var
+            type: Variable
+          - name: opt1
+            type: Number
 
 
-    - name: residuals
-      title: Residuals
-      type: Output            
-    - name: multi_residuals
-      title: Multicols residuals
-      type: Output            
-      initInRun: true
+
+    - name: clusters
+      title: Cluster Variables (N clusters)
+      type: Array
+      template:
+        type: Group
+        elements:
+          - name: var
+            type: String
+          - name: opt1
+            type: Number
+
+    - name: structure
+      type: Array
+      template:
+        type: Group
+        elements:
+          - name: variable
+            type: Variable
+          - name: cluster
+            type: Variable
+
+
+
+    - name: clusters_comb
+      title: Cluster combination
+      type: List
+      default: cross
+      options:
+        - name:  cross
+          title: Cross-classified
+        - name: nested
+          title: Nested
+
+    - name: factors_comb
+      title: Factors combination
+      type: List
+      default: cross
+      options:
+        - name:  cross
+          title: Balanced
+        - name: random
+          title: Independent
+
+    - name: output
+      type: Output
+      title: Produce the data
 
 ...
 

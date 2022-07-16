@@ -7,6 +7,6 @@ Maintainer: Marcello Gallucci <mcfanda@gmail.com>
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
-Imports: jmvcore (>= 0.8.0)
+Imports: jmvcore (>= 0.8.0), rlist
 Depends: jmvcore
 RoxygenNote: 7.1.1

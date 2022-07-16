@@ -1,43 +1,42 @@
 ---
-name:  testMe
-title: Testing
+name:  datagen
+title: Data Generator
 jrs: '1.0'
 
 
 items:
 
+  - name: start
+    type: Html
+  - name: help
+    type: Html
+
   - name: info
     title: Some Info
     type: Table
     columns:
-       - name: info
+       - name: var
          type: text
-         title: ""
+         title: "Variable"
          combineBelow: true
-
-       - name: specs
+       - name: name
          type: text
-         title: ""
+         title: "Name"
+       - name: feature
+         type: text
+         title: "Feature"
        - name: value
-         type: number
-         title: A number
-    clearWith:
-        - dep
+         type: integer
+         title: Value
+       - name: structure
+         type: text
+         title: "Structure"
 
 
-
-  - name: residuals
-    title: Residuals Vales
+  - name: output
+    title: New var
     type: Output            
-    varTitle: '`TEST_${ dep }`'
-    varDescription: test values
-    clearWith:
-        - dep
+    varDescription: "Simulated data"
+    initInRun: true 
 
-  - name: multi_residuals
-    title: Multicolumn 
-    type: Output            
-    varDescription: test values
-    clearWith:
-        - dep
 

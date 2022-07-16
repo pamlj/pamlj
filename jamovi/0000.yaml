@@ -11,8 +11,8 @@ type: R
 description: A suite for power analysis for linear models
 analyses:
   - title: Data Generator
-    name:  datagen
-    ns: datagen
+    name: datagen
+    ns: pamlj
     menuGroup: jpower
     menuSubgroup: PAMLj
     menuTitle: Data Generator
