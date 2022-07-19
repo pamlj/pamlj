@@ -172,6 +172,7 @@ Initer <- R6::R6Class(
       }
       
       
+      
 
       self$ready=ok
 
