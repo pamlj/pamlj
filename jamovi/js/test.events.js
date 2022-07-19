@@ -129,8 +129,6 @@ const updatePairs=function(ui, obj) {
   var clusters=context.cloneArray(ui.clusters.value(),[]);
   var vars=factors.concat(covs);
   var pairs=context.cloneArray(ui.structure.value(),[]);  
- console.log(pairs)
- console.log(vars)
   var newpairs=[]
   var changed=false;
   for (var i = 0; i < pairs.length; i++) {
@@ -149,6 +147,7 @@ const updatePairs=function(ui, obj) {
   console.log(changed);
   if (changed)
      ui.structure.setValue(newpairs);
+  var clusters=context.cloneArray(ui.clusters.value(),[]);
 };
 
 

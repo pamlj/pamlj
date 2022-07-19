@@ -15,10 +15,8 @@ datagenClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
           ginfo(paste("MODULE: DataGen  #### phase init  ####"))
           
           private$.time <- Sys.time()
-
-          if (!self$options$output)
-             self$results$start$setContent(INTRO)
           
+
           ### set up the R6 workhorse class
           private$.dispatcher               <- Dispatch$new(self$results)
           private$.runner                   <- Runner$new(self$options, private$.dispatcher,self$data)
@@ -28,14 +26,37 @@ datagenClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
           private$.dispatcher$clean(self$results$help)
           private$.runner$prepare()
           
-          if (!private$.runner$ready)
-             return()
-
+          if (!self$options$output) {
+            self$results$start$setContent(INTRO)
+            self$results$start$setVisible(TRUE)
+            
+          }
+          
           
           
           ### info table ###
-          aSmartObj<-SmartTable$new(self$results$info,private$.runner)
-          ladd(private$.smartObjs)<-aSmartObj
+          aSmartObj                  <-   SmartTable$new(self$results$info,private$.runner)
+          ladd(private$.smartObjs)   <-   aSmartObj
+          
+          ### clusters table ###
+          aSmartObj                  <-   SmartTable$new(self$results$clusters,private$.runner)
+          aSmartObj$expandable       <-   TRUE
+          aSmartObj$expandFrom       <-   1
+          
+          ladd(private$.smartObjs)   <- aSmartObj
+          
+          ### covariates table ###
+          aSmartObj                  <-   SmartTable$new(self$results$covs,private$.runner)
+          aSmartObj$activateOnData   <-   TRUE
+          
+          ladd(private$.smartObjs)   <- aSmartObj
+          
+          ### factors table ###
+          aSmartObj                  <-   SmartTable$new(self$results$factors,private$.runner)
+          aSmartObj$expandable       <-   TRUE
+          aSmartObj$expandFrom       <-   1
+          aSmartObj$activateOnData   <-   TRUE
+          ladd(private$.smartObjs)   <- aSmartObj
           
           
           ### init all ####

@@ -1,3 +1,20 @@
+.expandto<-function(alist,n) {
+  
+  eg<-expand.grid(alist)
+  res<-list()
+  l<-dim(eg)[1]
+  j<-0
+  for (i in 1:n) {
+    j<-j+1 
+    ladd(res)<-eg[j,]
+    if (j==l) j=0
+  }
+  res<-do.call(rbind,res)
+  rownames(res)<-1:dim(res)[1]
+  res
+}
+
+
 .levelstandard<-function(data,y,var,cluster,id="id",level="within") {
   
   
@@ -51,66 +68,99 @@
 
 
 .asample<-function(vars,clusters,type) {
-  
+
   nclusters<-lapply(clusters, function(x) 1:x$n)
   clusternames<-unlist(rlist::list.select(clusters,name))
 
   if (type=="nested") {
-    clustervalues<-.nestedclusters(nclusters)
+    clustervalues<-as.data.frame(.nestedclusters(nclusters))
+    names(clustervalues)<-clusternames
   }
   else {
     clustervalues<-expand.grid(nclusters)
   }
+  
   colnames(clustervalues)<-clusternames
   clustervalues$id<-1:dim(clustervalues)[1]
   clusterdata<-list()
   dep<-rlist::list.find(vars, role=="dependent",n=1)[[1]]
+  covs<-rlist::list.find(vars, type=="numeric",n=Inf)
+  factors<-rlist::list.find(vars, type=="nominal",n=Inf)
   
   for (cluster in clusters) {
-    
-    bvars<-rlist::list.find(vars, grep(cluster$name,role)>0,n=Inf)
+    ## first, we prepare a frame with the cluster values 
+    cv<-data.frame(unique(clustervalues[,cluster$name]))
+    names(cv)<-cluster$name
+     ## we select the continuous between variables
+    bvars<-rlist::list.find(covs, grep(cluster$name,role)>0,n=Inf)
+    ## we produce the data (adding the dependent variable)
     bnames<-unlist(c(dep$name,rlist::list.select(bvars,name)))
     bn<-length(bnames)
     sigmab<-matrix(0,ncol=bn,nrow=bn)
     diag(sigmab)<-1
     mus<-rep(0,bn)
-    clvalues<-unique(clustervalues[,cluster$name])
-    n<-length(clvalues)
-    cv<-as.data.frame(MASS::mvrnorm(n,Sigma = sigmab,mu=mus,empirical = T))
-    names(cv)<-paste0(cluster$name,".",bnames)
-    cv[[cluster$name]]<-clvalues
+    ccovs<-as.data.frame(MASS::mvrnorm(cluster$n,Sigma = sigmab,mu=mus,empirical = T))
+    names(ccovs)<-paste0(cluster$name,".",bnames)
+    cv<-cbind(cv,ccovs)
+    
+    ## here we deal with between factors
+    fvars<-rlist::list.find(factors, grep(cluster$name,role)>0,n=Inf)
+    if (is.something(fvars)) {
+       nfactors<-lapply(fvars, function(x) 1:x$n)
+       fnames<-lapply(fvars, function(x) x$name)
+       eg<-.expandto(nfactors,cluster$n)
+       colnames(eg)<-paste0(cluster$name,".",fnames)
+       cv<-cbind(cv,eg)
+
+    }
     clusterdata[[cluster$name]]<-cv
   }
-  
-  
+
+  # now the within variables  
   NC<-dim(clustervalues)[1]
-  wvars<-rlist::list.find(vars, role=="within",n=Inf)
-  wnames<-unlist(c(dep$name,rlist::list.select(wvars,name)))
-  wn<-length(wnames)
-  sigmaw<-matrix(0,ncol=wn,nrow=wn)
-  diag(sigmaw)<-1
+  ## continuous variables
+  
+  cvars <- rlist::list.find(covs, role=="within",n=Inf)
+  wnames<-unlist(c(dep$name,rlist::list.select(cvars,name)))
+  
+     wn<-length(wnames)
+     sigmaw<-matrix(0,ncol=wn,nrow=wn)
+     diag(sigmaw)<-1
+     mus<-rep(0,wn)
+     ldata<-list()
+     for (i in 1:NC) {
+       cv<-as.data.frame(MASS::mvrnorm(dep$n,Sigma = sigmaw ,mu=mus,empirical = T))
+       names(cv)<-wnames
+       cls<-subset(clustervalues,id==i)
+       cls[["id"]]<-NULL
+       for (cl in names(cls)) {
+          cv[,cl]<-cls[[cl]]
+          cv<-merge(cv,clusterdata[[cl]],by=cl,all.x = T)
+       }
+       ldata[[length(ldata)+1]]<-cv
+       
 
-  mus<-rep(0,wn)
-  ldata<-list()
-  for (i in 1:NC) {
-    cv<-as.data.frame(MASS::mvrnorm(dep$n,Sigma = sigmaw ,mu=mus,empirical = T))
-    names(cv)<-wnames
-    cls<-subset(clustervalues,id==i)
-    cls[["id"]]<-NULL
+     }
 
-    for (cl in names(cls)) {
-      cv[,cl]<-cls[[cl]]
-      cv<-merge(cv,clusterdata[[cl]],by=cl,all.x = T)
-    }
-    ldata[[length(ldata)+1]]<-cv
+    data<-as.data.frame(do.call(rbind,ldata))
+    data$id<-1:dim(data)[1]
     
+  
+  fvars <- rlist::list.find(factors, role=="within",n=Inf)
+  
+
+  if (is.something(fvars)) {
+    nfactors<-lapply(fvars, function(x) 1:x$n)
+    fnames<-lapply(fvars, function(x) x$name)
+    eg<-.expandto(nfactors,dim(data)[1])
+    colnames(eg)<-fnames
+    data<-cbind(data,eg)
   }
   
-  data<-as.data.frame(do.call(rbind,ldata))
-  finaldata<-subset(data, select = clusternames)
-  
-  var<-vars[[2]]
+  finaldata<-subset(data,select=clusternames)
+
   for (var in vars) {
+    
     if (paste0(var$role,collapse = "")!="within") {
       re<-paste0("\\.",var$name,"$")
       adata<-data[,grep(re,names(data))]
@@ -129,9 +179,11 @@
       finaldata[[var$name]]<-data[,var$name]
     
   }
-  for (n in clusternames) 
-    finaldata[,n]<-factor(data[,n])
   
+   
+  for (n in clusternames) 
+    finaldata[,n]<-factor(finaldata[,n])
+
   finaldata$id<-1:dim(data)[1]
   as.data.frame(finaldata)
 }

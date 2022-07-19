@@ -9,9 +9,9 @@ Initer <- R6::R6Class(
     datavars=NULL,
     ready=FALSE,
     initialize=function(options,dispatcher,data) {
+
       self$datavars<-names(data)
       super$initialize(options,dispatcher)
-
 
     }, # here initialize ends
     #### init functions #####
@@ -69,7 +69,7 @@ Initer <- R6::R6Class(
                next
              }
              
-             alist<-list(var="Factor",
+             alist<-list(var="nominal",
                          name=name,
                          feature="Levels",
                          value=value,
@@ -77,14 +77,14 @@ Initer <- R6::R6Class(
 
              blist<- list(
                           role="within",
-                          type="factor",
+                          type="nominal",
                           name=name,
                           n=value
              )             
              for (s in self$options$structure)
                  if (name==s$variable) {
                      alist[["structure"]]<-paste("Between across",s$cluster)
-                     alist[["role"]]<-c(alist[["role"]],s$cluster)
+                     blist[["role"]]<-c(alist[["role"]],s$cluster)
                  }
                     
              ladd(private$.desc)<-alist
@@ -113,7 +113,7 @@ Initer <- R6::R6Class(
         for (s in self$options$structure)
           if (name==s$variable) {
             alist[["structure"]]<-paste("Between across",s$cluster)
-            alist[["role"]]<-c(alist[["role"]],s$cluster)
+            blist[["role"]]<-c(alist[["role"]],s$cluster)
           }
         
         ladd(private$.desc)<-alist
@@ -121,11 +121,24 @@ Initer <- R6::R6Class(
         ladd(private$.vars)<-blist
         
       }
+
+      if (!is.something(self$options$clusters)) {
+        value<-paste("<b>Action required:</b> Please specify at least on clustersìing variable")
+        self$dispatcher$warnings <-  list(topic="help", message=value)
+        ok=FALSE
+      }
       
+      check<-unlist(rlist::list.select(self$options$clusters,var))
+      if (is.null((check))) {
+        value<-paste("<b>Action required:</b> Please specify at least a clustering variable")
+        self$dispatcher$warnings <-  list(topic="help", message=value)
+        ok=FALSE
+      } else
       for (i in seq_along(self$options$clusters)) {
         name<-trimws(self$options$clusters[[i]]$var)
        
         value<-as.numeric(trimws(self$options$clusters[[i]]$opt1))
+        
         if (!is.something(name)) next
         
         if (!is.something(value) || is.na(value)) {
@@ -149,7 +162,7 @@ Initer <- R6::R6Class(
 
         blist<-list(
                    role="cluster",
-                   type="cluster",
+                   type="nominal",
                    name=name,
                    n=value
         )
@@ -165,7 +178,40 @@ Initer <- R6::R6Class(
     },
     init_info=function() {
       private$.desc
+    },
+    init_clusters=function() {
+      
+      atable<-as.data.frame(matrix(".",ncol=length(private$.clusters)+1,nrow=5))
+      names(atable)<-c(unlist(rlist::list.select(private$.clusters,name)),"Freq")
+      return(atable)
+      
+    },
+    init_covs=function() {
+      
+      
+      if (!is.something(self$options$covs))
+        atable<-NULL
+      else {
+        atable<-lapply(self$options$covs, function(cov) list(name=cov))
+      }
+      
+      return(atable)
+    },
+    
+    init_factors=function() {
+    
+      if (!is.something(self$options$factors))
+        return(NULL)
+      
+      factors<-rlist::list.find(private$.vars,type=="nominal",n=Inf)
+      atable<-as.data.frame(matrix(".",ncol=length(factors)+1,nrow=1))
+      names(atable)<-c(unlist(rlist::list.select(factors,name)),"Freq")
+      
+      return(atable)
     }
+    
+    
+    
   ),   # End public
   
   private=list(

@@ -114,13 +114,14 @@ SmartTable <- R6::R6Class("SmartTable",
                                 self$retrieveNotes()
                                 return()
                               }
+
                               
                               rtable<-private$.getData()
                               self$retrieveNotes()
                               
                               if (is.null(rtable))
                                  return()
-                              
+                          
                               private$.fill(self$table,rtable)
                               self$table$setVisible(TRUE)
                               tinfo("TABLES: table",self$nickname,"run")
@@ -287,7 +288,7 @@ SmartTable <- R6::R6Class("SmartTable",
 
                               if (private$.activateOnData)
                                 return(FALSE)
-                              
+
                               if (!self$activated)
                                 return(TRUE)
 
@@ -298,7 +299,6 @@ SmartTable <- R6::R6Class("SmartTable",
                                    if (!(fun %in% names(private$.estimator))) 
                                         return(TRUE)
                               
-                             
                               return(filled)
                               
                             },

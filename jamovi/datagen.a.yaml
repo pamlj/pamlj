@@ -1,6 +1,6 @@
 ---
 name: datagen
-title: Data Generator
+title: Mixed Model Data Generator
 menuGroup: jpower
 version: '0.0.1'
 jas: '1.2'
@@ -37,7 +37,7 @@ options:
         type: Group
         elements:
           - name: var
-            type: Variable
+            type: String
           - name: opt1
             type: Number
 
@@ -60,9 +60,9 @@ options:
         type: Group
         elements:
           - name: variable
-            type: Variable
+            type: String
           - name: cluster
-            type: Variable
+            type: String
 
 
 

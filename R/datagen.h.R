@@ -42,7 +42,7 @@ datagenOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "factors",
                     NULL,
                     elements=list(
-                        jmvcore::OptionVariable$new(
+                        jmvcore::OptionString$new(
                             "var",
                             NULL),
                         jmvcore::OptionNumber$new(
@@ -68,10 +68,10 @@ datagenOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "structure",
                     NULL,
                     elements=list(
-                        jmvcore::OptionVariable$new(
+                        jmvcore::OptionString$new(
                             "variable",
                             NULL),
-                        jmvcore::OptionVariable$new(
+                        jmvcore::OptionString$new(
                             "cluster",
                             NULL))))
             private$..clusters_comb <- jmvcore::OptionList$new(
@@ -130,6 +130,9 @@ datagenResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         start = function() private$.items[["start"]],
         help = function() private$.items[["help"]],
         info = function() private$.items[["info"]],
+        clusters = function() private$.items[["clusters"]],
+        covs = function() private$.items[["covs"]],
+        factors = function() private$.items[["factors"]],
         output = function() private$.items[["output"]]),
     private = list(),
     public=list(
@@ -137,7 +140,7 @@ datagenResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             super$initialize(
                 options=options,
                 name="",
-                title="Data Generator")
+                title="Mixed Data Generator")
             self$add(jmvcore::Html$new(
                 options=options,
                 name="start"))
@@ -147,7 +150,7 @@ datagenResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$add(jmvcore::Table$new(
                 options=options,
                 name="info",
-                title="Some Info",
+                title="Setup Info",
                 columns=list(
                     list(
                         `name`="var", 
@@ -170,6 +173,59 @@ datagenResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `name`="structure", 
                         `type`="text", 
                         `title`="Structure"))))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="clusters",
+                title="Clusters Info",
+                columns=list(
+                    list(
+                        `name`="Freq", 
+                        `type`="number", 
+                        `title`="Freq"))))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="covs",
+                title="Numeric Variables Info",
+                visible=FALSE,
+                columns=list(
+                    list(
+                        `name`="name", 
+                        `type`="text", 
+                        `title`="Variable"),
+                    list(
+                        `name`="mean", 
+                        `type`="number", 
+                        `title`="Mean", 
+                        `format`="zto"),
+                    list(
+                        `name`="sd", 
+                        `type`="number", 
+                        `title`="SD", 
+                        `format`="zto"),
+                    list(
+                        `name`="cluster", 
+                        `type`="text", 
+                        `title`="Cluster"),
+                    list(
+                        `name`="sd_between", 
+                        `type`="number", 
+                        `title`="SD between", 
+                        `format`="zto"),
+                    list(
+                        `name`="sd_within", 
+                        `type`="number", 
+                        `title`="SD within", 
+                        `format`="zto"))))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="factors",
+                title="Factors Info",
+                visible=FALSE,
+                columns=list(
+                    list(
+                        `name`="Freq", 
+                        `type`="integer", 
+                        `title`="Freq"))))
             self$add(jmvcore::Output$new(
                 options=options,
                 name="output",
@@ -197,7 +253,7 @@ datagenBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 requiresMissings = FALSE)
         }))
 
-#' Data Generator
+#' Mixed Model Data Generator
 #'
 #' Something here
 #' 
@@ -215,6 +271,9 @@ datagenBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$start} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$help} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$info} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$clusters} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$covs} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$factors} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$output} \tab \tab \tab \tab \tab an output \cr
 #' }
 #'

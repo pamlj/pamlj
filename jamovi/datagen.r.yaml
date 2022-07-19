@@ -1,6 +1,6 @@
 ---
 name:  datagen
-title: Data Generator
+title: Mixed Data Generator
 jrs: '1.0'
 
 
@@ -12,7 +12,7 @@ items:
     type: Html
 
   - name: info
-    title: Some Info
+    title: Setup Info
     type: Table
     columns:
        - name: var
@@ -32,6 +32,51 @@ items:
          type: text
          title: "Structure"
 
+  - name: clusters
+    title: Clusters Info
+    type: Table
+    columns:
+       - name: Freq
+         type: number
+         title: "Freq"
+
+  - name: covs
+    title: Numeric Variables Info
+    type: Table
+    visible: false
+    columns:
+       - name: name
+         type: text
+         title: "Variable"
+       - name: mean
+         type: number
+         title: "Mean"
+         format: zto
+       - name: sd
+         type: number
+         title: "SD"
+         format: zto         
+       - name: cluster
+         type: text
+         title: "Cluster"
+       - name: sd_between
+         type: number
+         title: "SD between"
+         format: zto
+       - name: sd_within
+         type: number
+         title: "SD within"
+         format: zto
+
+
+  - name: factors
+    title: Factors Info
+    type: Table
+    visible: false
+    columns:
+       - name: Freq
+         type: integer
+         title: "Freq"
 
   - name: output
     title: New var

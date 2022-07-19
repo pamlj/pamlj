@@ -1,7 +1,7 @@
 Package: pamlj
 Type: Package
 Title: Power Analysis for linear models 
-Version: 0.0.1
+Version: 0.0.2
 Author: Marcello Gallucci
 Maintainer: Marcello Gallucci <mcfanda@gmail.com>
 License: GPL-2
