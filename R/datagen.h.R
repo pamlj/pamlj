@@ -129,6 +129,7 @@ datagenResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     active = list(
         start = function() private$.items[["start"]],
         help = function() private$.items[["help"]],
+        brief = function() private$.items[["brief"]],
         info = function() private$.items[["info"]],
         clusters = function() private$.items[["clusters"]],
         covs = function() private$.items[["covs"]],
@@ -143,10 +144,16 @@ datagenResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 title="Mixed Data Generator")
             self$add(jmvcore::Html$new(
                 options=options,
-                name="start"))
+                name="start",
+                visible=FALSE))
             self$add(jmvcore::Html$new(
                 options=options,
-                name="help"))
+                name="help",
+                visible=FALSE))
+            self$add(jmvcore::Html$new(
+                options=options,
+                name="brief",
+                visible=FALSE))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="info",
@@ -270,6 +277,7 @@ datagenBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' \tabular{llllll}{
 #'   \code{results$start} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$help} \tab \tab \tab \tab \tab a html \cr
+#'   \code{results$brief} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$info} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$clusters} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$covs} \tab \tab \tab \tab \tab a table \cr

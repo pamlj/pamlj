@@ -24,11 +24,15 @@ datagenClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
           ## prepare stuff
           private$.dispatcher$clean(self$results$start)
           private$.dispatcher$clean(self$results$help)
+          private$.dispatcher$clean(self$results$brief)
           private$.runner$prepare()
           
           if (!self$options$output) {
             self$results$start$setContent(INTRO)
             self$results$start$setVisible(TRUE)
+          } else {
+            self$results$brief$setContent(BRIEF)
+            self$results$brief$setVisible(TRUE)
             
           }
           

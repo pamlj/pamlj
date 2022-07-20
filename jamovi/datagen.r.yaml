@@ -8,8 +8,15 @@ items:
 
   - name: start
     type: Html
+    visible: false
+
   - name: help
     type: Html
+    visible: false
+
+  - name: brief
+    type: Html
+    visible: false
 
   - name: info
     title: Setup Info
