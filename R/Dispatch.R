@@ -22,12 +22,6 @@ Dispatch <- R6::R6Class(
                                  print(private$.warnings)
                                  print(private$.errors)
       
-                        },
-                        clean=function(table) {
-                          if (inherits(table,"Html")) {
-                           table$setContent("")
-                           table$setVisible(FALSE)  
-                          }
                         }
                         ),
             active=list(
@@ -43,25 +37,34 @@ Dispatch <- R6::R6Class(
                                 
                                 if (!is.something(table)) stop("SCAFFOLD: a message was sent to a non-existing result object: ",obj$topic)
                                 state<-as.list(table$state)
-                                if (!hasName(obj,"id")) obj$id<-jmvcore::toB64(obj$message)
+                                if (!hasName(obj,"key")) obj$key<-jmvcore::toB64(obj$message)
                                 
                                 obj$message<-private$.translate(obj$message)
                                 
+                                if (is.null(obj$message))
+                                  return()
+                                
+                                if (exists("fromb64")) obj$message<-fromb64(obj$message)
+                                
                                 if (inherits(table,"Html")) {
                                   content<-table$content
-                                  content<-table$setContent(paste(content,"<div>",obj$message,"</div>"))
+                                  content<-table$setContent(paste(content,"<div><i>Note:</i>",obj$message,"</div>"))
                                   table$setVisible(TRUE)
                                   return()
                                 }
-                                     
+                                init<-(hasName(obj,"initOnly") && obj[["initOnly"]]) 
                                 
-                                if (!inherits(table,"Table")) 
-                                     what<-obj$id
-                                else
-                                     what<-length(state$notes)+1
+                                .fun<-function(table,id,msg,init) {
+                                  
+                                  if (table$.has("items"))
+                                    for (x in table$items)
+                                      .fun(x,id,msg,init)
+                                  else
+                                    table$setNote(obj$key,obj$message,init=init)
+                                  
+                                }  
+                                .fun(table,obj$id,obj$message,init)
                                 
-                               state$notes[[what]]<-obj
-                               table$setState(state)
                                
                         },
                         errors=function(obj) {
@@ -113,12 +116,20 @@ Dispatch <- R6::R6Class(
                         
                       },
                       .translate=function(msg) {
-      
-                            for (w in TRANS_WARNS) {
-                                 msg<-gsub(w$original,w$new,msg,fixed=T)
-                            }
-                           return(msg)
-
+                          
+                        if (!exists("TRANS_WARNS")) return(msg)
+                        
+                        where<-unlist(lapply(TRANS_WARNS,function(x) length(grep(x$original,msg))>0))
+                        where<-which(where)
+                        
+                        if (is.something(where)) {
+                          if (length(where)>1) where<-where[[1]]
+                          if (is.something(TRANS_WARNS[[where]]$new))
+                             msg<-gsub(TRANS_WARNS[[where]]$original,TRANS_WARNS[[where]]$new,msg,fixed=T)
+                          else
+                             msg<-NULL
+                        }                  
+                        return(msg)                          
                        }
                        
             ) #end of private

@@ -1,32 +1,28 @@
 ---
 title: Power for linear models
 name: pamlj
-version: 0.0.4
+version: 0.0.5
 jms: '1.0'
 authors:
   - Marcello Gallucci
 maintainer: Marcello Gallucci <mcfanda@gmail.com>
-date: 2019-1-1
+date: 2023-1-1
 type: R
 description: A suite for power analysis for linear models
 analyses:
-  - title: Mixed Model Data Generator
-    name: datagen
+  - title: GLM Power Analysis
+    name: pamljlm
     ns: pamlj
     menuGroup: jpower
     menuSubgroup: PAMLj
-    menuTitle: Mixed Model Data Generator
-    description: |
-      Something here
-  - title: Mixed Model Power Analysis
-    name: mixpower
-    ns: pamlj
-    menuGroup: jpower
-    menuSubgroup: PAMLj
-    menuTitle: Mixed Model Power Analysis
-    description: |
-      Mixed Linear Model
+    menuTitle: GLM Power Analysis
+    description: >
+      General Linear Model. Estimates models using `lm()` function and provides
+      options to facilitate estimation of 
+
+      interactions, simple slopes, simple effects, post-hoc tests, contrast
+      analysis, effect size indexes and visualization of the results.
 usesNative: true
-minApp: 1.0.8
+minApp: 2.3.1
 
 ...

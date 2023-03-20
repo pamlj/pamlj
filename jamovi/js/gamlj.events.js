@@ -1,86 +1,41 @@
 var rtermFormat = require('./rtermFormat');
+var fun=require('./functions');
 
 const events = {
     update: function(ui) {
-        calcModelTerms(ui, this);
-        filterModelTerms(ui, this);
-
-
-        if (typeof ui.comparison !== 'undefined' ) {
-              fix_comparison(ui,this);
-        }
-        
-        if (typeof ui.propodds_test !== 'undefined' ) {
-          
-            if (ui.model_type.getValue()==="ordinal") {
-              ui.propodds_test.$el.show();
-            } else {
-              ui.propodds_test.$el.hide();
-            }
-        }
-
-
+        this.setCustomVariable("Intercept", "none", "");
+        fun.calcModelTerms(ui, this);
+        fun.filterModelTerms(ui, this);
+        fun.updateFixedSizes(ui,this);
     },
 
     onChange_factors: function(ui) {
-        calcModelTerms(ui, this);
-
+        fun.calcModelTerms(ui, this);
+        fun.updateRandomSupplier(ui,this);
     },
 
     onChange_covariates: function(ui) {
-        calcModelTerms(ui, this);
-
+        fun.calcModelTerms(ui, this);
+        fun.updateRandomSupplier(ui,this);
+        fun.updateFixedSizes(ui,this);
     },
 
     onChange_model_terms: function(ui) {
-        filterModelTerms(ui, this);
+        fun.filterModelTerms(ui, this);
+        fun.updateRandomSupplier(ui,this);
+        fun.updateFixedSizes(ui,this);
 
     },
-    onChange_nested_terms: function(ui) {
-    },
-  
-    onChange_nested_add: function(ui) {
 
-      let tvalues=this.cloneArray(ui.model_terms.value(),[]);
-      let nvalues=this.cloneArray(ui.nested_terms.value(),[]);
-      var filtered = nvalues.filter(function(item) {
-         return tvalues.some(function(jtem) {
-           return FormatDef.term.isEqual(jtem, item);
-         });
-      });
-      if (filtered.length !== nvalues.length)
-                  ui.nested_terms.setValue(filtered);
-    },
-    onEvent_comparison: function(ui) {
-         
-         fix_comparison(ui, this);
-
-    },
-    onChange_plotsSupplier: function(ui) {
-        let values = this.itemsToValues(ui.plotsSupplier.value());
-        this.checkValue(ui.plotHAxis, false, values, FormatDef.variable);
-        this.checkValue(ui.plotSepLines, false, values, FormatDef.variable);
-        this.checkValue(ui.plotSepPlots, true, values, FormatDef.variable);
-    },
-    
-    onChange_simpleSupplier: function(ui) {
-        let values = this.itemsToValues(ui.simpleSupplier.value());
-        this.checkValue(ui.simple_effects, false, values, FormatDef.variable);
-        this.checkValue(ui.simple_moderators, true, values, FormatDef.variable);
-    },
-
-    onUpdate_simpleSupplier: function(ui) {
-        updateSimpleSupplier(ui, this);
-    },
-    onUpdate_plotsSupplier: function(ui) {
-        updatePlotsSupplier(ui, this);
-    },
-
-     onChange_model: function(ui) {
+    onChange_model: function(ui) {
 
         if (typeof ui.es_RR !== 'undefined' ) {
               ui.es_RR.setValue(false);
         }
+        if (typeof ui.plot_scale !== 'undefined' ) {
+              ui.plot_scale.setValue('response');
+        }
+
         if (ui.model_type.getValue()==="custom" ||  ui.model_type.getValue()==="linear")        {
                ui.es_expb.setValue(false);
                ui.estimates_ci.setValue(true);
@@ -99,12 +54,14 @@ const events = {
               }
         }
 
-        if (  ui.model_type.getValue() === 'ordinal') {
-              ui.ci_method_wald.setValue(true);
-              ui.ci_method_quantile.setEnabled(false);
-              ui.ci_method_ci_method_bcai.setEnabled(false);
-        }
+
   
+        if (typeof ui.es_marginals !== 'undefined') {
+          
+              ui.es_marginals.setValue(false);
+
+        }
+        
         ui.dep.setValue(null);
       },
 
@@ -114,195 +71,135 @@ const events = {
       
     },
 
-
     onUpdate_modelSupplier: function(ui) {
             let factorsList = this.cloneArray(ui.factors.value(), []);
             let covariatesList = this.cloneArray(ui.covs.value(), []);
             var variablesList = factorsList.concat(covariatesList);
             ui.modelSupplier.setValue(this.valuesToItems(variablesList, FormatDef.variable));
-    }
+            fun.updateFixedSizes(ui,this);
 
-};
+    },
+    
+    onChange_cluster: function(ui) {
+        fun.updateRandomSupplier(ui,this);
+    },
 
-var fix_comparison=function(ui, context) {
-  
-            if (ui.comparison.getValue()===true) {
-              
-              ui.nested_layout.$buttons.show();
-              ui.nested_layout.$label.show();
-              ui.nested_layout.container.$el.show();
-              ui.model_terms.$el.height("113px");
-
-            } else {
-              ui.nested_layout.$buttons.hide();
-              ui.nested_layout.$label.hide();
-              ui.nested_layout.container.$el.hide();
-              ui.nested_terms.setValue([]);
-              ui.model_terms.$el.height("246.315px");
-            }
-
-
-};
-
-var calcModelTerms = function(ui, context) {
-    var variableList = context.cloneArray(ui.factors.value(), []);
-    var covariatesList = context.cloneArray(ui.covs.value(), []);
-    var combinedList = variableList.concat(covariatesList);
-    ui.modelSupplier.setValue(context.valuesToItems(combinedList, FormatDef.variable));
-
-    var diff = context.findChanges("variableList", variableList, true, FormatDef.variable);
-    var diff2 = context.findChanges("covariatesList", covariatesList, true, FormatDef.variable);
-    var combinedDiff = context.findChanges("combinedList", combinedList, true, FormatDef.variable);
-
-
-    var termsList = context.cloneArray(ui.model_terms.value(), []);
-    var termsChanged = false;
-
-    for (var i = 0; i < combinedDiff.removed.length; i++) {
-        for (var j = 0; j < termsList.length; j++) {
-            if (FormatDef.term.contains(termsList[j], combinedDiff.removed[i])) {
-                termsList.splice(j, 1);
-                termsChanged = true;
-                j -= 1;
-            }
+    onChange_randomSupplier: function(ui){
+      
+        let supplierList = this.itemsToValues(ui.randomSupplier.value());
+        var changes = this.findChanges("randomSupplier",supplierList,rtermFormat);
+        if (changes.removed.length>0) {
+          var re = this.cloneArray(ui.re.value(),[]);
+          var  light = removeFromMultiList(changes.removed,re,this,1);
+          ui.re.setValue(light);
         }
-    }
+        return;
+    },
+    
+    onUpdate_randomSupplier: function(ui) {
+        fun.updateRandomSupplier(ui,this);
 
+    },
+    
+    onEvent_re_list: function(ui) {
+      fun.updateRandomSupplier(ui,this);
+    },
+    
+    onEvent_corr: function(ui, data) {
+          console.log("Correlation structure changed");
+          fun.fixRandomEffects(ui,this);
+    },    
 
-    for (var a = 0; a < diff.added.length; a++) {
-        let item = diff.added[a];
-        var listLength = termsList.length;
-        for (var j = 0; j < listLength; j++) {
-            var newTerm = context.clone(termsList[j]);
-            if (containsCovariate(newTerm, covariatesList) === false) {
-                if (context.listContains(newTerm, item, FormatDef.variable) === false) {
-                    newTerm.push(item)
-                    if (context.listContains(termsList, newTerm , FormatDef.term) === false) {
-                        termsList.push(newTerm);
-                        termsChanged = true;
-                    }
-                }
-            }
-        }
-        if (context.listContains(termsList, [item] , FormatDef.term) === false) {
-            termsList.push([item]);
-            termsChanged = true;
-        }
-    }
+    onEvent_addRandomTerm: function(ui) {
+//        console.log("addRandomTerm does nothing");
+    },
 
-    for (var a = 0; a < diff2.added.length; a++) {
-        let item = diff2.added[a];
-        if (context.listContains(termsList, [item] , FormatDef.term) === false) {
-            termsList.push([item]);
-            termsChanged = true;
-        }
-    }
+    onChange_es: function(ui, data) {
+      
+//      console.log(ui.fixed_sizes)
+      console.log(ui.fixed_sizes.params)
 
-    if (termsChanged) {
-        ui.model_terms.setValue(termsList);
-     }
-     
-    updateContrasts(ui, variableList, context);
-    updateScaling(ui, covariatesList, context);
-};
+    },    
 
+    onEvent_nothing: function(ui, data) {
+//          console.log("I didn't do anything");
+    }    
 
-
-
-
-
-var filterModelTerms = function(ui, context) {
-  
-    var termsList = context.cloneArray(ui.model_terms.value(), []);
-    var diff = context.findChanges("termsList", termsList, true, FormatDef.term);
-
-    var changed = false;
-    if (diff.removed.length > 0) {
-        var itemsRemoved = false;
-        for (var i = 0; i < diff.removed.length; i++) {
-            var item = diff.removed[i];
-            for (var j = 0; j < termsList.length; j++) {
-                if (FormatDef.term.contains(termsList[j], item)) {
-                    termsList.splice(j, 1);
-                    j -= 1;
-                    itemsRemoved = true;
-                }
-            }
-        }
-
-        if (itemsRemoved)
-            changed = true;
-    }
-
-    if (context.sortArraysByLength(termsList))
-        changed = true;
-
-    if (changed)
-        ui.model_terms.setValue(termsList);
-};
-
-var updateContrasts = function(ui, variableList, context) {
-    var currentList = context.cloneArray(ui.contrasts.value(), []);
-
-    var list3 = [];
-    for (let i = 0; i < variableList.length; i++) {
-        let found = null;
-        for (let j = 0; j < currentList.length; j++) {
-            if (currentList[j].var === variableList[i]) {
-                found = currentList[j];
-                break;
-            }
-        }
-        if (found === null)
-            list3.push({ var: variableList[i], type: "simple" });
-        else
-            list3.push(found);
-    }
-
-    ui.contrasts.setValue(list3);
-};
-
-var updateScaling = function(ui, variableList, context) {
-    var currentList = context.cloneArray(ui.covs_scale.value(), []);
-
-    var list3 = [];
-    for (let i = 0; i < variableList.length; i++) {
-        let found = null;
-        for (let j = 0; j < currentList.length; j++) {
-            if (currentList[j].var === variableList[i]) {
-                found = currentList[j];
-                break;
-            }
-        }
-        if (found === null)
-            list3.push({ var: variableList[i], type: "centered" });
-        else
-            list3.push(found);
-    }
-    ui.covs_scale.setValue(list3);
-};
-
-
-
-var containsCovariate = function(value, covariates) {
-    for (var i = 0; i < covariates.length; i++) {
-        if (FormatDef.term.contains(value, covariates[i]))
-            return true;
-    }
-
-    return false;
-};
-
-var unique = function(avec) {
-  
-  return(avec.filter((v, i, a) => a.indexOf(v) === i));
-};
-
-var mark = function(obj) {
-  
-   console.log(obj);
 };
 
 
 module.exports = events;
+
+
+
+// local functions 
+
+
+var removeFromList = function(quantum, cosmos, context, order = 1) {
+
+     cosmos=normalize(cosmos);
+     quantum=normalize(quantum);
+     if (cosmos===undefined)
+        return([]);
+     var cosmos = context.cloneArray(cosmos);
+       for (var i = 0; i < cosmos.length; i++) {
+          if (cosmos[i]===undefined)
+             break;
+          var aCosmos = context.cloneArray(cosmos[i]);
+           for (var k = 0; k < quantum.length; k++) {
+             var  test = order === 0 ? FormatDef.term.isEqual(aCosmos,quantum[k]) : FormatDef.term.contains(aCosmos,quantum[k]);
+                 if (test && (aCosmos.length >= order)) {
+                        cosmos.splice(i, 1);
+                        i -= 1;
+                    break;    
+                    }
+          }
+            
+       }
+  
+    return(cosmos);
+};
+
+
+
+var removeFromMultiList = function(quantum, cosmos, context, strict = 1) {
+
+    var cosmos = context.cloneArray(cosmos);
+    var dimq = dim(quantum);
+        for (var j = 0; j < cosmos.length; j++) 
+           cosmos[j]=removeFromList(quantum,cosmos[j],context, strict);
+    return(cosmos);
+};
+
+var dim = function(aList) {
+
+    if (!Array.isArray(aList))
+           return(0);
+    if (!Array.isArray(aList[0]))
+           return(1);
+    if (!Array.isArray(aList[0][0]))
+           return(2);
+    if (!Array.isArray(aList[0][0][0]))
+           return(3);
+    if (!Array.isArray(aList[0][0][0][0]))
+           return(4);
+
+  
+    return(value);
+};
+
+var normalize = function(cosmos) {
+
+  if (cosmos===undefined)
+          return [];
+  if (dim(cosmos)===0)
+          cosmos=[cosmos]
+          
+        for (var i = 0; i < cosmos.length; i++) {
+            var aValue = cosmos[i];
+            var newValue=dim(aValue)>0 ? aValue : [aValue];
+            cosmos[i]=newValue
+        }
+        return cosmos;
+}
 

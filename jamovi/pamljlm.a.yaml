@@ -1,0 +1,143 @@
+---
+name: pamljlm
+title: GLM Power Analysis
+menuGroup: jpower
+version: '0.0.5'
+jas: '1.2'
+export: true
+completeWhenFilled: true
+description:
+    main: |
+           General Linear Model. Estimates models using `lm()` function and provides options to facilitate estimation of 
+           interactions, simple slopes, simple effects, post-hoc tests, contrast analysis, effect size indexes and visualization of the results.
+    R:
+        dontrun: true
+        usage: |
+            data('ToothGrowth')
+            gamlj::gamljGlm(formula = len ~ supp,  data = ToothGrowth)
+
+
+
+options:
+    - name: data
+      type: Data
+      description:
+          R: the data as a data frame
+
+    - name: .caller
+      type: String
+      default: "lm"
+      hidden: true
+
+    - name: .interface
+      type: String
+      default: "jamovi"
+      hidden: true
+
+    - name: dep
+      title: Dependent Variable
+      type: Variable
+      default:
+      permitted:
+        - factor
+        - numeric
+      description:
+          R: >
+            a string naming the dependent variable from `data`; the variable
+            must be numeric. Not needed if `formula` is used.
+
+    - name: factors
+      title: Factors
+      type: Variables
+      suggested:
+         - nominal
+      permitted:
+        - factor
+      default:
+      description:
+          R: a vector of strings naming the fixed factors from `data`. Not needed if `formula` is used.
+
+    - name: covs
+      title: Covariates
+      type: Variables
+      suggested:
+        - continuous
+        - ordinal
+      permitted:
+        - numeric
+      default:
+      description:
+          R: a vector of strings naming the covariates from `data`. Not needed if `formula` is used.
+
+
+    - name: model_terms
+      title: Model Terms
+      type: Terms
+      default:
+      description:
+          R: >
+            a list of character vectors describing fixed effects terms. Not needed if `formula` is used.
+
+
+
+    - name: mute
+      title: Remove notes
+      type: Bool
+      default: false
+      description:
+          R: >
+            Not present in R
+          ui: >
+              Removes all notes and warnings from the Tables. Useful to produce pubblication quality
+              tables.
+          
+
+
+############ generic with some specs ###########
+
+
+
+
+    - name: model_type
+      type: List
+      hidden: true
+      options:
+        - name: lm
+      default: lm
+
+
+    - name: es
+      title: Effect Size
+      type: List
+      options:
+          - name: etap
+            title: partial η²
+          - name: beta
+            title: β  
+          - name: d
+            title: Cohen d
+      default:  "etap"
+      description:
+          R: >
+          ui: >
+              The type of effect size indices input in the UI. They can be:
+               `partial eta-squared`, for any estimated partial variance, such as ` partial eta-squared'`,
+               partial omega-squared, or partial epsilon-squared.
+               `'beta'` for standardized  coefficients (betas). `Cohen d` for standardized mean difference.
+               `beta` and `Cohen d` should be defined for all effects in the design (if `Null effects set to 0` is not selected). 
+
+    - name: fixed_sizes
+      type: Array
+      template:
+          type: Group
+          elements:
+              - name: name
+                type: String
+              - name: value
+                type: Number
+
+    - name: donotrun
+      type: Bool
+      default: false
+...
+

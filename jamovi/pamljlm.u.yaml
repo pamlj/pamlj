@@ -1,0 +1,130 @@
+title: GLM Power Analysis
+name: pamljlm
+jus: '2.0'
+compilerMode: tame
+events:
+  update: './gamlj.events::update'
+children:
+  - type: VariableSupplier
+    name: variablesupplier
+    suggested:
+      - continuous
+      - nominal
+      - ordinal
+    persistentItems: false
+    stretchFactor: 1
+    children:
+      - type: TargetLayoutBox
+        children:
+          - type: VariablesListBox
+            name: dep
+            maxItemCount: 1
+            isTarget: true
+            itemDropBehaviour: overwrite
+      - type: TargetLayoutBox
+        children:
+          - type: VariablesListBox
+            name: factors
+            isTarget: true
+            events:
+              change: './gamlj.events::onChange_factors'
+      - type: TargetLayoutBox
+        children:
+          - type: VariablesListBox
+            name: covs
+            isTarget: true
+            events:
+              change: './gamlj.events::onChange_covariates'
+  - type: CollapseBox
+    label: Model
+    name: panel_model
+    collapsed: true
+    stretchFactor: 1
+    children:
+      - type: Supplier
+        name: modelSupplier
+        label: Components
+        persistentItems: true
+        stretchFactor: 1
+        format: term
+        higherOrders: true
+        events:
+          update: './gamlj.events::onUpdate_modelSupplier'
+        children:
+          - type: TargetLayoutBox
+            transferAction: interactions
+            children:
+              - type: ListBox
+                name: model_terms
+                valueFilter: unique
+                isTarget: true
+                itemDropBehaviour: emptyspace
+                events:
+                  change: './gamlj.events::onChange_model_terms'
+                  listItemRemoved: './gamlj.events::onChange_model_remove'
+                template:
+                  type: TermLabel
+  - type: CollapseBox
+    label: Expected Effect Sizes
+    collapsed: true
+    stretchFactor: 1
+    children:
+      - type: Label
+        label: Fixed effects size
+        stretchFactor: 1
+        children:
+          - type: ListBox
+            name: fixed_sizes
+            height: large
+            showColumnHeaders: true
+            columns:
+              - name: name
+                label: Effect
+                selectable: false
+                maxWidth: 300
+                template:
+                  type: Label
+              - name: value
+                label: ES
+                selectable: true
+                stretchFactor: 0.5
+                template:
+                  type: TextBox
+      - type: LayoutBox
+        name: panel_effectsizes
+        margin: large
+        style: list
+        children:
+          - type: Label
+            label: Input Effect Size
+            margin: large
+            style: list-inline
+            children:
+              - type: RadioButton
+                name: es_beta
+                optionName: es
+                optionPart: beta
+                events:
+                  change: './gamlj.events::onChange_es'
+              - type: RadioButton
+                name: es_etap
+                optionName: es
+                optionPart: etap
+              - type: RadioButton
+                name: es_d
+                optionName: es
+                optionPart: d
+
+  - type: CollapseBox
+    label: Options
+    collapsed: true
+    stretchFactor: 1
+    children:
+
+        - type: LayoutBox
+          margin: large
+          children:
+              - type: CheckBox
+                name: mute
+              - type: CheckBox
+                name: donotrun

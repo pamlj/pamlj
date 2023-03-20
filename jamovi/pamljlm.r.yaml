@@ -1,0 +1,59 @@
+---
+name:  pamljlm
+title: GLM Power Analysis
+jrs: '1.0'
+items:
+  - name: model
+    type: Property
+
+
+
+  - name: info
+    title: Model Info
+    type: Table
+    columns:
+       - name: info
+         type: text
+         title: "Info"
+       - name: value
+         type: text
+         title: ""
+       - name: specs
+         type: text
+         title: ""
+
+  - name: anova
+    title: ANOVA Omnibus tests
+    type: Table
+    description: a table of ANOVA results
+    clearWith:
+                         -  dep
+                         -  factors
+                         -  covs
+                         -  model_terms
+                         -  fixed_sizes
+                         -  mute
+    columns:
+                    - name: source
+                      title: ""
+                      type: text
+                    - name: n
+                      title: req. N
+                      type: number
+                      format: zto
+                    - name: df
+                      title: df
+                      type: integer
+                    - name: f2
+                      title: f2
+                      type: number
+                      format: zto
+                    - name: alpha
+                      title: alpha
+                      type: number
+                      format: zto,pvalue
+                    - name: power
+                      title: power
+                      type: number
+                      format: zto
+
