@@ -35,12 +35,15 @@ const events = {
     },
     onChange_factors_added: function(ui) {
       
+      console.log("factors_added");
       var h = ui.factors.$el.height();
       ui.factors.$el.height(h+moveup)
       updateStructure(ui,this);
 
     },
     onChange_factors_removed: function(ui) {
+
+      console.log("factors_removed");
       
       var h = ui.factors.$el.height();
       if (h>bound)
@@ -50,6 +53,8 @@ const events = {
     },
     
     onChange_clusters_added: function(ui) {
+
+      console.log("clusters_added");
       
       var h = ui.clusters.$el.height();
       ui.clusters.$el.height(h+moveup)
@@ -57,6 +62,8 @@ const events = {
       
     },
     onChange_clusters_removed: function(ui) {
+
+      console.log("clusters_removed");
       
       var h = ui.clusters.$el.height();
       if (h>bound)
@@ -77,6 +84,7 @@ const events = {
     },
     onUpdate_structureSupplier: function(ui) {
        console.log("structureSupplier updated");
+//       updateStructure(ui,this);
        updatePairs(ui,this);
 
     },
@@ -143,8 +151,7 @@ const updatePairs=function(ui, obj) {
     } else
         changed=true;
   }
-  console.log(newpairs);
-  console.log(changed);
+
   if (changed)
      ui.structure.setValue(newpairs);
   var clusters=context.cloneArray(ui.clusters.value(),[]);

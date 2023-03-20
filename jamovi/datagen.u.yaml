@@ -54,6 +54,10 @@ children:
                 label: Name
                 template:
                   type: TextBox
+                  name: clvar
+                  events:
+                          change: './test.events::onChange_name'
+
                 stretchFactor: 1
               - name: opt1
                 label: N clusters
@@ -102,6 +106,9 @@ children:
                         label: Name
                         template:
                               type: TextBox
+                              name: cvar
+                              events:
+                                     change: './test.events::onChange_name'
 
 
   - type: Label
@@ -123,7 +130,6 @@ children:
             events:
                        listItemAdded: './test.events::onChange_factors_added'
                        listItemRemoved: './test.events::onChange_factors_removed'
-            
             showColumnHeaders: true
             stretchFactor: 1
             columns:
@@ -132,6 +138,9 @@ children:
                 stretchFactor: 1
                 template:
                         type: TextBox
+                        name: fvar
+                        events:
+                             change: './test.events::onChange_name'
               - name: opt1
                 label: K levels
                 template:

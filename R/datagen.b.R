@@ -19,7 +19,7 @@ datagenClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
 
           ### set up the R6 workhorse class
           private$.dispatcher               <- Dispatch$new(self$results)
-          private$.runner                   <- Runner$new(self$options, private$.dispatcher,self$data)
+          private$.runner                   <- DGRunner$new(self$options, private$.dispatcher,self$data)
 
           ## prepare stuff
           private$.dispatcher$clean(self$results$start)
@@ -28,14 +28,13 @@ datagenClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
           private$.runner$prepare()
           
           if (!self$options$output) {
-            self$results$start$setContent(INTRO)
+            self$results$start$setContent(DGINTRO)
             self$results$start$setVisible(TRUE)
           } else {
-            self$results$brief$setContent(BRIEF)
+            self$results$brief$setContent(DGBRIEF)
             self$results$brief$setVisible(TRUE)
             
           }
-          
           
           
           ### info table ###
@@ -79,6 +78,7 @@ datagenClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
           
           runnow <- Sys.time()
 
+          
           if (!private$.runner$ready)
             return()
           

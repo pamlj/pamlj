@@ -224,6 +224,3 @@ ebind_square<-function(...) {
 
 
 
-##########
-fromb64<-function(x) return(x)
-to64<-function(x) return(x)

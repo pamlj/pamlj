@@ -1,7 +1,7 @@
 ---
 title: Power for linear models
 name: pamlj
-version: 0.0.3
+version: 0.0.4
 jms: '1.0'
 authors:
   - Marcello Gallucci
@@ -18,6 +18,14 @@ analyses:
     menuTitle: Mixed Model Data Generator
     description: |
       Something here
+  - title: Mixed Model Power Analysis
+    name: mixpower
+    ns: pamlj
+    menuGroup: jpower
+    menuSubgroup: PAMLj
+    menuTitle: Mixed Model Power Analysis
+    description: |
+      Mixed Linear Model
 usesNative: true
 minApp: 1.0.8
 

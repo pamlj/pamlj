@@ -2,8 +2,8 @@
 ## defined by Initer, but it fills them with the results. It also adds a few tables not defined in Initer
 ## Any function that produce a table goes here
 
-Runner <- R6::R6Class("Runner",
-                        inherit = Initer,
+DGRunner <- R6::R6Class("DGRunner",
+                        inherit = DGIniter,
                         cloneable=FALSE,
                         class=TRUE,
                         public=list(

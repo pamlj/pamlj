@@ -1,7 +1,7 @@
 
 
 DGIniter <- R6::R6Class(
-  "Initer",
+  "DGIniter",
   class=TRUE, 
   cloneable=FALSE, ## should improve performance https://r6.r-lib.org/articles/Performance.html ###
   inherit = Scaffold,
@@ -123,8 +123,9 @@ DGIniter <- R6::R6Class(
       }
 
       if (!is.something(self$options$clusters)) {
-        value<-paste("<b>Action required:</b> Please specify at least on clustersìing variable")
+        value<-paste("<b>Action required:</b> Please specify at least one clustering variable")
         self$dispatcher$warnings <-  list(topic="help", message=value)
+        return()
         ok=FALSE
       }
       
