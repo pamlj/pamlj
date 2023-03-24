@@ -35,6 +35,49 @@ children:
             isTarget: true
             events:
               change: './gamlj.events::onChange_covariates'
+  - type: LayoutBox
+    name: panel_input
+    margin: large
+    style: list
+    children:
+      - type: Label
+        label: Compute
+        margin: large
+        style: list-inline
+        children:
+          - name: obtain_n
+            type: RadioButton
+            optionName: obtain
+            optionPart: 'n'
+          - name: obtain_power
+            type: RadioButton
+            optionName: obtain
+            optionPart: power
+          - name: obtain_es
+            type: RadioButton
+            optionName: obtain
+            optionPart: es
+          - name: obtain_alpha
+            type: RadioButton
+            optionName: obtain
+            optionPart: alpha
+      - type: Label
+        label: Parameters
+        margin: large
+        style: list-inline
+        children:
+          - type: TextBox
+            name: alpha
+            format: number
+            enable: (obtain_n || obtain_es || obtain_es)
+          - type: TextBox
+            name: power
+            format: number
+            enable: (obtain_n || obtain_alpha || obtain_es)
+          - type: TextBox
+            name: 'n'
+            format: number
+            enable: (obtain_power || obtain_alpha || obtain_es)
   - type: CollapseBox
     label: Model
     name: panel_model
@@ -93,12 +136,12 @@ children:
       - type: LayoutBox
         name: panel_effectsizes
         margin: large
-        style: list
+        style: inline
         children:
           - type: Label
             label: Input Effect Size
             margin: large
-            style: list-inline
+            style: list
             children:
               - type: RadioButton
                 name: es_beta
@@ -114,17 +157,27 @@ children:
                 name: es_d
                 optionName: es
                 optionPart: d
-
+          - type: Label
+            label: Input R-squared
+            margin: large
+            style: list
+            children:
+              - name: r2_insert
+                type: CheckBox
+                enable: (es_beta || es_d)
+              - type: TextBox
+                name: r2_value
+                format: number
+                enable: (r2_insert)
   - type: CollapseBox
     label: Options
     collapsed: true
     stretchFactor: 1
     children:
-
-        - type: LayoutBox
-          margin: large
-          children:
-              - type: CheckBox
-                name: mute
-              - type: CheckBox
-                name: donotrun
+      - type: LayoutBox
+        margin: large
+        children:
+          - type: CheckBox
+            name: mute
+          - type: CheckBox
+            name: donotrun

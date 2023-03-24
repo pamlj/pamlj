@@ -23,9 +23,11 @@ Datamatic <- R6::R6Class(
   ), ## end of public
   private=list(
      .inspect_data=function(data) {
-       
-       return()
-       
+       for (name in names(data)) {
+        df<-1
+        if (is.factor(data[[name]])) df<-nlevels(data[[name]])-1
+        ladd(self$variables)<-list(name=name,df=df) 
+       }
      }    
   ) # end of private
 ) # end of class

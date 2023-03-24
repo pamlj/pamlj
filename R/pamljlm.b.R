@@ -21,22 +21,33 @@ pamljlmClass <- R6::R6Class(
         return()
       }
       ### set up the R6 workhorse class
-      data_machine            <-  Datamatic$new(self)
-      runner_machine          <-  GLMRunner$new(self)
-
-      ### info table ###
-      aSmartObj<-SmartTable$new(self$results$info,runner_machine)
-      ladd(private$.smartObjs)<-aSmartObj
+      data_machine             <-  Datamatic$new(self)
+      runner_machine           <-  GLMRunner$new(self)
+      runner_machine$datamatic <-  data_machine
 
 
       ### anova table ###
       aSmartObj<-SmartTable$new(self$results$anova,runner_machine)
-      aSmartObj$spaceAt<-c(1,-2)
+      aSmartObj$spaceAt<-c(-1)
+      aSmartObj$activateOnData<-TRUE
       ladd(private$.smartObjs)<-aSmartObj
 
+      ### anova table ###
+      aSmartObj<-SmartTable$new(self$results$coefficients,runner_machine)
+      aSmartObj$spaceAt<-c(-1)
+      aSmartObj$activateOnData<-TRUE
+      ladd(private$.smartObjs)<-aSmartObj
+      
+      ### info table: must be the last one ###
+      aSmartObj<-SmartTable$new(self$results$info,runner_machine)
+      ladd(private$.smartObjs)<-aSmartObj
+      
       for (tab in private$.smartObjs) {
         tab$initTable()
       }
+
+      private$.data_machine<-data_machine
+      private$.runner_machine<-runner_machine
       
       return()  
       
@@ -178,10 +189,8 @@ pamljlmClass <- R6::R6Class(
       #private$.runner_machine$estimate(data)
       
       ### run tables ###
-      
       for (smarttab in private$.smartObjs)
            smarttab$runTable()
-
 
       jinfo("MODULE:  #### phase end ####")
       

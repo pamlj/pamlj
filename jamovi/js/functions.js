@@ -3,31 +3,14 @@ var rtermFormat = require('./rtermFormat');
 const fun = {
 
   updateFixedSizes: function(ui, context) {
-
     
-    console.log("Update effect size")
+    var method = ui.es.value();
+    if (method==="etap") {fixed_sizes_eta(ui,context);}
+    else {fixed_sizes_dummies(ui,context);}
     
-    var  currentList  = context.cloneArray(ui.fixed_sizes.value(), []);
-    var  feList    = context.cloneArray(ui.model_terms.value(), []);
-         feList    = feList.map(aname => aname.join("*"))
-         
-    var list3 = [];
-    for (let i = 0; i < feList.length; i++) {
-        let found = null;
-        for (let j = 0; j < currentList.length; j++) {
-            if (currentList[j].name === feList[i]) {
-                found = currentList[j];
-                break;
-            }
-        }
-        if (found === null)
-            list3.push({ name: feList[i], value: "" });
-        else
-            list3.push(found)
-    }
-    ui.fixed_sizes.setValue(list3);
+  },
 
-},
+
   updateRandomSizes: function(ui, context) {
 
     
@@ -426,3 +409,96 @@ var dim = function(aList) {
   
     return(value);
 };
+
+
+var getLevels= function(columnName,context) {
+
+       let promise = context.requestData("column", { columnName: columnName, properties: ["levels"] })
+      return promise.then(rData => {
+           if (rData.columnFound) {
+              let nlevels = rData.levels.length;
+              if (nlevels===0) nlevels=1;
+              return(nlevels);
+        }
+      });
+      
+};
+
+
+var  fixed_sizes_eta= function(ui, context) {
+
+    
+    var  currentList  = context.cloneArray(ui.fixed_sizes.value(), []);
+    var  feList    = context.cloneArray(ui.model_terms.value(), []);
+    var  varsList  = unique(feList.flat());
+
+     
+     feList    = feList.map(aname => aname.join("*"))
+
+    var list3 = [];
+    for (let i = 0; i < feList.length; i++) {
+        let found = null;
+        for (let j = 0; j < currentList.length; j++) {
+            if (currentList[j].name === feList[i]) {
+                found = currentList[j];
+                break;
+            }
+        }
+        if (found === null)
+            list3.push({ name: feList[i], value: "" });
+        else
+            list3.push(found)
+    }
+    ui.fixed_sizes.setValue(list3);
+
+};
+
+var  fixed_sizes_dummies= function(ui,context) {
+    
+    var  currentList  = context.cloneArray(ui.fixed_sizes.value(), []);
+    var  feList    = context.cloneArray(ui.model_terms.value(), []);
+    var  varsList  = unique(feList.flat());
+
+       var  data = [];
+       varsList.map(term => {
+                 var x = getLevels(term,context);
+                 data.push(x.then(d => {
+                      return {var: term, k: d}
+                      }) // end of then
+                      ); // end of push
+              });
+
+       data = Promise.all(data).then((values) => {
+         var results = []
+         results = feList.map(term => {
+            return term.map(t => { 
+              let d = values.filter(v => v.var==t)
+              if (d.length>0) {
+                    let levs = d.map( v => v.k)[0]
+                    if (levs==1) 
+                      return [t];
+                    else
+                      return Array(levs-1).fill(1).map( (_, i) => t+(i+1) )
+             }
+         });
+         
+       });      
+       
+    //   console.log(results)
+       const cartesian =  (...a) => a.reduce((a, b) => a.flatMap(d => b.map(e => [d, e].flat())));
+       var inter = results.map(x => cartesian(...x)).flat().map(aname => Array.isArray(aname) ? aname.join("*"): aname);
+
+      inter = inter.map(aname => {
+         let x= 0;
+         let old= currentList.filter(x => x.name==aname);
+         if (old.length==0)   {x={name: aname, value: 0};}
+         else   {x=old[0];}
+         return x
+      });     
+
+      ui.fixed_sizes.setValue(inter);
+
+  });
+    
+  };
+

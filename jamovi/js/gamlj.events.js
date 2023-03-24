@@ -17,7 +17,6 @@ const events = {
     onChange_covariates: function(ui) {
         fun.calcModelTerms(ui, this);
         fun.updateRandomSupplier(ui,this);
-        fun.updateFixedSizes(ui,this);
     },
 
     onChange_model_terms: function(ui) {
@@ -67,8 +66,7 @@ const events = {
 
     onChange_model_remove: function(ui) {
       let values=this.cloneArray(ui.model_terms.value(),[]);
-      this.checkValue(ui.nested_terms, true, values, FormatDef.term);
-      
+
     },
 
     onUpdate_modelSupplier: function(ui) {
@@ -76,7 +74,6 @@ const events = {
             let covariatesList = this.cloneArray(ui.covs.value(), []);
             var variablesList = factorsList.concat(covariatesList);
             ui.modelSupplier.setValue(this.valuesToItems(variablesList, FormatDef.variable));
-            fun.updateFixedSizes(ui,this);
 
     },
     
@@ -117,7 +114,7 @@ const events = {
     onChange_es: function(ui, data) {
       
 //      console.log(ui.fixed_sizes)
-      console.log(ui.fixed_sizes.params)
+      fun.updateFixedSizes(ui,this);
 
     },    
 

@@ -79,6 +79,52 @@ options:
             a list of character vectors describing fixed effects terms. Not needed if `formula` is used.
 
 
+    - name: alpha
+      title: α
+      type: Number
+      min: 0
+      max: .999
+      default: .05
+
+    - name: power
+      title: Power
+      type: Number
+      min: 0
+      max: .999
+      default: .80
+
+    - name: n
+      title: Required N
+      type: Number
+      min: 0
+      default: 100
+
+    - name: obtain
+      title: Compute
+      type: List
+      options:
+        - name: n
+          title: N
+        - name: power
+          title: Power
+        - name: alpha
+          title: Alpha
+        - name: es
+          title: Min. ES
+      default: n
+      
+    - name: r2_value
+      title: Define R-squared
+      type: Number
+      min: 0
+      max: .999
+      default: 0
+      
+    - name: r2_insert
+      title: R-squared
+      type: Bool
+      default: false
+
 
     - name: mute
       title: Remove notes
@@ -135,6 +181,7 @@ options:
                 type: String
               - name: value
                 type: Number
+                default: 0
 
     - name: donotrun
       type: Bool

@@ -12,6 +12,12 @@ pamljlmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             factors = NULL,
             covs = NULL,
             model_terms = NULL,
+            alpha = 0.05,
+            power = 0.8,
+            n = 100,
+            obtain = "n",
+            r2_value = 0,
+            r2_insert = FALSE,
             mute = FALSE,
             model_type = "lm",
             es = "etap",
@@ -62,6 +68,42 @@ pamljlmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "model_terms",
                 model_terms,
                 default=NULL)
+            private$..alpha <- jmvcore::OptionNumber$new(
+                "alpha",
+                alpha,
+                min=0,
+                max=0.999,
+                default=0.05)
+            private$..power <- jmvcore::OptionNumber$new(
+                "power",
+                power,
+                min=0,
+                max=0.999,
+                default=0.8)
+            private$..n <- jmvcore::OptionNumber$new(
+                "n",
+                n,
+                min=0,
+                default=100)
+            private$..obtain <- jmvcore::OptionList$new(
+                "obtain",
+                obtain,
+                options=list(
+                    "n",
+                    "power",
+                    "alpha",
+                    "es"),
+                default="n")
+            private$..r2_value <- jmvcore::OptionNumber$new(
+                "r2_value",
+                r2_value,
+                min=0,
+                max=0.999,
+                default=0)
+            private$..r2_insert <- jmvcore::OptionBool$new(
+                "r2_insert",
+                r2_insert,
+                default=FALSE)
             private$..mute <- jmvcore::OptionBool$new(
                 "mute",
                 mute,
@@ -93,7 +135,8 @@ pamljlmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                             NULL),
                         jmvcore::OptionNumber$new(
                             "value",
-                            NULL))))
+                            NULL,
+                            default=0))))
             private$..donotrun <- jmvcore::OptionBool$new(
                 "donotrun",
                 donotrun,
@@ -105,6 +148,12 @@ pamljlmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..factors)
             self$.addOption(private$..covs)
             self$.addOption(private$..model_terms)
+            self$.addOption(private$..alpha)
+            self$.addOption(private$..power)
+            self$.addOption(private$..n)
+            self$.addOption(private$..obtain)
+            self$.addOption(private$..r2_value)
+            self$.addOption(private$..r2_insert)
             self$.addOption(private$..mute)
             self$.addOption(private$..model_type)
             self$.addOption(private$..es)
@@ -118,6 +167,12 @@ pamljlmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         factors = function() private$..factors$value,
         covs = function() private$..covs$value,
         model_terms = function() private$..model_terms$value,
+        alpha = function() private$..alpha$value,
+        power = function() private$..power$value,
+        n = function() private$..n$value,
+        obtain = function() private$..obtain$value,
+        r2_value = function() private$..r2_value$value,
+        r2_insert = function() private$..r2_insert$value,
         mute = function() private$..mute$value,
         model_type = function() private$..model_type$value,
         es = function() private$..es$value,
@@ -130,6 +185,12 @@ pamljlmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..factors = NA,
         ..covs = NA,
         ..model_terms = NA,
+        ..alpha = NA,
+        ..power = NA,
+        ..n = NA,
+        ..obtain = NA,
+        ..r2_value = NA,
+        ..r2_insert = NA,
         ..mute = NA,
         ..model_type = NA,
         ..es = NA,
@@ -143,7 +204,9 @@ pamljlmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     active = list(
         model = function() private$..model,
         info = function() private$.items[["info"]],
-        anova = function() private$.items[["anova"]]),
+        recap = function() private$.items[["recap"]],
+        anova = function() private$.items[["anova"]],
+        coefficients = function() private$.items[["coefficients"]]),
     private = list(
         ..model = NA),
     public=list(
@@ -170,17 +233,37 @@ pamljlmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `name`="specs", 
                         `type`="text", 
                         `title`=""))))
-            self$add(jmvcore::Table$new(
+            self$add(jmvcore::Html$new(
                 options=options,
-                name="anova",
-                title="ANOVA Omnibus tests",
+                name="recap",
+                title="Analysis Recap",
                 clearWith=list(
                     "dep",
                     "factors",
                     "covs",
                     "model_terms",
                     "fixed_sizes",
-                    "mute"),
+                    "alpha",
+                    "power",
+                    "obtain",
+                    "n",
+                    "mute")))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="anova",
+                title="Power Parameters based of F-tests",
+                visible=FALSE,
+                clearWith=list(
+                    "dep",
+                    "factors",
+                    "covs",
+                    "model_terms",
+                    "fixed_sizes",
+                    "mute",
+                    "alpha",
+                    "power",
+                    "n",
+                    "obtain"),
                 columns=list(
                     list(
                         `name`="source", 
@@ -189,12 +272,70 @@ pamljlmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     list(
                         `name`="n", 
                         `title`="req. N", 
-                        `type`="number", 
-                        `format`="zto"),
+                        `type`="integer"),
                     list(
                         `name`="df", 
                         `title`="df", 
                         `type`="integer"),
+                    list(
+                        `name`="eta", 
+                        `title`="\u03B7\u00B2p", 
+                        `type`="number", 
+                        `format`="zto"),
+                    list(
+                        `name`="f2", 
+                        `title`="f2", 
+                        `type`="number", 
+                        `format`="zto"),
+                    list(
+                        `name`="alpha", 
+                        `title`="alpha", 
+                        `type`="number", 
+                        `format`="zto,pvalue"),
+                    list(
+                        `name`="power", 
+                        `title`="power", 
+                        `type`="number", 
+                        `format`="zto"))))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="coefficients",
+                title="Power Parameters based of t-tests",
+                visible=FALSE,
+                clearWith=list(
+                    "dep",
+                    "factors",
+                    "covs",
+                    "model_terms",
+                    "fixed_sizes",
+                    "mute",
+                    "alpha",
+                    "power",
+                    "n",
+                    "obtain"),
+                columns=list(
+                    list(
+                        `name`="source", 
+                        `title`="", 
+                        `type`="text"),
+                    list(
+                        `name`="n", 
+                        `title`="req. N", 
+                        `type`="integer"),
+                    list(
+                        `name`="df", 
+                        `title`="df", 
+                        `type`="integer"),
+                    list(
+                        `name`="beta", 
+                        `title`="\u03B2", 
+                        `type`="number", 
+                        `format`="zto"),
+                    list(
+                        `name`="t", 
+                        `title`="t", 
+                        `type`="number", 
+                        `format`="zto"),
                     list(
                         `name`="f2", 
                         `title`="f2", 
@@ -256,6 +397,12 @@ pamljlmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   needed if \code{formula} is used.
 #' @param model_terms a list of character vectors describing fixed effects
 #'   terms. Not needed if \code{formula} is used.
+#' @param alpha .
+#' @param power .
+#' @param n .
+#' @param obtain .
+#' @param r2_value .
+#' @param r2_insert .
 #' @param mute Not present in R
 #' @param model_type .
 #' @param es
@@ -265,7 +412,9 @@ pamljlmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' \tabular{llllll}{
 #'   \code{results$model} \tab \tab \tab \tab \tab a property \cr
 #'   \code{results$info} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$recap} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$anova} \tab \tab \tab \tab \tab a table of ANOVA results \cr
+#'   \code{results$coefficients} \tab \tab \tab \tab \tab a table of coefficients results \cr
 #' }
 #'
 #' Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:
@@ -283,6 +432,12 @@ pamljlm <- function(
     factors = NULL,
     covs = NULL,
     model_terms = NULL,
+    alpha = 0.05,
+    power = 0.8,
+    n = 100,
+    obtain = "n",
+    r2_value = 0,
+    r2_insert = FALSE,
     mute = FALSE,
     model_type = "lm",
     es = "etap",
@@ -312,6 +467,12 @@ pamljlm <- function(
         factors = factors,
         covs = covs,
         model_terms = model_terms,
+        alpha = alpha,
+        power = power,
+        n = n,
+        obtain = obtain,
+        r2_value = r2_value,
+        r2_insert = r2_insert,
         mute = mute,
         model_type = model_type,
         es = es,

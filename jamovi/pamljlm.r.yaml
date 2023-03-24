@@ -22,10 +22,26 @@ items:
          type: text
          title: ""
 
+  - name: recap
+    title: Analysis Recap
+    type: Html
+    clearWith:
+                         -  dep
+                         -  factors
+                         -  covs
+                         -  model_terms
+                         -  fixed_sizes
+                         -  alpha
+                         -  power
+                         -  obtain
+                         -  n
+                         -  mute
+
   - name: anova
-    title: ANOVA Omnibus tests
+    title: Power Parameters based of F-tests
     type: Table
     description: a table of ANOVA results
+    visible: false
     clearWith:
                          -  dep
                          -  factors
@@ -33,17 +49,73 @@ items:
                          -  model_terms
                          -  fixed_sizes
                          -  mute
+                         -  alpha
+                         -  power
+                         -  n
+                         -  obtain
+  
     columns:
                     - name: source
                       title: ""
                       type: text
                     - name: n
                       title: req. N
-                      type: number
-                      format: zto
+                      type: integer
                     - name: df
                       title: df
                       type: integer
+                    - name: eta
+                      title: η²p
+                      type: number
+                      format: zto
+                    - name: f2
+                      title: f2
+                      type: number
+                      format: zto
+                    - name: alpha
+                      title: alpha
+                      type: number
+                      format: zto,pvalue
+                    - name: power
+                      title: power
+                      type: number
+                      format: zto
+
+  - name: coefficients
+    title: Power Parameters based of t-tests
+    type: Table
+    description: a table of coefficients results
+    visible: false
+    clearWith:
+                         -  dep
+                         -  factors
+                         -  covs
+                         -  model_terms
+                         -  fixed_sizes
+                         -  mute
+                         -  alpha
+                         -  power
+                         -  n
+                         -  obtain
+  
+    columns:
+                    - name: source
+                      title: ""
+                      type: text
+                    - name: n
+                      title: req. N
+                      type: integer
+                    - name: df
+                      title: df
+                      type: integer
+                    - name: beta
+                      title: β
+                      type: number
+                      format: zto
+                    - name: t
+                      title: t
+                      type: number
+                      format: zto
                     - name: f2
                       title: f2
                       type: number
