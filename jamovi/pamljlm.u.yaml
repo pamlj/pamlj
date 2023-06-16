@@ -162,13 +162,13 @@ children:
             margin: large
             style: list
             children:
-              - name: r2_insert
+              - name: r2_input
                 type: CheckBox
                 enable: (es_beta || es_d)
               - type: TextBox
                 name: r2_value
                 format: number
-                enable: (r2_insert)
+                enable: (r2_input)
   - type: CollapseBox
     label: Options
     collapsed: true

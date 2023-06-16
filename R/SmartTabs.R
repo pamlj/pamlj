@@ -348,12 +348,14 @@ SmartTable <- R6::R6Class("SmartTable",
 
                             },
                             .setHideOn=function() {
-                              
+
+
                               if (is.something(private$.hideOn)) {
                                 rtable<-self$table$asDF
                                 what<-names(rtable)
                                 for (col in names(private$.hideOn))
                                   if (col %in% what) {
+                                    mark(rtable[[col]],private$.hideOn[[col]])
                                     test<-all(rtable[[col]] %in% private$.hideOn[[col]])
                                     if (test) 
                                       self$table$getColumn(col)$setVisible(FALSE)
@@ -418,9 +420,13 @@ SmartTable <- R6::R6Class("SmartTable",
                             .spaceBy=function() {
                               
                               k<-names(self$table$asDF)[1]
+                              
                               try_hard({
                               for (j in self$spaceAt) {
                                 if (j<0) j<-self$table$rowCount+j
+                                if (j==0 || j>self$table$rowCount)
+                                     next
+                                
                                 self$table$addFormat(rowNo=j,col=k,jmvcore::Cell.END_GROUP)
                                 self$table$addFormat(rowNo=j+1,col=k,jmvcore::Cell.BEGIN_GROUP)
                               }})

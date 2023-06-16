@@ -37,6 +37,34 @@ items:
                          -  n
                          -  mute
 
+  - name: r2
+    title: Estimated R-squared
+    type: Table
+    visible: false
+    clearWith:
+                         -  dep
+                         -  factors
+                         -  covs
+                         -  model_terms
+                         -  fixed_sizes
+                         -  mute
+                         -  alpha
+                         -  power
+                         -  n
+                         -  obtain
+  
+    columns:
+                    - name: source
+                      title: ""
+                      type: text
+                    - name: value
+                      title: "Estimate"
+                      type: text
+                    - name: df
+                      title: "df"
+                      type: text
+    rows: 1                  
+
   - name: anova
     title: Power Parameters based of F-tests
     type: Table
@@ -64,7 +92,7 @@ items:
                     - name: df
                       title: df
                       type: integer
-                    - name: eta
+                    - name: eta2
                       title: η²p
                       type: number
                       format: zto
@@ -108,10 +136,19 @@ items:
                     - name: df
                       title: df
                       type: integer
-                    - name: beta
-                      title: β
+                    - name: value
+                      title: ES
                       type: number
                       format: zto
+                    - name: original
+                      title: Input ES
+                      type: number
+                      format: zto
+                    - name: beta
+                      title: beta
+                      type: number
+                      format: zto
+                      
                     - name: t
                       title: t
                       type: number

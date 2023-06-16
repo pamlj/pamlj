@@ -20,13 +20,32 @@ Datamatic <- R6::R6Class(
       private$.inspect_data(self$analysis$data)
       
     }
+    makedata=function() {
+      
+      lapply(self$variables, function(x) 1:x$nlev)
+      sdata<-as.data.frame(do.call(expand.grid,list(a,b,d)))
+      names(sdata)<-c("cat3","cat2","x")
+      sdata$cat3<-factor(sdata$cat3)
+      sdata$cat2<-factor(sdata$cat2)
+      contrasts(sdata$cat3)<-contrasts(sdata$cat3)-(1/3)
+      contrasts(sdata$cat2)<-contrasts(sdata$cat2)-(1/2)
+      
+    }
   ), ## end of public
   private=list(
      .inspect_data=function(data) {
        for (name in names(data)) {
         df<-1
-        if (is.factor(data[[name]])) df<-nlevels(data[[name]])-1
-        ladd(self$variables)<-list(name=name,df=df) 
+        levs<-1
+        nlevs<-1
+        type="numeric"
+        if (is.factor(data[[name]])) {
+           type="factor"
+           lves<-levels(data[[name]])
+           nlevs<-length(levs)
+           df<-nlevs-1
+        }
+        ladd(self$variables)<-list(name=name,type=type, df=df,levs=levs,nlevs=nlevs) 
        }
      }    
   ) # end of private

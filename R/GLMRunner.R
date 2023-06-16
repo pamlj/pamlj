@@ -6,11 +6,19 @@ GLMRunner <- R6::R6Class("GLMRunner",
                         model=NULL,
                         etime=0,
                         power_opts=list(),
+                        es_list=list(),
+                        var_list=list(),
                         tab_info=NULL,
                         datamatic=NULL,
-                        init = function() {
+                        initialize = function(jmvobj,datamatic) {
                           
-                          etime<-Sys.time()
+                          jinfo("RUNNER: initializing")
+                          super$initialize(jmvobj)
+                          self$datamatic<-datamatic
+                          es_list<-jmvobj$options$fixed_sizes
+                          class(es_list) <- c(paste0("es_type_",jmvobj$options$es),class(es_list))
+                          self$es_list   <- es.prepare(es_list,self)
+                          self$var_list  <- es.variances(self$es_list,self)
                         }, # end of public function estimate
                         init_info=function() {
                           
@@ -53,32 +61,26 @@ GLMRunner <- R6::R6Class("GLMRunner",
                         },
                         init_anova=function() {
                           
-                          if (!self$option("es","etap"))
+                          if (!is.something(self$var_list))
                             return()
-                          lapply(self$options$fixed_sizes, function(x) list(source=jmvcore::stringifyTerm(x$name,raise = T)))
+                          lapply(self$options$model_terms, function(x) list(source=jmvcore::stringifyTerm(x,raise = T)))
                         },
                         run_anova=function() {
                           
-                          if (!self$option("es","etap"))
+                          if (!is.something(self$var_list))
                             return()
-                          
-                          eslist<-self$options$fixed_sizes
-                          eslist<-lapply(eslist,function(x) {
-                            x$df<-1
-                             vars<-jmvcore::decomposeTerm(gsub("*",":",x,fixed = T))
-                             for (var in vars) {
-                                  data<-rlist::list.find(self$datamatic$variables,name==var)[[1]]
-                                  x$df<-x$df*data$df
-                             }
-                             x$value<-as.numeric(x$value)/(1-as.numeric(x$value))
-                             x
-                          })
-                          alldf<-sum(unlist(sapply(eslist, function(x) x$df)))
-                          results<-private$.fpower(eslist,alldf)
-                          
+                          results<-private$.fpower(self$var_list)
                           if (!is.something(results))
                               return()
-                          
+                          results<-lapply(seq_along(results),function(i) {
+                            res <- results[[i]]
+                            res$eta2 <- res$f2/(1+res$f2)
+                            res
+                          })
+                        
+                        #  results<-es.postpare(results)
+                          alldf<-attr(self$es_list,"alldf")
+
                           ladd(results)<-list(source="Residuals",df=alldf,eta=NA,alpha=NA,power=NA,f2=NA,n=NA)
                           minN<-which.max(unlist(rlist::list.map(results, n)))
                           private$.recap<-results[[minN]]
@@ -90,47 +92,41 @@ GLMRunner <- R6::R6Class("GLMRunner",
                           
                           if (self$option("es","etap"))
                             return()
-                          tab<-lapply(self$options$fixed_sizes, function(x) list(source=jmvcore::stringifyTerm(x$name,raise = T)))
-                          ladd(tab)<-list(source="R2")
+                          tab<-lapply(self$es_list, function(x) list(source=jmvcore::stringifyTerm(x$name,raise = T)))
                           return(tab)
                         },
-                        
+                        run_r2=function() {
+                          
+                          if (is.something(attr(self$es_list,"r2")))
+                             return(list(list(source="R2",value=attr(self$es_list,"r2"),df=attr(self$es_list,"alldf"))))
+                          
+                        },
                         run_coefficients=function() {
                           
-                          if (self$option("es","etap"))
+                          if (!is.something(self$es_list))
                             return()
-                          results<-list()
-                          eslist<-self$options$fixed_sizes
-                          alldf<-length(eslist)
-                          eslist<-lapply(eslist, function(x) {
-                                         x$value<-as.numeric(x$value)
-                                         x$df<-1
-                                         return(x)
-                                         })
-                          r2<-sum(unlist(lapply(eslist, function(x) x$value^2)),na.rm = TRUE)
-                          if (r2>1) {
-                            self$warning<-list(topic="info",message="The input betas are impossible. Their sum of square should be less than 1.")
-                            return()
-                          }
-
                           
-                          eslist<-lapply(eslist, function(x) {
-                                               x$beta<-x$value
-                                               x$value<-x$value^2/(1-r2)
-                                               x
-                                               })
+                          results<-private$.fpower(self$es_list)
+                          results<-lapply(seq_along(results),function(i) {
+                            res <- results[[i]]
+                            es  <- self$es_list[[i]]
+                            res$beta <-es$beta
+                            res$t    <-sqrt(res$f2)*sign(es$original)
+                            if (is.na(es$original)) res$original<-0
+                            if (!self$option("obtain","es")) res$value<-NA
+                            res
+                          })
+                          #results<-es.postpare(results,self)
+                          return(results)
                           
-                          results<-private$.fpower(eslist,alldf)
-                          results<-lapply(seq_along(results), function(i) {
-                                                     results[[i]]$t<-sqrt(results[[i]]$f2)*sign(eslist[[i]]$value)
-                                                     results[[i]]$beta<-sqrt(results[[i]]$f2*(1-r2))*sign(eslist[[i]]$value)
-                                                     results[[i]]
-                                                     })
                           minN<-which.max(unlist(rlist::list.map(results, n)))
                           private$.recap<-results[[minN]]
+                          private$.recap$es<-round(private$.recap$es,digits = 3)
+                          private$.recap$n<-round(private$.recap$n,digits = 0)
+                          
                           private$.recap$test<-"t-test"
                           
-                          ladd(results)<-list(source="R2",df=alldf,beta=r2)
+                          ladd(results)<-list(source="R2",df=alldf,es=r2)
                           
                           return(results)
                         },
@@ -144,41 +140,38 @@ GLMRunner <- R6::R6Class("GLMRunner",
                       private=list(
                         .recap=NULL,
                         
-                        .fpower=function(eslist,alldf) {
+                        .fpower=function(es_list) {
                           
+                          jinfo("RUNNER: computing F-test power")
                           w<-FALSE
                           results<-list()
-                          for (es in eslist) {
-                            esvalue<-try_hard(as.numeric(es$value))$obj
-                            if (is.na(esvalue) || abs(esvalue)<.0001) {
+                          alldf<-attr(self$es_list,"alldf")
+                          for (es in es_list) {
+                            f2<-es$f2
+                            if (is.na(f2) || f2<.0001) {
                               if (!w) {
                                   warning("Empty parameters reflect effect sizes assumed to be zero.")
                                   w<-TRUE
                               }
-                              ladd(results)<-list(n=NA,f2=NA,power=NA,eta=0,alpha=NA,df=es$df)
+                              ladd(results)<-list(n=NA,f2=NA,power=NA,eta2=0,original=0,alpha=NA,df=es$df)
                             } else {
                               n<- NULL
                               if (is.something(self$power_opts$n)) {
-                                n<-self$power_opts$n-alldf
+                                n<-self$power_opts$n-alldf-1
                                 if (n<2)  {
                                   self$warning<-list(topic="info",message=paste("The input sample size (N) is to small to compute power parameters "))
                                   return()
                                 }
                               }
-                              if (esvalue>=1 || esvalue<0) {
-                                  self$warning<-list(topic="info",message=paste("The effect size of",es$name," is not compatible with the analysis."))
-                                  return()
-                              }
-                                
-                              if (self$option("obtain","es")) esvalue<-NULL
-                              p<-pwr::pwr.f2.test(u=es$df,v=n,f2=esvalue,power = self$power_opts$power,sig.level = self$power_opts$alpha)
-                              n<-round(p$v)+alldf
+                              if (self$option("obtain","es")) f2<-NULL
+                              p<-pwr::pwr.f2.test(u=es$df,v=n,f2=f2,power = self$power_opts$power,sig.level = self$power_opts$alpha)
+                              n<-round(p$v)+alldf+1
                               ladd(results)<-list(n=n,
                                                   f2=p$f2,
                                                   df=p$u,
-                                                  eta=p$f2/(1+p$f2),
                                                   alpha=p$sig.level,
-                                                  power=p$power)
+                                                  power=p$power,
+                                                  original=es$original)
                             }
                           }
                           return(results)

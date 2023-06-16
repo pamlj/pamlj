@@ -17,7 +17,7 @@ pamljlmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             n = 100,
             obtain = "n",
             r2_value = 0,
-            r2_insert = FALSE,
+            r2_input = FALSE,
             mute = FALSE,
             model_type = "lm",
             es = "etap",
@@ -100,9 +100,9 @@ pamljlmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 min=0,
                 max=0.999,
                 default=0)
-            private$..r2_insert <- jmvcore::OptionBool$new(
-                "r2_insert",
-                r2_insert,
+            private$..r2_input <- jmvcore::OptionBool$new(
+                "r2_input",
+                r2_input,
                 default=FALSE)
             private$..mute <- jmvcore::OptionBool$new(
                 "mute",
@@ -153,7 +153,7 @@ pamljlmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..n)
             self$.addOption(private$..obtain)
             self$.addOption(private$..r2_value)
-            self$.addOption(private$..r2_insert)
+            self$.addOption(private$..r2_input)
             self$.addOption(private$..mute)
             self$.addOption(private$..model_type)
             self$.addOption(private$..es)
@@ -172,7 +172,7 @@ pamljlmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         n = function() private$..n$value,
         obtain = function() private$..obtain$value,
         r2_value = function() private$..r2_value$value,
-        r2_insert = function() private$..r2_insert$value,
+        r2_input = function() private$..r2_input$value,
         mute = function() private$..mute$value,
         model_type = function() private$..model_type$value,
         es = function() private$..es$value,
@@ -190,7 +190,7 @@ pamljlmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..n = NA,
         ..obtain = NA,
         ..r2_value = NA,
-        ..r2_insert = NA,
+        ..r2_input = NA,
         ..mute = NA,
         ..model_type = NA,
         ..es = NA,
@@ -205,6 +205,7 @@ pamljlmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         model = function() private$..model,
         info = function() private$.items[["info"]],
         recap = function() private$.items[["recap"]],
+        r2 = function() private$.items[["r2"]],
         anova = function() private$.items[["anova"]],
         coefficients = function() private$.items[["coefficients"]]),
     private = list(
@@ -250,6 +251,36 @@ pamljlmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "mute")))
             self$add(jmvcore::Table$new(
                 options=options,
+                name="r2",
+                title="Estimated R-squared",
+                visible=FALSE,
+                clearWith=list(
+                    "dep",
+                    "factors",
+                    "covs",
+                    "model_terms",
+                    "fixed_sizes",
+                    "mute",
+                    "alpha",
+                    "power",
+                    "n",
+                    "obtain"),
+                columns=list(
+                    list(
+                        `name`="source", 
+                        `title`="", 
+                        `type`="text"),
+                    list(
+                        `name`="value", 
+                        `title`="Estimate", 
+                        `type`="text"),
+                    list(
+                        `name`="df", 
+                        `title`="df", 
+                        `type`="text")),
+                rows=1))
+            self$add(jmvcore::Table$new(
+                options=options,
                 name="anova",
                 title="Power Parameters based of F-tests",
                 visible=FALSE,
@@ -278,7 +309,7 @@ pamljlmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `title`="df", 
                         `type`="integer"),
                     list(
-                        `name`="eta", 
+                        `name`="eta2", 
                         `title`="\u03B7\u00B2p", 
                         `type`="number", 
                         `format`="zto"),
@@ -327,8 +358,18 @@ pamljlmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `title`="df", 
                         `type`="integer"),
                     list(
+                        `name`="value", 
+                        `title`="ES", 
+                        `type`="number", 
+                        `format`="zto"),
+                    list(
+                        `name`="original", 
+                        `title`="Input ES", 
+                        `type`="number", 
+                        `format`="zto"),
+                    list(
                         `name`="beta", 
-                        `title`="\u03B2", 
+                        `title`="beta", 
                         `type`="number", 
                         `format`="zto"),
                     list(
@@ -402,7 +443,7 @@ pamljlmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param n .
 #' @param obtain .
 #' @param r2_value .
-#' @param r2_insert .
+#' @param r2_input .
 #' @param mute Not present in R
 #' @param model_type .
 #' @param es
@@ -413,6 +454,7 @@ pamljlmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$model} \tab \tab \tab \tab \tab a property \cr
 #'   \code{results$info} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$recap} \tab \tab \tab \tab \tab a html \cr
+#'   \code{results$r2} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$anova} \tab \tab \tab \tab \tab a table of ANOVA results \cr
 #'   \code{results$coefficients} \tab \tab \tab \tab \tab a table of coefficients results \cr
 #' }
@@ -437,7 +479,7 @@ pamljlm <- function(
     n = 100,
     obtain = "n",
     r2_value = 0,
-    r2_insert = FALSE,
+    r2_input = FALSE,
     mute = FALSE,
     model_type = "lm",
     es = "etap",
@@ -472,7 +514,7 @@ pamljlm <- function(
         n = n,
         obtain = obtain,
         r2_value = r2_value,
-        r2_insert = r2_insert,
+        r2_input = r2_input,
         mute = mute,
         model_type = model_type,
         es = es,

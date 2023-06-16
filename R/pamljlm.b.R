@@ -22,9 +22,7 @@ pamljlmClass <- R6::R6Class(
       }
       ### set up the R6 workhorse class
       data_machine             <-  Datamatic$new(self)
-      runner_machine           <-  GLMRunner$new(self)
-      runner_machine$datamatic <-  data_machine
-
+      runner_machine           <-  GLMRunner$new(self,data_machine)
 
       ### anova table ###
       aSmartObj<-SmartTable$new(self$results$anova,runner_machine)
@@ -35,6 +33,12 @@ pamljlmClass <- R6::R6Class(
       ### anova table ###
       aSmartObj<-SmartTable$new(self$results$coefficients,runner_machine)
       aSmartObj$spaceAt<-c(-1)
+      aSmartObj$hideOn <-  list(value=NA)
+      aSmartObj$activateOnData<-TRUE
+      ladd(private$.smartObjs)<-aSmartObj
+
+      ### info r2 ###
+      aSmartObj<-SmartTable$new(self$results$r2,runner_machine)
       aSmartObj$activateOnData<-TRUE
       ladd(private$.smartObjs)<-aSmartObj
       

@@ -120,7 +120,7 @@ options:
       max: .999
       default: 0
       
-    - name: r2_insert
+    - name: r2_input
       title: R-squared
       type: Bool
       default: false
