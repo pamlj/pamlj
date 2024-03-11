@@ -1,12 +1,12 @@
 Package: pamlj
 Type: Package
 Title: Power Analysis for linear models 
-Version: 0.0.3
+Version: 0.0.6
 Author: Marcello Gallucci
 Maintainer: Marcello Gallucci <mcfanda@gmail.com>
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
-Imports: jmvcore (>= 0.8.0), rlist
+Imports: jmvcore (>= 0.8.0), pwr
 Depends: jmvcore
 RoxygenNote: 7.1.1

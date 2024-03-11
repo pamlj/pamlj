@@ -1,7 +1,7 @@
 
-datagenClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
-    "datagenClass",
-    inherit = datagenBase,
+pamljcorrClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
+    "pamljcorrClass",
+    inherit = pamljcorrBase,
     private = list(
         .time=NULL,
         .ready=NULL,

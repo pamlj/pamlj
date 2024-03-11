@@ -1,0 +1,127 @@
+---
+name:  pamlcorr
+title: Correlation power analysis
+jrs:   "1.1"
+
+items:
+
+    - name: intro
+      title: Introduction
+      type: Html
+
+    - name:  powertab
+      title: A Priori Power Analysis
+      type: Table
+      rows:  1
+      clearWith:
+        - es
+        - power
+        - sample
+        - alpha
+        - aim
+        - tails
+      columns: 
+        - name: n
+          title: 'N'
+          type: integer
+        - name: es
+          title: 'Effect size'
+          type: number
+        - name: power
+          title: 'Power'
+          type: number
+        - name: alpha
+          title: '&alpha;'
+          type: number
+
+    - name: tabText
+      title: Table context
+      type: Html
+      visible: (text)
+
+    - name:  powerbyes
+      title: Power by Effect Size
+      type: Table
+      rows:  4
+      visible: (text)
+      clearWith:
+        - es
+        - power
+        - sample
+        - alpha
+        - aim
+        - tails
+        
+      columns:
+        - name: es
+          title: 'True effect size'
+          type: number
+
+        - name: power
+          title: 'Power to detect'
+          type: text
+
+        - name: desc
+          title: 'Description'
+          type: text
+
+    - name: powerContour
+      title: Power Contour
+      type: Image
+      width:  400
+      height: 350
+      renderFun: .plot_contour
+      visible: (plot_contour)
+      clearWith:
+        - es
+        - power
+        - sample
+        - alpha
+        - aim
+        - tails
+
+    - name: contourText
+      title: Power contour context
+      type: Html
+      visible: (plot_contour)
+
+    - name: powerCurveES
+      title: Power Curve by Effect Size
+      type: Image
+      width:  400
+      height: 350
+      renderFun: .plot_pcurve
+      visible: (plot_pcurve & !aim:n)
+      clearWith:
+        - es
+        - power
+        - sample
+        - alpha
+        - aim
+        - tails
+
+    - name: curveESText
+      title: Power contour by effect size context
+      type: Html
+      visible: (plot_pcurve & !aim:n)
+
+    - name: powerCurveN
+      title: Power Curve by N
+      type: Image
+      width:  400
+      height: 350
+      renderFun: .plot_ncurve
+      visible: (plot_ncurve & !aim:es)
+      clearWith:
+        - es
+        - power
+        - sample
+        - alpha
+        - aim
+        - tails
+
+    - name: curveNText
+      title: Power contour by N context
+      type: Html
+      visible: (plot_ncurve & !aim:es)
+
