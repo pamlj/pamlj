@@ -14,7 +14,7 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             alpha = 0.05,
             tails = "two",
             plot_contour = FALSE,
-            plot_pcurve = FALSE,
+            plot_escurve = FALSE,
             plot_ncurve = FALSE, ...) {
 
             super$initialize(
@@ -64,9 +64,9 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "plot_contour",
                 plot_contour,
                 default=FALSE)
-            private$..plot_pcurve <- jmvcore::OptionBool$new(
-                "plot_pcurve",
-                plot_pcurve,
+            private$..plot_escurve <- jmvcore::OptionBool$new(
+                "plot_escurve",
+                plot_escurve,
                 default=FALSE)
             private$..plot_ncurve <- jmvcore::OptionBool$new(
                 "plot_ncurve",
@@ -81,7 +81,7 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..alpha)
             self$.addOption(private$..tails)
             self$.addOption(private$..plot_contour)
-            self$.addOption(private$..plot_pcurve)
+            self$.addOption(private$..plot_escurve)
             self$.addOption(private$..plot_ncurve)
         }),
     active = list(
@@ -93,7 +93,7 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         alpha = function() private$..alpha$value,
         tails = function() private$..tails$value,
         plot_contour = function() private$..plot_contour$value,
-        plot_pcurve = function() private$..plot_pcurve$value,
+        plot_escurve = function() private$..plot_escurve$value,
         plot_ncurve = function() private$..plot_ncurve$value),
     private = list(
         ...caller = NA,
@@ -104,7 +104,7 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..alpha = NA,
         ..tails = NA,
         ..plot_contour = NA,
-        ..plot_pcurve = NA,
+        ..plot_escurve = NA,
         ..plot_ncurve = NA)
 )
 
@@ -117,11 +117,8 @@ pamlcorrResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         tabText = function() private$.items[["tabText"]],
         powerbyes = function() private$.items[["powerbyes"]],
         powerContour = function() private$.items[["powerContour"]],
-        contourText = function() private$.items[["contourText"]],
-        powerCurveES = function() private$.items[["powerCurveES"]],
-        curveESText = function() private$.items[["curveESText"]],
-        powerCurveN = function() private$.items[["powerCurveN"]],
-        curveNText = function() private$.items[["curveNText"]]),
+        powerEscurve = function() private$.items[["powerEscurve"]],
+        powerNcurve = function() private$.items[["powerNcurve"]]),
     private = list(),
     public=list(
         initialize=function(options) {
@@ -208,19 +205,14 @@ pamlcorrResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "alpha",
                     "aim",
                     "tails")))
-            self$add(jmvcore::Html$new(
-                options=options,
-                name="contourText",
-                title="Power contour context",
-                visible="(plot_contour)"))
             self$add(jmvcore::Image$new(
                 options=options,
-                name="powerCurveES",
+                name="powerEscurve",
                 title="Power Curve by Effect Size",
                 width=400,
                 height=350,
-                renderFun=".plot_pcurve",
-                visible="(plot_pcurve & !aim:n)",
+                renderFun=".plot_escurve",
+                visible="(plot_escurve & !aim:n)",
                 clearWith=list(
                     "es",
                     "power",
@@ -228,14 +220,9 @@ pamlcorrResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "alpha",
                     "aim",
                     "tails")))
-            self$add(jmvcore::Html$new(
-                options=options,
-                name="curveESText",
-                title="Power contour by effect size context",
-                visible="(plot_pcurve & !aim:n)"))
             self$add(jmvcore::Image$new(
                 options=options,
-                name="powerCurveN",
+                name="powerNcurve",
                 title="Power Curve by N",
                 width=400,
                 height=350,
@@ -247,12 +234,7 @@ pamlcorrResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "sample",
                     "alpha",
                     "aim",
-                    "tails")))
-            self$add(jmvcore::Html$new(
-                options=options,
-                name="curveNText",
-                title="Power contour by N context",
-                visible="(plot_ncurve & !aim:es)"))}))
+                    "tails")))}))
 
 pamlcorrBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     "pamlcorrBase",
@@ -287,7 +269,7 @@ pamlcorrBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param alpha .
 #' @param tails .
 #' @param plot_contour .
-#' @param plot_pcurve .
+#' @param plot_escurve .
 #' @param plot_ncurve .
 #' @return A results object containing:
 #' \tabular{llllll}{
@@ -296,11 +278,8 @@ pamlcorrBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$tabText} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powerbyes} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powerContour} \tab \tab \tab \tab \tab an image \cr
-#'   \code{results$contourText} \tab \tab \tab \tab \tab a html \cr
-#'   \code{results$powerCurveES} \tab \tab \tab \tab \tab an image \cr
-#'   \code{results$curveESText} \tab \tab \tab \tab \tab a html \cr
-#'   \code{results$powerCurveN} \tab \tab \tab \tab \tab an image \cr
-#'   \code{results$curveNText} \tab \tab \tab \tab \tab a html \cr
+#'   \code{results$powerEscurve} \tab \tab \tab \tab \tab an image \cr
+#'   \code{results$powerNcurve} \tab \tab \tab \tab \tab an image \cr
 #' }
 #'
 #' Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:
@@ -319,7 +298,7 @@ pamlcorr <- function(
     alpha = 0.05,
     tails = "two",
     plot_contour = FALSE,
-    plot_pcurve = FALSE,
+    plot_escurve = FALSE,
     plot_ncurve = FALSE) {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
@@ -335,7 +314,7 @@ pamlcorr <- function(
         alpha = alpha,
         tails = tails,
         plot_contour = plot_contour,
-        plot_pcurve = plot_pcurve,
+        plot_escurve = plot_escurve,
         plot_ncurve = plot_ncurve)
 
     analysis <- pamlcorrClass$new(

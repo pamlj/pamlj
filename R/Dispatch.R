@@ -25,14 +25,9 @@ Dispatch <- R6::R6Class(
                         },
                         translate=function(msg) {
                           
-                          mark("dffffff")
-                          mark(!exists("TRANS_WARNS"))
-                          mark(!is.something(TRANS_WARNS))
                           if (!exists("TRANS_WARNS")) return(msg)
                           if (!is.something(TRANS_WARNS)) return(msg)
                           where<-unlist(lapply(TRANS_WARNS,function(x) length(grep(x$original,msg))>0))
-                          mark("pass")
-
                           where<-which(where)
                           
                           if (is.something(where)) {

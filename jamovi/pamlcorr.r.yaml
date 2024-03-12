@@ -80,18 +80,13 @@ items:
         - aim
         - tails
 
-    - name: contourText
-      title: Power contour context
-      type: Html
-      visible: (plot_contour)
-
-    - name: powerCurveES
+    - name: powerEscurve
       title: Power Curve by Effect Size
       type: Image
       width:  400
       height: 350
-      renderFun: .plot_pcurve
-      visible: (plot_pcurve & !aim:n)
+      renderFun: .plot_escurve
+      visible: (plot_escurve & !aim:n)
       clearWith:
         - es
         - power
@@ -100,12 +95,7 @@ items:
         - aim
         - tails
 
-    - name: curveESText
-      title: Power contour by effect size context
-      type: Html
-      visible: (plot_pcurve & !aim:n)
-
-    - name: powerCurveN
+    - name: powerNcurve
       title: Power Curve by N
       type: Image
       width:  400
@@ -120,8 +110,4 @@ items:
         - aim
         - tails
 
-    - name: curveNText
-      title: Power contour by N context
-      type: Html
-      visible: (plot_ncurve & !aim:es)
 

@@ -10,6 +10,7 @@ Initer <- R6::R6Class(
     dispatcher=NULL,
     ready=FALSE,
     data = list(),
+    input=list(),
     aim  = NULL,
     caller=NULL,
     tails = NULL,
@@ -22,9 +23,11 @@ Initer <- R6::R6Class(
           self$data[["alpha"]]   <- jmvobj$options$alpha
           self$data[["power"]]   <- jmvobj$options$power
           self$data[[self$aim]]  <- NULL
+          self$input             <- self$data
           self$tails             <- jmvobj$options$tails
           self$caller            <- jmvobj$options$.caller
           class(self)<-c(class(self),jmvobj$options$.caller)
+          checkdata(self)
 
     }, # here initialize ends
     #### init functions #####

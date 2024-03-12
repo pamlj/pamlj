@@ -65,13 +65,13 @@ options:
       type: Bool
       default: false
 
-    - name: plot_pcurve
-      title: Power curve by N
+    - name: plot_escurve
+      title: Power curve by effect size
       type: Bool
       default: false
       
     - name: plot_ncurve
-      title: Power curve by effect size
+      title: Power curve by N
       type: Bool
       default: false
 

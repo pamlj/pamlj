@@ -7,12 +7,13 @@ Runner <- R6::R6Class("Runner",
                         cloneable=FALSE,
                         class=TRUE,
                         public=list(
-                          
+                              run= function() {
+                                powerfunction(self)
+                              },
                               run_powertab = function() {
       
-                                     results <- powerfunction(self)
-                                     mark(results)
-                                     return(list(results))
+                                     
+                                     return(list(self$data))
                                },
                               run_powerbyes = function() {
       
