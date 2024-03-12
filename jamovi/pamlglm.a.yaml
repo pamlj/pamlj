@@ -1,0 +1,87 @@
+---
+name: pamlglm
+title: GLM power analysis
+menuGroup: jpower
+version: '0.0.1'
+jas: '1.2'
+export: true
+completeWhenFilled: false
+description:
+    main: |
+           Something here
+
+options:
+    - name: .caller
+      type: String
+      default: glm
+      hidden: true
+
+    - name: aim
+      title: Calculate 
+      type:  List
+      default: n
+      options:
+        - name:  n
+          title: N
+        - name: power
+          title: Power
+        - name: es
+          title: Effect Size
+        - name: alpha
+          title: Minimal Alpha
+      
+    - name: es
+      title: Focal beta 
+      type:  Number
+      default: .5
+
+    - name: es_others
+      title: Focal beta 
+      type: Array
+      default: []
+      template:
+        type: Number
+
+    - name: power
+      title: Minimal desired power 
+      type:  Number
+      default: .90
+
+    - name: sample
+      title: N 
+      type:  Number
+      default: 20
+
+    - name: alpha
+      title: Alpha (Type I rate)  
+      type:  Number
+      default: .05
+
+    - name: tails
+      title: Tails  
+      type:  List
+      default: two
+      options:
+        - name:  two
+          title: Two-tailed
+        - name:  one
+          title: One-tailed
+
+    - name: plot_contour
+      title: Power contour plot
+      type: Bool
+      default: false
+
+    - name: plot_escurve
+      title: Power curve by effect size
+      type: Bool
+      default: false
+      
+    - name: plot_ncurve
+      title: Power curve by N
+      type: Bool
+      default: false
+
+
+...
+

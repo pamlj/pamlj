@@ -1,0 +1,70 @@
+title: GLM power analysis
+name: pamlglm
+jus: '3.0'
+stage: 0
+compilerMode: tame
+children:
+  - type: LayoutBox
+    margin: large
+    children:
+      - type: ComboBox
+        name: aim
+  - type: LayoutBox
+    margin: large
+    children:
+      - type: Label
+        label: Effect sizes (beta coefficients)
+            - name: es
+              type: TextBox
+              label: Focal effect size (&beta;)
+              format: number
+              enable: '(!aim:es)'
+      - type: Label
+        label: Other effect sizes (beta coefficients)
+            - name: other_
+              type: TextBox
+              label: Focal effect size (&beta;)
+              format: number
+              enable: '(!aim:es)'
+
+
+
+
+  - type: LayoutBox
+    margin: large
+    children:
+      - type: Label
+        label: Parameters
+        children:
+            - name: power
+              type: TextBox
+              label: Minimum desired power
+              format: number
+              enable: '(!aim:power)'
+            - name: sample
+              type: TextBox
+              label: N (Sample size)
+              format: number
+              enable: '(!aim:n)'
+            - name: alpha
+              type: TextBox
+              label: '&alpha; (type I error rate)'
+              format: number
+              enable: '(!aim:alpha)'
+
+      - type: ComboBox
+        name: tails
+  - type: LayoutBox
+    margin: large
+    children:
+      - type: Label
+        label: Plots
+        children:
+               - type: CheckBox
+                 name: plot_contour
+               - type: CheckBox
+                 name: plot_escurve
+                 enable: (!aim:n)
+               - type: CheckBox
+                 name: plot_ncurve
+                 enable: (!aim:es)
