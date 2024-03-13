@@ -28,7 +28,7 @@ options:
         - name: es
           title: Effect Size
         - name: alpha
-          title: Minimal Alpha
+          title: Required Alpha
       
     - name: es
       title: Minimal-interesting effect size 

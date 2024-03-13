@@ -36,6 +36,7 @@ Initer <- R6::R6Class(
           
           checkdata(self)
           self$input             <- self$data
+          jmvobj$results$intro$setContent(text_intro(self))
 
     }, # here initialize ends
     #### init functions #####

@@ -53,6 +53,54 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
 }
 
+text_intro <- function(obj) UseMethod(".text_intro")
+
+.text_intro.correlation <- function(obj) {
+  
+  text<-" <div>
+             <p> Please select the aim of the analysis:</p>
+             <ul>
+             <li> <b> Calculate N</b> computes the required sample size given the <b> Target effect size</b> and <b> Minimal desire power</b>  </li>          
+             <li> <b> Calculate Power</b> computes the achievable power given the <b> Target effect size</b> and <b> N (Sample size)</b>  </li>          
+             <li> <b> Calculate Effect Size</b> computes the minimally-detectable effect size given the <b> N (Sample size)</b> and <b> Minimal desire power</b>  </li>          
+             <li> <b> Calculate Required alpha</b> it is not very usefull, just let it be there. </li>          
+             </ul>
+             <p> In all cases, you can set the required Type I error rate and whether the test will be carried out two-tailed or one-tailed.</b>
+
+             </div>
+
+  "
+  return(text)
+
+}
+
+.text_intro.glmbeta <- function(obj) {
+  
+  text<-" <div>
+              <p> Please select the aim of the analysis:</p>
+             <ul>
+             <li> <b> Calculate N</b> computes the required sample size given the <b> Target effect size</b> and <b> Minimal desire power</b>  </li>          
+             <li> <b> Calculate Power</b> computes the achievable power given the <b> Target effect size</b> and <b> N (Sample size)</b>  </li>          
+             <li> <b> Calculate Effect Size</b> computes the minimally-detectable effect size given the <b> N (Sample size)</b> and <b> Minimal desire power</b>  </li>          
+             <li> <b> Calculate Required alpha</b> it is not very usefull, just let it be there. </li>          
+             </ul>
+             <p> In all cases, you can set the required Type I error rate and whether the test will be carried out two-tailed or one-tailed.</b>
+
+             </div>
+             <p> In all cases, set the expected <b> R-squared </b> for the full model. 
+             For models with only one independent variable the R-square is calculated
+             as the square of the beta coefficients.<p>
+             <p> Set the <b> Model degrees of freedom</b>. 
+              If the model degrees of freedom are not easy to compute, please use the 
+             <b> Model definition </b> panel to help you out. <p>
+             </div>
+
+  "
+  return(text)
+
+}
+
+
 
 # define_info <- function(obj, ...) UseMethod(".checkdata")
 # 
