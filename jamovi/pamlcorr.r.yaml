@@ -34,16 +34,11 @@ items:
           title: '&alpha;'
           type: number
 
-    - name: tabText
-      title: Table context
-      type: Html
-      visible: (text)
 
     - name:  powerbyes
       title: Power by Effect Size
       type: Table
       rows:  4
-      visible: (text)
       clearWith:
         - es
         - power

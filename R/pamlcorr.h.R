@@ -114,7 +114,6 @@ pamlcorrResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     active = list(
         intro = function() private$.items[["intro"]],
         powertab = function() private$.items[["powertab"]],
-        tabText = function() private$.items[["tabText"]],
         powerbyes = function() private$.items[["powerbyes"]],
         powerContour = function() private$.items[["powerContour"]],
         powerEscurve = function() private$.items[["powerEscurve"]],
@@ -159,17 +158,11 @@ pamlcorrResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `name`="alpha", 
                         `title`="&alpha;", 
                         `type`="number"))))
-            self$add(jmvcore::Html$new(
-                options=options,
-                name="tabText",
-                title="Table context",
-                visible="(text)"))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="powerbyes",
                 title="Power by Effect Size",
                 rows=4,
-                visible="(text)",
                 clearWith=list(
                     "es",
                     "power",
@@ -275,7 +268,6 @@ pamlcorrBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' \tabular{llllll}{
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
-#'   \code{results$tabText} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powerbyes} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powerContour} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerEscurve} \tab \tab \tab \tab \tab an image \cr

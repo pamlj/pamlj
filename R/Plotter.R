@@ -53,8 +53,15 @@ Plotter <- R6::R6Class(
          cols = paml_palette(10)
          data<-image$state
          range <- max(data$x)-min(data$x)
-         plot(data$x,data$y,  ty='n', ylab=data$ylab, xlab=data$xlab, xlim=c(min(data$x)+.1*range,max(data$x)-.1*range))
+         plot(data$x,data$y,  ty='n',
+              ylab=data$ylab, xlab=data$xlab,
+              xlim=c(min(data$x)+.1*range,max(data$x)-.1*range),
+              ylim=c(0,1)
+              )
          yrect <- seq(0,1,.1)
+         yrect[1]<-yrect[1]-.5
+         yrect[11]<-yrect[11]+.5
+
          for(i in 1:10){
               rect(par()$usr[1], yrect[i], par()$usr[2], yrect[i+1], border = NA,
                    col = cols[i])
@@ -63,7 +70,7 @@ Plotter <- R6::R6Class(
          segments(0,data$point.y,data$point.x,data$point.y, lwd=2)
          segments(data$point.x,0,data$point.x,data$point.y, lwd=2)
          points(data$point.x,data$point.y,pch=21,bg="white",cex=1.5)
-
+         mtext(data$text, adj = 1)
        }
       
       
@@ -79,15 +86,17 @@ Plotter <- R6::R6Class(
       
       data <- private$.operator$data
       image<-private$.results$powerContour
-      mes<-data$es*.90
-      nmax<-powervector(private$.operator,list(power=.95,es=mes,alpha=data$alpha))
-      if (nmax<10) nmax=25
-      x=round(seq(5,nmax,len=20))
+      ## notice that we send the 'aes' (actual effect size), already transformed
+      mes<-data$es*.95
+      nmax<-powervector(private$.operator,list(power=.98,es=mes,alpha=data$alpha))
+      if (nmax<10) nmax=10
+      x=round(seq(5,round(nmax),len=20))
       y<-seq(.01,1,.1)
       yline=powervector(private$.operator,list(n=x,power=data$power,alpha=data$alpha))
       xyz.func<- function(x,y) {
              powervector(private$.operator,list(n=x,es=y,alpha=data$alpha))
       }
+
       z<-outer(x,y,xyz.func)
       point.x <- private$.operator$data$n
       point.y<-  private$.operator$data$es
@@ -103,9 +112,10 @@ Plotter <- R6::R6Class(
 
         data <- private$.operator$data
         image<-private$.results$powerNcurve
-        mes<-data$es*.90
-        nmax<-powervector(private$.operator,list(power=.98,es=data$es,alpha=data$alpha))
-        if (nmax<10) nmax=25
+        ## notice that we send the 'aes' (actual effect size), already transformed
+        mes<-data$es*.95
+        nmax<-powervector(private$.operator,list(power=.98,es=mes,alpha=data$alpha))
+        if (nmax<10) nmax=10
         x<-round(seq(5,nmax,len=20))
         yline<-powervector(private$.operator,list(n=x,es=data$es,alpha=data$alpha))
         point.x <- private$.operator$data$n
@@ -113,10 +123,11 @@ Plotter <- R6::R6Class(
         image$setState(list(x=x,y=yline,
                           point.x=point.x,point.y=point.y,
                           n=data$n,power=data$power,yline=yline,
+                          ylin=private$.operator$info$es_lim,
                           xlab="Sample Size (N)",
-                          ylab="Power"))
-
-        mark()
+                          ylab="Power",
+                          text=paste(data$letter,"=",data$es," ",greek_vector["alpha"],"=",round(data$alpha,digits=3))
+                       ))
 
     },
     .prepareEscurve = function() {
@@ -127,14 +138,15 @@ Plotter <- R6::R6Class(
 
         data <- private$.operator$data
         image<-private$.results$powerEscurve
-        mes<-data$es*.90
         x<-seq(0.01,1,len=20)
         yline<-powervector(private$.operator,list(n=data$n,es=x,alpha=data$alpha))
         point.x <- private$.operator$data$es
         point.y<-  private$.operator$data$power
         image$setState(list(x=x,y=yline,point.x=point.x,point.y=point.y,n=data$n,power=data$power,yline=yline,
                           xlab="Hypothetical effect size",
-                          ylab="Power"))
+                          ylab="Power",
+                          text=paste("N =",data$es," ",greek_vector["alpha"],"=",round(data$alpha,digits=3))
+                          ))
     }
     
 

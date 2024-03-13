@@ -6,10 +6,12 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     inherit = jmvcore::Options,
     public = list(
         initialize = function(
-            .caller = "glm",
+            .caller = "glmbeta",
             aim = "n",
-            es = 0.5,
-            es_others = list(),
+            es = 0.2,
+            r2 = 0.04,
+            df_model = 1,
+            power_r2 = NULL,
             power = 0.9,
             sample = 20,
             alpha = 0.05,
@@ -27,7 +29,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$...caller <- jmvcore::OptionString$new(
                 ".caller",
                 .caller,
-                default="glm",
+                default="glmbeta",
                 hidden=TRUE)
             private$..aim <- jmvcore::OptionList$new(
                 "aim",
@@ -41,14 +43,18 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..es <- jmvcore::OptionNumber$new(
                 "es",
                 es,
-                default=0.5)
-            private$..es_others <- jmvcore::OptionArray$new(
-                "es_others",
-                es_others,
-                default=list(),
-                template=jmvcore::OptionNumber$new(
-                    "es_others",
-                    NULL))
+                default=0.2)
+            private$..r2 <- jmvcore::OptionNumber$new(
+                "r2",
+                r2,
+                default=0.04)
+            private$..df_model <- jmvcore::OptionNumber$new(
+                "df_model",
+                df_model,
+                default=1)
+            private$..power_r2 <- jmvcore::OptionBool$new(
+                "power_r2",
+                power_r2)
             private$..power <- jmvcore::OptionNumber$new(
                 "power",
                 power,
@@ -84,7 +90,9 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$...caller)
             self$.addOption(private$..aim)
             self$.addOption(private$..es)
-            self$.addOption(private$..es_others)
+            self$.addOption(private$..r2)
+            self$.addOption(private$..df_model)
+            self$.addOption(private$..power_r2)
             self$.addOption(private$..power)
             self$.addOption(private$..sample)
             self$.addOption(private$..alpha)
@@ -97,7 +105,9 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         .caller = function() private$...caller$value,
         aim = function() private$..aim$value,
         es = function() private$..es$value,
-        es_others = function() private$..es_others$value,
+        r2 = function() private$..r2$value,
+        df_model = function() private$..df_model$value,
+        power_r2 = function() private$..power_r2$value,
         power = function() private$..power$value,
         sample = function() private$..sample$value,
         alpha = function() private$..alpha$value,
@@ -109,7 +119,9 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ...caller = NA,
         ..aim = NA,
         ..es = NA,
-        ..es_others = NA,
+        ..r2 = NA,
+        ..df_model = NA,
+        ..power_r2 = NA,
         ..power = NA,
         ..sample = NA,
         ..alpha = NA,
@@ -125,8 +137,8 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     active = list(
         intro = function() private$.items[["intro"]],
         powertab = function() private$.items[["powertab"]],
-        tabText = function() private$.items[["tabText"]],
         powerbyes = function() private$.items[["powerbyes"]],
+        powerr2 = function() private$.items[["powerr2"]],
         powerContour = function() private$.items[["powerContour"]],
         powerEscurve = function() private$.items[["powerEscurve"]],
         powerNcurve = function() private$.items[["powerNcurve"]]),
@@ -152,7 +164,9 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "sample",
                     "alpha",
                     "aim",
-                    "tails"),
+                    "tails",
+                    "df_model",
+                    "r2"),
                 columns=list(
                     list(
                         `name`="n", 
@@ -160,34 +174,42 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `type`="integer"),
                     list(
                         `name`="es", 
-                        `title`="Effect size", 
+                        `title`="\u03B2", 
+                        `type`="number"),
+                    list(
+                        `name`="aes", 
+                        `title`="f\u00B2", 
                         `type`="number"),
                     list(
                         `name`="power", 
                         `title`="Power", 
                         `type`="number"),
                     list(
+                        `name`="df1", 
+                        `title`="df", 
+                        `type`="integer"),
+                    list(
+                        `name`="df2", 
+                        `title`="df(res)", 
+                        `type`="integer"),
+                    list(
                         `name`="alpha", 
                         `title`="&alpha;", 
                         `type`="number"))))
-            self$add(jmvcore::Html$new(
-                options=options,
-                name="tabText",
-                title="Table context",
-                visible="(text)"))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="powerbyes",
                 title="Power by Effect Size",
                 rows=4,
-                visible="(text)",
                 clearWith=list(
                     "es",
                     "power",
                     "sample",
                     "alpha",
                     "aim",
-                    "tails"),
+                    "tails",
+                    "df_model",
+                    "r2"),
                 columns=list(
                     list(
                         `name`="es", 
@@ -201,6 +223,88 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `name`="desc", 
                         `title`="Description", 
                         `type`="text"))))
+            self$add(R6::R6Class(
+                inherit = jmvcore::Group,
+                active = list(
+                    powertab = function() private$.items[["powertab"]],
+                    powerbyes = function() private$.items[["powerbyes"]]),
+                private = list(),
+                public=list(
+                    initialize=function(options) {
+                        super$initialize(
+                            options=options,
+                            name="powerr2",
+                            title="Full Model Power")
+                        self$add(jmvcore::Table$new(
+                            options=options,
+                            name="powertab",
+                            title="A Priori Power Analysis",
+                            visible=FALSE,
+                            rows=1,
+                            clearWith=list(
+                                "es",
+                                "power",
+                                "sample",
+                                "alpha",
+                                "aim",
+                                "tails",
+                                "df_model",
+                                "r2",
+                                "power_r2"),
+                            columns=list(
+                                list(
+                                    `name`="n", 
+                                    `title`="N", 
+                                    `type`="integer"),
+                                list(
+                                    `name`="r2", 
+                                    `title`="R\u00B2", 
+                                    `type`="number"),
+                                list(
+                                    `name`="power", 
+                                    `title`="Power", 
+                                    `type`="number"),
+                                list(
+                                    `name`="df1", 
+                                    `title`="df", 
+                                    `type`="integer"),
+                                list(
+                                    `name`="df2", 
+                                    `title`="df(res)", 
+                                    `type`="integer"),
+                                list(
+                                    `name`="alpha", 
+                                    `title`="&alpha;", 
+                                    `type`="number"))))
+                        self$add(jmvcore::Table$new(
+                            options=options,
+                            name="powerbyes",
+                            title="Power by Effect Size",
+                            rows=4,
+                            visible=FALSE,
+                            clearWith=list(
+                                "es",
+                                "power",
+                                "sample",
+                                "alpha",
+                                "aim",
+                                "tails",
+                                "df_model",
+                                "r2",
+                                "power_r2"),
+                            columns=list(
+                                list(
+                                    `name`="es", 
+                                    `title`="True effect size", 
+                                    `type`="number"),
+                                list(
+                                    `name`="power", 
+                                    `title`="Power to detect", 
+                                    `type`="text"),
+                                list(
+                                    `name`="desc", 
+                                    `title`="Description", 
+                                    `type`="text"))))}))$new(options=options))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerContour",
@@ -215,7 +319,9 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "sample",
                     "alpha",
                     "aim",
-                    "tails")))
+                    "tails",
+                    "df_model",
+                    "r2")))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerEscurve",
@@ -230,7 +336,9 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "sample",
                     "alpha",
                     "aim",
-                    "tails")))
+                    "tails",
+                    "df_model",
+                    "r2")))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerNcurve",
@@ -245,7 +353,9 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "sample",
                     "alpha",
                     "aim",
-                    "tails")))}))
+                    "tails",
+                    "df_model",
+                    "r2")))}))
 
 pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     "pamlglmBase",
@@ -275,7 +385,9 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param .caller .
 #' @param aim .
 #' @param es .
-#' @param es_others .
+#' @param r2 .
+#' @param df_model .
+#' @param power_r2 .
 #' @param power .
 #' @param sample .
 #' @param alpha .
@@ -287,8 +399,9 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' \tabular{llllll}{
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
-#'   \code{results$tabText} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powerbyes} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$powerr2$powertab} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$powerr2$powerbyes} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powerContour} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerEscurve} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerNcurve} \tab \tab \tab \tab \tab an image \cr
@@ -302,10 +415,12 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'
 #' @export
 pamlglm <- function(
-    .caller = "glm",
+    .caller = "glmbeta",
     aim = "n",
-    es = 0.5,
-    es_others = list(),
+    es = 0.2,
+    r2 = 0.04,
+    df_model = 1,
+    power_r2,
     power = 0.9,
     sample = 20,
     alpha = 0.05,
@@ -322,7 +437,9 @@ pamlglm <- function(
         .caller = .caller,
         aim = aim,
         es = es,
-        es_others = es_others,
+        r2 = r2,
+        df_model = df_model,
+        power_r2 = power_r2,
         power = power,
         sample = sample,
         alpha = alpha,

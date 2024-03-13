@@ -24,6 +24,7 @@ analyses:
     menuGroup: jpower
     menuSubgroup: GLM power
     menuTitle: GLM power analysis
+    menuSubtitle: Beta coefficients
     description: |
       Something here
 usesNative: true

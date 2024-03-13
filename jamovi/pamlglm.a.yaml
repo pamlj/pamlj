@@ -13,7 +13,7 @@ description:
 options:
     - name: .caller
       type: String
-      default: glm
+      default: glmbeta
       hidden: true
 
     - name: aim
@@ -31,16 +31,23 @@ options:
           title: Minimal Alpha
       
     - name: es
-      title: Focal beta 
+      title: Target effect size (&beta;)
       type:  Number
-      default: .5
+      default: .2
 
-    - name: es_others
-      title: Focal beta 
-      type: Array
-      default: []
-      template:
-        type: Number
+    - name: r2
+      title: R-squared 
+      type:  Number
+      default: .04
+
+    - name: df_model
+      title: Model degrees of freedom 
+      type:  Number
+      default: 1
+
+    - name: power_r2
+      title: Full model power 
+      type:  Bool
 
     - name: power
       title: Minimal desired power 

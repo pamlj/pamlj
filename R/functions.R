@@ -3,8 +3,6 @@ TRANS_WARNS=list()
 paml_palette<- function(...) viridis::viridis(...,alpha=.7)
 
 
-
-
 fields_tothem <- function(obj, ...) UseMethod(".fields_tothem")
 
 
@@ -29,16 +27,13 @@ fields_tome <- function(obj, ...) UseMethod(".fields_tome")
 
 
 
-checkdata <- function(obj, ...) UseMethod(".checkdata")
 
-.checkdata.correlation <- function(obj) {
+required_param<-function(data) {
   
-  if (is.something(obj$data$es)) {
-     if (abs(obj$data$es)<.001)
-         stop("Correlation absolute value cannot be less than .001")
-     if (abs(obj$data$es)>.99)
-         stop("Correlation absolute value cannot be more than .99")
-
-  }
-  
+  whichnull<-setdiff(c("n","es","alpha","power"), names(data))  
+  if (length(whichnull)>1)
+         stop("FUNCTION powervecot: only one parameters should be NULL")
+  if (length(whichnull)==0)
+         stop("FUNCTION powervector: exactly one parameters should be NULL")
+  whichnull
 }

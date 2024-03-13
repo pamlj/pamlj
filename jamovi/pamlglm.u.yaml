@@ -13,45 +13,44 @@ children:
     margin: large
     children:
       - type: Label
-        label: Effect sizes (beta coefficients)
-            - name: es
-              type: TextBox
-              label: Focal effect size (&beta;)
-              format: number
-              enable: '(!aim:es)'
-      - type: Label
-        label: Other effect sizes (beta coefficients)
-            - name: other_
-              type: TextBox
-              label: Focal effect size (&beta;)
-              format: number
-              enable: '(!aim:es)'
-
-
-
-
+        label: Model information
+        children:
+          - name: es
+            type: TextBox
+            format: number
+            enable: '(!aim:es)'
+          - name: r2
+            type: TextBox
+            format: number
+          - type: TextBox
+            name: df_model
+            format: number
+      - type: LayoutBox
+        margin: large
+        children:
+          - type: CheckBox
+            name: power_r2
   - type: LayoutBox
     margin: large
     children:
       - type: Label
         label: Parameters
         children:
-            - name: power
-              type: TextBox
-              label: Minimum desired power
-              format: number
-              enable: '(!aim:power)'
-            - name: sample
-              type: TextBox
-              label: N (Sample size)
-              format: number
-              enable: '(!aim:n)'
-            - name: alpha
-              type: TextBox
-              label: '&alpha; (type I error rate)'
-              format: number
-              enable: '(!aim:alpha)'
-
+          - name: power
+            type: TextBox
+            label: Minimum desired power
+            format: number
+            enable: '(!aim:power)'
+          - name: sample
+            type: TextBox
+            label: N (Sample size)
+            format: number
+            enable: '(!aim:n)'
+          - name: alpha
+            type: TextBox
+            label: '&alpha; (type I error rate)'
+            format: number
+            enable: '(!aim:alpha)'
       - type: ComboBox
         name: tails
   - type: LayoutBox
@@ -60,11 +59,11 @@ children:
       - type: Label
         label: Plots
         children:
-               - type: CheckBox
-                 name: plot_contour
-               - type: CheckBox
-                 name: plot_escurve
-                 enable: (!aim:n)
-               - type: CheckBox
-                 name: plot_ncurve
-                 enable: (!aim:es)
+          - type: CheckBox
+            name: plot_contour
+          - type: CheckBox
+            name: plot_escurve
+            enable: '(!aim:n)'
+          - type: CheckBox
+            name: plot_ncurve
+            enable: '(!aim:es)'
