@@ -88,11 +88,16 @@ Plotter <- R6::R6Class(
       image<-private$.results$powerContour
       ## notice that we send the 'aes' (actual effect size), already transformed
       mes<-data$es*.95
+    
+    
       nmax<-powervector(private$.operator,list(power=.98,es=mes,alpha=data$alpha))
       if (nmax<10) nmax=10
-      x=round(seq(5,round(nmax),len=20))
+      nmin<-max(5,data$df_model+5)
+      x=round(seq(nmin,round(nmax),len=20))
       y<-seq(.01,1,.1)
       yline=powervector(private$.operator,list(n=x,power=data$power,alpha=data$alpha))
+     
+
       xyz.func<- function(x,y) {
              powervector(private$.operator,list(n=x,es=y,alpha=data$alpha))
       }
@@ -103,6 +108,7 @@ Plotter <- R6::R6Class(
       image$setState(list(x=x,y=y,z=z,
                           point.x=point.x,point.y=point.y,
                           n=data$n,power=data$power,yline=yline))
+    
     },
      .prepareNcurve = function() {
       
@@ -116,7 +122,8 @@ Plotter <- R6::R6Class(
         mes<-data$es*.95
         nmax<-powervector(private$.operator,list(power=.98,es=mes,alpha=data$alpha))
         if (nmax<10) nmax=10
-        x<-round(seq(5,nmax,len=20))
+        nmin<-max(5,data$df_model+5)
+        x=round(seq(nmin,round(nmax),len=20))
         yline<-powervector(private$.operator,list(n=x,es=data$es,alpha=data$alpha))
         point.x <- private$.operator$data$n
         point.y<-  private$.operator$data$power

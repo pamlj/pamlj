@@ -51,7 +51,7 @@ pamlglmClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
          },
         .run = function() {
 
-                          jinfo(paste("MODULE:  PAMLglm #### phase run  ####"))
+                 jinfo(paste("MODULE:  PAMLglm #### phase run  ####"))
                  private$.runner$run()
                  private$.plotter$preparePlots()
 

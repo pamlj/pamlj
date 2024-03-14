@@ -101,6 +101,36 @@ text_intro <- function(obj) UseMethod(".text_intro")
 }
 
 
+text_run <- function(obj) UseMethod(".text_run")
+
+.text_run.correlation <- function(obj) {
+
+  text <- "<p> text to be defined </p>"  
+  if (obj$aim == "n") {
+      text<-" <div>
+              <p> You have selected to compute the required sample size given the <b> Target effect size</b> and <b> Minimal desire power</b> :</p>
+       "
+  }
+  
+  return(text)
+
+}
+
+.text_run.glmbeta <- function(obj) {
+
+  text <- "<p> text to be defined </p>"  
+  if (obj$aim == "n") {
+      text<-" <div>
+              <p> You have selected to compute the required sample size given the <b> Target effect size</b> and <b> Minimal desire power</b> :</p>
+       "
+  }
+  
+  return(text)
+
+}
+
+
+
 
 # define_info <- function(obj, ...) UseMethod(".checkdata")
 # 

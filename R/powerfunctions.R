@@ -159,6 +159,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                    stop("FUNCTION powervecot: only one parameters should be NULL")
                 if (length(whichnull)==0)
                    stop("FUNCTION powervector: exactly one parameters should be NULL")
+                mark("powervec",data)
                 ## for some reason, if v is a vector and the effect size is asked, it gives an error
                 if (whichnull=="f2" && length(data$v)>1) {
                    results<-sapply(data$v, function(x) pwr::pwr.f2.test(u=u,v=x,power=data$power,sig.level=data$alpha)[[whichnull]])
