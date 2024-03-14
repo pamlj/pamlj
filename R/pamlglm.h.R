@@ -18,7 +18,14 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             tails = "two",
             plot_contour = FALSE,
             plot_escurve = FALSE,
-            plot_ncurve = FALSE, ...) {
+            plot_ncurve = FALSE,
+            covs = 1,
+            factors = 0,
+            factors_list = list(
+                list(var="index1", levels=0)),
+            covs_order = NULL,
+            factors_order = NULL,
+            mixed_order = NULL, ...) {
 
             super$initialize(
                 package="pamlj",
@@ -86,6 +93,55 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "plot_ncurve",
                 plot_ncurve,
                 default=FALSE)
+            private$..covs <- jmvcore::OptionNumber$new(
+                "covs",
+                covs,
+                default=1,
+                min=1)
+            private$..factors <- jmvcore::OptionNumber$new(
+                "factors",
+                factors,
+                default=0,
+                min=0)
+            private$..factors_list <- jmvcore::OptionArray$new(
+                "factors_list",
+                factors_list,
+                default=list(
+                    list(var="index1", levels=0)),
+                template=jmvcore::OptionGroup$new(
+                    "factors_list",
+                    NULL,
+                    elements=list(
+                        jmvcore::OptionString$new(
+                            "var",
+                            NULL),
+                        jmvcore::OptionInteger$new(
+                            "levels",
+                            NULL))))
+            private$..covs_order <- jmvcore::OptionList$new(
+                "covs_order",
+                covs_order,
+                options=list(
+                    "main",
+                    "order2",
+                    "order3",
+                    "orderall"))
+            private$..factors_order <- jmvcore::OptionList$new(
+                "factors_order",
+                factors_order,
+                options=list(
+                    "main",
+                    "order2",
+                    "order3",
+                    "orderall"))
+            private$..mixed_order <- jmvcore::OptionList$new(
+                "mixed_order",
+                mixed_order,
+                options=list(
+                    "none",
+                    "order2",
+                    "order3",
+                    "orderall"))
 
             self$.addOption(private$...caller)
             self$.addOption(private$..aim)
@@ -100,6 +156,12 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..plot_contour)
             self$.addOption(private$..plot_escurve)
             self$.addOption(private$..plot_ncurve)
+            self$.addOption(private$..covs)
+            self$.addOption(private$..factors)
+            self$.addOption(private$..factors_list)
+            self$.addOption(private$..covs_order)
+            self$.addOption(private$..factors_order)
+            self$.addOption(private$..mixed_order)
         }),
     active = list(
         .caller = function() private$...caller$value,
@@ -114,7 +176,13 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         tails = function() private$..tails$value,
         plot_contour = function() private$..plot_contour$value,
         plot_escurve = function() private$..plot_escurve$value,
-        plot_ncurve = function() private$..plot_ncurve$value),
+        plot_ncurve = function() private$..plot_ncurve$value,
+        covs = function() private$..covs$value,
+        factors = function() private$..factors$value,
+        factors_list = function() private$..factors_list$value,
+        covs_order = function() private$..covs_order$value,
+        factors_order = function() private$..factors_order$value,
+        mixed_order = function() private$..mixed_order$value),
     private = list(
         ...caller = NA,
         ..aim = NA,
@@ -128,7 +196,13 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..tails = NA,
         ..plot_contour = NA,
         ..plot_escurve = NA,
-        ..plot_ncurve = NA)
+        ..plot_ncurve = NA,
+        ..covs = NA,
+        ..factors = NA,
+        ..factors_list = NA,
+        ..covs_order = NA,
+        ..factors_order = NA,
+        ..mixed_order = NA)
 )
 
 pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
@@ -395,6 +469,12 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param plot_contour .
 #' @param plot_escurve .
 #' @param plot_ncurve .
+#' @param covs .
+#' @param factors .
+#' @param factors_list .
+#' @param covs_order .
+#' @param factors_order .
+#' @param mixed_order .
 #' @return A results object containing:
 #' \tabular{llllll}{
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
@@ -427,7 +507,14 @@ pamlglm <- function(
     tails = "two",
     plot_contour = FALSE,
     plot_escurve = FALSE,
-    plot_ncurve = FALSE) {
+    plot_ncurve = FALSE,
+    covs = 1,
+    factors = 0,
+    factors_list = list(
+                list(var="index1", levels=0)),
+    covs_order,
+    factors_order,
+    mixed_order) {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
         stop("pamlglm requires jmvcore to be installed (restart may be required)")
@@ -446,7 +533,13 @@ pamlglm <- function(
         tails = tails,
         plot_contour = plot_contour,
         plot_escurve = plot_escurve,
-        plot_ncurve = plot_ncurve)
+        plot_ncurve = plot_ncurve,
+        covs = covs,
+        factors = factors,
+        factors_list = factors_list,
+        covs_order = covs_order,
+        factors_order = factors_order,
+        mixed_order = mixed_order)
 
     analysis <- pamlglmClass$new(
         options = options,

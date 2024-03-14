@@ -42,7 +42,7 @@ children:
     margin: large
     children:
       - type: Label
-        label: Plots
+        label: Sensitivity Analysis
         children:
                - type: CheckBox
                  name: plot_contour

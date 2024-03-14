@@ -1,8 +1,10 @@
 title: GLM power analysis
 name: pamlglm
-jus: '3.0'
+jus: '2.0'
 stage: 0
 compilerMode: tame
+events:
+  update: './pamlj.events::update'
 children:
   - type: LayoutBox
     margin: large
@@ -53,17 +55,86 @@ children:
             enable: '(!aim:alpha)'
       - type: ComboBox
         name: tails
-  - type: LayoutBox
-    margin: large
+  - type: CollapseBox
+    label: Sensitivity Analysis
+    name: panel_sensitivity
+    collapsed: true
+    stretchFactor: 1
     children:
-      - type: Label
-        label: Plots
+      - type: LayoutBox
         children:
-          - type: CheckBox
-            name: plot_contour
-          - type: CheckBox
-            name: plot_escurve
-            enable: '(!aim:n)'
-          - type: CheckBox
-            name: plot_ncurve
-            enable: '(!aim:es)'
+          - type: Label
+            label: Plots
+            children:
+              - type: CheckBox
+                name: plot_contour
+              - type: CheckBox
+                name: plot_escurve
+                enable: '(!aim:n)'
+              - type: CheckBox
+                name: plot_ncurve
+                enable: '(!aim:es)'
+  - type: CollapseBox
+    label: Model definition
+    name: panel_model
+    collapsed: true
+    stretchFactor: 1
+    children:
+      - type: LayoutBox
+        children:
+          - type: Label
+            label: Variables in the model
+            children:
+              - type: LayoutBox
+                style: inline
+                children:
+                  - name: covs
+                    type: TextBox
+                    format: number
+                    events:
+                        change: './pamlj.events::onChange_factors_list_change'
+                  - name: covs_order
+                    type: ComboBox
+                    events:
+                        change: './pamlj.events::onChange_factors_list_change'
+                    
+              - type: LayoutBox
+                style: inline
+                children:
+                  - name: factors
+                    type: TextBox
+                    format: number
+                    events:
+                      change: './pamlj.events::onChange_factors'
+                  - name: factors_order
+                    type: ComboBox
+                    events:
+                       change: './pamlj.events::onChange_factors_list_change'
+
+          - type: Label
+            name: factors_group
+            label: Factors definition
+            children:
+              - type: ListBox
+                name: factors_list
+                fullRowSelect: true
+                height: large
+                events:
+                  change: './pamlj.events::onChange_factors_list_change'
+                showColumnHeaders: true
+                columns:
+                  - name: var
+                    label: Name
+                    template:
+                      type: Label
+                  - name: levels
+                    label: N levels (groups)
+                    events: null
+                    template:
+                      type: TextBox
+                      format: number
+              - name: mixed_order
+                type: ComboBox
+                events:
+                  change: './pamlj.events::onChange_factors_list_change'
+        

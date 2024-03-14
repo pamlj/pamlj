@@ -89,6 +89,69 @@ options:
       type: Bool
       default: false
 
+    - name: covs
+      title: Number of covariates
+      type:  Number
+      default: 1
+      min: 1
+    - name: factors
+      title: Number of factors
+      type:  Number
+      default: 0
+      min: 0
+
+    - name: factors_list
+      title: Factors
+      type: Array
+      default:
+        - var: index1
+          levels: 0
+      template:
+          type: Group
+          elements:
+            - name: var
+              type: String
+            - name: levels
+              type: Integer
+
+    - name: covs_order
+      title: Max Order
+      type: List
+      options:
+        -       name:  main
+                title: Main Effects
+        -       name:  order2
+                title: Up to 2-way
+        -       name:  order3
+                title: Up to 3-way
+        -       name:  orderall
+                title: All possible
+
+    - name: factors_order
+      title: Max Order
+      type: List
+      options:
+        -       name:  main
+                title: Main Effects
+        -       name:  order2
+                title: Up to 2-way
+        -       name:  order3
+                title: Up to 3-way
+        -       name:  orderall
+                title: All possible
+
+    - name: mixed_order
+      title: Factors Covariates interactions
+      type: List
+      options:
+        -       name:  none
+                title: None
+        -       name:  order2
+                title: Up to 2-way
+        -       name:  order3
+                title: Up to 3-way
+        -       name:  orderall
+                title: All possible
 
 ...
 
