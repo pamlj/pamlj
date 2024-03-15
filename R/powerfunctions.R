@@ -24,22 +24,6 @@ powerfunction <- function(x, ...) UseMethod(".powerfunction")
     return(obj$data)
 }
 
-.powerfunction.glmbeta <- function(obj) {
-  
-    if (is.something(obj$input$n)) 
-      v<-obj$input$n-obj$input$df_model-1
-    else
-      v<-NULL
-    res<-pwr::pwr.f2.test(f2=obj$input[["aes"]],u=1,v=1,power=obj$input[["power"]],sig.level=obj$input[["alpha"]])
-    obj$data[["n"]]<-round(res$v+obj$input$df_model+1)
-    obj$data[["es"]]<-sqrt(res$f2*(1-obj$data$r2))
-    obj$data[["aes"]]<-res$f2
-    obj$data[["alpha"]]<-res$sig.level
-    obj$data[["power"]]<-res$power
-    obj$data[["df1"]]<-res$u
-    obj$data[["df2"]]<-res$v
-    return(obj$data)
-}
 
 .powerfunction.glm <- function(obj) {
   
@@ -87,28 +71,6 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
             
 }
 
-
-.powerbyes.glmbeta <- function(obj) {
-
-            probs = c(.5, .8, .95)
-            probs_es = sapply(probs, function(p){
-              v<-obj$data$n-obj$data$df_model-1
-              pwr::pwr.f2.test(u=1,v=v,
-                                 sig.level = obj$data$alpha, power = p)$f2
-           })
-            probs_es<-sqrt(probs_es*(1-obj$data$r2))
-            probs_es<-round(probs_es,digits=3)
-            esList <-list(list(es=paste('0 <', greek_vector["beta"], greek_vector["leq"],probs_es[1])),
-                          list(es=paste(probs_es[1],'<', greek_vector["beta"], greek_vector["leq"],probs_es[2])),
-                          list(es=paste(probs_es[2],'<', greek_vector["beta"], greek_vector["leq"],probs_es[3])),
-                          list(es=paste(greek_vector["beta"], greek_vector["geq"],probs_es[3]))
-            )
-
-            return(esList)
-            
-}
-
-
 .powerbyes.glm <- function(obj) {
 
             probs = c(.5, .8, .95)
@@ -129,28 +91,6 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
             
 }
 
-
-powerbyr2 <- function(x, ...) UseMethod(".powerbyr2")
-
-
-.powerbyr2.glmbeta <- function(obj) {
-
-            probs = c(.5, .8, .95)
-            probs_es = sapply(probs, function(p){
-              v<-obj$data$n-obj$data$df_model-1
-              pwr::pwr.f2.test(u=obj$data$df_model,v=v,
-                                 sig.level = obj$data$alpha, power = p)$f2
-           })
-            probs_es<-probs_es*(1-obj$data$r2)
-            probs_es<-round(probs_es,digits=3)
-            esList <-list(list(es=paste('0 <', 'R\u00B2', greek_vector["leq"],probs_es[1])),
-                          list(es=paste(probs_es[1],'<', 'R\u00B2', greek_vector["leq"],probs_es[2])),
-                          list(es=paste(probs_es[2],'<', 'R\u00B2', greek_vector["leq"],probs_es[3])),
-                          list(es=paste('R\u00B2', greek_vector["geq"],probs_es[3]))
-            )
-            return(esList)
-            
-}
 
 
 ## powervector must accept a runner object and a list of data. It must be able to return either a vector
@@ -182,35 +122,6 @@ powervector <- function(obj, ...) UseMethod(".powervector")
   
 }
 
-.powervector.glmbeta <- function(obj,data) {
-                
-               
-                data[["sig.level"]]<-data$alpha
-                
-                if (is.something(data$n))
-                   data[["v"]]<- data$n - obj$data$df_model -1
-                u <- 1
-                if (is.something(data$es))
-                   data[["f2"]]<-data$toaes(data$aes,data)
-                
-                whichnull<-setdiff(c("v","f2","sig.level","power"), names(data))  
-                if (length(whichnull)>1)
-                   stop("FUNCTION powervecot: only one parameters should be NULL")
-                if (length(whichnull)==0)
-                   stop("FUNCTION powervector: exactly one parameters should be NULL")
-                mark("powervec",data)
-                ## for some reason, if v is a vector and the effect size is asked, it gives an error
-                if (whichnull=="f2" && length(data$v)>1) {
-                   results<-sapply(data$v, function(x) pwr::pwr.f2.test(u=u,v=x,power=data$power,sig.level=data$alpha)[[whichnull]])
-                }
-                else
-                   results <- pwr::pwr.f2.test(u=u,v=data$v,f2=data$f2,power=data$power,sig.level=data$alpha)[[whichnull]]
-
-                if (whichnull=="v")  results<-round(results+obj$data$df_model+1)
-                if (whichnull=="f2") results<-sqrt(results*(1-obj$data$r2))
-                return(results)
-
-}
 
 
 .powervector.glm <- function(obj,data) {
@@ -224,8 +135,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                 u <- obj$data$df_effect
                 if (is.something(data$es))
                                      data[["f2"]]<-obj$toaes(data$es)
-#                   data[["f2"]]<-data$es2aes(data$es,data)
-     
+
                 whichnull<-setdiff(c("v","f2","sig.level","power"), names(data))  
                 if (length(whichnull)>1)
                    stop("FUNCTION powervecot: only one parameters should be NULL")
@@ -240,7 +150,6 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
                 if (whichnull=="v")  results<-round(results+obj$data$df_model+1)
                 if (whichnull=="f2") results<-obj$fromaes(results)
-#                if (whichnull=="f2") results<-results/(1+results)
                 return(results)
 
 }

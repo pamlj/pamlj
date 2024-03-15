@@ -22,7 +22,7 @@ children:
             margin: large
             children:
               - type: Label
-                label: Model information
+                label: Effect information
                 children:
                   - name: v_es
                     type: TextBox
@@ -41,7 +41,7 @@ children:
             margin: large
             children:
               - type: Label
-                label: Model information
+                label: Effect information
                 children:
                   - name: b_es
                     type: TextBox
@@ -53,7 +53,8 @@ children:
                   - type: TextBox
                     name: b_df_model
                     format: number
-
+                  - type: ComboBox
+                    name: tails
 
   - type: LayoutBox
     margin: large
@@ -76,8 +77,6 @@ children:
             label: '&alpha; (type I error rate)'
             format: number
             enable: '(!aim:alpha)'
-      - type: ComboBox
-        name: tails
   - type: CollapseBox
     label: Sensitivity Analysis
     name: panel_sensitivity
@@ -162,6 +161,55 @@ children:
     label: Options
     name: panel_options
     collapsed: true
+    stretchFactor: 1
     children:
-      - type: CheckBox
-        name: power_r2
+      - type: LayoutBox
+        name: convert_es
+        style: inline
+        children:
+          - type: Label
+            label: Convert effect size indices
+            children:
+              - type: TextBox
+                name: eta
+                format: number
+                events:
+                      change: './pamlj.events::onChange_convert'
+              - type: TextBox
+                name: eta_df
+                format: number
+                events:
+                      change: './pamlj.events::onChange_convert'
+              - type: TextBox
+                name: eta_df_error
+                format: number
+                events:
+                      change: './pamlj.events::onChange_convert'
+              - type: TextBox
+                name: epsilon
+                format: number
+              - type: TextBox
+                name: omega
+                format: number
+          - type: Label
+            label: Use as effect size 
+            children:
+                      - name: use_none
+                        type: RadioButton
+                        optionName: use
+                        optionPart: none
+                        events:
+                            change: './pamlj.events::onChange_convert'
+                      - name: use_omega
+                        type: RadioButton
+                        optionName: use
+                        optionPart: omega
+                        events:
+                            change: './pamlj.events::onChange_convert'
+
+                      - type: RadioButton
+                        name: use_epsilon
+                        optionName: use
+                        optionPart: epsilon
+                        events:
+                            change: './pamlj.events::onChange_convert'

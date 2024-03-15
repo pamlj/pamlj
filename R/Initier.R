@@ -39,7 +39,7 @@ Initer <- R6::R6Class(
           class(self)<-c(self$caller,self$mode,class(self))
           
           if (self$mode == "beta") {
-                self$data[["es"]]         <- jmvobj$options$b_es
+                self$data[["es"]]         <- as.numeric(jmvobj$options$b_es)
                 self$data["df_model"]     <- jmvobj$options$b_df_model
                 self$data["df_effect"]    <- 1
                 self$toaes               <- function(value) value^2/(1-self$data$r2)
@@ -48,11 +48,11 @@ Initer <- R6::R6Class(
 
           }
           if (self$mode == "variance") {
-                self$data[["es"]]         <- jmvobj$options$v_es
+                self$data[["es"]]         <- as.numeric(jmvobj$options$v_es)
                 self$data["df_model"]     <- jmvobj$options$v_df_model
                 self$data["df_effect"]    <- jmvobj$options$v_df_effect
-                self$toaes               <- function(value) value/(1-value)
-                self$fromaes             <- function(value) value/(1+value)
+                self$toaes                <- function(value) value/(1-value)
+                self$fromaes              <- function(value) value/(1+value)
 
           }
 

@@ -3,6 +3,7 @@ const events = {
   
     update: function(ui) {
          console.log("Updating analysis");
+         update_structure(ui);
          update_model(ui);
     },
       
@@ -16,12 +17,51 @@ const events = {
       console.log("list changed");
       update_df(ui);
       
+    },
+    onChange_mode: function(ui) {
+      console.log("mode changed");
+       update_structure(ui);
+
+    },
+    onChange_convert: function(ui) {
+      console.log("convert changed");
+       update_convert(ui);
+
     }
+
+
 
 };
 
 module.exports = events;
 
+var update_convert = function( ui) {
+  
+   var eta = ui.eta.value();
+   if (eta === 0) return
+   var df = ui.eta_df.value();
+   if (df === 0) return
+   var df_error = ui.eta_df_error.value();
+   if (df_error === 0) return
+   
+   var f = eta*df_error/((1-eta)*df)
+   var omega = ((f - 1) * df)/(f * df + df_error + 1);
+   var epsilon = ((f - 1) * df)/(f * df + df_error) ;
+   ui.omega.setValue(omega.toFixed(3));
+   ui.epsilon.setValue(epsilon.toFixed(3));
+   
+   if (ui.use.value() === "epsilon")
+       ui.v_es.setValue(epsilon.toFixed(3));
+   if (ui.use.value() === "omega")
+       ui.v_es.setValue(omega.toFixed(3));
+
+
+}
+
+var update_structure = function( ui) {
+  
+  
+}
     
 
 var update_model = function( ui) {

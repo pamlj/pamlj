@@ -19,6 +19,10 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
 .checkdata.beta <- function(obj) {
   
+
+  if (is.something(obj$data$df_effect) && obj$data$df_effect==0) 
+          stop("Effect degrees of freedom cannot be zero")
+  
   if (is.something(obj$data$es)) {
      if (abs(obj$data$es)<.001)
          stop("Beta coefficient absolute value cannot be less than .001")
@@ -68,6 +72,14 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
     } else {
         stop("GLM power analysis based on partial eta-squared requires the expected degrees of freedom of the model")
     }
+  
+    if (is.something(obj$data$df_effect)) {
+                if (obj$data$df_effect < 1)
+                           stop("Effect degrees of freedom cannot be less than 1")
+    } else {
+        stop("GLM power analysis based on partial eta-squared requires the expected degrees of freedom of the effect")
+    }
+
     if (!is.something(obj$data[["es"]]))
        return()
   
@@ -138,7 +150,7 @@ text_intro <- function(obj) UseMethod(".text_intro")
              </ul>
              <p> In all cases, you can set the required Type I error rate and whether the test will be carried out two-tailed or one-tailed.
              <p> If the expected Partial eta-squared is computed from data, it is recomended to use an adjusted version, such as
-                 the <b>partial Omega-squared<b/>, or the <b>Partial Epsilon-squared</b>. The <b> Option </b> Panel may assist in their computation.<p/>
+                 the <b>partial Omega-squared</b>, or the <b>Partial Epsilon-squared</b>. The <b> Option </b> panel may assist in their computation.<p/>
              
 
              </div>

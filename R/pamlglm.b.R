@@ -6,21 +6,15 @@ pamlglmClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
     inherit = pamlglmBase,
     private = list(
         .time=NULL,
-        .ready= FALSE,
         .smartObjs=list(),
         .plotter=NULL,
         .runner=NULL,
 
       .init = function() {
+        
                 jinfo(paste("MODULE:  PAMLglm #### phase init  ####"))
                 private$.time<-Sys.time()
 
-                private$.ready<-readiness(self$options)
-                if (!private$.ready$ready) {
-                         if(private$.ready$report)
-                           warning("do something")
-                   return()
-                }
 
      ### set up the R6 workhorse class
                 private$.runner          <-  Runner$new(self)
@@ -31,14 +25,6 @@ pamlglmClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                  ladd(private$.smartObjs)<-aSmartObj
 
                  aSmartObj<-SmartTable$new(self$results$powerbyes,private$.runner)
-                 ladd(private$.smartObjs)<-aSmartObj
-
-                 aSmartObj<-SmartTable$new(self$results$powerr2$powertab,private$.runner)
-                 aSmartObj$activated<-(self$options$power_r2) 
-                 ladd(private$.smartObjs)<-aSmartObj
-
-                 aSmartObj<-SmartTable$new(self$results$powerr2$powerbyes,private$.runner)
-                 aSmartObj$activated<-(self$options$power_r2) 
                  ladd(private$.smartObjs)<-aSmartObj
 
                  ### init all ####

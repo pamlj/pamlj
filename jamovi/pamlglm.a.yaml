@@ -70,9 +70,6 @@ options:
       type:  Number
       default: 1
 
-    - name: power_r2
-      title: Full model power 
-      type:  Bool
 
     - name: power
       title: Minimal desired power 
@@ -118,7 +115,7 @@ options:
       title: Number of covariates
       type:  Number
       default: 1
-      min: 1
+      min: 0
     - name: factors
       title: Number of factors
       type:  Number
@@ -177,6 +174,39 @@ options:
                 title: Up to 3-way
         -       name:  orderall
                 title: All possible
+
+    - name: eta
+      title: Actual Eta squared  
+      type:  Number
+      default: .2
+    - name: eta_df
+      title: Actual effect degrees of freedom  
+      type:  Number
+      default: 0
+    - name: eta_df_error
+      title: Actual residuals degrees of freedom  
+      type:  Number
+      default: 0
+    - name: epsilon
+      title: Partial Epsilon-squared  
+      type:  Number
+      default: 0
+    - name: omega
+      title: Partial Omega-squared  
+      type:  Number
+      default: 0
+
+    - name: use
+      type: List
+      options:
+        - name: none
+          title: None
+        - name: omega
+          title: Omega
+        - name: epsilon
+          title: Epsilon
+
+      default: none
 
 ...
 
