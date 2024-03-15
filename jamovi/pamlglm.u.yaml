@@ -188,6 +188,12 @@ children:
               - type: TextBox
                 name: gpower
                 format: number
+              - type: TextBox
+                name: f2
+                format: number
+                events:
+                  change: './pamlglm::onChange_convert'
+                
           - type: Label
             label: Use as effect size
             children:
@@ -213,5 +219,11 @@ children:
                 name: use_gpower
                 optionName: use
                 optionPart: gpower
+                events:
+                  change: './pamlglm::onChange_convert'
+              - type: RadioButton
+                name: use_f2
+                optionName: use
+                optionPart: f2
                 events:
                   change: './pamlglm::onChange_convert'

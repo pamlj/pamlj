@@ -55,7 +55,7 @@ options:
       title: Model degrees of freedom 
       type:  Number
       default: 1
-      min: 1
+      min: 0
 
     - name: v_es
       title: Expected partial Eta-squared (p&eta;&sup2;)
@@ -198,6 +198,10 @@ options:
       title: "G*Power Partial Eta-squared"
       type:  Number
       default: 0
+    - name: f2
+      title: "Cohen's f2"
+      type:  Number
+      default: 0
 
     - name: use
       type: List
@@ -210,6 +214,8 @@ options:
           title: Epsilon
         - name: gpower
           title: "G*Power"
+        - name: f2
+          title: "f2"
 
       default: none
 

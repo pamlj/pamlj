@@ -69,6 +69,13 @@ var update_convert = function( ui) {
        ui.v_es.setValue(omega.toFixed(3));
    if (ui.use.value() === "gpower")
        ui.v_es.setValue(gpower.toFixed(3));
+       
+   if (ui.use.value() === "f2" && ui.f2.value() > 0) {
+      var f2 = ui.f2.value();
+          eta = f2/(1+f2);
+          ui.v_es.setValue(eta.toFixed(3));
+
+   }
 
 
 }
@@ -82,6 +89,18 @@ var update_structure = function( ui) {
         if (ui.mode.value() === "variance") {
           ui.convert_es.$el.show();
           ui.use.setValue("none") ;        
+          ui.omega.$input.prop("readonly",true);
+          ui.omega.$input.css("background-color","#CFECEC");
+          ui.omega.$input.css("border-color","#5981b3");
+        
+          ui.epsilon.$input.prop("readonly",true);
+          ui.epsilon.$input.css("background-color","#CFECEC");
+          ui.epsilon.$input.css("border-color","#5981b3");
+
+          ui.gpower.$input.prop("readonly",true);
+          ui.gpower.$input.css("background-color","#CFECEC");
+          ui.gpower.$input.css("border-color","#5981b3");
+
         }
   
 }

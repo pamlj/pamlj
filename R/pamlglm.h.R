@@ -34,6 +34,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             epsilon = 0,
             omega = 0,
             gpower = 0,
+            f2 = 0,
             use = "none", ...) {
 
             super$initialize(
@@ -75,7 +76,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "b_df_model",
                 b_df_model,
                 default=1,
-                min=1)
+                min=0)
             private$..v_es <- jmvcore::OptionNumber$new(
                 "v_es",
                 v_es,
@@ -190,6 +191,10 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "gpower",
                 gpower,
                 default=0)
+            private$..f2 <- jmvcore::OptionNumber$new(
+                "f2",
+                f2,
+                default=0)
             private$..use <- jmvcore::OptionList$new(
                 "use",
                 use,
@@ -197,7 +202,8 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "none",
                     "omega",
                     "epsilon",
-                    "gpower"),
+                    "gpower",
+                    "f2"),
                 default="none")
 
             self$.addOption(private$...caller)
@@ -227,6 +233,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..epsilon)
             self$.addOption(private$..omega)
             self$.addOption(private$..gpower)
+            self$.addOption(private$..f2)
             self$.addOption(private$..use)
         }),
     active = list(
@@ -257,6 +264,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         epsilon = function() private$..epsilon$value,
         omega = function() private$..omega$value,
         gpower = function() private$..gpower$value,
+        f2 = function() private$..f2$value,
         use = function() private$..use$value),
     private = list(
         ...caller = NA,
@@ -286,6 +294,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..epsilon = NA,
         ..omega = NA,
         ..gpower = NA,
+        ..f2 = NA,
         ..use = NA)
 )
 
@@ -499,6 +508,7 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param epsilon .
 #' @param omega .
 #' @param gpower .
+#' @param f2 .
 #' @param use .
 #' @return A results object containing:
 #' \tabular{llllll}{
@@ -546,6 +556,7 @@ pamlglm <- function(
     epsilon = 0,
     omega = 0,
     gpower = 0,
+    f2 = 0,
     use = "none") {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
@@ -580,6 +591,7 @@ pamlglm <- function(
         epsilon = epsilon,
         omega = omega,
         gpower = gpower,
+        f2 = f2,
         use = use)
 
     analysis <- pamlglmClass$new(
