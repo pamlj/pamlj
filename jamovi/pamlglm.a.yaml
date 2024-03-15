@@ -1,0 +1,223 @@
+---
+name: pamlglm
+title: GLM power analysis
+menuGroup: jpower
+version: '0.0.1'
+jas: '1.2'
+export: true
+completeWhenFilled: false
+description:
+    main: |
+           Something here
+
+options:
+    - name: .caller
+      type: String
+      default: glm
+      hidden: true
+
+    - name: aim
+      title: Calculate 
+      type:  List
+      default: n
+      options:
+        - name:  n
+          title: N
+        - name: power
+          title: Power
+        - name: es
+          title: Effect Size
+        - name: alpha
+          title: Required Alpha
+
+    - name: mode
+      title: "Effect size type"
+      type: List
+      options:
+            - name: variance
+              title: Partial Eta-squared
+            - name: beta
+              title: Beta Coefficients
+      default: variance
+
+      
+    - name: b_es
+      title: Expected standardized coefficients (&beta;)
+      type:  Number
+      default: .2
+
+    - name: r2
+      title: R-squared 
+      type:  Number
+      default: .04
+
+    - name: b_df_model
+      title: Model degrees of freedom 
+      type:  Number
+      default: 1
+      min: 0
+
+    - name: v_es
+      title: Expected partial Eta-squared (p&eta;&sup2;)
+      type:  Number
+      default: .2
+
+    - name: v_df_model
+      title: Model degrees of freedom 
+      type:  Number
+      default: 1
+      min: 1
+    - name: v_df_effect
+      title: Effect degrees of freedom 
+      type:  Number
+      default: 1
+      min: 1
+
+
+    - name: power
+      title: Minimal desired power 
+      type:  Number
+      default: .90
+
+    - name: sample
+      title: N 
+      type:  Number
+      default: 20
+
+    - name: alpha
+      title: Alpha (Type I rate)  
+      type:  Number
+      default: .05
+
+    - name: tails
+      title: Tails  
+      type:  List
+      default: two
+      options:
+        - name:  two
+          title: Two-tailed
+        - name:  one
+          title: One-tailed
+
+    - name: plot_contour
+      title: Power contour plot
+      type: Bool
+      default: false
+
+    - name: plot_escurve
+      title: Power curve by effect size
+      type: Bool
+      default: false
+      
+    - name: plot_ncurve
+      title: Power curve by N
+      type: Bool
+      default: false
+
+    - name: covs
+      title: Number of covariates
+      type:  Number
+      default: 1
+      min: 0
+    - name: factors
+      title: Number of factors
+      type:  Number
+      default: 0
+      min: 0
+
+    - name: factors_list
+      title: Factors
+      type: Array
+      default:
+        - var: factor 1
+          levels: 0
+      template:
+          type: Group
+          elements:
+            - name: var
+              type: String
+            - name: levels
+              type: Integer
+
+    - name: covs_order
+      title: Max Order
+      type: List
+      options:
+        -       name:  main
+                title: Main Effects
+        -       name:  order2
+                title: Up to 2-way
+        -       name:  order3
+                title: Up to 3-way
+        -       name:  orderall
+                title: All possible
+
+    - name: factors_order
+      title: Max Order
+      type: List
+      options:
+        -       name:  main
+                title: Main Effects
+        -       name:  order2
+                title: Up to 2-way
+        -       name:  order3
+                title: Up to 3-way
+        -       name:  orderall
+                title: All possible
+
+    - name: mixed_order
+      title: Factors Covariates interactions
+      type: List
+      options:
+        -       name:  none
+                title: None
+        -       name:  order2
+                title: Up to 2-way
+        -       name:  order3
+                title: Up to 3-way
+        -       name:  orderall
+                title: All possible
+
+    - name: eta
+      title: Actual Eta squared  
+      type:  Number
+      default: .2
+    - name: eta_df_error
+      title: Actual residuals degrees of freedom  
+      type:  Number
+      default: 0
+    - name: epsilon
+      title: Partial Epsilon-squared  
+      type:  Number
+      default: 0
+    - name: omega
+      title: Partial Omega-squared  
+      type:  Number
+      default: 0
+    - name: gpower
+      title: "G*Power Partial Eta-squared"
+      type:  Number
+      default: 0
+    - name: f2
+      title: "Cohen's f2"
+      type:  Number
+      default: 0
+
+    - name: use
+      type: List
+      options:
+        - name: none
+          title: None
+        - name: omega
+          title: Omega
+        - name: epsilon
+          title: Epsilon
+        - name: gpower
+          title: "G*Power"
+        - name: f2
+          title: "f2"
+
+      default: none
+
+...
+

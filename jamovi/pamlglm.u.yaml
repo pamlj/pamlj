@@ -1,0 +1,229 @@
+title: GLM power analysis
+name: pamlglm
+jus: '3.0'
+stage: 0
+compilerMode: tame
+events:
+  update: './pamlglm::update'
+children:
+  - type: LayoutBox
+    margin: large
+    children:
+      - type: ComboBox
+        name: aim
+  - type: ModeSelector
+    name: mode
+    stretchFactor: 1
+    children:
+      - type: Content
+        name: variance
+        children:
+          - type: LayoutBox
+            margin: large
+            children:
+              - type: Label
+                label: Effect information
+                children:
+                  - name: v_es
+                    type: TextBox
+                    format: number
+                    enable: '(!aim:es)'
+                  - type: TextBox
+                    name: v_df_effect
+                    format: number
+                  - type: TextBox
+                    name: v_df_model
+                    format: number
+      - type: Content
+        name: beta
+        children:
+          - type: LayoutBox
+            margin: large
+            children:
+              - type: Label
+                label: Effect information
+                children:
+                  - name: b_es
+                    type: TextBox
+                    format: number
+                    enable: '(!aim:es)'
+                  - name: r2
+                    type: TextBox
+                    format: number
+                  - type: TextBox
+                    name: b_df_model
+                    format: number
+                  - type: ComboBox
+                    name: tails
+  - type: LayoutBox
+    margin: large
+    children:
+      - type: Label
+        label: Parameters
+        children:
+          - name: power
+            type: TextBox
+            label: Minimum desired power
+            format: number
+            enable: '(!aim:power)'
+          - name: sample
+            type: TextBox
+            label: N (Sample size)
+            format: number
+            enable: '(!aim:n)'
+          - name: alpha
+            type: TextBox
+            label: '&alpha; (type I error rate)'
+            format: number
+            enable: '(!aim:alpha)'
+  - type: CollapseBox
+    label: Sensitivity Analysis
+    name: panel_sensitivity
+    collapsed: true
+    stretchFactor: 1
+    children:
+      - type: LayoutBox
+        children:
+          - type: Label
+            label: Plots
+            children:
+              - type: CheckBox
+                name: plot_contour
+              - type: CheckBox
+                name: plot_escurve
+                enable: '(!aim:n)'
+              - type: CheckBox
+                name: plot_ncurve
+                enable: '(!aim:es)'
+  - type: CollapseBox
+    label: Model definition
+    name: panel_model
+    collapsed: true
+    stretchFactor: 1
+    children:
+      - type: LayoutBox
+        children:
+          - type: Label
+            label: Variables in the model
+            children:
+              - type: LayoutBox
+                style: inline
+                children:
+                  - name: covs
+                    type: TextBox
+                    format: number
+                    events:
+                      change: './pamlglm::onChange_factors_list_change'
+                  - name: covs_order
+                    type: ComboBox
+                    events:
+                      change: './pamlglm::onChange_factors_list_change'
+              - type: LayoutBox
+                style: inline
+                children:
+                  - name: factors
+                    type: TextBox
+                    format: number
+                    events:
+                      change: './pamlglm::onChange_factors'
+                  - name: factors_order
+                    type: ComboBox
+                    events:
+                      change: './pamlglm::onChange_factors_list_change'
+          - type: Label
+            name: factors_group
+            label: Factors definition
+            children:
+              - type: ListBox
+                name: factors_list
+                fullRowSelect: true
+                height: large
+                events:
+                  change: './pamlglm::onChange_factors_list_change'
+                showColumnHeaders: true
+                columns:
+                  - name: var
+                    label: Name
+                    template:
+                      type: Label
+                  - name: levels
+                    label: N levels (groups)
+                    events: null
+                    template:
+                      type: TextBox
+                      format: number
+              - name: mixed_order
+                type: ComboBox
+                events:
+                  change: './pamlglm::onChange_factors_list_change'
+  - type: CollapseBox
+    label: Options
+    name: panel_options
+    collapsed: true
+    stretchFactor: 1
+    children:
+      - type: LayoutBox
+        name: convert_es
+        style: inline
+        children:
+          - type: Label
+            label: Convert effect size indices
+            children:
+              - type: TextBox
+                name: eta
+                format: number
+                events:
+                  change: './pamlglm::onChange_convert'
+              - type: TextBox
+                name: eta_df_error
+                format: number
+                events:
+                  change: './pamlglm::onChange_convert'
+              - type: TextBox
+                name: epsilon
+                format: number
+              - type: TextBox
+                name: omega
+                format: number
+              - type: TextBox
+                name: gpower
+                format: number
+              - type: TextBox
+                name: f2
+                format: number
+                events:
+                  change: './pamlglm::onChange_convert'
+                
+          - type: Label
+            label: Use as effect size
+            children:
+              - name: use_none
+                type: RadioButton
+                optionName: use
+                optionPart: none
+                events:
+                  change: './pamlglm::onChange_convert'
+              - name: use_omega
+                type: RadioButton
+                optionName: use
+                optionPart: omega
+                events:
+                  change: './pamlglm::onChange_convert'
+              - type: RadioButton
+                name: use_epsilon
+                optionName: use
+                optionPart: epsilon
+                events:
+                  change: './pamlglm::onChange_convert'
+              - type: RadioButton
+                name: use_gpower
+                optionName: use
+                optionPart: gpower
+                events:
+                  change: './pamlglm::onChange_convert'
+              - type: RadioButton
+                name: use_f2
+                optionName: use
+                optionPart: f2
+                events:
+                  change: './pamlglm::onChange_convert'

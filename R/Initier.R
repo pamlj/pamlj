@@ -1,0 +1,114 @@
+
+
+Initer <- R6::R6Class(
+  "Initer",
+  class=TRUE, 
+  cloneable=FALSE, ## should improve performance https://r6.r-lib.org/articles/Performance.html ###
+  inherit = Scaffold,
+  public=list(
+    datavars=NULL,
+    dispatcher=NULL,
+    ready=FALSE,
+    data = list(),
+    input=list(),
+    aim  = NULL,
+    caller=NULL,
+    mode = NULL,
+    tails = NULL,
+    info = list(),
+    alphacor=1,
+    fromaes=NULL,
+    toaes  =NULL,
+    initialize=function(jmvobj) {
+
+      super$initialize(jmvobj)
+          self$toaes               <- function(value) value
+          self$fromaes             <- function(value) value
+
+          self$aim               <- jmvobj$options$aim
+          self$data[["n"]]       <- jmvobj$options$sample
+          self$data[["alpha"]]   <- jmvobj$options$alpha
+          self$data[["power"]]   <- jmvobj$options$power
+          self$data[[self$aim]]  <- NULL
+          self$tails             <- jmvobj$options$tails
+          self$caller            <- jmvobj$options$.caller
+          
+          if (self$option("mode")) {
+                 self$mode <- self$options$mode
+          
+                if (self$mode == "beta") {
+                      self$data[["es"]]         <- as.numeric(jmvobj$options$b_es)
+                      self$data["df_model"]     <- jmvobj$options$b_df_model
+                      self$data["df_effect"]    <- 1
+                      if (self$tails=="one")    self$alphacor   <- 2
+
+                      self$toaes               <- function(value) value^2/(1-self$data$r2)
+                      self$fromaes             <- function(value) sqrt(value*(1-self$data$r2))
+                }
+                if (self$mode == "variance") {
+                    self$data[["es"]]         <- as.numeric(jmvobj$options$v_es)
+                    self$data["df_model"]     <- jmvobj$options$v_df_model
+                    self$data["df_effect"]    <- jmvobj$options$v_df_effect
+                    self$toaes                <- function(value) value/(1-value)
+                    self$fromaes              <- function(value) value/(1+value)
+                }
+          }
+          
+          if (!is.something(self$data$es))
+                self$data$es <- self$options$es
+
+          if (self$option("r2")) 
+              self$data["r2"]    <- jmvobj$options$r2
+          
+          class(self)<-c(self$caller,self$mode,class(self))
+          checkdata(self)
+          self$input             <- self$data
+          
+          jmvobj$results$intro$setContent(text_intro(self))
+
+    }, # here initialize ends
+    #### init functions #####
+    init_powertab = function() {
+      
+          tab<-list(self$data) 
+          
+          return(tab)
+    },
+    init_powerbyes= function() {
+      
+      list(list(power='\u226450%',desc='Likely miss'),
+           list(power='50% \u2013 80%',desc='Good chance of missing'),
+           list(power='80% \u2013 95%',desc='Probably detect'),
+           list(power='\u226595%',desc='Almost surely detect')
+                )
+      
+    },      
+
+    init_powerr2_powertab = function() {
+      
+          tab<-list(self$data) 
+          return(tab)
+    },
+
+    init_powerr2_powerbyes= function() {
+      
+      list(list(power='\u226450%',desc='Likely miss'),
+           list(power='50% \u2013 80%',desc='Good chance of missing'),
+           list(power='80% \u2013 95%',desc='Probably detect'),
+           list(power='\u226595%',desc='Almost surely detect')
+                )
+      
+    }      
+      
+    
+  ),   # End public
+  
+  private=list(
+    .desc=list(),
+    .vars=list(),
+    .clusters=list()
+
+  ) # end of private
+) # End Rclass
+
+

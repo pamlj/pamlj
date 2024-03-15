@@ -1,0 +1,39 @@
+---
+title: Power for linear models
+name: pamlj
+version: 0.0.7
+jms: '1.0'
+authors:
+  - Marcello Gallucci
+maintainer: Marcello Gallucci <mcfanda@gmail.com>
+date: 2024-1-1
+type: R
+description: >-
+  A suite for power analysis for linear models. At the moment, it allows for
+  power analysis of Pearson correlation and the general linear model
+  (Anova/Regression/ANCOVA). The latter can be based on standardized
+  coefficients (regression) or proportion of partial variance effect siz
+  (Eta-squared, Omega-Squared, Epsilon-Squared). It provides estimation of
+  required sample size, power and minimally-detectable effect size, plus plots
+  for sensitivity analysis.
+analyses:
+  - title: Correlation power analysis
+    name: pamlcorr
+    ns: pamlj
+    menuGroup: jpower
+    menuSubgroup: GLM power
+    menuTitle: Correlation power analysis
+    description: |
+      Something here
+  - title: GLM power analysis
+    name: pamlglm
+    ns: pamlj
+    menuGroup: jpower
+    menuSubgroup: GLM power
+    menuTitle: GLM power analysis
+    description: |
+      Something here
+usesNative: true
+minApp: 1.0.8
+
+...
