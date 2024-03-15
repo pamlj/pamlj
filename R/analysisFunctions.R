@@ -82,7 +82,13 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
     } else {
         stop("GLM power analysis based on partial eta-squared requires the expected degrees of freedom of the effect")
     }
-  
+
+    if ( obj$data$df_model < obj$data$df_effect ) {
+           obj$data$df_model <- obj$data$df_effect
+           obj$warning<-list(topic="powertab",message="Model degrees of freedom cannot be less than the effect degrees of freedom. 
+                                                   They have been set equal. ")
+    }
+
     if (!is.something(obj$data[["es"]]))
        return()
 

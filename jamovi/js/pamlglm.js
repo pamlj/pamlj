@@ -84,7 +84,9 @@ var update_structure = function( ui) {
        
         if (ui.mode.value() === "beta") {
           ui.convert_es.$el.hide() ;
-          ui.use.setValue("none") ;        
+          ui.use.setValue("none") ;
+          if (ui.b_df_model.value() < 1) 
+              ui.b_df_model.setValue(1);
         }
         if (ui.mode.value() === "variance") {
           ui.convert_es.$el.show();

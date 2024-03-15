@@ -16,6 +16,7 @@ Initer <- R6::R6Class(
     mode = NULL,
     tails = NULL,
     info = list(),
+    alphacor=1,
     fromaes=NULL,
     toaes  =NULL,
     initialize=function(jmvobj) {
@@ -39,6 +40,8 @@ Initer <- R6::R6Class(
                       self$data[["es"]]         <- as.numeric(jmvobj$options$b_es)
                       self$data["df_model"]     <- jmvobj$options$b_df_model
                       self$data["df_effect"]    <- 1
+                      if (self$tails=="one")    self$alphacor   <- 2
+
                       self$toaes               <- function(value) value^2/(1-self$data$r2)
                       self$fromaes             <- function(value) sqrt(value*(1-self$data$r2))
                 }
