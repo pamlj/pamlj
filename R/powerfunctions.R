@@ -31,6 +31,7 @@ powerfunction <- function(x, ...) UseMethod(".powerfunction")
       v<-obj$input$n-obj$input$df_model-1
     else
       v<-NULL
+    
     res<-pwr::pwr.f2.test(f2=obj$input$aes,u=obj$input$df_effect,v=v,power=obj$input$power,sig.level=obj$input$alpha)
     obj$data[["n"]]<-round(res$v+obj$input$df_model+1)
     obj$data[["es"]]<-obj$fromaes(res$f2)

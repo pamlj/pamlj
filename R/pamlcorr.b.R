@@ -15,12 +15,6 @@ pamlcorrClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                 jinfo(paste("MODULE:  PAMLcorr #### phase init  ####"))
                 private$.time<-Sys.time()
 
-                private$.ready<-readiness(self$options)
-                if (!private$.ready$ready) {
-                         if(private$.ready$report)
-                           warning("do something")
-                   return()
-                }
 
      ### set up the R6 workhorse class
                 private$.runner          <-  Runner$new(self)

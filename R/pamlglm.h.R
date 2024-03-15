@@ -30,10 +30,10 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             factors_order = NULL,
             mixed_order = NULL,
             eta = 0.2,
-            eta_df = 0,
             eta_df_error = 0,
             epsilon = 0,
             omega = 0,
+            gpower = 0,
             use = "none", ...) {
 
             super$initialize(
@@ -74,7 +74,8 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..b_df_model <- jmvcore::OptionNumber$new(
                 "b_df_model",
                 b_df_model,
-                default=1)
+                default=1,
+                min=1)
             private$..v_es <- jmvcore::OptionNumber$new(
                 "v_es",
                 v_es,
@@ -82,11 +83,13 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..v_df_model <- jmvcore::OptionNumber$new(
                 "v_df_model",
                 v_df_model,
-                default=1)
+                default=1,
+                min=1)
             private$..v_df_effect <- jmvcore::OptionNumber$new(
                 "v_df_effect",
                 v_df_effect,
-                default=1)
+                default=1,
+                min=1)
             private$..power <- jmvcore::OptionNumber$new(
                 "power",
                 power,
@@ -171,10 +174,6 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "eta",
                 eta,
                 default=0.2)
-            private$..eta_df <- jmvcore::OptionNumber$new(
-                "eta_df",
-                eta_df,
-                default=0)
             private$..eta_df_error <- jmvcore::OptionNumber$new(
                 "eta_df_error",
                 eta_df_error,
@@ -187,13 +186,18 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "omega",
                 omega,
                 default=0)
+            private$..gpower <- jmvcore::OptionNumber$new(
+                "gpower",
+                gpower,
+                default=0)
             private$..use <- jmvcore::OptionList$new(
                 "use",
                 use,
                 options=list(
                     "none",
                     "omega",
-                    "epsilon"),
+                    "epsilon",
+                    "gpower"),
                 default="none")
 
             self$.addOption(private$...caller)
@@ -219,10 +223,10 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..factors_order)
             self$.addOption(private$..mixed_order)
             self$.addOption(private$..eta)
-            self$.addOption(private$..eta_df)
             self$.addOption(private$..eta_df_error)
             self$.addOption(private$..epsilon)
             self$.addOption(private$..omega)
+            self$.addOption(private$..gpower)
             self$.addOption(private$..use)
         }),
     active = list(
@@ -249,10 +253,10 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         factors_order = function() private$..factors_order$value,
         mixed_order = function() private$..mixed_order$value,
         eta = function() private$..eta$value,
-        eta_df = function() private$..eta_df$value,
         eta_df_error = function() private$..eta_df_error$value,
         epsilon = function() private$..epsilon$value,
         omega = function() private$..omega$value,
+        gpower = function() private$..gpower$value,
         use = function() private$..use$value),
     private = list(
         ...caller = NA,
@@ -278,10 +282,10 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..factors_order = NA,
         ..mixed_order = NA,
         ..eta = NA,
-        ..eta_df = NA,
         ..eta_df_error = NA,
         ..epsilon = NA,
         ..omega = NA,
+        ..gpower = NA,
         ..use = NA)
 )
 
@@ -491,10 +495,10 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param factors_order .
 #' @param mixed_order .
 #' @param eta .
-#' @param eta_df .
 #' @param eta_df_error .
 #' @param epsilon .
 #' @param omega .
+#' @param gpower .
 #' @param use .
 #' @return A results object containing:
 #' \tabular{llllll}{
@@ -538,10 +542,10 @@ pamlglm <- function(
     factors_order,
     mixed_order,
     eta = 0.2,
-    eta_df = 0,
     eta_df_error = 0,
     epsilon = 0,
     omega = 0,
+    gpower = 0,
     use = "none") {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
@@ -572,10 +576,10 @@ pamlglm <- function(
         factors_order = factors_order,
         mixed_order = mixed_order,
         eta = eta,
-        eta_df = eta_df,
         eta_df_error = eta_df_error,
         epsilon = epsilon,
         omega = omega,
+        gpower = gpower,
         use = use)
 
     analysis <- pamlglmClass$new(

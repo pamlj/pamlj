@@ -55,6 +55,7 @@ options:
       title: Model degrees of freedom 
       type:  Number
       default: 1
+      min: 1
 
     - name: v_es
       title: Expected partial Eta-squared (p&eta;&sup2;)
@@ -65,10 +66,12 @@ options:
       title: Model degrees of freedom 
       type:  Number
       default: 1
+      min: 1
     - name: v_df_effect
       title: Effect degrees of freedom 
       type:  Number
       default: 1
+      min: 1
 
 
     - name: power
@@ -179,10 +182,6 @@ options:
       title: Actual Eta squared  
       type:  Number
       default: .2
-    - name: eta_df
-      title: Actual effect degrees of freedom  
-      type:  Number
-      default: 0
     - name: eta_df_error
       title: Actual residuals degrees of freedom  
       type:  Number
@@ -195,6 +194,10 @@ options:
       title: Partial Omega-squared  
       type:  Number
       default: 0
+    - name: gpower
+      title: "G*Power Partial Eta-squared"
+      type:  Number
+      default: 0
 
     - name: use
       type: List
@@ -205,6 +208,8 @@ options:
           title: Omega
         - name: epsilon
           title: Epsilon
+        - name: gpower
+          title: "G*Power"
 
       default: none
 

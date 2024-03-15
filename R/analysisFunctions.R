@@ -19,6 +19,8 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
 .checkdata.beta <- function(obj) {
   
+    obj$data$letter   <- greek_vector["beta"]
+
 
   if (is.something(obj$data$df_effect) && obj$data$df_effect==0) 
           stop("Effect degrees of freedom cannot be zero")
@@ -53,11 +55,12 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
        return()
   
     obj$data[["aes"]] <- obj$data$es^2/(1-obj$data$r2)
-    obj$data$letter   <- greek_vector["beta"]
-
+  
 }
 
 .checkdata.variance <- function(obj) {
+
+  obj$data$letter   <- letter_peta2
   
   if (is.something(obj$data$es)) {
      if (abs(obj$data$es)<.001)
@@ -79,12 +82,12 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
     } else {
         stop("GLM power analysis based on partial eta-squared requires the expected degrees of freedom of the effect")
     }
-
+  
     if (!is.something(obj$data[["es"]]))
        return()
-  
+
     obj$data[["aes"]] <- obj$data$es/(1-obj$data$es)
-    obj$data$letter   <- letter_peta2
+
 
 }
 

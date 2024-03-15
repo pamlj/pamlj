@@ -32,36 +32,35 @@ Initer <- R6::R6Class(
           self$tails             <- jmvobj$options$tails
           self$caller            <- jmvobj$options$.caller
           
-          if (self$option("mode"))
+          if (self$option("mode")) {
                  self$mode <- self$options$mode
           
-          
-          class(self)<-c(self$caller,self$mode,class(self))
-          
-          if (self$mode == "beta") {
-                self$data[["es"]]         <- as.numeric(jmvobj$options$b_es)
-                self$data["df_model"]     <- jmvobj$options$b_df_model
-                self$data["df_effect"]    <- 1
-                self$toaes               <- function(value) value^2/(1-self$data$r2)
-                self$fromaes             <- function(value) sqrt(value*(1-self$data$r2))
-
-
+                if (self$mode == "beta") {
+                      self$data[["es"]]         <- as.numeric(jmvobj$options$b_es)
+                      self$data["df_model"]     <- jmvobj$options$b_df_model
+                      self$data["df_effect"]    <- 1
+                      self$toaes               <- function(value) value^2/(1-self$data$r2)
+                      self$fromaes             <- function(value) sqrt(value*(1-self$data$r2))
+                }
+                if (self$mode == "variance") {
+                    self$data[["es"]]         <- as.numeric(jmvobj$options$v_es)
+                    self$data["df_model"]     <- jmvobj$options$v_df_model
+                    self$data["df_effect"]    <- jmvobj$options$v_df_effect
+                    self$toaes                <- function(value) value/(1-value)
+                    self$fromaes              <- function(value) value/(1+value)
+                }
           }
-          if (self$mode == "variance") {
-                self$data[["es"]]         <- as.numeric(jmvobj$options$v_es)
-                self$data["df_model"]     <- jmvobj$options$v_df_model
-                self$data["df_effect"]    <- jmvobj$options$v_df_effect
-                self$toaes                <- function(value) value/(1-value)
-                self$fromaes              <- function(value) value/(1+value)
-
-          }
-
           
+          if (!is.something(self$data$es))
+                self$data$es <- self$options$es
+
           if (self$option("r2")) 
               self$data["r2"]    <- jmvobj$options$r2
-
+          
+          class(self)<-c(self$caller,self$mode,class(self))
           checkdata(self)
           self$input             <- self$data
+          
           jmvobj$results$intro$setContent(text_intro(self))
 
     }, # here initialize ends

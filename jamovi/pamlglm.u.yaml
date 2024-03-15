@@ -4,7 +4,7 @@ jus: '3.0'
 stage: 0
 compilerMode: tame
 events:
-  update: './pamlj.events::update'
+  update: './pamlglm::update'
 children:
   - type: LayoutBox
     margin: large
@@ -55,7 +55,6 @@ children:
                     format: number
                   - type: ComboBox
                     name: tails
-
   - type: LayoutBox
     margin: large
     children:
@@ -114,11 +113,11 @@ children:
                     type: TextBox
                     format: number
                     events:
-                      change: './pamlj.events::onChange_factors_list_change'
+                      change: './pamlglm::onChange_factors_list_change'
                   - name: covs_order
                     type: ComboBox
                     events:
-                      change: './pamlj.events::onChange_factors_list_change'
+                      change: './pamlglm::onChange_factors_list_change'
               - type: LayoutBox
                 style: inline
                 children:
@@ -126,11 +125,11 @@ children:
                     type: TextBox
                     format: number
                     events:
-                      change: './pamlj.events::onChange_factors'
+                      change: './pamlglm::onChange_factors'
                   - name: factors_order
                     type: ComboBox
                     events:
-                      change: './pamlj.events::onChange_factors_list_change'
+                      change: './pamlglm::onChange_factors_list_change'
           - type: Label
             name: factors_group
             label: Factors definition
@@ -140,7 +139,7 @@ children:
                 fullRowSelect: true
                 height: large
                 events:
-                  change: './pamlj.events::onChange_factors_list_change'
+                  change: './pamlglm::onChange_factors_list_change'
                 showColumnHeaders: true
                 columns:
                   - name: var
@@ -156,7 +155,7 @@ children:
               - name: mixed_order
                 type: ComboBox
                 events:
-                  change: './pamlj.events::onChange_factors_list_change'
+                  change: './pamlglm::onChange_factors_list_change'
   - type: CollapseBox
     label: Options
     name: panel_options
@@ -174,42 +173,45 @@ children:
                 name: eta
                 format: number
                 events:
-                      change: './pamlj.events::onChange_convert'
-              - type: TextBox
-                name: eta_df
-                format: number
-                events:
-                      change: './pamlj.events::onChange_convert'
+                  change: './pamlglm::onChange_convert'
               - type: TextBox
                 name: eta_df_error
                 format: number
                 events:
-                      change: './pamlj.events::onChange_convert'
+                  change: './pamlglm::onChange_convert'
               - type: TextBox
                 name: epsilon
                 format: number
               - type: TextBox
                 name: omega
                 format: number
+              - type: TextBox
+                name: gpower
+                format: number
           - type: Label
-            label: Use as effect size 
+            label: Use as effect size
             children:
-                      - name: use_none
-                        type: RadioButton
-                        optionName: use
-                        optionPart: none
-                        events:
-                            change: './pamlj.events::onChange_convert'
-                      - name: use_omega
-                        type: RadioButton
-                        optionName: use
-                        optionPart: omega
-                        events:
-                            change: './pamlj.events::onChange_convert'
-
-                      - type: RadioButton
-                        name: use_epsilon
-                        optionName: use
-                        optionPart: epsilon
-                        events:
-                            change: './pamlj.events::onChange_convert'
+              - name: use_none
+                type: RadioButton
+                optionName: use
+                optionPart: none
+                events:
+                  change: './pamlglm::onChange_convert'
+              - name: use_omega
+                type: RadioButton
+                optionName: use
+                optionPart: omega
+                events:
+                  change: './pamlglm::onChange_convert'
+              - type: RadioButton
+                name: use_epsilon
+                optionName: use
+                optionPart: epsilon
+                events:
+                  change: './pamlglm::onChange_convert'
+              - type: RadioButton
+                name: use_gpower
+                optionName: use
+                optionPart: gpower
+                events:
+                  change: './pamlglm::onChange_convert'

@@ -6,6 +6,11 @@ const events = {
          update_structure(ui);
          update_model(ui);
     },
+    mode_changed: function(ui) {
+        console.log("mode has changed in " + ui.mode.value());
+        update_structure(ui);
+
+    },
       
     onChange_factors: function(ui) {
       
@@ -13,6 +18,7 @@ const events = {
 
     },
     
+
     onChange_factors_list_change: function(ui) {
       console.log("list changed");
       update_df(ui);
@@ -39,27 +45,44 @@ var update_convert = function( ui) {
   
    var eta = ui.eta.value();
    if (eta === 0) return
-   var df = ui.eta_df.value();
+   var df = ui.v_df_effect.value();
    if (df === 0) return
+   var df_model = ui.v_df_model.value();
+   
    var df_error = ui.eta_df_error.value();
    if (df_error === 0) return
-   
+   var N=df   
    var f = eta*df_error/((1-eta)*df)
    var omega = ((f - 1) * df)/(f * df + df_error + 1);
    var epsilon = ((f - 1) * df)/(f * df + df_error) ;
+   var k = df+1
+   var N = df_model + df_error + 1
+   var gpower = eta*(k-N)/((eta*k)-N)
+
    ui.omega.setValue(omega.toFixed(3));
    ui.epsilon.setValue(epsilon.toFixed(3));
+   ui.gpower.setValue(gpower.toFixed(3));
    
    if (ui.use.value() === "epsilon")
        ui.v_es.setValue(epsilon.toFixed(3));
    if (ui.use.value() === "omega")
        ui.v_es.setValue(omega.toFixed(3));
+   if (ui.use.value() === "gpower")
+       ui.v_es.setValue(gpower.toFixed(3));
 
 
 }
 
 var update_structure = function( ui) {
-  
+       
+        if (ui.mode.value() === "beta") {
+          ui.convert_es.$el.hide() ;
+          ui.use.setValue("none") ;        
+        }
+        if (ui.mode.value() === "variance") {
+          ui.convert_es.$el.show();
+          ui.use.setValue("none") ;        
+        }
   
 }
     
@@ -94,6 +117,8 @@ var update_model = function( ui) {
 
 var update_df = function( ui) {
 
+      if ( ui.covs.value()+ui.factors.value() === 0) return
+      console.log("updating the df");
       var factors = ui.factors_list.value();   
       var df_factors=[];
       factors.forEach((value) => {
