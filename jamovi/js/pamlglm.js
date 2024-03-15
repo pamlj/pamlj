@@ -153,8 +153,10 @@ var update_df = function( ui) {
       }
 
      var df = df1+df2+df3 ;
-     ui.b_df_model.setValue(df);
-     ui.v_df_model.setValue(df);
+     if ( df > 0 ) {
+       ui.b_df_model.setValue(df);
+       ui.v_df_model.setValue(df);
+     }
 
      console.log("df_model updated to: " + df);
 }
