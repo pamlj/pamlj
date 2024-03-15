@@ -3,18 +3,18 @@ const events = {
   
     update: function(ui) {
          console.log("Updating analysis");
-         update_model(ui,this);
+         update_model(ui);
     },
       
     onChange_factors: function(ui) {
       
-         update_model(ui,this);
+         update_model(ui);
 
     },
     
     onChange_factors_list_change: function(ui) {
       console.log("list changed");
-      update_df(ui,this);
+      update_df(ui);
       
     }
 
@@ -24,11 +24,11 @@ module.exports = events;
 
     
 
-var update_model = function( ui, context) {
+var update_model = function( ui) {
 
       console.log("factors changed");
       var nfactors = ui.factors.value();
-      
+
       if ( nfactors == 0) {
         ui.factors_group.$el.hide();
         ui.factors_list.setValue([]);
@@ -37,7 +37,8 @@ var update_model = function( ui, context) {
       }
       
       ui.factors_group.$el.show();
-      var factors = context.cloneArray(ui.factors_list.value(), []);   
+      var factors = ui.factors_list.value();   
+      console.log(factors)
 
       var newarray = new Array(nfactors).fill(0)
       newarray.forEach(function(value, i, arr){
@@ -51,9 +52,9 @@ var update_model = function( ui, context) {
 
 }
 
-var update_df = function( ui, context) {
+var update_df = function( ui) {
 
-      var factors = context.cloneArray(ui.factors_list.value(), []);   
+      var factors = ui.factors_list.value();   
       var df_factors=[];
       factors.forEach((value) => {
         if (value.levels > 1) df_factors.push(value.levels-1);
@@ -87,7 +88,9 @@ var update_df = function( ui, context) {
       }
 
      var df = df1+df2+df3 ;
-     ui.df_model.setValue(df);
+     ui.b_df_model.setValue(df);
+     ui.v_df_model.setValue(df);
+
      console.log("df_model updated to: " + df);
 }
 

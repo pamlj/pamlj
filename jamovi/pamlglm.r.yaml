@@ -14,20 +14,23 @@ items:
       type: Table
       rows:  1
       clearWith:
-        - es
+        - mode
+        - b_es
+        - v_es
         - power
         - sample
         - alpha
         - aim
         - tails
-        - df_model
+        - b_df_model
+        - v_df_model
         - r2
       columns: 
         - name: n
           title: 'N'
           type: integer
         - name: es
-          title: 'β'
+          title: 'Effect size'
           type: number
         - name: aes
           title: f²
@@ -51,13 +54,16 @@ items:
       type: Table
       rows:  4
       clearWith:
-        - es
+        - mode
+        - b_es
+        - v_es
         - power
         - sample
         - alpha
         - aim
         - tails
-        - df_model
+        - b_df_model
+        - v_df_model
         - r2
         
       columns:
@@ -83,15 +89,17 @@ items:
                visible: false
                rows:  1
                clearWith:
-                      - es
-                      - power
-                      - sample
-                      - alpha
-                      - aim
-                      - tails
-                      - df_model
-                      - r2
-                      - power_r2
+                    - mode
+                    - b_es
+                    - v_es
+                    - power
+                    - sample
+                    - alpha
+                    - aim
+                    - tails
+                    - b_df_model
+                    - v_df_model
+                    - r2
                       
                columns: 
                         - name: n
@@ -119,15 +127,17 @@ items:
                rows:  4
                visible: false
                clearWith:
-                        - es
-                        - power
-                        - sample
-                        - alpha
-                        - aim
-                        - tails
-                        - df_model
-                        - r2
-                        - power_r2
+                    - mode
+                    - b_es
+                    - v_es
+                    - power
+                    - sample
+                    - alpha
+                    - aim
+                    - tails
+                    - b_df_model
+                    - v_df_model
+                    - r2
                columns:
                         - name: es
                           title: 'True effect size'
@@ -149,14 +159,17 @@ items:
       renderFun: .plot_contour
       visible: (plot_contour)
       clearWith:
-        - es
-        - power
-        - sample
-        - alpha
-        - aim
-        - tails
-        - df_model
-        - r2
+                    - mode
+                    - b_es
+                    - v_es
+                    - power
+                    - sample
+                    - alpha
+                    - aim
+                    - tails
+                    - b_df_model
+                    - v_df_model
+                    - r2
 
     - name: powerEscurve
       title: Power Curve by Effect Size
@@ -166,14 +179,17 @@ items:
       renderFun: .plot_escurve
       visible: (plot_escurve & !aim:n)
       clearWith:
-        - es
-        - power
-        - sample
-        - alpha
-        - aim
-        - tails
-        - df_model
-        - r2
+                    - mode
+                    - b_es
+                    - v_es
+                    - power
+                    - sample
+                    - alpha
+                    - aim
+                    - tails
+                    - b_df_model
+                    - v_df_model
+                    - r2
 
     - name: powerNcurve
       title: Power Curve by N
@@ -183,13 +199,16 @@ items:
       renderFun: .plot_ncurve
       visible: (plot_ncurve & !aim:es)
       clearWith:
-        - es
-        - power
-        - sample
-        - alpha
-        - aim
-        - tails
-        - df_model
-        - r2
+                    - mode
+                    - b_es
+                    - v_es
+                    - power
+                    - sample
+                    - alpha
+                    - aim
+                    - tails
+                    - b_df_model
+                    - v_df_model
+                    - r2
 
 

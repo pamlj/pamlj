@@ -80,23 +80,22 @@ Plotter <- R6::R6Class(
     .operator=NULL,
     .prepareContour = function() {
       
-       if (!self$option("plot_contour"))
-              return()
+#     if (!self$option("plot_contour"))
+#              return()
       jinfo("PLOTTER: preparing contour plot")
       
       data <- private$.operator$data
       image<-private$.results$powerContour
       ## notice that we send the 'aes' (actual effect size), already transformed
       mes<-data$es*.95
-    
-    
       nmax<-powervector(private$.operator,list(power=.98,es=mes,alpha=data$alpha))
       if (nmax<10) nmax=10
       nmin<-max(5,data$df_model+5)
       x=round(seq(nmin,round(nmax),len=20))
-      y<-seq(.01,1,.1)
+      
       yline=powervector(private$.operator,list(n=x,power=data$power,alpha=data$alpha))
-     
+  
+      y<-seq(.01,1,.1)
 
       xyz.func<- function(x,y) {
              powervector(private$.operator,list(n=x,es=y,alpha=data$alpha))

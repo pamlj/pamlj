@@ -13,27 +13,53 @@ Initer <- R6::R6Class(
     input=list(),
     aim  = NULL,
     caller=NULL,
+    mode = NULL,
     tails = NULL,
     info = list(),
+    fromaes=NULL,
+    toaes  =NULL,
     initialize=function(jmvobj) {
 
       super$initialize(jmvobj)
+          self$toaes               <- function(value) value
+          self$fromaes             <- function(value) value
+
           self$aim               <- jmvobj$options$aim
-          self$data[["es"]]      <- jmvobj$options$es
           self$data[["n"]]       <- jmvobj$options$sample
           self$data[["alpha"]]   <- jmvobj$options$alpha
           self$data[["power"]]   <- jmvobj$options$power
           self$data[[self$aim]]  <- NULL
           self$tails             <- jmvobj$options$tails
           self$caller            <- jmvobj$options$.caller
-          class(self)<-c(jmvobj$options$.caller,class(self))
+          
+          if (self$option("mode"))
+                 self$mode <- self$options$mode
+          
+          
+          class(self)<-c(self$caller,self$mode,class(self))
+          
+          if (self$mode == "beta") {
+                self$data[["es"]]         <- jmvobj$options$b_es
+                self$data["df_model"]     <- jmvobj$options$b_df_model
+                self$data["df_effect"]    <- 1
+                self$toaes               <- function(value) value^2/(1-self$data$r2)
+                self$fromaes             <- function(value) sqrt(value*(1-self$data$r2))
+
+
+          }
+          if (self$mode == "variance") {
+                self$data[["es"]]         <- jmvobj$options$v_es
+                self$data["df_model"]     <- jmvobj$options$v_df_model
+                self$data["df_effect"]    <- jmvobj$options$v_df_effect
+                self$toaes               <- function(value) value/(1-value)
+                self$fromaes             <- function(value) value/(1+value)
+
+          }
+
           
           if (self$option("r2")) 
               self$data["r2"]    <- jmvobj$options$r2
 
-          if (self$option("df_model")) 
-              self$data["df_model"]    <- jmvobj$options$df_model
-          
           checkdata(self)
           self$input             <- self$data
           jmvobj$results$intro$setContent(text_intro(self))

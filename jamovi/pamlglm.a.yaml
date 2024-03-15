@@ -13,7 +13,7 @@ description:
 options:
     - name: .caller
       type: String
-      default: glmbeta
+      default: glm
       hidden: true
 
     - name: aim
@@ -29,9 +29,20 @@ options:
           title: Effect Size
         - name: alpha
           title: Required Alpha
+
+    - name: mode
+      title: "Effect size type"
+      type: List
+      options:
+            - name: variance
+              title: Partial Eta-squared
+            - name: beta
+              title: Beta Coefficients
+      default: variance
+
       
-    - name: es
-      title: Target effect size (&beta;)
+    - name: b_es
+      title: Expected standardized coefficients (&beta;)
       type:  Number
       default: .2
 
@@ -40,8 +51,22 @@ options:
       type:  Number
       default: .04
 
-    - name: df_model
+    - name: b_df_model
       title: Model degrees of freedom 
+      type:  Number
+      default: 1
+
+    - name: v_es
+      title: Expected partial Eta-squared (p&eta;&sup2;)
+      type:  Number
+      default: .2
+
+    - name: v_df_model
+      title: Model degrees of freedom 
+      type:  Number
+      default: 1
+    - name: v_df_effect
+      title: Effect degrees of freedom 
       type:  Number
       default: 1
 
@@ -104,7 +129,7 @@ options:
       title: Factors
       type: Array
       default:
-        - var: index1
+        - var: factor 1
           levels: 0
       template:
           type: Group

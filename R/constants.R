@@ -47,11 +47,11 @@ greek_vector <- c( # lowercase Greek letters
 
 letter_chi2<-paste(greek_vector["chi"],'\u00B2',sep="")
 letter_eta2<-paste(greek_vector["eta"],'\u00B2',sep="")
-letter_peta2<-paste(greek_vector["eta"],'\u00B2',"p",sep="")
+letter_peta2<-paste("p",greek_vector["eta"],'\u00B2',sep="")
 letter_omega2<-paste(greek_vector["omega"],'\u00B2',sep="")
 letter_pomega2<-paste(greek_vector["omega"],'\u00B2',"p",sep="")
 letter_epsilon2<-paste(greek_vector["epsilon"],'\u00B2',sep="")
-letter_pepsilon2<-paste(greek_vector["epsilon"],'\u00B2',"p",sep="")
+letter_pepsilon2<-paste("p",greek_vector["epsilon"],'\u00B2',sep="")
 
 
 ##########################

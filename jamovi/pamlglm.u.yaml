@@ -1,6 +1,6 @@
 title: GLM power analysis
 name: pamlglm
-jus: '2.0'
+jus: '3.0'
 stage: 0
 compilerMode: tame
 events:
@@ -11,27 +11,50 @@ children:
     children:
       - type: ComboBox
         name: aim
-  - type: LayoutBox
-    margin: large
+  - type: ModeSelector
+    name: mode
+    stretchFactor: 1
     children:
-      - type: Label
-        label: Model information
+      - type: Content
+        name: variance
         children:
-          - name: es
-            type: TextBox
-            format: number
-            enable: '(!aim:es)'
-          - name: r2
-            type: TextBox
-            format: number
-          - type: TextBox
-            name: df_model
-            format: number
-      - type: LayoutBox
-        margin: large
+          - type: LayoutBox
+            margin: large
+            children:
+              - type: Label
+                label: Model information
+                children:
+                  - name: v_es
+                    type: TextBox
+                    format: number
+                    enable: '(!aim:es)'
+                  - type: TextBox
+                    name: v_df_effect
+                    format: number
+                  - type: TextBox
+                    name: v_df_model
+                    format: number
+      - type: Content
+        name: beta
         children:
-          - type: CheckBox
-            name: power_r2
+          - type: LayoutBox
+            margin: large
+            children:
+              - type: Label
+                label: Model information
+                children:
+                  - name: b_es
+                    type: TextBox
+                    format: number
+                    enable: '(!aim:es)'
+                  - name: r2
+                    type: TextBox
+                    format: number
+                  - type: TextBox
+                    name: b_df_model
+                    format: number
+
+
   - type: LayoutBox
     margin: large
     children:
@@ -92,12 +115,11 @@ children:
                     type: TextBox
                     format: number
                     events:
-                        change: './pamlj.events::onChange_factors_list_change'
+                      change: './pamlj.events::onChange_factors_list_change'
                   - name: covs_order
                     type: ComboBox
                     events:
-                        change: './pamlj.events::onChange_factors_list_change'
-                    
+                      change: './pamlj.events::onChange_factors_list_change'
               - type: LayoutBox
                 style: inline
                 children:
@@ -109,8 +131,7 @@ children:
                   - name: factors_order
                     type: ComboBox
                     events:
-                       change: './pamlj.events::onChange_factors_list_change'
-
+                      change: './pamlj.events::onChange_factors_list_change'
           - type: Label
             name: factors_group
             label: Factors definition
@@ -137,4 +158,10 @@ children:
                 type: ComboBox
                 events:
                   change: './pamlj.events::onChange_factors_list_change'
-        
+  - type: CollapseBox
+    label: Options
+    name: panel_options
+    collapsed: true
+    children:
+      - type: CheckBox
+        name: power_r2
