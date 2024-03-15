@@ -1,0 +1,9 @@
+refs:
+   pwr:
+      type: 'software'
+      author: Stephane Champely
+      year: 2020
+      title: "pwr: Basic Functions for Power Analysis"
+      url: https://CRAN.R-project.org/package=pwr
+
+

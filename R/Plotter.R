@@ -80,8 +80,8 @@ Plotter <- R6::R6Class(
     .operator=NULL,
     .prepareContour = function() {
       
-#     if (!self$option("plot_contour"))
-#              return()
+     if (!self$option("plot_contour"))
+              return()
       jinfo("PLOTTER: preparing contour plot")
       
       data <- private$.operator$data
