@@ -5,14 +5,10 @@ powerfunction <- function(x, ...) UseMethod(".powerfunction")
 
 .powerfunction.correlation <- function(obj) {
   
-
     if (obj$tails == "two") 
            alt="two.sided"
     else {
-      if (obj$data[["es"]]>0)
           alt="greater"
-      else 
-          alt="less"
     }
     res<-pwr::pwr.r.test(n=obj$input[["n"]],r=obj$input[["es"]],power=obj$input[["power"]],sig.level=obj$input[["alpha"]],alternative=alt)
     obj$data[["n"]]<-round(res$n)
@@ -54,11 +50,17 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
 
 .powerbyes.correlation <- function(obj) {
 
+      if (obj$tails == "two") 
+           alt="two.sided"
+       else {
+          alt="greater"
+       }
+
             probs = c(.5, .8, .95)
             probs_es = sapply(probs, function(p){
               pwr::pwr.r.test(obj$data$n,
                                  sig.level = obj$data$alpha, power = p,
-                                 alternative = obj$tails)$r
+                                 alternative = alt)$r
            })
             probs_es<-round(probs_es,digits=3)
             esList <-list(list(es=paste('0 <', greek_vector["rho"], greek_vector["leq"],probs_es[1])),
@@ -102,6 +104,12 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
 
 .powervector.correlation <- function(obj,data) {
+
+      if (obj$tails == "two") 
+           alt="two.sided"
+      else {
+          alt="greater"
+      }
                 
                 .data <- data
                 names(.data) <- fields_tothem(obj,names(.data))
@@ -110,12 +118,11 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                    stop("FUNCTION powervector: only one parameters should be NULL")
                 if (length(whichnull)==0)
                    stop("FUNCTION powervector: exactly one parameters should be NULL")
-                tails<-obj$tails
                 ## for some reason, if n is a vector and the effect size is asked, it gives an error
                 if (whichnull=="r" && length(data$n)>1)
-                   results<-sapply(data$n, function(x) pwr::pwr.r.test(n=x,power=data$power,sig.level=data$alpha,alternative=tails)[["r"]] )
+                   results<-sapply(data$n, function(x) pwr::pwr.r.test(n=x,power=data$power,sig.level=data$alpha,alternative=alt)[["r"]] )
                 else
-                   results <- pwr::pwr.r.test(n=data$n,r=data$es,power=data$power,sig.level=data$alpha,alternative=tails)[[whichnull]]
+                   results <- pwr::pwr.r.test(n=data$n,r=data$es,power=data$power,sig.level=data$alpha,alternative=alt)[[whichnull]]
                 return(results)
 
   
