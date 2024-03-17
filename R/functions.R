@@ -1,4 +1,3 @@
-TRANS_WARNS=list()
 
 paml_palette<- function(...) viridis::viridis(...,alpha=.7)
 
@@ -36,4 +35,14 @@ required_param<-function(data) {
   if (length(whichnull)==0)
          stop("FUNCTION powervector: exactly one parameters should be NULL")
   whichnull
+}
+
+nicify_param<- function(what) {
+  
+  switch (what,
+    n  = "Sample size (N)",
+    es = "Effect size",
+    power= "Power",
+    alpha = "Required critical alpha"
+  )
 }

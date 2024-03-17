@@ -49,7 +49,7 @@ Scaffold <- R6::R6Class("Scaffold",
                                 if (is.null(private$.dispatcher))
                                     private$.create_dispatcher()
                               init<-(hasName(alist,"initOnly") && alist[["initOnly"]]) 
-                              lapply(alist$message, function(msg) private$.dispatcher$warnings<-list(topic=alist$topic,message=msg, initOnly=init))
+                              lapply(alist$message, function(msg) private$.dispatcher$warnings<-list(topic=alist$topic,message=msg, initOnly=init,issue=alist$issue))
                             },
                             error=function(alist) {
                                 if (is.null(private$.dispatcher))

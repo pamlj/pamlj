@@ -1,7 +1,7 @@
 ---
 name: pamlglm
-title: GLM power analysis
-menuGroup: jpower
+title: General Linear Model
+menuGroup: Power
 version: '0.0.1'
 jas: '1.2'
 export: true

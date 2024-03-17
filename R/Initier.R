@@ -19,6 +19,7 @@ Initer <- R6::R6Class(
     alphacor=1,
     fromaes=NULL,
     toaes  =NULL,
+    ok= TRUE,
     initialize=function(jmvobj) {
 
       super$initialize(jmvobj)
@@ -40,7 +41,7 @@ Initer <- R6::R6Class(
                       self$data["df_model"]     <- jmvobj$options$b_df_model
                       self$data["df_effect"]    <- 1
                       if (self$tails=="one")    self$alphacor   <- 2
-
+                      self$data["r2"]           <- jmvobj$options$r2
                       self$toaes               <- function(value) value^2/(1-self$data$r2)
                       self$fromaes             <- function(value) sqrt(value*(1-self$data$r2))
                 }
@@ -51,19 +52,35 @@ Initer <- R6::R6Class(
                     self$toaes                <- function(value) value/(1-value)
                     self$fromaes              <- function(value) value/(1+value)
                 }
-          }
+                if (self$mode == "ttestind") {
+                    self$data[["es"]]         <- as.numeric(jmvobj$options$ttestind_es)
+                    self$data["n"]           <- jmvobj$options$ttestind_n
+                    self$data[["nratio"]]    <- jmvobj$options$ttestind_nratio
+                }
+                 
+                if (self$mode == "ttestpaired") {
+                    self$data[["es"]]         <- as.numeric(jmvobj$options$ttestpaired_es)
+                    self$data["n"]            <- jmvobj$options$ttestpaired_n
+                }
+               if (self$mode == "ttestone") {
+                    self$data[["es"]]         <- as.numeric(jmvobj$options$ttestone_es)
+                    self$data["n"]            <- jmvobj$options$ttestone_n
+                }
+
+                 
+          } #end of mode selection
           
           if (!is.something(self$data$es))
                 self$data$es <- self$options$es
 
-          if (self$option("r2")) 
-              self$data["r2"]    <- jmvobj$options$r2
           self$data[[self$aim]]  <- NULL  
 
-                    class(self)<-c(self$caller,self$mode,class(self))
+          class(self)<-c(self$caller,self$mode,class(self))
+          jmvobj$results$issues$setContent(" ")
+
           checkdata(self)
           self$input             <- self$data
-          mark(self$input)
+
           jmvobj$results$intro$setContent(text_intro(self))
 
     }, # here initialize ends

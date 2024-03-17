@@ -8,9 +8,6 @@ items:
     - name: intro
       title: Introduction
       type: Html
-    - name: issues
-      title: Issues
-      type: Html
 
     - name:  powertab
       title: A Priori Power Analysis

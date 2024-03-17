@@ -303,6 +303,7 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     inherit = jmvcore::Group,
     active = list(
         intro = function() private$.items[["intro"]],
+        issues = function() private$.items[["issues"]],
         powertab = function() private$.items[["powertab"]],
         powerbyes = function() private$.items[["powerbyes"]],
         powerContour = function() private$.items[["powerContour"]],
@@ -319,6 +320,10 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=options,
                 name="intro",
                 title="Introduction"))
+            self$add(jmvcore::Html$new(
+                options=options,
+                name="issues",
+                title="Issues"))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="powertab",
@@ -478,7 +483,7 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 weightsSupport = 'na')
         }))
 
-#' GLM power analysis
+#' General Linear Model
 #'
 #' Something here
 #' 
@@ -514,6 +519,7 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @return A results object containing:
 #' \tabular{llllll}{
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
+#'   \code{results$issues} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powerbyes} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powerContour} \tab \tab \tab \tab \tab an image \cr

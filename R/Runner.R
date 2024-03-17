@@ -8,37 +8,28 @@ Runner <- R6::R6Class("Runner",
                         class=TRUE,
                         public=list(
                               run= function() {
-                                powerfunction(self)
+                                resobj <- try_hard( powerfunction(self) )
+                                if (!isFALSE(resobj$warning))
+                                     warning(resobj$warning)
+                                if (!isFALSE(resobj$error)) {
+                                            checkfailure(self,resobj)
+                                            self$ok <- FALSE
+                                            return(NULL)
+                                    }
+
                               },
                               run_powertab = function() {
-      
+                                
+                                     if (!self$ok) return()
+                                
                                      return(list(self$data))
                                },
                               run_powerbyes = function() {
       
+                                     if (!self$ok) return()
                                      results <- powerbyes(self)
                                      warning("Estimated for N=",self$data$n)
                                      return(results)
-                               },
-                              run_powerr2_powertab = function() {
-                                
-                                     data<-self$input
-                                     whichnull<-required_param(data)
-                                     data$es<-data$r2/(1-data$r2)
-                                     data$u<-data$df_model
-                                     value<-powervector(self,data) 
-                                     data[[whichnull]]<-value
-                                     data$df1<-data$df_model
-                                     data$df2<-data$n-data$df_model-1
-                                     return(list(data))
-                                     
-                               },
-                                run_powerr2_powerbyes = function() {
-                                  
-                                     tab<-powerbyr2(self)
-                                     warning("Estimated for N=",self$data$n)
-                                    return(tab)
-
                                }
 
 

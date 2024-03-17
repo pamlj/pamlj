@@ -69,8 +69,16 @@ Dispatch <- R6::R6Class(
                                 if (exists("fromb64")) obj$message<-fromb64(obj$message)
                                 
                                 if (inherits(table,"Html")) {
+                                  
+                                if (is.something(table$state) && obj$key %in% table$state)
+                                     return()
                                   content<-table$content
-                                  content<-table$setContent(paste(content,"<div><i>Note:</i>",obj$message,"</div>"))
+                                  
+                                  if (hasName(obj , "issue"))
+                                      content<-table$setContent(paste(content,"<div><h2 style='color:red'>Warning:</h2><p>",obj$message,"</p></div>"))
+                                  else 
+                                      content<-table$setContent(paste(content,"<div><i>Note:</i>",obj$message,"</div>"))
+                                  
                                   table$setVisible(TRUE)
                                   return()
                                 }

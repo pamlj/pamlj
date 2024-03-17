@@ -1,6 +1,10 @@
 
 
+
 TRANS_WARNS<-list()
+TRANS_WARNS[[1]]<-list(original="end points not of opposite sign",new="Power parameters cannot be for the combination of input parameters")
+
+
 
 INTRO<-"<b> Getting started</b>:<br> To produce a dataset useful for simulations, please start with an empty dataset.
         Define the name of the <b>dependent variable</b> and the number of participants per cluster.

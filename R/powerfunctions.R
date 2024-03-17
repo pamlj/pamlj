@@ -3,6 +3,24 @@
 powerfunction <- function(x, ...) UseMethod(".powerfunction")
 
 
+.powerfunction.ttestind <- function(obj) {
+  
+    if (obj$tails == "two") 
+           alt="two.sided"
+    else {
+          alt="greater"
+    }
+    
+    res<-pwr.t2n.test(n=obj$input[["n"]],r=obj$input[["es"]],power=obj$input[["power"]],sig.level=obj$input[["alpha"]],alternative=alt)
+    obj$data[["n"]]<-round(res$n)
+    obj$data[["es"]]<-res$r
+    obj$data[["alpha"]]<-res$sig.level
+    obj$data[["power"]]<-res$power
+
+    warning(res$method)
+    return(obj$data)
+}
+
 .powerfunction.correlation <- function(obj) {
   
     if (obj$tails == "two") 
@@ -10,7 +28,9 @@ powerfunction <- function(x, ...) UseMethod(".powerfunction")
     else {
           alt="greater"
     }
-    res<-pwr::pwr.r.test(n=obj$input[["n"]],r=obj$input[["es"]],power=obj$input[["power"]],sig.level=obj$input[["alpha"]],alternative=alt)
+
+    res <-  pwr::pwr.r.test(n=obj$input[["n"]],r=obj$input[["es"]],power=obj$input[["power"]],sig.level=obj$input[["alpha"]],alternative=alt)
+
     obj$data[["n"]]<-round(res$n)
     obj$data[["es"]]<-res$r
     obj$data[["alpha"]]<-res$sig.level
@@ -27,7 +47,12 @@ powerfunction <- function(x, ...) UseMethod(".powerfunction")
       v<-obj$input$n-obj$input$df_model-1
     else
       v<-NULL
-    res<-pwr::pwr.f2.test(f2=obj$input$aes,u=obj$input$df_effect,v=v,power=obj$input$power,sig.level=obj$input$alpha*obj$alphacor)
+    
+    alpha <- obj$input$alpha*obj$alphacor
+    if (is.null(obj$input$alpha)) alpha<-NULL
+      
+    
+    res<-pwr::pwr.f2.test(f2=obj$input$aes,u=obj$input$df_effect,v=v,power=obj$input$power,sig.level=alpha)
     obj$data[["n"]]<-round(res$v+obj$input$df_model+1)
     obj$data[["es"]]<-obj$fromaes(res$f2)
     obj$data[["aes"]]<-res$f2
@@ -78,9 +103,11 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
             probs = c(.5, .8, .95)
             probs_es = sapply(probs, function(p){
               v<-obj$data$n-obj$data$df_model-1
+              mark(v,obj$data$df_effect,obj$data$alpha,p)
               pwr::pwr.f2.test(u=obj$data$df_effect,v=v,
                                  sig.level = obj$data$alpha, power = p)$f2
            })
+          
             probs_es<-obj$fromaes(probs_es)
             probs_es<-round(probs_es,digits=3)
             esList <-list(list(es=paste('0 <', obj$data$letter, greek_vector["leq"],probs_es[1])),

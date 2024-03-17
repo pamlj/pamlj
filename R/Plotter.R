@@ -20,13 +20,15 @@ Plotter <- R6::R6Class(
       },
       preparePlots=function(image, ggtheme, theme, ...) {
         
+            if (!private$.operator$ok) return()
             private$.prepareContour()
             private$.prepareEscurve()
             private$.prepareNcurve()
     
       },
       plot_contour = function(image,ggthem,them) {
-        
+
+        if (!private$.operator$ok) return()
         if (!self$option("plot_contour"))
             return()
 
@@ -49,6 +51,7 @@ Plotter <- R6::R6Class(
       },
       plot_curve= function(image,ggtheme,theme) {
          
+        if (!private$.operator$ok) return()
 
          cols = paml_palette(10)
          data<-image$state
