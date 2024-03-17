@@ -29,7 +29,6 @@ Initer <- R6::R6Class(
           self$data[["n"]]       <- jmvobj$options$sample
           self$data[["alpha"]]   <- jmvobj$options$alpha
           self$data[["power"]]   <- jmvobj$options$power
-          self$data[[self$aim]]  <- NULL
           self$tails             <- jmvobj$options$tails
           self$caller            <- jmvobj$options$.caller
           
@@ -59,11 +58,12 @@ Initer <- R6::R6Class(
 
           if (self$option("r2")) 
               self$data["r2"]    <- jmvobj$options$r2
-          
-          class(self)<-c(self$caller,self$mode,class(self))
+          self$data[[self$aim]]  <- NULL  
+
+                    class(self)<-c(self$caller,self$mode,class(self))
           checkdata(self)
           self$input             <- self$data
-          
+          mark(self$input)
           jmvobj$results$intro$setContent(text_intro(self))
 
     }, # here initialize ends
