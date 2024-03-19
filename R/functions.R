@@ -30,10 +30,8 @@ fields_tome <- function(obj, ...) UseMethod(".fields_tome")
 required_param<-function(data) {
   
   whichnull<-setdiff(c("n","es","alpha","power"), names(data))  
-  if (length(whichnull)>1)
-         stop("FUNCTION powervecot: only one parameters should be NULL")
-  if (length(whichnull)==0)
-         stop("FUNCTION powervector: exactly one parameters should be NULL")
+  if (length(whichnull)>1 || length(whichnull)==0)
+         stop("PAMLJ: only one parameters should be NULL")
   whichnull
 }
 

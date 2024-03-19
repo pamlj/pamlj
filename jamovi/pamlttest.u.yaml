@@ -36,7 +36,6 @@ children:
                   - type: TextBox
                     name: ttestind_nratio
                     format: number
-                    enable: (!aim:n)
 
       - type: Content
         name: ttestpaired

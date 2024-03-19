@@ -10,11 +10,15 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             aim = "n",
             mode = "variance",
             b_es = 0.2,
-            r2 = 0.04,
+            b_r2 = 0.04,
             b_df_model = 1,
             v_es = 0.2,
             v_df_model = 1,
             v_df_effect = 1,
+            e_es = 0.2,
+            e_df_model = 1,
+            e_r2 = 0.04,
+            e_df_effect = 1,
             power = 0.9,
             sample = 20,
             alpha = 0.05,
@@ -35,7 +39,8 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             omega = 0,
             gpower = 0,
             f2 = 0,
-            use = "none", ...) {
+            use = "none",
+            gncp = NULL, ...) {
 
             super$initialize(
                 package="pamlj",
@@ -61,16 +66,17 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "mode",
                 mode,
                 options=list(
-                    "variance",
+                    "peta",
+                    "eta",
                     "beta"),
                 default="variance")
             private$..b_es <- jmvcore::OptionNumber$new(
                 "b_es",
                 b_es,
                 default=0.2)
-            private$..r2 <- jmvcore::OptionNumber$new(
-                "r2",
-                r2,
+            private$..b_r2 <- jmvcore::OptionNumber$new(
+                "b_r2",
+                b_r2,
                 default=0.04)
             private$..b_df_model <- jmvcore::OptionNumber$new(
                 "b_df_model",
@@ -89,6 +95,24 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..v_df_effect <- jmvcore::OptionNumber$new(
                 "v_df_effect",
                 v_df_effect,
+                default=1,
+                min=1)
+            private$..e_es <- jmvcore::OptionNumber$new(
+                "e_es",
+                e_es,
+                default=0.2)
+            private$..e_df_model <- jmvcore::OptionNumber$new(
+                "e_df_model",
+                e_df_model,
+                default=1,
+                min=1)
+            private$..e_r2 <- jmvcore::OptionNumber$new(
+                "e_r2",
+                e_r2,
+                default=0.04)
+            private$..e_df_effect <- jmvcore::OptionNumber$new(
+                "e_df_effect",
+                e_df_effect,
                 default=1,
                 min=1)
             private$..power <- jmvcore::OptionNumber$new(
@@ -205,16 +229,23 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "gpower",
                     "f2"),
                 default="none")
+            private$..gncp <- jmvcore::OptionBool$new(
+                "gncp",
+                gncp)
 
             self$.addOption(private$...caller)
             self$.addOption(private$..aim)
             self$.addOption(private$..mode)
             self$.addOption(private$..b_es)
-            self$.addOption(private$..r2)
+            self$.addOption(private$..b_r2)
             self$.addOption(private$..b_df_model)
             self$.addOption(private$..v_es)
             self$.addOption(private$..v_df_model)
             self$.addOption(private$..v_df_effect)
+            self$.addOption(private$..e_es)
+            self$.addOption(private$..e_df_model)
+            self$.addOption(private$..e_r2)
+            self$.addOption(private$..e_df_effect)
             self$.addOption(private$..power)
             self$.addOption(private$..sample)
             self$.addOption(private$..alpha)
@@ -235,17 +266,22 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..gpower)
             self$.addOption(private$..f2)
             self$.addOption(private$..use)
+            self$.addOption(private$..gncp)
         }),
     active = list(
         .caller = function() private$...caller$value,
         aim = function() private$..aim$value,
         mode = function() private$..mode$value,
         b_es = function() private$..b_es$value,
-        r2 = function() private$..r2$value,
+        b_r2 = function() private$..b_r2$value,
         b_df_model = function() private$..b_df_model$value,
         v_es = function() private$..v_es$value,
         v_df_model = function() private$..v_df_model$value,
         v_df_effect = function() private$..v_df_effect$value,
+        e_es = function() private$..e_es$value,
+        e_df_model = function() private$..e_df_model$value,
+        e_r2 = function() private$..e_r2$value,
+        e_df_effect = function() private$..e_df_effect$value,
         power = function() private$..power$value,
         sample = function() private$..sample$value,
         alpha = function() private$..alpha$value,
@@ -265,17 +301,22 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         omega = function() private$..omega$value,
         gpower = function() private$..gpower$value,
         f2 = function() private$..f2$value,
-        use = function() private$..use$value),
+        use = function() private$..use$value,
+        gncp = function() private$..gncp$value),
     private = list(
         ...caller = NA,
         ..aim = NA,
         ..mode = NA,
         ..b_es = NA,
-        ..r2 = NA,
+        ..b_r2 = NA,
         ..b_df_model = NA,
         ..v_es = NA,
         ..v_df_model = NA,
         ..v_df_effect = NA,
+        ..e_es = NA,
+        ..e_df_model = NA,
+        ..e_r2 = NA,
+        ..e_df_effect = NA,
         ..power = NA,
         ..sample = NA,
         ..alpha = NA,
@@ -295,7 +336,8 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..omega = NA,
         ..gpower = NA,
         ..f2 = NA,
-        ..use = NA)
+        ..use = NA,
+        ..gncp = NA)
 )
 
 pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
@@ -334,6 +376,7 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "mode",
                     "b_es",
                     "v_es",
+                    "e_es",
                     "power",
                     "sample",
                     "alpha",
@@ -341,7 +384,10 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "tails",
                     "b_df_model",
                     "v_df_model",
-                    "r2"),
+                    "e_df_model",
+                    "e_r2",
+                    "v_r2",
+                    "gncp"),
                 columns=list(
                     list(
                         `name`="n", 
@@ -380,6 +426,7 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "mode",
                     "b_es",
                     "v_es",
+                    "e_es",
                     "power",
                     "sample",
                     "alpha",
@@ -387,7 +434,10 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "tails",
                     "b_df_model",
                     "v_df_model",
-                    "r2"),
+                    "e_df_model",
+                    "e_r2",
+                    "v_r2",
+                    "gncp"),
                 columns=list(
                     list(
                         `name`="es", 
@@ -413,6 +463,7 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "mode",
                     "b_es",
                     "v_es",
+                    "e_es",
                     "power",
                     "sample",
                     "alpha",
@@ -420,7 +471,10 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "tails",
                     "b_df_model",
                     "v_df_model",
-                    "r2")))
+                    "e_df_model",
+                    "e_r2",
+                    "v_r2",
+                    "gncp")))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerEscurve",
@@ -433,6 +487,7 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "mode",
                     "b_es",
                     "v_es",
+                    "e_es",
                     "power",
                     "sample",
                     "alpha",
@@ -440,7 +495,10 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "tails",
                     "b_df_model",
                     "v_df_model",
-                    "r2")))
+                    "e_df_model",
+                    "e_r2",
+                    "v_r2",
+                    "gncp")))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerNcurve",
@@ -453,6 +511,7 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "mode",
                     "b_es",
                     "v_es",
+                    "e_es",
                     "power",
                     "sample",
                     "alpha",
@@ -460,7 +519,10 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "tails",
                     "b_df_model",
                     "v_df_model",
-                    "r2")))}))
+                    "e_df_model",
+                    "e_r2",
+                    "v_r2",
+                    "gncp")))}))
 
 pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     "pamlglmBase",
@@ -491,11 +553,15 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param aim .
 #' @param mode .
 #' @param b_es .
-#' @param r2 .
+#' @param b_r2 .
 #' @param b_df_model .
 #' @param v_es .
 #' @param v_df_model .
 #' @param v_df_effect .
+#' @param e_es .
+#' @param e_df_model .
+#' @param e_r2 .
+#' @param e_df_effect .
 #' @param power .
 #' @param sample .
 #' @param alpha .
@@ -516,6 +582,7 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param gpower .
 #' @param f2 .
 #' @param use .
+#' @param gncp .
 #' @return A results object containing:
 #' \tabular{llllll}{
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
@@ -539,11 +606,15 @@ pamlglm <- function(
     aim = "n",
     mode = "variance",
     b_es = 0.2,
-    r2 = 0.04,
+    b_r2 = 0.04,
     b_df_model = 1,
     v_es = 0.2,
     v_df_model = 1,
     v_df_effect = 1,
+    e_es = 0.2,
+    e_df_model = 1,
+    e_r2 = 0.04,
+    e_df_effect = 1,
     power = 0.9,
     sample = 20,
     alpha = 0.05,
@@ -564,7 +635,8 @@ pamlglm <- function(
     omega = 0,
     gpower = 0,
     f2 = 0,
-    use = "none") {
+    use = "none",
+    gncp) {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
         stop("pamlglm requires jmvcore to be installed (restart may be required)")
@@ -575,11 +647,15 @@ pamlglm <- function(
         aim = aim,
         mode = mode,
         b_es = b_es,
-        r2 = r2,
+        b_r2 = b_r2,
         b_df_model = b_df_model,
         v_es = v_es,
         v_df_model = v_df_model,
         v_df_effect = v_df_effect,
+        e_es = e_es,
+        e_df_model = e_df_model,
+        e_r2 = e_r2,
+        e_df_effect = e_df_effect,
         power = power,
         sample = sample,
         alpha = alpha,
@@ -599,7 +675,8 @@ pamlglm <- function(
         omega = omega,
         gpower = gpower,
         f2 = f2,
-        use = use)
+        use = use,
+        gncp = gncp)
 
     analysis <- pamlglmClass$new(
         options = options,

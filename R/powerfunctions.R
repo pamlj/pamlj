@@ -48,24 +48,20 @@ powerfunction <- function(x, ...) UseMethod(".powerfunction")
     else
       v<-NULL
     
-    alpha <- obj$input$alpha*obj$alphacor
-    if (is.null(obj$input$alpha)) alpha<-NULL
-      
+    u <- obj$input$df_effect
     
-    res<-pwr::pwr.f2.test(f2=obj$input$aes,u=obj$input$df_effect,v=v,power=obj$input$power,sig.level=alpha)
-    obj$data[["n"]]<-round(res$v+obj$input$df_model+1)
-    obj$data[["es"]]<-obj$fromaes(res$f2)
+    f2<-obj$input$aes
+
+    res<-pamlj.glm(f2=f2,u=u,v=v,power=obj$input$power,alpha=obj$data$alpha,df_model=obj$data$df_model, gpower=obj$options$gncp,tails=obj$tails)
     obj$data[["aes"]]<-res$f2
-    obj$data[["alpha"]]<-res$sig.level/obj$alphacor
+    obj$data[["n"]]<-round(res$n)
+    obj$data[["es"]]<-obj$fromaes(res$f2)
+    obj$data[["alpha"]]<-res$alpha
     obj$data[["power"]]<-res$power
     obj$data[["df1"]]<-res$u
-    obj$data[["df2"]]<-res$v
+    obj$data[["df2"]]<-round(res$v)
     return(obj$data)
 }
-
-
-
-
 
 
 ### computes the  power effect sizes
@@ -103,11 +99,9 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
             probs = c(.5, .8, .95)
             probs_es = sapply(probs, function(p){
               v<-obj$data$n-obj$data$df_model-1
-              mark(v,obj$data$df_effect,obj$data$alpha,p)
-              pwr::pwr.f2.test(u=obj$data$df_effect,v=v,
-                                 sig.level = obj$data$alpha, power = p)$f2
+                     pamlj.glm(u=obj$data$df_effect,v=v,
+                                 alpha = obj$data$alpha, power = p,df_model=obj$data$df_model,gpower=obj$options$gncp,tails=obj$tails)$f2
            })
-          
             probs_es<-obj$fromaes(probs_es)
             probs_es<-round(probs_es,digits=3)
             esList <-list(list(es=paste('0 <', obj$data$letter, greek_vector["leq"],probs_es[1])),
@@ -160,32 +154,48 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
 .powervector.glm <- function(obj,data) {
                 
-               
-                data[["sig.level"]]<-data$alpha
-                
                 if (is.something(data$n))
                    data[["v"]]<- data$n - obj$data$df_model -1
                 
-                u <- obj$data$df_effect
+                u  <- obj$data$df_effect
+                rp <- required_param(data)
+                f2 <- NULL
                 if (is.something(data$es))
-                                     data[["f2"]]<-obj$toaes(data$es)
+                                     f2<-obj$toaes(data$es)
+                else 
+                    rp <- "f2"
+                
+                mark(rp)
+                
+                if (length(data$v)>1 && rp!="power") {
+                   results<-unlist(lapply(data$v ,function(v)
+                       pamlj.glm(u=u,
+                                     v=v,
+                                     f2=f2,
+                                     power=data$power,
+                                     alpha=data$alpha,
+                                     df_model=obj$data$df_model,
+                                     gpower=obj$options$gncp,
+                                     tails=obj$tails
+                                     )[[rp]]
+                    
+                    ))
+                } else
+                          results<-pamlj.glm(u=u,
+                                     v=data$v,
+                                     f2=f2,
+                                     power=data$power,
+                                     alpha=data$alpha,
+                                     df_model=obj$data$df_model,
+                                     gpower=obj$options$gncp,
+                                     tails=obj$tails
+                                     )[[rp]]
 
-                whichnull<-setdiff(c("v","f2","sig.level","power"), names(data))  
-                if (length(whichnull)>1)
-                   stop("FUNCTION powervecot: only one parameters should be NULL")
-                if (length(whichnull)==0)
-                   stop("FUNCTION powervector: exactly one parameters should be NULL")
-                ## for some reason, if v is a vector and the effect size is asked, it gives an error
-                if (whichnull=="f2" && length(data$v)>1) {
-                   results<-sapply(data$v, function(x) pwr::pwr.f2.test(u=u,v=x,power=data$power,sig.level=data$alpha)[[whichnull]])
-                }
-                else
-                   results <- pwr::pwr.f2.test(u=u,v=data$v,f2=data$f2,power=data$power,sig.level=data$alpha)[[whichnull]]
 
-                if (whichnull=="v")  results<-round(results+obj$data$df_model+1)
-                if (whichnull=="f2") results<-obj$fromaes(results)
+                if (rp=="f2")
+                   results<-obj$fromaes(results)
+               
                 return(results)
-
 }
 
 

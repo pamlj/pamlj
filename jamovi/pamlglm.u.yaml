@@ -16,7 +16,7 @@ children:
     stretchFactor: 1
     children:
       - type: Content
-        name: variance
+        name: peta
         children:
           - type: LayoutBox
             margin: large
@@ -35,6 +35,29 @@ children:
                     name: v_df_model
                     format: number
       - type: Content
+        name: eta
+        children:
+          - type: LayoutBox
+            margin: large
+            children:
+              - type: Label
+                label: Effect information
+                children:
+                  - name: e_es
+                    type: TextBox
+                    format: number
+                    enable: '(!aim:es)'
+                  - type: TextBox
+                    name: e_df_effect
+                    format: number
+                  - name: e_r2
+                    type: TextBox
+                    format: number
+                  - type: TextBox
+                    name: e_df_model
+                    format: number
+
+      - type: Content
         name: beta
         children:
           - type: LayoutBox
@@ -47,7 +70,7 @@ children:
                     type: TextBox
                     format: number
                     enable: '(!aim:es)'
-                  - name: r2
+                  - name: b_r2
                     type: TextBox
                     format: number
                   - type: TextBox
@@ -227,3 +250,13 @@ children:
                 optionPart: f2
                 events:
                   change: './pamlglm::onChange_convert'
+
+      - type: LayoutBox
+        name: other_options
+        style: inline
+        children:
+          - type: Label
+            label: Other Options
+            children:
+              - name: gncp
+                type: CheckBox

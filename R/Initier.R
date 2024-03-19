@@ -16,7 +16,6 @@ Initer <- R6::R6Class(
     mode = NULL,
     tails = NULL,
     info = list(),
-    alphacor=1,
     fromaes=NULL,
     toaes  =NULL,
     ok= TRUE,
@@ -40,18 +39,26 @@ Initer <- R6::R6Class(
                       self$data[["es"]]         <- as.numeric(jmvobj$options$b_es)
                       self$data["df_model"]     <- jmvobj$options$b_df_model
                       self$data["df_effect"]    <- 1
-                      if (self$tails=="one")    self$alphacor   <- 2
-                      self$data["r2"]           <- jmvobj$options$r2
-                      self$toaes               <- function(value) value^2/(1-self$data$r2)
-                      self$fromaes             <- function(value) sqrt(value*(1-self$data$r2))
+                      self$data["r2"]           <- jmvobj$options$b_r2
+                      self$toaes                <- function(value)  value^2/(1-self$data$r2)
+                      self$fromaes              <- function(value)  sqrt(value*(1-self$data$r2)) 
                 }
-                if (self$mode == "variance") {
+                if (self$mode == "peta") {
                     self$data[["es"]]         <- as.numeric(jmvobj$options$v_es)
                     self$data["df_model"]     <- jmvobj$options$v_df_model
                     self$data["df_effect"]    <- jmvobj$options$v_df_effect
                     self$toaes                <- function(value) value/(1-value)
                     self$fromaes              <- function(value) value/(1+value)
                 }
+                if (self$mode == "eta") {
+                    self$data[["es"]]         <- as.numeric(jmvobj$options$e_es)
+                    self$data["df_model"]     <- jmvobj$options$e_df_model
+                    self$data["df_effect"]    <- jmvobj$options$e_df_effect
+                    self$data["r2"]           <- jmvobj$options$e_r2
+                    self$toaes                <- function(value)  value/(1-self$data$r2)
+                    self$fromaes              <- function(value)  value*(1-self$data$r2) 
+                }
+                 
                 if (self$mode == "ttestind") {
                     self$data[["es"]]         <- as.numeric(jmvobj$options$ttestind_es)
                     self$data["n"]           <- jmvobj$options$ttestind_n

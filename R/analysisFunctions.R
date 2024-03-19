@@ -86,12 +86,12 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
     }
     if (!is.something(obj$data[["es"]]))
        return()
-  
+
     obj$data[["aes"]] <- obj$data$es^2/(1-obj$data$r2)
 
 }
 
-.checkdata.variance <- function(obj) {
+.checkdata.peta <- function(obj) {
 
   obj$data$letter   <- letter_peta2
   
@@ -130,12 +130,62 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
 }
 
+.checkdata.eta <- function(obj) {
+
+  jinfo("MODULE:  PAMLglm eta  #### check data  ####")
+  obj$data$letter   <- letter_eta2
+  
+  if (is.something(obj$data$es)) {
+     if (abs(obj$data$es)<.001)
+         stop("Eta-squared value cannot be less than .001")
+     if (abs(obj$data$es)>.99)
+         stop("Eta-squared value cannot be more than .99")
+  }
+  
+  if (is.something(obj$data$df_model)) {
+                if (obj$data$df_model < 1)
+                           stop("Model degrees of freedom cannot be less than 1")
+    } else {
+        stop("GLM power analysis based on eta-squared requires the expected degrees of freedom of the model")
+    }
+  
+    if (is.something(obj$data$df_effect)) {
+                if (obj$data$df_effect < 1)
+                           stop("Effect degrees of freedom cannot be less than 1")
+    } else {
+        stop("GLM power analysis based on eta-squared requires the expected degrees of freedom of the effect")
+    }
+
+    if ( obj$data$df_model < obj$data$df_effect ) {
+           obj$data$df_model <- obj$data$df_effect
+           obj$warning<-list(topic="powertab",message="Model degrees of freedom cannot be less than the effect degrees of freedom. 
+                                                   They have been set equal. ")
+    }
+
+    if (is.something(obj$data$r2 ) ) {
+        if ( is.something(obj$data$es) && obj$data$r2+.0001 < obj$data$es^2  )
+                   stop("R-squared cannot be less than the square of the beta coefficient")
+        if (abs(obj$data$r2)>.99)
+                   stop("The R-squared cannot be more than .99")
+    } else {
+        stop("GLM power analysis based on Eta-squared coefficient requires an expected R-squared for the model")
+    }
+
+  
+    if (!is.something(obj$data[["es"]]))
+       return()
+  
+    f2 <-  obj$data$es/(1-obj$data$r2)
+    obj$data[["aes"]] <- f2
+
+
+}
 
 
 
 text_intro <- function(obj) UseMethod(".text_intro")
 
-.text_intro.ttest <- function(obj) {
+.text_intro.default <- function(obj) {
   
   text<-" <div>
              <p> Please select the aim of the analysis:</p>
@@ -199,7 +249,7 @@ text_intro <- function(obj) UseMethod(".text_intro")
 
 }
 
-.text_intro.variance <- function(obj) {
+.text_intro.peta <- function(obj) {
   
   text<-" <div>
               <p> Please select the aim of the analysis:</p>

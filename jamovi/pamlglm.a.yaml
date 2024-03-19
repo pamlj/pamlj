@@ -34,8 +34,10 @@ options:
       title: "Effect size type"
       type: List
       options:
-            - name: variance
+            - name: peta
               title: Partial Eta-squared
+            - name: eta
+              title: Eta-squared
             - name: beta
               title: Beta Coefficients
       default: variance
@@ -46,7 +48,7 @@ options:
       type:  Number
       default: .2
 
-    - name: r2
+    - name: b_r2
       title: R-squared 
       type:  Number
       default: .04
@@ -73,6 +75,26 @@ options:
       default: 1
       min: 1
 
+
+    - name: e_es
+      title: Expected partial Eta-squared (p&eta;&sup2;)
+      type:  Number
+      default: .2
+
+    - name: e_df_model
+      title: Model degrees of freedom 
+      type:  Number
+      default: 1
+      min: 1
+    - name: e_r2
+      title: R-squared 
+      type:  Number
+      default: .04
+    - name: e_df_effect
+      title: Effect degrees of freedom 
+      type:  Number
+      default: 1
+      min: 1
 
     - name: power
       title: Minimal desired power 
@@ -218,6 +240,12 @@ options:
           title: "f2"
 
       default: none
+
+    - name: gncp
+      type: Bool
+      title: "G*Power NCP"
+
+   
 
 ...
 
