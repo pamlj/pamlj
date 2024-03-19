@@ -160,7 +160,7 @@ Plotter <- R6::R6Class(
         image$setState(list(x=x,y=yline,point.x=point.x,point.y=point.y,n=data$n,power=data$power,yline=yline,
                           xlab="Hypothetical effect size",
                           ylab="Power",
-                          text=paste("N =",data$es," ",greek_vector["alpha"],"=",round(data$alpha,digits=3))
+                          text=paste("N =",data$n," ",greek_vector["alpha"],"=",round(data$alpha,digits=3))
                           ))
     }
     

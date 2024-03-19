@@ -72,7 +72,10 @@ Initer <- R6::R6Class(
                if (self$mode == "ttestone") {
                     self$data[["es"]]         <- as.numeric(jmvobj$options$ttestone_es)
                     self$data["n"]            <- jmvobj$options$ttestone_n
-                }
+               }
+               if (is.null(self$mode)) self$mode<-self$caller
+              
+               jmvobj$results$intro$setContent(paste(INFO[["common"]],INFO[[self$mode]]))   
 
                  
           } #end of mode selection
@@ -88,7 +91,6 @@ Initer <- R6::R6Class(
           checkdata(self)
           self$input             <- self$data
 
-          jmvobj$results$intro$setContent(text_intro(self))
 
     }, # here initialize ends
     #### init functions #####

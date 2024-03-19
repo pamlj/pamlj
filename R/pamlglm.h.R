@@ -8,7 +8,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         initialize = function(
             .caller = "glm",
             aim = "n",
-            mode = "variance",
+            mode = "peta",
             b_es = 0.2,
             b_r2 = 0.04,
             b_df_model = 1,
@@ -69,7 +69,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "peta",
                     "eta",
                     "beta"),
-                default="variance")
+                default="peta")
             private$..b_es <- jmvcore::OptionNumber$new(
                 "b_es",
                 b_es,
@@ -604,7 +604,7 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 pamlglm <- function(
     .caller = "glm",
     aim = "n",
-    mode = "variance",
+    mode = "peta",
     b_es = 0.2,
     b_r2 = 0.04,
     b_df_model = 1,

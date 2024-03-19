@@ -40,7 +40,7 @@ options:
               title: Eta-squared
             - name: beta
               title: Beta Coefficients
-      default: variance
+      default: peta
 
       
     - name: b_es

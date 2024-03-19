@@ -287,7 +287,7 @@ checkfailure <- function(obj, ...) UseMethod(".checkfailure")
     switch (what,
       n = message <- paste(message,"The require power may be too low for or the effect size too large")
     )
-   obj$warning<-list(topic="issues",message=message,issue=TRUE)
+   obj$warning<-list(topic="issues",message=message,head="issue")
   
   }
   

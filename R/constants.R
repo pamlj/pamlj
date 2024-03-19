@@ -5,21 +5,54 @@ TRANS_WARNS<-list()
 TRANS_WARNS[[1]]<-list(original="end points not of opposite sign",new="Power parameters cannot be for the combination of input parameters")
 
 
+INFO<-list()
+INFO[["common"]]<-" <h1> Info </h1>
+             <div>
+             <p> Please select the aim of the analysis:</p>
+             <ul>
+             <li> <b> Calculate N</b> computes the required sample size given the <b> Target effect size</b> and <b> Minimal desire power</b>  </li>          
+             <li> <b> Calculate Power</b> computes the achievable power given the <b> Target effect size</b> and <b> N (Sample size)</b>  </li>          
+             <li> <b> Calculate Effect Size</b> computes the minimally-detectable effect size given the <b> N (Sample size)</b> and <b> Minimal desire power</b>  </li>          
+             <li> <b> Calculate Required alpha</b> it is not very usefull, just let it be there. </li>          
+             </ul>
+             <p> In all cases, you can set the required Type I error rate and whether the test will be carried out two-tailed or one-tailed.</b>
 
-INTRO<-"<b> Getting started</b>:<br> To produce a dataset useful for simulations, please start with an empty dataset.
-        Define the name of the <b>dependent variable</b> and the number of participants per cluster.
-        Then specify the number of clusters for each <b>clustering variable</b>.
-        The total sample N will be `N per cluster` times `N clusters`. 
-        In case of multiple clustering variables, `N per cluster` is the N within each combinations of clusters
-        <br>For <b>factors</b>, please specify the number of levels (categories) to simulate.<br>
-        If the dataset is not empty, the name of the variables to simulate should not be present in the dataset. <br>
-        When the setup is ok, please select <b>Produce the data</b> option to transfer the
-        data in the dataset. <br>
-        All variables are uncorrelated, their relationships can be defined in the power analysis module."
+             </div>
+             "
+INFO[["peta"]]<-"
+             <div>
+             <p> If the expected Partial eta-squared is computed from data, it is recomended to use an adjusted version, such as
+                 the <b>partial Omega-squared</b>, or the <b>Partial Epsilon-squared</b>. The <b> Option </b> panel may assist in their computation.
+              </p>
+             <p> Set the <b> Model degrees of freedom</b>. 
+              If the model degrees of freedom are not easy to compute, please use the 
+             <b> Model definition </b> panel to help you out. <p>
+             </div>
+             "
+INFO[["eta"]]<-"
+             <div>
+             <p> In all cases, set the expected <b> R-squared </b> for the full model. 
+             For models with only one independent variable the R-square is calculated
+             as the square of the beta coefficients.<p>
+             <p> Set the <b> Model degrees of freedom</b>. 
+              If the model degrees of freedom are not easy to compute, please use the 
+             <b> Model definition </b> panel to help you out. <p>
+             </div>
+              "
 
-BRIEF<-"<b>Available actions</b>:<br> One can use the produced data to estimate power parameters
-         of the mixed model. Although one can work directly on the active dataset, it is reccomanded
-         to save the data as a <b>csv file</b>, so the data will not be altered in future sessions."
+INFO[["beta"]]<-"
+             <div>
+             <p> In all cases, you can set the required Type I error rate and whether the test will be carried out two-tailed or one-tailed.</b></p>
+             <p> In all cases, set the expected <b> R-squared </b> for the full model. 
+             For models with only one independent variable the R-square is calculated
+             as the square of the beta coefficients.<p>
+             <p> Set the <b> Model degrees of freedom</b>. 
+              If the model degrees of freedom are not easy to compute, please use the 
+             <b> Model definition </b> panel to help you out. <p>
+             </div>
+
+                "
+                    
 
 
 
