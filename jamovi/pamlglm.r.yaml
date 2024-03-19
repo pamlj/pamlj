@@ -11,6 +11,7 @@ items:
     - name: issues
       title: Issues
       type: Html
+      visible: false
 
     - name:  powertab
       title: A Priori Power Analysis

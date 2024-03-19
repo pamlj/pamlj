@@ -133,7 +133,8 @@ pamlcorrResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$add(jmvcore::Html$new(
                 options=options,
                 name="issues",
-                title="Issues"))
+                title="Issues",
+                visible=FALSE))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="powertab",
