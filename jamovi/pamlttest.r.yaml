@@ -21,7 +21,6 @@ items:
         - mode
         - b_es
         - v_es
-        - e_es
         - power
         - sample
         - alpha
@@ -29,11 +28,7 @@ items:
         - tails
         - b_df_model
         - v_df_model
-        - e_df_model
-        - e_r2
-        - v_r2
-        - gncp
-        
+        - r2
       columns: 
         - name: n
           title: 'N'
@@ -66,7 +61,6 @@ items:
         - mode
         - b_es
         - v_es
-        - e_es
         - power
         - sample
         - alpha
@@ -74,10 +68,7 @@ items:
         - tails
         - b_df_model
         - v_df_model
-        - e_df_model
-        - e_r2
-        - v_r2
-        - gncp
+        - r2
         
       columns:
         - name: es
@@ -102,21 +93,17 @@ items:
       renderFun: .plot_contour
       visible: (plot_contour)
       clearWith:
-        - mode
-        - b_es
-        - v_es
-        - e_es
-        - power
-        - sample
-        - alpha
-        - aim
-        - tails
-        - b_df_model
-        - v_df_model
-        - e_df_model
-        - e_r2
-        - v_r2
-        - gncp
+                    - mode
+                    - b_es
+                    - v_es
+                    - power
+                    - sample
+                    - alpha
+                    - aim
+                    - tails
+                    - b_df_model
+                    - v_df_model
+                    - r2
 
     - name: powerEscurve
       title: Power Curve by Effect Size
@@ -126,21 +113,17 @@ items:
       renderFun: .plot_escurve
       visible: (plot_escurve & !aim:n)
       clearWith:
-        - mode
-        - b_es
-        - v_es
-        - e_es
-        - power
-        - sample
-        - alpha
-        - aim
-        - tails
-        - b_df_model
-        - v_df_model
-        - e_df_model
-        - e_r2
-        - v_r2
-        - gncp
+                    - mode
+                    - b_es
+                    - v_es
+                    - power
+                    - sample
+                    - alpha
+                    - aim
+                    - tails
+                    - b_df_model
+                    - v_df_model
+                    - r2
 
     - name: powerNcurve
       title: Power Curve by N
@@ -150,20 +133,16 @@ items:
       renderFun: .plot_ncurve
       visible: (plot_ncurve & !aim:es)
       clearWith:
-        - mode
-        - b_es
-        - v_es
-        - e_es
-        - power
-        - sample
-        - alpha
-        - aim
-        - tails
-        - b_df_model
-        - v_df_model
-        - e_df_model
-        - e_r2
-        - v_r2
-        - gncp
+                    - mode
+                    - b_es
+                    - v_es
+                    - power
+                    - sample
+                    - alpha
+                    - aim
+                    - tails
+                    - b_df_model
+                    - v_df_model
+                    - r2
 
 

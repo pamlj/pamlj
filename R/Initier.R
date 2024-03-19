@@ -16,9 +16,9 @@ Initer <- R6::R6Class(
     mode = NULL,
     tails = NULL,
     info = list(),
-    alphacor=1,
     fromaes=NULL,
     toaes  =NULL,
+    ok= TRUE,
     initialize=function(jmvobj) {
 
       super$initialize(jmvobj)
@@ -39,32 +39,58 @@ Initer <- R6::R6Class(
                       self$data[["es"]]         <- as.numeric(jmvobj$options$b_es)
                       self$data["df_model"]     <- jmvobj$options$b_df_model
                       self$data["df_effect"]    <- 1
-                      if (self$tails=="one")    self$alphacor   <- 2
-
-                      self$toaes               <- function(value) value^2/(1-self$data$r2)
-                      self$fromaes             <- function(value) sqrt(value*(1-self$data$r2))
+                      self$data["r2"]           <- jmvobj$options$b_r2
+                      self$toaes                <- function(value)  value^2/(1-self$data$r2)
+                      self$fromaes              <- function(value)  sqrt(value*(1-self$data$r2)) 
                 }
-                if (self$mode == "variance") {
+                if (self$mode == "peta") {
                     self$data[["es"]]         <- as.numeric(jmvobj$options$v_es)
                     self$data["df_model"]     <- jmvobj$options$v_df_model
                     self$data["df_effect"]    <- jmvobj$options$v_df_effect
                     self$toaes                <- function(value) value/(1-value)
                     self$fromaes              <- function(value) value/(1+value)
                 }
-          }
+                if (self$mode == "eta") {
+                    self$data[["es"]]         <- as.numeric(jmvobj$options$e_es)
+                    self$data["df_model"]     <- jmvobj$options$e_df_model
+                    self$data["df_effect"]    <- jmvobj$options$e_df_effect
+                    self$data["r2"]           <- jmvobj$options$e_r2
+                    self$toaes                <- function(value)  value/(1-self$data$r2)
+                    self$fromaes              <- function(value)  value*(1-self$data$r2) 
+                }
+                 
+                if (self$mode == "ttestind") {
+                    self$data[["es"]]         <- as.numeric(jmvobj$options$ttestind_es)
+                    self$data["n"]           <- jmvobj$options$ttestind_n
+                    self$data[["nratio"]]    <- jmvobj$options$ttestind_nratio
+                }
+                 
+                if (self$mode == "ttestpaired") {
+                    self$data[["es"]]         <- as.numeric(jmvobj$options$ttestpaired_es)
+                    self$data["n"]            <- jmvobj$options$ttestpaired_n
+                }
+               if (self$mode == "ttestone") {
+                    self$data[["es"]]         <- as.numeric(jmvobj$options$ttestone_es)
+                    self$data["n"]            <- jmvobj$options$ttestone_n
+               }
+               if (is.null(self$mode)) self$mode<-self$caller
+              
+               jmvobj$results$intro$setContent(paste(INFO[["common"]],INFO[[self$mode]]))   
+
+                 
+          } #end of mode selection
           
           if (!is.something(self$data$es))
                 self$data$es <- self$options$es
 
-          if (self$option("r2")) 
-              self$data["r2"]    <- jmvobj$options$r2
           self$data[[self$aim]]  <- NULL  
 
-                    class(self)<-c(self$caller,self$mode,class(self))
+          class(self)<-c(self$caller,self$mode,class(self))
+          jmvobj$results$issues$setContent(" ")
+
           checkdata(self)
           self$input             <- self$data
-          mark(self$input)
-          jmvobj$results$intro$setContent(text_intro(self))
+
 
     }, # here initialize ends
     #### init functions #####

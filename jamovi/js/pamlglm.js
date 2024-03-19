@@ -42,7 +42,12 @@ const events = {
 module.exports = events;
 
 var update_convert = function( ui) {
+
+   if (ui.model.value !== "peta" ) {
+     return
+   } 
   
+   console.log("converting ES");
    var eta = ui.eta.value();
    if (eta === 0) return
    var df = ui.v_df_effect.value();
@@ -62,19 +67,20 @@ var update_convert = function( ui) {
    ui.omega.setValue(omega.toFixed(3));
    ui.epsilon.setValue(epsilon.toFixed(3));
    ui.gpower.setValue(gpower.toFixed(3));
-   
+
+   var obj = ui.e_es;
+
    if (ui.use.value() === "epsilon")
-       ui.v_es.setValue(epsilon.toFixed(3));
+       obj.setValue(epsilon.toFixed(3));
    if (ui.use.value() === "omega")
-       ui.v_es.setValue(omega.toFixed(3));
+       obj.setValue(omega.toFixed(3));
    if (ui.use.value() === "gpower")
-       ui.v_es.setValue(gpower.toFixed(3));
+       obj.setValue(gpower.toFixed(3));
        
    if (ui.use.value() === "f2" && ui.f2.value() > 0) {
       var f2 = ui.f2.value();
           eta = f2/(1+f2);
-          ui.v_es.setValue(eta.toFixed(3));
-
+          obj.setValue(eta.toFixed(3));
    }
 
 
@@ -82,13 +88,13 @@ var update_convert = function( ui) {
 
 var update_structure = function( ui) {
        
-        if (ui.mode.value() === "beta") {
+        if (["beta","eta"].includes(ui.mode.value())) {
           ui.convert_es.$el.hide() ;
           ui.use.setValue("none") ;
           if (ui.b_df_model.value() < 1) 
               ui.b_df_model.setValue(1);
         }
-        if (ui.mode.value() === "variance") {
+        if (ui.mode.value() === "peta") {
           ui.convert_es.$el.show();
           ui.use.setValue("none") ;        
           ui.omega.$input.prop("readonly",true);
@@ -104,6 +110,8 @@ var update_structure = function( ui) {
           ui.gpower.$input.css("border-color","#5981b3");
 
         }
+        
+
   
 }
     

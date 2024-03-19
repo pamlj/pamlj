@@ -1,20 +1,19 @@
 
 # This file is a generated template, your changes will not be overwritten
 
-pamlglmClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
-    "pamlglmClass",
-    inherit = pamlglmBase,
+pamlttestClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
+    "pamlttestClass",
+    inherit = pamlttestBase,
     private = list(
-        .time=NULL,
+        .time = NULL,
+        .ready= FALSE,
         .smartObjs=list(),
         .plotter=NULL,
         .runner=NULL,
+        .init = function() {
 
-      .init = function() {
-        
-                jinfo(paste("MODULE:  PAMLglm #### phase init  ####"))
+                jinfo(paste("MODULE:  PAMLttest #### phase init  ####"))
                 private$.time<-Sys.time()
-                self$results$issues$setContent(" ")
 
 
      ### set up the R6 workhorse class
@@ -27,7 +26,7 @@ pamlglmClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
 
                  aSmartObj<-SmartTable$new(self$results$powerbyes,private$.runner)
                  ladd(private$.smartObjs)<-aSmartObj
-
+          
                  ### init all ####
                  for (tab in private$.smartObjs) {
                      tab$initTable()
@@ -35,16 +34,18 @@ pamlglmClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                  ### handle plotter #####
                  private$.plotter<-Plotter$new(self,private$.runner)
                  private$.plotter$initPlots()
-         },
+      
+        }, ## end of init
         .run = function() {
-
-                 jinfo(paste("MODULE:  PAMLglm #### phase run  ####"))
+          
+                jinfo(paste("MODULE:  PAMLcorr #### phase run  ####"))
                  private$.runner$run()
                  private$.plotter$preparePlots()
 
                  for (tab in private$.smartObjs) {
                      tab$runTable()
                  }
+
         },
         .plot_contour=function(image, ggtheme, theme, ...) {
           
@@ -64,6 +65,6 @@ pamlglmClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
           return(TRUE)
        }
 
-
-  ) # end of private
+     
+     ) # end of private
 ) # end of class

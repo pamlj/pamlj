@@ -26,10 +26,9 @@ Dispatch <- R6::R6Class(
                         translate=function(msg) {
                           
                           if (!exists("TRANS_WARNS")) return(msg)
-                          if (!is.something(TRANS_WARNS)) return(msg)
+                          
                           where<-unlist(lapply(TRANS_WARNS,function(x) length(grep(x$original,msg))>0))
                           where<-which(where)
-                          
                           if (is.something(where)) {
                               
                             if (length(where)>1) where<-where[1]
@@ -56,7 +55,6 @@ Dispatch <- R6::R6Class(
                                 path<-stringr::str_split(obj$topic,"_")[[1]]
                                 
                                 table<-private$.find_table(path)
-                                
                                 if (!is.something(table)) stop("SCAFFOLD: a message was sent to a non-existing result object: ",obj$topic)
                                 state<-as.list(table$state)
                                 if (!hasName(obj,"key")) obj$key<-jmvcore::toB64(obj$message)
@@ -69,8 +67,8 @@ Dispatch <- R6::R6Class(
                                 if (exists("fromb64")) obj$message<-fromb64(obj$message)
                                 
                                 if (inherits(table,"Html")) {
-                                  content<-table$content
-                                  content<-table$setContent(paste(content,"<div><i>Note:</i>",obj$message,"</div>"))
+                                  content<-private$.process_html(table$content,obj)
+                                  content<-table$setContent(content)
                                   table$setVisible(TRUE)
                                   return()
                                 }
@@ -105,7 +103,8 @@ Dispatch <- R6::R6Class(
                                     return()
           
                                obj$message<-self$translate(obj$message)
-                          
+                               if (exists("fromb64")) obj$message<-fromb64(obj$message)
+                               
                                if (hasName(obj,"final") && (obj$final))
                                    stop(obj$message)
                           
@@ -121,6 +120,21 @@ Dispatch <- R6::R6Class(
             private = list(
                       .warnings=list(),
                       .errors=list(),
+                      .process_html= function(content,obj) {
+
+                        if (is.something(obj$head)) {
+                                    switch (obj$head,
+                                          "issue"     =  head <- "<h2 style='color:red;'> Warning </h2>",
+                                          "warning"   =  head <- "<i style='color:red;'> Warning: </i>",
+                                                         head <- obj$head
+                                         )
+                        } else head <-  "<i>Note:</i>"
+                        
+                        test<-grep(obj$message,content,fixed=TRUE)
+                        if (length(test) == 0)
+                                     content<-paste(content,"<div>",head,obj$message,"</div>")
+                              return(content)
+                       },
                       .find_table=function(path) {
                         
                         tableobj<-self$tables
