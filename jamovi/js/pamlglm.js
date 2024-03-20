@@ -43,32 +43,38 @@ module.exports = events;
 
 var update_convert = function( ui) {
 
-   if (ui.model.value !== "peta" ) {
+   if (ui.mode.value() !== "peta" ) {
      return
    } 
   
    console.log("converting ES");
    var eta = ui.eta.value();
-   if (eta === 0) return
+   if (eta === 0) {
+     ui.omega.setValue(0);
+     ui.epsilon.setValue(0);
+     ui.gpower.setValue(0);
+     return
+   }
    var df = ui.v_df_effect.value();
    if (df === 0) return
    var df_model = ui.v_df_model.value();
-   
    var df_error = ui.eta_df_error.value();
+   
    if (df_error === 0) return
-   var N=df   
+   
    var f = eta*df_error/((1-eta)*df)
-   var omega = ((f - 1) * df)/(f * df + df_error + 1);
+   var omega = ((f - 1) * df)/( (f -1 ) * df + df_model + df_error + 1);
    var epsilon = ((f - 1) * df)/(f * df + df_error) ;
    var k = df+1
-   var N = df_model + df_error + 1
+   var N = df_model + df_model + df_error + 1
    var gpower = eta*(k-N)/((eta*k)-N)
 
+console.log(omega)
    ui.omega.setValue(omega.toFixed(3));
    ui.epsilon.setValue(epsilon.toFixed(3));
    ui.gpower.setValue(gpower.toFixed(3));
 
-   var obj = ui.e_es;
+   var obj = ui.v_es;
 
    if (ui.use.value() === "epsilon")
        obj.setValue(epsilon.toFixed(3));
@@ -160,7 +166,6 @@ var update_df = function( ui) {
               inter = inter.filter(obj => {return obj.length < order});
               df1= inter.map( (value) => value.reduce( (a,b) => a*b)).reduce( (a,b) => a+b);
       }
-    
       var ncovs=ui.covs.value();
       var df_covs= []
       var df2 = 0;
@@ -171,6 +176,7 @@ var update_df = function( ui) {
             inter = inter.filter(obj => {return obj.length < order});
             df2= inter.map( (value) => value.reduce( (a,b) => a*b)).reduce( (a,b) => a+b);
       }    
+
       var df3 = 0;
           order = order_num(ui.mixed_order.value());
       if (order > 1 && df_factors.length > 0 &&  df_covs.length > 0) {
@@ -180,6 +186,7 @@ var update_df = function( ui) {
                var sel = inter.filter((obj) =>  obj.length < order);
                df3=  sel.map( (value) => value.reduce( (a,b) => a*b)).reduce( (a,b) => a+b);
       }
+    console.log(df3)
 
      var df = df1+df2+df3 ;
      if ( df > 0 ) {

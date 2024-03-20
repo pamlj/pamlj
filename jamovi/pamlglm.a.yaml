@@ -201,11 +201,11 @@ options:
                 title: All possible
 
     - name: eta
-      title: Actual Eta squared  
+      title: Observed Eta squared  
       type:  Number
       default: .2
     - name: eta_df_error
-      title: Actual residuals degrees of freedom  
+      title: Observed residuals degrees of freedom  
       type:  Number
       default: 0
     - name: epsilon
@@ -244,6 +244,7 @@ options:
     - name: gncp
       type: Bool
       title: "G*Power NCP"
+      default: true
 
    
 

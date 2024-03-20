@@ -40,7 +40,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             gpower = 0,
             f2 = 0,
             use = "none",
-            gncp = NULL, ...) {
+            gncp = TRUE, ...) {
 
             super$initialize(
                 package="pamlj",
@@ -231,7 +231,8 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 default="none")
             private$..gncp <- jmvcore::OptionBool$new(
                 "gncp",
-                gncp)
+                gncp,
+                default=TRUE)
 
             self$.addOption(private$...caller)
             self$.addOption(private$..aim)
@@ -637,7 +638,7 @@ pamlglm <- function(
     gpower = 0,
     f2 = 0,
     use = "none",
-    gncp) {
+    gncp = TRUE) {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
         stop("pamlglm requires jmvcore to be installed (restart may be required)")
