@@ -3,31 +3,6 @@
 
 checkdata <- function(obj, ...) UseMethod(".checkdata")
 
-
-.checkdata.ttest <- function(obj) {
-
-  if (obj$aim %in% c("n","power","alpha"))  {
-         if (is.something(obj$data$es)) {
-                if (abs(obj$data$es)<.001)
-                       stop("The d coefficient absolute value cannot be less than .001")
-                if (abs(obj$data$es)>5)
-                         stop("Really? d=5?")
-          }
-  } else {
-      if ( obj$data$n <3 )
-               stop("N should be at least 2")
-
-  }
-
-  if ( is.something(obj$data$nratio) && obj$data$nratio < 1 )
-           stop("The groups ratio should be at least 1")
-  
-    obj$data[["aes"]] <- obj$data$es
-    obj$data$letter   <- greek_vector["delta"]
-
-}
-
-
 .checkdata.correlation <- function(obj) {
   
   if (is.something(obj$data$es)) {
@@ -181,99 +156,6 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
 }
 
-
-
-text_intro <- function(obj) UseMethod(".text_intro")
-
-.text_intro.default <- function(obj) {
-  
-  text<-" <div>
-             <p> Please select the aim of the analysis:</p>
-             <ul>
-             <li> <b> Calculate N</b> computes the required sample size given the <b> Target effect size</b> and <b> Minimal desire power</b>  </li>          
-             <li> <b> Calculate Power</b> computes the achievable power given the <b> Target effect size</b> and <b> N (Sample size)</b>  </li>          
-             <li> <b> Calculate Effect Size</b> computes the minimally-detectable effect size given the <b> N (Sample size)</b> and <b> Minimal desire power</b>  </li>          
-             <li> <b> Calculate Required alpha</b> it is not very usefull, just let it be there. </li>          
-             </ul>
-             <p> In all cases, you can set the required Type I error rate and whether the test will be carried out two-tailed or one-tailed.</b>
-
-             </div>
-
-  "
-  return(text)
-
-}
-
-.text_intro.correlation <- function(obj) {
-  
-  text<-" <div>
-             <p> Please select the aim of the analysis:</p>
-             <ul>
-             <li> <b> Calculate N</b> computes the required sample size given the <b> Target effect size</b> and <b> Minimal desire power</b>  </li>          
-             <li> <b> Calculate Power</b> computes the achievable power given the <b> Target effect size</b> and <b> N (Sample size)</b>  </li>          
-             <li> <b> Calculate Effect Size</b> computes the minimally-detectable effect size given the <b> N (Sample size)</b> and <b> Minimal desire power</b>  </li>          
-             <li> <b> Calculate Required alpha</b> it is not very usefull, just let it be there. </li>          
-             </ul>
-             <p> In all cases, you can set the required Type I error rate and whether the test will be carried out two-tailed or one-tailed.</b>
-
-             </div>
-
-  "
-  return(text)
-
-}
-
-.text_intro.beta <- function(obj) {
-  
-  text<-" <div>
-              <p> Please select the aim of the analysis:</p>
-             <ul>
-             <li> <b> Calculate N</b> computes the required sample size given the <b> Target effect size</b> and <b> Minimal desire power</b>  </li>          
-             <li> <b> Calculate Power</b> computes the achievable power given the <b> Target effect size</b> and <b> N (Sample size)</b>  </li>          
-             <li> <b> Calculate Effect Size</b> computes the minimally-detectable effect size given the <b> N (Sample size)</b> and <b> Minimal desire power</b>  </li>          
-             <li> <b> Calculate Required alpha</b> it is not very usefull, just let it be there. </li>          
-             </ul>
-             <p> In all cases, you can set the required Type I error rate and whether the test will be carried out two-tailed or one-tailed.</b>
-
-             </div>
-             <p> In all cases, set the expected <b> R-squared </b> for the full model. 
-             For models with only one independent variable the R-square is calculated
-             as the square of the beta coefficients.<p>
-             <p> Set the <b> Model degrees of freedom</b>. 
-              If the model degrees of freedom are not easy to compute, please use the 
-             <b> Model definition </b> panel to help you out. <p>
-             </div>
-
-  "
-  return(text)
-
-}
-
-.text_intro.peta <- function(obj) {
-  
-  text<-" <div>
-              <p> Please select the aim of the analysis:</p>
-             <ul>
-             <li> <b> Calculate N</b> computes the required sample size given the <b> Expected partial Eta-squared</b> and <b> Minimal desire power</b>  </li>          
-             <li> <b> Calculate Power</b> computes the achievable power given the <b> Expected partial Eta-squared</b> and <b> N (Sample size)</b>  </li>          
-             <li> <b> Calculate Effect Size</b> computes the minimally-detectable effect size given the <b> N (Sample size)</b> and <b> Minimal desire power</b>  </li>          
-             <li> <b> Calculate Required alpha</b> it is not very usefull, just let it be there. </li>          
-             </ul>
-             <p> In all cases, you can set the required Type I error rate and whether the test will be carried out two-tailed or one-tailed.
-             <p> If the expected Partial eta-squared is computed from data, it is recomended to use an adjusted version, such as
-                 the <b>partial Omega-squared</b>, or the <b>Partial Epsilon-squared</b>. The <b> Option </b> panel may assist in their computation.<p/>
-             
-
-             </div>
-             <p> Set the <b> Model degrees of freedom</b>. 
-              If the model degrees of freedom are not easy to compute, please use the 
-             <b> Model definition </b> panel to help you out. <p>
-             </div>
-
-  "
-  return(text)
-
-}
 
 checkfailure <- function(obj, ...) UseMethod(".checkfailure")
 

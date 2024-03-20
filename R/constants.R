@@ -50,9 +50,14 @@ INFO[["beta"]]<-"
               If the model degrees of freedom are not easy to compute, please use the 
              <b> Model definition </b> panel to help you out. <p>
              </div>
+            "
 
-                "
-                    
+INFO[["correlation"]]<-"
+                   <div>
+                   In all cases, you can set the required Type I error rate and
+                   whether the test will be carried out two-tailed or one-tailed.
+                   </div>
+                   " 
 
 
 
