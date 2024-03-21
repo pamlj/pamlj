@@ -86,7 +86,7 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
             probs_es<-round(probs_es,digits=3)
             esList <-list(list(es=paste('0 <', greek_vector["rho"], greek_vector["leq"],probs_es[1])),
                           list(es=paste(probs_es[1],'<', greek_vector["rho"], greek_vector["leq"],probs_es[2])),
-                          list(es=paste(probs_es[1],'<', greek_vector["rho"], greek_vector["leq"],probs_es[3])),
+                          list(es=paste(probs_es[2],'<', greek_vector["rho"], greek_vector["leq"],probs_es[3])),
                           list(es=paste(greek_vector["rho"], greek_vector["geq"],probs_es[3]))
             )
 

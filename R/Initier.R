@@ -59,28 +59,11 @@ Initer <- R6::R6Class(
                     self$fromaes              <- function(value)  value*(1-self$data$r2) 
                 }
                  
-                if (self$mode == "ttestind") {
-                    self$data[["es"]]         <- as.numeric(jmvobj$options$ttestind_es)
-                    self$data["n"]           <- jmvobj$options$ttestind_n
-                    self$data[["nratio"]]    <- jmvobj$options$ttestind_nratio
-                }
-                 
-                if (self$mode == "ttestpaired") {
-                    self$data[["es"]]         <- as.numeric(jmvobj$options$ttestpaired_es)
-                    self$data["n"]            <- jmvobj$options$ttestpaired_n
-                }
-               if (self$mode == "ttestone") {
-                    self$data[["es"]]         <- as.numeric(jmvobj$options$ttestone_es)
-                    self$data["n"]            <- jmvobj$options$ttestone_n
-               }
-               if (is.null(self$mode)) self$mode<-self$caller
-              
-               jmvobj$results$intro$setContent(paste(INFO[["common"]],INFO[[self$mode]]))   
-
-                 
           } #end of mode selection
           
-          if (!is.something(self$data$es))
+           if (is.null(self$mode)) self$mode<-self$caller
+           jmvobj$results$intro$setContent(paste(INFO[["common"]],INFO[[self$mode]]))   
+           if (!is.something(self$data$es))
                 self$data$es <- self$options$es
 
           self$data[[self$aim]]  <- NULL  

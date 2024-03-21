@@ -17,7 +17,7 @@ items:
       title: A Priori Power Analysis
       type: Table
       rows:  1
-      refs: pwr
+      refs: pwrx    
       clearWith:
         - mode
         - b_es

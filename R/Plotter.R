@@ -86,8 +86,8 @@ Plotter <- R6::R6Class(
     .operator=NULL,
     .prepareContour = function() {
       
-     if (!self$option("plot_contour"))
-              return()
+#     if (!self$option("plot_contour"))
+#              return()
       jinfo("PLOTTER: preparing contour plot")
       
       data <- private$.operator$data
@@ -98,7 +98,7 @@ Plotter <- R6::R6Class(
       data$n <- NULL
       nmax<-powervector(private$.operator,data)
       if (nmax<10) nmax=10
-      nmin<-max(3,data$df_model+3)
+      nmin<-max(5,data$df_model+3)
       x=round(seq(nmin,round(nmax),len=20))
       data <- private$.operator$data
       data$n<-x
