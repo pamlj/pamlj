@@ -18,7 +18,6 @@ const events = {
 
     },
     
-
     onChange_factors_list_change: function(ui) {
       console.log("list changed");
       update_df(ui);
@@ -33,7 +32,20 @@ const events = {
       console.log("convert changed");
        update_convert(ui);
 
+    },
+    plot_x_changed: function(ui) {
+      
+         ui.plot_x_from.setValue(0);
+         ui.plot_x_to.setValue(0);
+
+    },
+    plot_z_changed: function(ui) {
+      
+         ui.plot_z_from.setValue(0);
+         ui.plot_z_to.setValue(0);
+
     }
+
 
 
 

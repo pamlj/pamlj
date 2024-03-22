@@ -40,7 +40,17 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             gpower = 0,
             f2 = 0,
             use = "none",
-            gncp = TRUE, ...) {
+            gncp = TRUE,
+            plot_custom = FALSE,
+            plot_x = "none",
+            plot_y = "none",
+            plot_custom_labels = FALSE,
+            plot_z = "none",
+            plot_x_from = 0,
+            plot_x_to = 0,
+            plot_z_from = 0,
+            plot_z_to = 0,
+            plot_z_by = 3, ...) {
 
             super$initialize(
                 package="pamlj",
@@ -233,6 +243,64 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "gncp",
                 gncp,
                 default=TRUE)
+            private$..plot_custom <- jmvcore::OptionBool$new(
+                "plot_custom",
+                plot_custom,
+                default=FALSE)
+            private$..plot_x <- jmvcore::OptionList$new(
+                "plot_x",
+                plot_x,
+                default="none",
+                options=list(
+                    "none",
+                    "n",
+                    "power",
+                    "es",
+                    "alpha"))
+            private$..plot_y <- jmvcore::OptionList$new(
+                "plot_y",
+                plot_y,
+                default="none",
+                options=list(
+                    "none",
+                    "n",
+                    "power",
+                    "es",
+                    "alpha"))
+            private$..plot_custom_labels <- jmvcore::OptionBool$new(
+                "plot_custom_labels",
+                plot_custom_labels,
+                default=FALSE)
+            private$..plot_z <- jmvcore::OptionList$new(
+                "plot_z",
+                plot_z,
+                default="none",
+                options=list(
+                    "none",
+                    "n",
+                    "power",
+                    "es",
+                    "alpha"))
+            private$..plot_x_from <- jmvcore::OptionNumber$new(
+                "plot_x_from",
+                plot_x_from,
+                default=0)
+            private$..plot_x_to <- jmvcore::OptionNumber$new(
+                "plot_x_to",
+                plot_x_to,
+                default=0)
+            private$..plot_z_from <- jmvcore::OptionNumber$new(
+                "plot_z_from",
+                plot_z_from,
+                default=0)
+            private$..plot_z_to <- jmvcore::OptionNumber$new(
+                "plot_z_to",
+                plot_z_to,
+                default=0)
+            private$..plot_z_by <- jmvcore::OptionNumber$new(
+                "plot_z_by",
+                plot_z_by,
+                default=3)
 
             self$.addOption(private$...caller)
             self$.addOption(private$..aim)
@@ -268,6 +336,16 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..f2)
             self$.addOption(private$..use)
             self$.addOption(private$..gncp)
+            self$.addOption(private$..plot_custom)
+            self$.addOption(private$..plot_x)
+            self$.addOption(private$..plot_y)
+            self$.addOption(private$..plot_custom_labels)
+            self$.addOption(private$..plot_z)
+            self$.addOption(private$..plot_x_from)
+            self$.addOption(private$..plot_x_to)
+            self$.addOption(private$..plot_z_from)
+            self$.addOption(private$..plot_z_to)
+            self$.addOption(private$..plot_z_by)
         }),
     active = list(
         .caller = function() private$...caller$value,
@@ -303,7 +381,17 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         gpower = function() private$..gpower$value,
         f2 = function() private$..f2$value,
         use = function() private$..use$value,
-        gncp = function() private$..gncp$value),
+        gncp = function() private$..gncp$value,
+        plot_custom = function() private$..plot_custom$value,
+        plot_x = function() private$..plot_x$value,
+        plot_y = function() private$..plot_y$value,
+        plot_custom_labels = function() private$..plot_custom_labels$value,
+        plot_z = function() private$..plot_z$value,
+        plot_x_from = function() private$..plot_x_from$value,
+        plot_x_to = function() private$..plot_x_to$value,
+        plot_z_from = function() private$..plot_z_from$value,
+        plot_z_to = function() private$..plot_z_to$value,
+        plot_z_by = function() private$..plot_z_by$value),
     private = list(
         ...caller = NA,
         ..aim = NA,
@@ -338,7 +426,17 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..gpower = NA,
         ..f2 = NA,
         ..use = NA,
-        ..gncp = NA)
+        ..gncp = NA,
+        ..plot_custom = NA,
+        ..plot_x = NA,
+        ..plot_y = NA,
+        ..plot_custom_labels = NA,
+        ..plot_z = NA,
+        ..plot_x_from = NA,
+        ..plot_x_to = NA,
+        ..plot_z_from = NA,
+        ..plot_z_to = NA,
+        ..plot_z_by = NA)
 )
 
 pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
@@ -351,7 +449,9 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         powerbyes = function() private$.items[["powerbyes"]],
         powerContour = function() private$.items[["powerContour"]],
         powerEscurve = function() private$.items[["powerEscurve"]],
-        powerNcurve = function() private$.items[["powerNcurve"]]),
+        powerNcurve = function() private$.items[["powerNcurve"]],
+        powerCustom = function() private$.items[["powerCustom"]],
+        plotnotes = function() private$.items[["plotnotes"]]),
     private = list(),
     public=list(
         initialize=function(options) {
@@ -524,7 +624,20 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "e_df_model",
                     "e_r2",
                     "v_r2",
-                    "gncp")))}))
+                    "gncp")))
+            self$add(jmvcore::Image$new(
+                options=options,
+                name="powerCustom",
+                title="Power Parameters",
+                width=600,
+                height=350,
+                renderFun=".plot_custom",
+                visible="(plot_custom)"))
+            self$add(jmvcore::Html$new(
+                options=options,
+                name="plotnotes",
+                title="Plot notes",
+                visible=FALSE))}))
 
 pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     "pamlglmBase",
@@ -585,6 +698,16 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param f2 .
 #' @param use .
 #' @param gncp .
+#' @param plot_custom .
+#' @param plot_x .
+#' @param plot_y .
+#' @param plot_custom_labels .
+#' @param plot_z .
+#' @param plot_x_from .
+#' @param plot_x_to .
+#' @param plot_z_from .
+#' @param plot_z_to .
+#' @param plot_z_by .
 #' @return A results object containing:
 #' \tabular{llllll}{
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
@@ -594,6 +717,8 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$powerContour} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerEscurve} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerNcurve} \tab \tab \tab \tab \tab an image \cr
+#'   \code{results$powerCustom} \tab \tab \tab \tab \tab an image \cr
+#'   \code{results$plotnotes} \tab \tab \tab \tab \tab a html \cr
 #' }
 #'
 #' Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:
@@ -638,7 +763,17 @@ pamlglm <- function(
     gpower = 0,
     f2 = 0,
     use = "none",
-    gncp = TRUE) {
+    gncp = TRUE,
+    plot_custom = FALSE,
+    plot_x = "none",
+    plot_y = "none",
+    plot_custom_labels = FALSE,
+    plot_z = "none",
+    plot_x_from = 0,
+    plot_x_to = 0,
+    plot_z_from = 0,
+    plot_z_to = 0,
+    plot_z_by = 3) {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
         stop("pamlglm requires jmvcore to be installed (restart may be required)")
@@ -678,7 +813,17 @@ pamlglm <- function(
         gpower = gpower,
         f2 = f2,
         use = use,
-        gncp = gncp)
+        gncp = gncp,
+        plot_custom = plot_custom,
+        plot_x = plot_x,
+        plot_y = plot_y,
+        plot_custom_labels = plot_custom_labels,
+        plot_z = plot_z,
+        plot_x_from = plot_x_from,
+        plot_x_to = plot_x_to,
+        plot_z_from = plot_z_from,
+        plot_z_to = plot_z_to,
+        plot_z_by = plot_z_by)
 
     analysis <- pamlglmClass$new(
         options = options,

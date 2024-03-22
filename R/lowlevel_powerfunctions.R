@@ -1,6 +1,6 @@
 ## these are low level power functions, modified from various sources to fit the need of the module
 
-pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,alpha=NULL,df_model=NULL,gpower=FALSE, tails="two") {
+pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,alpha=NULL,df_model=NULL,gpower=TRUE, tails="two") {
   
 
     if (tails=="one" ) {
@@ -8,13 +8,11 @@ pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,alpha=NULL,df_model=NULL,
                alpha <- alpha * 2
          else 
              stop("The required power parameter cannot be computed for one-tailed tests")
-      }
-
-
-       if (is.null(df_model))
+    }
+    if (is.null(df_model))
          stop("df_model must be defined")
   
-       ncp <-function(f2,u,v) {
+    ncp <-function(f2,u,v) {
        if (gpower)
           f2* (df_model + v+ 1)
         else

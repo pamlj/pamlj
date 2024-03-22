@@ -150,51 +150,41 @@ powervector <- function(obj, ...) UseMethod(".powervector")
   
 }
 
-
-
 .powervector.glm <- function(obj,data) {
-                
-                if (is.something(data$n))
-                   data[["v"]]<- data$n - obj$data$df_model -1
                 
                 u  <- obj$data$df_effect
                 rp <- required_param(data)
                 f2 <- NULL
-                if (is.something(data$es))
-                                     f2<-obj$toaes(data$es)
+                if (is.something(data$es)) {
+                                     data$f2<-obj$toaes(data$es)
+                                     data$es<-NULL
+                }
                 else 
                     rp <- "f2"
-                
-                mark(rp)
-                
-                if (length(data$v)>1 && rp!="power") {
-                   results<-unlist(lapply(data$v ,function(v)
-                       pamlj.glm(u=u,
-                                     v=v,
-                                     f2=f2,
-                                     power=data$power,
-                                     alpha=data$alpha,
-                                     df_model=obj$data$df_model,
-                                     gpower=obj$options$gncp,
-                                     tails=obj$tails
-                                     )[[rp]]
+
+                .data<-expand.grid(data)  
+                if (is.something(.data$n))
+                   .data[["v"]]<- .data$n - obj$data$df_model -1
+
+
+                 results<-lapply(1:nrow(.data),function(i) {
+                   one<-.data[i,]
+                   pamlj.glm(u=u,
+                             v=one$v,
+                             f2=one$f2,
+                             power=one$power,
+                              alpha=one$alpha,
+                              df_model=obj$data$df_model,
+                              gpower=obj$options$gncp,
+                              tails=obj$tails
+                              )
                     
-                    ))
-                } else
-                          results<-pamlj.glm(u=u,
-                                     v=data$v,
-                                     f2=f2,
-                                     power=data$power,
-                                     alpha=data$alpha,
-                                     df_model=obj$data$df_model,
-                                     gpower=obj$options$gncp,
-                                     tails=obj$tails
-                                     )[[rp]]
-
-
-                if (rp=="f2")
-                   results<-obj$fromaes(results)
-               
+                    })
+                 results<-as.data.frame(do.call("rbind",results))
+                 for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
+                 results$es<-obj$fromaes(results$f2)
+                 odata<-.data[, !names(.data) %in% names(results)]
+                 results<-cbind(odata,results)
                 return(results)
 }
 

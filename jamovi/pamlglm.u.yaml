@@ -4,7 +4,7 @@ jus: '3.0'
 stage: 0
 compilerMode: tame
 events:
-  update: './pamlglm::update'
+  update: ./pamlglm::update
 children:
   - type: LayoutBox
     margin: large
@@ -27,7 +27,7 @@ children:
                   - name: v_es
                     type: TextBox
                     format: number
-                    enable: '(!aim:es)'
+                    enable: (!aim:es)
                   - type: TextBox
                     name: v_df_effect
                     format: number
@@ -46,7 +46,7 @@ children:
                   - name: e_es
                     type: TextBox
                     format: number
-                    enable: '(!aim:es)'
+                    enable: (!aim:es)
                   - type: TextBox
                     name: e_df_effect
                     format: number
@@ -56,7 +56,6 @@ children:
                   - type: TextBox
                     name: e_df_model
                     format: number
-
       - type: Content
         name: beta
         children:
@@ -69,7 +68,7 @@ children:
                   - name: b_es
                     type: TextBox
                     format: number
-                    enable: '(!aim:es)'
+                    enable: (!aim:es)
                   - name: b_r2
                     type: TextBox
                     format: number
@@ -88,17 +87,17 @@ children:
             type: TextBox
             label: Minimum desired power
             format: number
-            enable: '(!aim:power)'
+            enable: (!aim:power)
           - name: sample
             type: TextBox
             label: N (Sample size)
             format: number
-            enable: '(!aim:n)'
+            enable: (!aim:n)
           - name: alpha
             type: TextBox
             label: '&alpha; (type I error rate)'
             format: number
-            enable: '(!aim:alpha)'
+            enable: (!aim:alpha)
   - type: CollapseBox
     label: Sensitivity Analysis
     name: panel_sensitivity
@@ -114,10 +113,71 @@ children:
                 name: plot_contour
               - type: CheckBox
                 name: plot_escurve
-                enable: '(!aim:n)'
+                enable: (!aim:n)
               - type: CheckBox
                 name: plot_ncurve
-                enable: '(!aim:es)'
+                enable: (!aim:es)
+      - type: LayoutBox
+        children:
+          - type: Label
+            label: Custom Plot
+            children:
+              - type: CheckBox
+                name: plot_custom
+      - type: LayoutBox
+        children:
+          - type: Label
+            label: Plot Y-axis
+            children:
+              - type: LayoutBox
+                style: inline
+                children:
+                  - type: ComboBox
+                    name: plot_y
+                    enable: (plot_custom)
+                  - type: CheckBox
+                    name: plot_custom_labels
+                    enable: (plot_custom)
+
+          - type: Label
+            label: Plot X-axis
+            children:
+              - type: LayoutBox
+                style: inline
+                children:
+                  - type: ComboBox
+                    name: plot_x
+                    enable: (plot_custom)
+                  - type: TextBox
+                    name: plot_x_from
+                    format: number
+                    enable: (plot_custom)
+                  - type: TextBox
+                    name: plot_x_to
+                    format: number
+                    enable: (plot_custom)
+          - type: Label
+            label: Plot Different lines by
+            children:
+              - type: LayoutBox
+                style: inline
+                children:
+                  - type: ComboBox
+                    name: plot_z
+                    enable: (plot_custom)
+                  - type: TextBox
+                    name: plot_z_from
+                    format: number
+                    enable: (plot_custom)
+                  - type: TextBox
+                    name: plot_z_to
+                    format: number
+                    enable: (plot_custom)
+                  - type: TextBox
+                    name: plot_z_by
+                    format: number
+                    enable: (plot_custom)
+                    
   - type: CollapseBox
     label: Model definition
     name: panel_model
@@ -136,11 +196,11 @@ children:
                     type: TextBox
                     format: number
                     events:
-                      change: './pamlglm::onChange_factors_list_change'
+                      change: ./pamlglm::onChange_factors_list_change
                   - name: covs_order
                     type: ComboBox
                     events:
-                      change: './pamlglm::onChange_factors_list_change'
+                      change: ./pamlglm::onChange_factors_list_change
               - type: LayoutBox
                 style: inline
                 children:
@@ -148,11 +208,11 @@ children:
                     type: TextBox
                     format: number
                     events:
-                      change: './pamlglm::onChange_factors'
+                      change: ./pamlglm::onChange_factors
                   - name: factors_order
                     type: ComboBox
                     events:
-                      change: './pamlglm::onChange_factors_list_change'
+                      change: ./pamlglm::onChange_factors_list_change
           - type: Label
             name: factors_group
             label: Factors definition
@@ -162,7 +222,7 @@ children:
                 fullRowSelect: true
                 height: large
                 events:
-                  change: './pamlglm::onChange_factors_list_change'
+                  change: ./pamlglm::onChange_factors_list_change
                 showColumnHeaders: true
                 columns:
                   - name: var
@@ -178,7 +238,7 @@ children:
               - name: mixed_order
                 type: ComboBox
                 events:
-                  change: './pamlglm::onChange_factors_list_change'
+                  change: ./pamlglm::onChange_factors_list_change
   - type: CollapseBox
     label: Options
     name: panel_options
@@ -196,12 +256,12 @@ children:
                 name: eta
                 format: number
                 events:
-                  change: './pamlglm::onChange_convert'
+                  change: ./pamlglm::onChange_convert
               - type: TextBox
                 name: eta_df_error
                 format: number
                 events:
-                  change: './pamlglm::onChange_convert'
+                  change: ./pamlglm::onChange_convert
               - type: TextBox
                 name: epsilon
                 format: number
@@ -215,8 +275,7 @@ children:
                 name: f2
                 format: number
                 events:
-                  change: './pamlglm::onChange_convert'
-                
+                  change: ./pamlglm::onChange_convert
           - type: Label
             label: Use as effect size
             children:
@@ -225,36 +284,31 @@ children:
                 optionName: use
                 optionPart: none
                 events:
-                  change: './pamlglm::onChange_convert'
+                  change: ./pamlglm::onChange_convert
               - name: use_omega
                 type: RadioButton
                 optionName: use
                 optionPart: omega
                 events:
-                  change: './pamlglm::onChange_convert'
+                  change: ./pamlglm::onChange_convert
               - type: RadioButton
                 name: use_epsilon
                 optionName: use
                 optionPart: epsilon
                 events:
-                  change: './pamlglm::onChange_convert'
+                  change: ./pamlglm::onChange_convert
               - type: RadioButton
                 name: use_gpower
                 optionName: use
                 optionPart: gpower
                 events:
-                  change: './pamlglm::onChange_convert'
+                  change: ./pamlglm::onChange_convert
               - type: RadioButton
                 name: use_f2
                 optionName: use
                 optionPart: f2
                 events:
-                  change: './pamlglm::onChange_convert'
-
-      - type: LayoutBox
-        name: other_options
-        style: inline
-        children:
+                  change: ./pamlglm::onChange_convert
           - type: Label
             label: Other Options
             children:
