@@ -318,19 +318,11 @@ options:
       default: 0
 
 
-    - name: plot_z_from
-      type: Number
-      title: "From"
-      default: 0
-    - name: plot_z_to
-      type: Number
-      title: "To"
-      default: 0
-    - name: plot_z_by
-      type: Number
-      title: "Number of lines"
-      default: 3
-
+    - name: plot_z_value
+      type: Array
+      hidden: true
+      template:
+         - type: Number
 
 ...
 
