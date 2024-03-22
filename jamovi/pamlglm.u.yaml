@@ -117,6 +117,9 @@ children:
               - type: CheckBox
                 name: plot_ncurve
                 enable: (!aim:es)
+              - type: CheckBox
+                name: plot_log
+
       - type: LayoutBox
         children:
           - type: Label

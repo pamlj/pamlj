@@ -142,6 +142,7 @@ items:
         - e_r2
         - v_r2
         - gncp
+        - plot_log
 
     - name: powerNcurve
       title: Power Curve by N
@@ -166,6 +167,7 @@ items:
         - e_r2
         - v_r2
         - gncp
+        - plot_log
 
     - name: powerCustom
       title: Power Parameters

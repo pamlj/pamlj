@@ -53,31 +53,38 @@ Plotter <- R6::R6Class(
       },
       plot_curve= function(image,ggtheme,theme) {
          
+        
         if (!private$.operator$ok) return()
         if (!self$option("plot_ncurve") && !self$option("plot_escurve"))
                 return()
 
          cols = paml_palette(10)
-         data<-image$state
+         state<-image$state
+         data <- state$data
          range <- max(data$x)-min(data$x)
-         plot(data$x,data$y,  ty='n',
-              ylab=data$ylab, xlab=data$xlab,
-              xlim=c(min(data$x)+.1*range,max(data$x)-.1*range),
+         plot(data$x,data$y,  ty='n', 
+              xaxt='n',
+              ylab=state$ylab, xlab=state$xlab,
               ylim=c(0,1)
               )
+         axis(1, at=state$ticks, labels=state$tickslabels)
+#         axis(1, at=state$ticks)
+
          yrect <- seq(0,1,.1)
          yrect[1]<-yrect[1]-.5
          yrect[11]<-yrect[11]+.5
+         yor<-par()$usr[3]
+         xor<-par()$usr[1]
 
          for(i in 1:10){
               rect(par()$usr[1], yrect[i], par()$usr[2], yrect[i+1], border = NA,
                    col = cols[i])
          }
-         lines(data$x,data$yline,lwd=2)
-         segments(0,data$point.y,data$point.x,data$point.y, lwd=2)
-         segments(data$point.x,0,data$point.x,data$point.y, lwd=2)
-         points(data$point.x,data$point.y,pch=21,bg="white",cex=1.5)
-         mtext(data$text, adj = 1)
+         lines(data$x,data$y,lwd=2)
+         segments(xor,state$point.y,state$point.x,state$point.y, lwd=2)
+         segments(state$point.x,yor,state$point.x,state$point.y, lwd=2)
+         points(state$point.x,state$point.y,pch=21,bg="white",cex=1.5)
+         mtext(state$text, adj = 1)
        },
       plot_custom= function(image,ggtheme,theme) {
          
@@ -179,21 +186,45 @@ Plotter <- R6::R6Class(
         image<-private$.results$powerNcurve
         ## notice that we send the 'es' (actual effect size), not transformed
         mes<-data$es*.95
-        nmax<-powervector(private$.operator,list(power=.98,es=mes,alpha=data$alpha))
-        if (nmax<10) nmax=10
-        nmin<-max(5,data$df_model+5)
-        x=round(seq(nmin,round(nmax),len=20))
-        yline<-powervector(private$.operator,list(n=x,es=data$es,alpha=data$alpha))
-        point.x <- private$.operator$data$n
-        point.y<-  private$.operator$data$power
-        image$setState(list(x=x,y=yline,
-                          point.x=point.x,point.y=point.y,
-                          n=data$n,power=data$power,yline=yline,
-                          ylin=private$.operator$info$es_lim,
-                          xlab="Sample Size (N)",
-                          ylab="Power",
-                          text=paste(data$letter,"=",data$es," ",greek_vector["alpha"],"=",round(data$alpha,digits=3))
-                       ))
+       .data<-data
+       .data$power<-.98
+       .data$es<-mes
+       .data$n<-NULL
+        nmax<-powervector(private$.operator,.data)[["n"]]
+        nmin <-  private$.operator$nmin
+        
+        if (self$options$plot_log) {
+             x <- seq(log(nmin),log(nmax),by=.1)
+             n <- exp(x)
+             ticks<-round(pretty(x))
+             tickslabels<-round(exp(ticks))
+             point.x<-log(private$.operator$data$n)
+        }  else {
+             x <- seq(nmin,nmax,by=.1)
+             n <- x
+             ticks<-pretty(x)
+             tickslabels<-ticks
+             point.x<-private$.operator$data$n
+
+        }
+        
+        .data<-data
+        .data$n <- n
+        .data$power <- NULL
+         ydata <- powervector(private$.operator,.data)
+         ydata$x <- x
+         ydata$y <- ydata$power
+         mark(ticks,tickslabels)
+         image$setState(list(data=ydata,
+                            point.x = point.x,
+                            point.y = private$.operator$data$power,
+                            ticks=ticks,
+                            tickslabels=tickslabels,
+                            xlab="Required Sample Size (N)",
+                            ylab="Power",
+                            text=paste(data$letter,"=",data$es," ",greek_vector["alpha"],"=",round(data$alpha,digits=3))
+                          ))
+
 
     },
     .prepareEscurve = function() {
@@ -204,14 +235,38 @@ Plotter <- R6::R6Class(
 
         data <- private$.operator$data
         image<-private$.results$powerEscurve
-        x<-seq(0.01,1,len=20)
-        yline<-powervector(private$.operator,list(n=data$n,es=x,alpha=data$alpha))
-        point.x <- private$.operator$data$es
-        point.y<-  private$.operator$data$power
-        image$setState(list(x=x,y=yline,point.x=point.x,point.y=point.y,n=data$n,power=data$power,yline=yline,
-                          xlab="Hypothetical effect size",
-                          ylab="Power",
-                          text=paste("N =",data$n," ",greek_vector["alpha"],"=",round(data$alpha,digits=3))
+        emax <- .99
+        emin<- .01
+        if (self$options$plot_log) {
+             x <- seq(log(emin),log(emax),by=.01)
+             es <- exp(x)
+             ticks<-seq(-7,0,1)
+             tickslabels<-round(exp(ticks),digits=3)
+             point.x<-log(private$.operator$data$es)
+
+        }  else {
+             x <- seq(emin,emax,by=.01)
+             es <- x
+             ticks<-pretty(x)
+             tickslabels<-ticks
+             point.x<-private$.operator$data$es
+
+        }
+          
+        .data<-data
+        .data$power<-NULL
+        .data$es<-es
+        ydata<-powervector(private$.operator,.data)
+        ydata$x <- x
+        ydata$y <- ydata$power
+        image$setState(list(data=ydata,
+                            point.x = point.x,
+                            point.y = private$.operator$data$power,
+                            ticks=ticks,
+                            tickslabels=tickslabels,
+                            xlab="Hypothetical effect size",
+                            ylab="Power",
+                            text=paste("N =",data$n," ",greek_vector["alpha"],"=",round(data$alpha,digits=3))
                           ))
     },
     

@@ -19,6 +19,7 @@ Initer <- R6::R6Class(
     fromaes=NULL,
     toaes  =NULL,
     ok= TRUE,
+    nmin=0,
     initialize=function(jmvobj) {
 
       super$initialize(jmvobj)
@@ -34,7 +35,6 @@ Initer <- R6::R6Class(
           
           if (self$option("mode")) {
                  self$mode <- self$options$mode
-          
                 if (self$mode == "beta") {
                       self$data[["es"]]         <- as.numeric(jmvobj$options$b_es)
                       self$data["df_model"]     <- jmvobj$options$b_df_model
@@ -58,7 +58,8 @@ Initer <- R6::R6Class(
                     self$toaes                <- function(value)  value/(1-self$data$r2)
                     self$fromaes              <- function(value)  value*(1-self$data$r2) 
                 }
-                 
+                self$nmin <- self$data$df_model+3
+
           } #end of mode selection
           
            if (is.null(self$mode)) self$mode<-self$caller

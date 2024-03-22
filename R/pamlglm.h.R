@@ -26,6 +26,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             plot_contour = FALSE,
             plot_escurve = FALSE,
             plot_ncurve = FALSE,
+            plot_log = FALSE,
             covs = 1,
             factors = 0,
             factors_list = list(
@@ -154,6 +155,10 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..plot_ncurve <- jmvcore::OptionBool$new(
                 "plot_ncurve",
                 plot_ncurve,
+                default=FALSE)
+            private$..plot_log <- jmvcore::OptionBool$new(
+                "plot_log",
+                plot_log,
                 default=FALSE)
             private$..covs <- jmvcore::OptionNumber$new(
                 "covs",
@@ -320,6 +325,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..plot_contour)
             self$.addOption(private$..plot_escurve)
             self$.addOption(private$..plot_ncurve)
+            self$.addOption(private$..plot_log)
             self$.addOption(private$..covs)
             self$.addOption(private$..factors)
             self$.addOption(private$..factors_list)
@@ -365,6 +371,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         plot_contour = function() private$..plot_contour$value,
         plot_escurve = function() private$..plot_escurve$value,
         plot_ncurve = function() private$..plot_ncurve$value,
+        plot_log = function() private$..plot_log$value,
         covs = function() private$..covs$value,
         factors = function() private$..factors$value,
         factors_list = function() private$..factors_list$value,
@@ -409,6 +416,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..plot_contour = NA,
         ..plot_escurve = NA,
         ..plot_ncurve = NA,
+        ..plot_log = NA,
         ..covs = NA,
         ..factors = NA,
         ..factors_list = NA,
@@ -595,7 +603,8 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "e_df_model",
                     "e_r2",
                     "v_r2",
-                    "gncp")))
+                    "gncp",
+                    "plot_log")))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerNcurve",
@@ -619,7 +628,8 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "e_df_model",
                     "e_r2",
                     "v_r2",
-                    "gncp")))
+                    "gncp",
+                    "plot_log")))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerCustom",
@@ -679,6 +689,7 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param plot_contour .
 #' @param plot_escurve .
 #' @param plot_ncurve .
+#' @param plot_log .
 #' @param covs .
 #' @param factors .
 #' @param factors_list .
@@ -743,6 +754,7 @@ pamlglm <- function(
     plot_contour = FALSE,
     plot_escurve = FALSE,
     plot_ncurve = FALSE,
+    plot_log = FALSE,
     covs = 1,
     factors = 0,
     factors_list = list(
@@ -793,6 +805,7 @@ pamlglm <- function(
         plot_contour = plot_contour,
         plot_escurve = plot_escurve,
         plot_ncurve = plot_ncurve,
+        plot_log = plot_log,
         covs = covs,
         factors = factors,
         factors_list = factors_list,

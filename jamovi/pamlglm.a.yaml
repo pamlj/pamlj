@@ -136,6 +136,11 @@ options:
       type: Bool
       default: false
 
+    - name: plot_log
+      title: Log Scale
+      type: Bool
+      default: false
+
     - name: covs
       title: Number of covariates
       type:  Number
