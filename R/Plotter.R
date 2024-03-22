@@ -245,27 +245,7 @@ Plotter <- R6::R6Class(
             return()
         }
 
-        goz<-FALSE
-        if (!self$option("plot_z","none")) {
-            goz<-TRUE
-            if (self$options$plot_z %in% c(self$options$plot_x,self$options$plot_y)) {
-                self$warning<-list(topic="plotnotes",message="Multiple lines cannot be plotted for the parameters in Y or X axis.")          
-                goz<-FALSE
-            }
-            
-            if (goz && self$options$plot_z_from==self$options$plot_z_to) {
-                self$warning<-list(topic="plotnotes",message="Please set a suitable range for multiple lines. This command is ignored")          
-                goz<-FALSE
-            }
-            if (goz && self$options$plot_z_from>self$options$plot_z_to) {
-                self$warning<-list(topic="plotnotes",message="Please set a suitable range for multiple lines. This command is ignored")          
-                goz<-FALSE
-            }
-            if (goz && self$options$plot_z_by==0) {
-                self$warning<-list(topic="plotnotes",message="Number of lines has been set to 2")          
-                goz<-FALSE
-            }
-        }
+        z_values<-private$.test_z()
 
         jinfo("PLOTTER: preparing custom plot")
 
@@ -274,10 +254,13 @@ Plotter <- R6::R6Class(
         image<-private$.results$powerCustom
         what<-self$options$plot_x
         data[[what]]<-pretty(c(self$options$plot_x_from,self$options$plot_x_to),n=20)
+        data[[what]][1]<-self$options$plot_x_from
+        data[[what]][length(data[[what]])]<-self$options$plot_x_to
+        
         zlab<-NULL
-        if (goz) {
-          data[[self$options$plot_z]]<-c(self$options$plot_z_from,self$options$plot_z_to)
-          zlab<-nicify_param(self$options$plot_z)
+
+        if (is.something(z_values)) {
+          data[[self$options$plot_z]]<-z_values
         }
         data[[self$options$plot_y]]<-NULL
         tryobj<-try_hard(powervector(private$.operator,data))
@@ -287,18 +270,24 @@ Plotter <- R6::R6Class(
         } else 
            ydata<-tryobj$obj
 
-        ydata<-powervector(private$.operator,data)
         if (any(is.nan(ydata[[self$options$plot_y]]))) {
             self$warning<-list(topic="plotnotes",message="The required plot cannot be produced. Please update the plot settings")          
             return()
         }
+
         names(ydata)[names(ydata)==self$options$plot_x]<-"x"
         names(ydata)[names(ydata)==self$options$plot_y]<-"y"
         names(ydata)[names(ydata)==self$options$plot_z]<-"z"
 
+        if (hasName(ydata,"z"))
+            zlab<-nicify_param(self$options$plot_z)
+
         tickdata<-NULL
         if (self$option("plot_custom_labels")) {
-                   ticks<-pretty(unique(ydata$x),n=5)
+                   ux <- unique(ydata$x)
+                   ticks<-pretty(ux,n=5)
+                   if (ticks[1]< min(ux)) ticks[1]<-min(ux)
+                   if (ticks[length(ticks)] > max(ux)) ticks[1]<-max(ux)
                    tdata<-data
                    tdata[[self$options$plot_x]]<-ticks
                    tryobj<-try_hard(powervector(private$.operator,tdata))
@@ -320,8 +309,39 @@ Plotter <- R6::R6Class(
                             xlab=nicify_param(self$options$plot_x),
                             ylab=nicify_param(self$options$plot_y),
                             zlab=zlab))
-    }
+    },
+    .test_z = function() {
+      
+           z_values <- NULL
+      
+            if (self$option("plot_z","none"))
+              return()
+           
+            if (self$options$plot_z %in% c(self$options$plot_x,self$options$plot_y)) {
+                self$warning<-list(topic="plotnotes",message="Multiple lines cannot be plotted for the parameters in Y or X axis.")          
+                return()
+            }
+           
+            if (self$options$plot_z_lines == 0) {
+                self$warning<-list(topic="plotnotes",message="Please set the required number of lines")          
+                return()
+            } 
+          
+            z_values <- unlist(lapply(self$options$plot_z_value, function(x) if (as.numeric(x) > 0) as.numeric(x)))
+            
+            if (is.null(z_values)) {
+                self$warning<-list(topic="plotnotes",message=paste("Please set a value of",nicify_param(self$options$plot_z)," for each line."))          
+                return()
+             }
+               
+            if (length(z_values) != self$options$plot_z_lines) {
+                self$warning<-list(topic="plotnotes",
+                                   message=paste("Please set a value of",nicify_param(self$options$plot_z)," for each line. Only",length(z_values)," curve(s) are displayed."))          
+            }
+            
+            return(z_values)
     
+    }
 
   ) # end of private
 ) # end of class

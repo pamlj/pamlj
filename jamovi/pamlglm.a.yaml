@@ -326,9 +326,9 @@ options:
     - name: plot_z_value
       type: Array
    #   hidden: true
-      default: [1]
+      default: []
       template:
-          type: Number
+          type: String
 
 ...
 

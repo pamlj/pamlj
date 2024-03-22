@@ -49,8 +49,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             plot_x_from = 0,
             plot_x_to = 0,
             plot_z_lines = 0,
-            plot_z_value = list(
-                1), ...) {
+            plot_z_value = list(), ...) {
 
             super$initialize(
                 package="pamlj",
@@ -296,9 +295,8 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..plot_z_value <- jmvcore::OptionArray$new(
                 "plot_z_value",
                 plot_z_value,
-                default=list(
-                    1),
-                template=jmvcore::OptionNumber$new(
+                default=list(),
+                template=jmvcore::OptionString$new(
                     "plot_z_value",
                     NULL))
 
@@ -768,8 +766,7 @@ pamlglm <- function(
     plot_x_from = 0,
     plot_x_to = 0,
     plot_z_lines = 0,
-    plot_z_value = list(
-                1)) {
+    plot_z_value = list()) {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
         stop("pamlglm requires jmvcore to be installed (restart may be required)")
