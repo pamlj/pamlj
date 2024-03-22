@@ -138,7 +138,6 @@ children:
                   - type: CheckBox
                     name: plot_custom_labels
                     enable: (plot_custom)
-
           - type: Label
             label: Plot X-axis
             children:
@@ -166,15 +165,7 @@ children:
                     name: plot_z
                     enable: (plot_custom)
                   - type: TextBox
-                    name: plot_z_from
-                    format: number
-                    enable: (plot_custom)
-                  - type: TextBox
-                    name: plot_z_to
-                    format: number
-                    enable: (plot_custom)
-                  - type: TextBox
-                    name: plot_z_by
+                    name: plot_z_lines
                     format: number
                     enable: (plot_custom)
                     

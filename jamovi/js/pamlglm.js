@@ -39,10 +39,11 @@ const events = {
          ui.plot_x_to.setValue(0);
 
     },
-    plot_z_changed: function(ui) {
+    plot_z_lines_changed: function(ui) {
+      var n_lines=ui.plot_z_lines.value();
+      if (n_lines === 0)
+          return;
       
-         ui.plot_z_from.setValue(0);
-         ui.plot_z_to.setValue(0);
 
     }
 

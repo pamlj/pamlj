@@ -48,9 +48,9 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             plot_z = "none",
             plot_x_from = 0,
             plot_x_to = 0,
-            plot_z_from = 0,
-            plot_z_to = 0,
-            plot_z_by = 3, ...) {
+            plot_z_lines = 0,
+            plot_z_value = list(
+                1), ...) {
 
             super$initialize(
                 package="pamlj",
@@ -289,18 +289,18 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "plot_x_to",
                 plot_x_to,
                 default=0)
-            private$..plot_z_from <- jmvcore::OptionNumber$new(
-                "plot_z_from",
-                plot_z_from,
+            private$..plot_z_lines <- jmvcore::OptionNumber$new(
+                "plot_z_lines",
+                plot_z_lines,
                 default=0)
-            private$..plot_z_to <- jmvcore::OptionNumber$new(
-                "plot_z_to",
-                plot_z_to,
-                default=0)
-            private$..plot_z_by <- jmvcore::OptionNumber$new(
-                "plot_z_by",
-                plot_z_by,
-                default=3)
+            private$..plot_z_value <- jmvcore::OptionArray$new(
+                "plot_z_value",
+                plot_z_value,
+                default=list(
+                    1),
+                template=jmvcore::OptionNumber$new(
+                    "plot_z_value",
+                    NULL))
 
             self$.addOption(private$...caller)
             self$.addOption(private$..aim)
@@ -343,9 +343,8 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..plot_z)
             self$.addOption(private$..plot_x_from)
             self$.addOption(private$..plot_x_to)
-            self$.addOption(private$..plot_z_from)
-            self$.addOption(private$..plot_z_to)
-            self$.addOption(private$..plot_z_by)
+            self$.addOption(private$..plot_z_lines)
+            self$.addOption(private$..plot_z_value)
         }),
     active = list(
         .caller = function() private$...caller$value,
@@ -389,9 +388,8 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         plot_z = function() private$..plot_z$value,
         plot_x_from = function() private$..plot_x_from$value,
         plot_x_to = function() private$..plot_x_to$value,
-        plot_z_from = function() private$..plot_z_from$value,
-        plot_z_to = function() private$..plot_z_to$value,
-        plot_z_by = function() private$..plot_z_by$value),
+        plot_z_lines = function() private$..plot_z_lines$value,
+        plot_z_value = function() private$..plot_z_value$value),
     private = list(
         ...caller = NA,
         ..aim = NA,
@@ -434,9 +432,8 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..plot_z = NA,
         ..plot_x_from = NA,
         ..plot_x_to = NA,
-        ..plot_z_from = NA,
-        ..plot_z_to = NA,
-        ..plot_z_by = NA)
+        ..plot_z_lines = NA,
+        ..plot_z_value = NA)
 )
 
 pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
@@ -705,9 +702,8 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param plot_z .
 #' @param plot_x_from .
 #' @param plot_x_to .
-#' @param plot_z_from .
-#' @param plot_z_to .
-#' @param plot_z_by .
+#' @param plot_z_lines .
+#' @param plot_z_value .
 #' @return A results object containing:
 #' \tabular{llllll}{
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
@@ -771,9 +767,9 @@ pamlglm <- function(
     plot_z = "none",
     plot_x_from = 0,
     plot_x_to = 0,
-    plot_z_from = 0,
-    plot_z_to = 0,
-    plot_z_by = 3) {
+    plot_z_lines = 0,
+    plot_z_value = list(
+                1)) {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
         stop("pamlglm requires jmvcore to be installed (restart may be required)")
@@ -821,9 +817,8 @@ pamlglm <- function(
         plot_z = plot_z,
         plot_x_from = plot_x_from,
         plot_x_to = plot_x_to,
-        plot_z_from = plot_z_from,
-        plot_z_to = plot_z_to,
-        plot_z_by = plot_z_by)
+        plot_z_lines = plot_z_lines,
+        plot_z_value = plot_z_value)
 
     analysis <- pamlglmClass$new(
         options = options,

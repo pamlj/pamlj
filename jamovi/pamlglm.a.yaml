@@ -318,11 +318,17 @@ options:
       default: 0
 
 
+    - name: plot_z_lines
+      type: Number
+      title: "# lines"
+      default: 0
+
     - name: plot_z_value
       type: Array
-      hidden: true
+   #   hidden: true
+      default: [1]
       template:
-         - type: Number
+          type: Number
 
 ...
 
