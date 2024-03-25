@@ -43,6 +43,8 @@ INFO[["eta"]]<-"
 
 INFO[["beta"]]<-"
              <div>
+             <p> Please notice that in case of multiple regression, the predictors are <b> assumed to be uncorrelated </b>. If correlated predictors
+             are expected, please use the <b>Partial Eta-squared</b> interface</p>
              <p> In all cases, you can set the required Type I error rate and whether the test will be carried out two-tailed or one-tailed.</b></p>
              <p> In all cases, set the expected <b> R-squared </b> for the full model. 
              For models with only one independent variable the R-square is calculated

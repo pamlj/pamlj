@@ -40,8 +40,14 @@ Initer <- R6::R6Class(
                       self$data["df_model"]     <- jmvobj$options$b_df_model
                       self$data["df_effect"]    <- 1
                       self$data["r2"]           <- jmvobj$options$b_r2
-                      self$toaes                <- function(value)  value^2/(1-self$data$r2)
-                      self$fromaes              <- function(value)  sqrt(value*(1-self$data$r2)) 
+                      self$toaes                <- function(value)  {
+                                                         peta<-value^2/(value^2+1-self$data$r2)
+                                                         peta/(1-peta)
+                                                   }
+                      self$fromaes              <- function(value)  {
+                                                     peta<-(value/(1+value))
+                                                     sqrt(peta*(1-self$data$r2)/(1-peta))
+                                                     }
                 }
                 if (self$mode == "peta") {
                     self$data[["es"]]         <- as.numeric(jmvobj$options$v_es)

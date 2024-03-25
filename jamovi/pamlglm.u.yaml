@@ -322,6 +322,10 @@ children:
                 optionPart: f2
                 events:
                   change: ./pamlglm::onChange_convert
+      - type: LayoutBox
+        name: other_stuff
+        style: inline
+        children:
           - type: Label
             label: Other Options
             children:
