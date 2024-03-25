@@ -109,4 +109,16 @@ items:
         - aim
         - tails
 
+    - name: powerCustom
+      title: Power Parameters
+      type: Image
+      width:  500
+      height: 350
+      renderFun: .plot_custom
+      visible: (plot_custom)
+      
+    - name: plotnotes
+      title: Plot notes
+      type: Html
+      visible: false
 

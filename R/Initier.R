@@ -19,7 +19,7 @@ Initer <- R6::R6Class(
     fromaes=NULL,
     toaes  =NULL,
     ok= TRUE,
-    nmin=3,
+    nmin=5,
     initialize=function(jmvobj) {
 
       super$initialize(jmvobj)

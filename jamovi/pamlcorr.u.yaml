@@ -15,40 +15,110 @@ children:
       - type: Label
         label: Parameters
         children:
-            - name: es
-              type: TextBox
-              label: Minimally-interesting effect size (&rho;)
-              format: number
-              enable: '(!aim:es)'
-            - name: power
-              type: TextBox
-              label: Minimum desired power
-              format: number
-              enable: '(!aim:power)'
-            - name: sample
-              type: TextBox
-              label: N (Sample size)
-              format: number
-              enable: '(!aim:n)'
-            - name: alpha
-              type: TextBox
-              label: '&alpha; (type I error rate)'
-              format: number
-              enable: '(!aim:alpha)'
-
+          - name: es
+            type: TextBox
+            label: Minimally-interesting effect size (&rho;)
+            format: number
+            enable: (!aim:es)
+          - name: power
+            type: TextBox
+            label: Minimum desired power
+            format: number
+            enable: (!aim:power)
+          - name: sample
+            type: TextBox
+            label: N (Sample size)
+            format: number
+            enable: (!aim:n)
+          - name: alpha
+            type: TextBox
+            label: '&alpha; (type I error rate)'
+            format: number
+            enable: (!aim:alpha)
       - type: ComboBox
         name: tails
-  - type: LayoutBox
-    margin: large
+  - type: CollapseBox
+    label: Sensitivity Analysis
+    name: panel_sensitivity
+    collapsed: true
+    stretchFactor: 1
     children:
-      - type: Label
-        label: Sensitivity Analysis
+      - type: LayoutBox
         children:
-               - type: CheckBox
-                 name: plot_contour
-               - type: CheckBox
-                 name: plot_escurve
-                 enable: (!aim:n)
-               - type: CheckBox
-                 name: plot_ncurve
-                 enable: (!aim:es)
+          - type: Label
+            label: Plots
+            children:
+              - type: CheckBox
+                name: plot_contour
+              - type: CheckBox
+                name: plot_escurve
+                enable: (!aim:n)
+              - type: CheckBox
+                name: plot_ncurve
+                enable: (!aim:es)
+      - type: LayoutBox
+        children:
+          - type: Label
+            label: Custom Plot
+            children:
+              - type: CheckBox
+                name: plot_custom
+      - type: LayoutBox
+        children:
+          - type: Label
+            label: Plot Y-axis
+            children:
+              - type: LayoutBox
+                style: inline
+                children:
+                  - type: ComboBox
+                    name: plot_y
+                    enable: (plot_custom)
+                  - type: CheckBox
+                    name: plot_custom_labels
+                    enable: (plot_custom)
+          - type: Label
+            label: Plot X-axis
+            children:
+              - type: LayoutBox
+                style: inline
+                children:
+                  - type: ComboBox
+                    name: plot_x
+                    enable: (plot_custom)
+                  - type: TextBox
+                    name: plot_x_from
+                    format: number
+                    enable: (plot_custom)
+                  - type: TextBox
+                    name: plot_x_to
+                    format: number
+                    enable: (plot_custom)
+          - type: Label
+            label: Plot Different lines by
+            children:
+              - type: LayoutBox
+                style: inline
+                children:
+                  - type: ComboBox
+                    name: plot_z
+                    enable: (plot_custom)
+                  - type: TextBox
+                    name: plot_z_lines
+                    format: number
+                    enable: (plot_custom)
+          - type: Label
+            label: Values for each line
+            name: plot_value_label
+            children:
+              - type: ListBox
+                name: plot_z_value
+                events:
+                  listItemAdded: ./pamlglm::onChange_value_added
+                  listItemRemoved: ./pamlglm::onChange_value_removed
+                showColumnHeaders: false
+                columns:
+                  - name: var
+                    label: Value
+                    template:
+                      type: TextBox

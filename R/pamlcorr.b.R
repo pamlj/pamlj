@@ -63,7 +63,12 @@ pamlcorrClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
 
           private$.plotter$plot_curve(image,ggtheme,theme)
           return(TRUE)
+       },
+        .plot_custom=function(image, ggtheme, theme, ...) {
+
+          private$.plotter$plot_custom(image,ggtheme,theme)
        }
+
 
      
      ) # end of private

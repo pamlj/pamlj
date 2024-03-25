@@ -37,7 +37,7 @@ Plotter <- R6::R6Class(
         data<-image$state
 
       
-        if (self$options$plot_log) {
+        if (self$option("plot_log")) {
              yticks<-seq(-7,0,1)
              ytickslabels<-round(exp(yticks),digits=2)
         } else {
@@ -113,6 +113,7 @@ Plotter <- R6::R6Class(
          if (is.something(data$z)) {
            data$z<-factor(data$z)
            threed<-TRUE
+           image$setSize(550,350)
          }
 
          dig=3
@@ -168,8 +169,8 @@ Plotter <- R6::R6Class(
       nmin<-private$.operator$nmin
       emax <- .99
       emin<- .01
-
-      if (self$options$plot_log) {
+      
+      if (self$option("plot_log")) {
              x <- seq(log(nmin),log(nmax),by=.1)
              n <- exp(x)
              ticks<-round(pretty(x,n=5))
@@ -194,14 +195,12 @@ Plotter <- R6::R6Class(
       .data$n<-n
       .data$es <- NULL
       yline=powervector(private$.operator,.data)[["es"]]
-      if (self$options$plot_log) {
+      if (self$option("plot_log")) {
         yline=log(yline)
       }
       .data <- private$.operator$data
       .data$power<-NULL
       .data$n<-n
-#       mark(.data$n)
-       mark(es)
        out<-lapply(es,function(ind)  {
          .data$es<-ind
          powervector(private$.operator,.data)[["power"]]
@@ -232,7 +231,7 @@ Plotter <- R6::R6Class(
         nmax<-powervector(private$.operator,.data)[["n"]]
         nmin <-  private$.operator$nmin
         
-        if (self$options$plot_log) {
+        if (self$option("plot_log")) {
              x <- seq(log(nmin),log(nmax),by=.1)
              n <- exp(x)
              ticks<-round(pretty(x,n=5))
@@ -275,7 +274,8 @@ Plotter <- R6::R6Class(
         image<-private$.results$powerEscurve
         emax <- .99
         emin<- .01
-        if (self$options$plot_log) {
+
+        if (self$option("plot_log")) {
              x <- seq(log(emin),log(emax),by=.01)
              es <- exp(x)
              ticks<-seq(-7,0,1)

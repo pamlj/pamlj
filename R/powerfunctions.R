@@ -140,13 +140,20 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                 if (length(whichnull)==0)
                    stop("FUNCTION powervector: exactly one parameters should be NULL")
                 ## for some reason, if n is a vector and the effect size is asked, it gives an error
-                if (whichnull=="r" && length(data$n)>1)
-                   results<-sapply(data$n, function(x) pwr::pwr.r.test(n=x,power=data$power,sig.level=data$alpha,alternative=alt)[["r"]] )
-                else
-                   results <- pwr::pwr.r.test(n=data$n,r=data$es,power=data$power,sig.level=data$alpha,alternative=alt)[[whichnull]]
-                return(results)
+                .data<-expand.grid(data)  
 
-  
+
+                results<-lapply(1:nrow(.data),function(i) {
+                   one<-.data[i,]
+                   pwr::pwr.r.test(n=one$n,r=one$es,power=one$power,sig.level=one$alpha,alternative=alt)
+                    })
+                 results<-as.data.frame(do.call("rbind",results))
+                 for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
+                 results$es<-results$r
+                 odata<-.data[, !names(.data) %in% names(results)]
+                 results<-cbind(odata,results)
+                 return(results)
+
   
 }
 

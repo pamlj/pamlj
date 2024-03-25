@@ -15,7 +15,16 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             tails = "two",
             plot_contour = FALSE,
             plot_escurve = FALSE,
-            plot_ncurve = FALSE, ...) {
+            plot_ncurve = FALSE,
+            plot_custom = FALSE,
+            plot_x = "none",
+            plot_y = "none",
+            plot_custom_labels = FALSE,
+            plot_z = "none",
+            plot_x_from = 0,
+            plot_x_to = 0,
+            plot_z_lines = 0,
+            plot_z_value = list(), ...) {
 
             super$initialize(
                 package="pamlj",
@@ -72,6 +81,63 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "plot_ncurve",
                 plot_ncurve,
                 default=FALSE)
+            private$..plot_custom <- jmvcore::OptionBool$new(
+                "plot_custom",
+                plot_custom,
+                default=FALSE)
+            private$..plot_x <- jmvcore::OptionList$new(
+                "plot_x",
+                plot_x,
+                default="none",
+                options=list(
+                    "none",
+                    "n",
+                    "power",
+                    "es",
+                    "alpha"))
+            private$..plot_y <- jmvcore::OptionList$new(
+                "plot_y",
+                plot_y,
+                default="none",
+                options=list(
+                    "none",
+                    "n",
+                    "power",
+                    "es",
+                    "alpha"))
+            private$..plot_custom_labels <- jmvcore::OptionBool$new(
+                "plot_custom_labels",
+                plot_custom_labels,
+                default=FALSE)
+            private$..plot_z <- jmvcore::OptionList$new(
+                "plot_z",
+                plot_z,
+                default="none",
+                options=list(
+                    "none",
+                    "n",
+                    "power",
+                    "es",
+                    "alpha"))
+            private$..plot_x_from <- jmvcore::OptionNumber$new(
+                "plot_x_from",
+                plot_x_from,
+                default=0)
+            private$..plot_x_to <- jmvcore::OptionNumber$new(
+                "plot_x_to",
+                plot_x_to,
+                default=0)
+            private$..plot_z_lines <- jmvcore::OptionNumber$new(
+                "plot_z_lines",
+                plot_z_lines,
+                default=0)
+            private$..plot_z_value <- jmvcore::OptionArray$new(
+                "plot_z_value",
+                plot_z_value,
+                default=list(),
+                template=jmvcore::OptionString$new(
+                    "plot_z_value",
+                    NULL))
 
             self$.addOption(private$...caller)
             self$.addOption(private$..aim)
@@ -83,6 +149,15 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..plot_contour)
             self$.addOption(private$..plot_escurve)
             self$.addOption(private$..plot_ncurve)
+            self$.addOption(private$..plot_custom)
+            self$.addOption(private$..plot_x)
+            self$.addOption(private$..plot_y)
+            self$.addOption(private$..plot_custom_labels)
+            self$.addOption(private$..plot_z)
+            self$.addOption(private$..plot_x_from)
+            self$.addOption(private$..plot_x_to)
+            self$.addOption(private$..plot_z_lines)
+            self$.addOption(private$..plot_z_value)
         }),
     active = list(
         .caller = function() private$...caller$value,
@@ -94,7 +169,16 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         tails = function() private$..tails$value,
         plot_contour = function() private$..plot_contour$value,
         plot_escurve = function() private$..plot_escurve$value,
-        plot_ncurve = function() private$..plot_ncurve$value),
+        plot_ncurve = function() private$..plot_ncurve$value,
+        plot_custom = function() private$..plot_custom$value,
+        plot_x = function() private$..plot_x$value,
+        plot_y = function() private$..plot_y$value,
+        plot_custom_labels = function() private$..plot_custom_labels$value,
+        plot_z = function() private$..plot_z$value,
+        plot_x_from = function() private$..plot_x_from$value,
+        plot_x_to = function() private$..plot_x_to$value,
+        plot_z_lines = function() private$..plot_z_lines$value,
+        plot_z_value = function() private$..plot_z_value$value),
     private = list(
         ...caller = NA,
         ..aim = NA,
@@ -105,7 +189,16 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..tails = NA,
         ..plot_contour = NA,
         ..plot_escurve = NA,
-        ..plot_ncurve = NA)
+        ..plot_ncurve = NA,
+        ..plot_custom = NA,
+        ..plot_x = NA,
+        ..plot_y = NA,
+        ..plot_custom_labels = NA,
+        ..plot_z = NA,
+        ..plot_x_from = NA,
+        ..plot_x_to = NA,
+        ..plot_z_lines = NA,
+        ..plot_z_value = NA)
 )
 
 pamlcorrResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
@@ -118,7 +211,9 @@ pamlcorrResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         powerbyes = function() private$.items[["powerbyes"]],
         powerContour = function() private$.items[["powerContour"]],
         powerEscurve = function() private$.items[["powerEscurve"]],
-        powerNcurve = function() private$.items[["powerNcurve"]]),
+        powerNcurve = function() private$.items[["powerNcurve"]],
+        powerCustom = function() private$.items[["powerCustom"]],
+        plotnotes = function() private$.items[["plotnotes"]]),
     private = list(),
     public=list(
         initialize=function(options) {
@@ -233,7 +328,20 @@ pamlcorrResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "sample",
                     "alpha",
                     "aim",
-                    "tails")))}))
+                    "tails")))
+            self$add(jmvcore::Image$new(
+                options=options,
+                name="powerCustom",
+                title="Power Parameters",
+                width=500,
+                height=350,
+                renderFun=".plot_custom",
+                visible="(plot_custom)"))
+            self$add(jmvcore::Html$new(
+                options=options,
+                name="plotnotes",
+                title="Plot notes",
+                visible=FALSE))}))
 
 pamlcorrBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     "pamlcorrBase",
@@ -270,6 +378,15 @@ pamlcorrBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param plot_contour .
 #' @param plot_escurve .
 #' @param plot_ncurve .
+#' @param plot_custom .
+#' @param plot_x .
+#' @param plot_y .
+#' @param plot_custom_labels .
+#' @param plot_z .
+#' @param plot_x_from .
+#' @param plot_x_to .
+#' @param plot_z_lines .
+#' @param plot_z_value .
 #' @return A results object containing:
 #' \tabular{llllll}{
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
@@ -279,6 +396,8 @@ pamlcorrBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$powerContour} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerEscurve} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerNcurve} \tab \tab \tab \tab \tab an image \cr
+#'   \code{results$powerCustom} \tab \tab \tab \tab \tab an image \cr
+#'   \code{results$plotnotes} \tab \tab \tab \tab \tab a html \cr
 #' }
 #'
 #' Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:
@@ -298,7 +417,16 @@ pamlcorr <- function(
     tails = "two",
     plot_contour = FALSE,
     plot_escurve = FALSE,
-    plot_ncurve = FALSE) {
+    plot_ncurve = FALSE,
+    plot_custom = FALSE,
+    plot_x = "none",
+    plot_y = "none",
+    plot_custom_labels = FALSE,
+    plot_z = "none",
+    plot_x_from = 0,
+    plot_x_to = 0,
+    plot_z_lines = 0,
+    plot_z_value = list()) {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
         stop("pamlcorr requires jmvcore to be installed (restart may be required)")
@@ -314,7 +442,16 @@ pamlcorr <- function(
         tails = tails,
         plot_contour = plot_contour,
         plot_escurve = plot_escurve,
-        plot_ncurve = plot_ncurve)
+        plot_ncurve = plot_ncurve,
+        plot_custom = plot_custom,
+        plot_x = plot_x,
+        plot_y = plot_y,
+        plot_custom_labels = plot_custom_labels,
+        plot_z = plot_z,
+        plot_x_from = plot_x_from,
+        plot_x_to = plot_x_to,
+        plot_z_lines = plot_z_lines,
+        plot_z_value = plot_z_value)
 
     analysis <- pamlcorrClass$new(
         options = options,
