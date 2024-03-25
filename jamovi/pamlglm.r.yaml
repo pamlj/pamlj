@@ -172,7 +172,7 @@ items:
     - name: powerCustom
       title: Power Parameters
       type: Image
-      width:  600
+      width:  450
       height: 350
       renderFun: .plot_custom
       visible: (plot_custom)

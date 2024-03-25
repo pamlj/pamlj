@@ -46,7 +46,7 @@ Plotter <- R6::R6Class(
         }
         filled.contour(data$x,data$y,data$z,color.palette =  paml_palette,
                key.title = {mtext("Power",3, .5)},
-               ylab = expression(paste("Hypothetical effect size (",rho,")", sep = "")),
+               ylab = expression(paste("Hypothetical effect size (",data$letter,")", sep = "")),
                xlab="Sample Size (N)",
                plot.axes={
                   axis(1, at=data$ticks, labels=data$tickslabels)
@@ -109,11 +109,11 @@ Plotter <- R6::R6Class(
          data<-state$data
          
          threed<-FALSE
-         
+
+
          if (is.something(data$z)) {
            data$z<-factor(data$z)
            threed<-TRUE
-           image$setSize(550,350)
          }
 
          dig=3
@@ -165,7 +165,8 @@ Plotter <- R6::R6Class(
       .data$power<-.98
       .data$n <- NULL
       nmax<-powervector(private$.operator,.data)[["n"]]
-      if (nmax<10) nmax=10
+      if (nmax< data$n) nmax<-data$n+10
+      if (nmax<10) nmax=20
       nmin<-private$.operator$nmin
       emax <- .99
       emin<- .01
@@ -211,7 +212,8 @@ Plotter <- R6::R6Class(
                           point.x=point.x,point.y=point.y,
                           n=data$n,power=data$power,yline=yline,
                           ticks=ticks,
-                          tickslabels=tickslabels))
+                          tickslabels=tickslabels,
+                          letter=data$letter))
     
     },
      .prepareNcurve = function() {
@@ -229,6 +231,9 @@ Plotter <- R6::R6Class(
        .data$es<-mes
        .data$n<-NULL
         nmax<-powervector(private$.operator,.data)[["n"]]
+        if (nmax< data$n) nmax<-data$n+10
+        if (nmax<10) nmax=20
+
         nmin <-  private$.operator$nmin
         
         if (self$option("plot_log")) {
@@ -373,7 +378,7 @@ Plotter <- R6::R6Class(
         names(ydata)[names(ydata)==self$options$plot_z]<-"z"
 
         if (hasName(ydata,"z"))
-            zlab<-nicify_param(self$options$plot_z)
+            zlab<-nicify_param(self$options$plot_z,short=T)
 
         tickdata<-NULL
         if (self$option("plot_custom_labels")) {
