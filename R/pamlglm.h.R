@@ -579,7 +579,8 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "e_df_model",
                     "e_r2",
                     "v_r2",
-                    "gncp")))
+                    "gncp",
+                    "plot_log")))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerEscurve",

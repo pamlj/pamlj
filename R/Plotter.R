@@ -35,17 +35,28 @@ Plotter <- R6::R6Class(
             return()
 
         data<-image$state
+
       
+        if (self$options$plot_log) {
+             yticks<-seq(-7,0,1)
+             ytickslabels<-round(exp(yticks),digits=2)
+        } else {
+             yticks<-pretty(data$y,n=6)
+             ytickslabels<-yticks
+        }
         filled.contour(data$x,data$y,data$z,color.palette =  paml_palette,
                key.title = {mtext("Power",3, .5)},
                ylab = expression(paste("Hypothetical effect size (",rho,")", sep = "")),
                xlab="Sample Size (N)",
                plot.axes={
-                  axis(1)
-                  axis(2)
+                  axis(1, at=data$ticks, labels=data$tickslabels)
+                  axis(2, at=yticks, labels=ytickslabels)
+                  yor<-par()$usr[3]
+                  xor<-par()$usr[1]
+
                   lines(data$x, data$yline, type = "l", lty = 1, lwd=2)
-                  segments(0,data$point.y,data$point.x,data$point.y, lwd=2)
-                  segments(data$point.x,0,data$point.x,data$point.y, lwd=2)
+                  segments(xor,data$point.y,data$point.x,data$point.y, lwd=2)
+                  segments(data$point.x,yor,data$point.x,data$point.y, lwd=2)
                   points(data$point.x,data$point.y,pch=21,bg="white",cex=1.5)
 
                })
@@ -108,7 +119,6 @@ Plotter <- R6::R6Class(
          ydif <- max(data$y)-min(data$y)
          xdif <- max(data$y)-min(data$y)
 
-
          .nudge<-ggplot2::position_nudge(y = ydif/20)
 
          if (threed) 
@@ -141,39 +151,68 @@ Plotter <- R6::R6Class(
     .operator=NULL,
     .prepareContour = function() {
       
-     if (!self$option("plot_contour"))
-              return()
+#     if (!self$option("plot_contour"))
+#              return()
       jinfo("PLOTTER: preparing contour plot")
       
       data <- private$.operator$data
+     .data <- data
+
       image<-private$.results$powerContour
       ## notice that we send the 'aes' (actual effect size), already transformed
-      data$es<-data$es*.95
-      data$power<-.98
-      data$n <- NULL
-      nmax<-powervector(private$.operator,data)
+      .data$es<-.data$es*.95
+      .data$power<-.98
+      .data$n <- NULL
+      nmax<-powervector(private$.operator,.data)[["n"]]
       if (nmax<10) nmax=10
-      nmin<-max(5,data$df_model+3)
-      x=round(seq(nmin,round(nmax),len=20))
-      data <- private$.operator$data
-      data$n<-x
-      data$es <- NULL
-      yline=powervector(private$.operator,data)
-      data <- private$.operator$data
-      data$power<-NULL
-      y<-seq(.01,1,.1)
-      xyz.func<- function(x,y) {
-             data$n<-x
-             data$es<-y
-             powervector(private$.operator,data)
-      }
+      nmin<-private$.operator$nmin
+      emax <- .99
+      emin<- .01
 
-      z<-outer(x,y,xyz.func)
-      point.x <- private$.operator$data$n
-      point.y<-  private$.operator$data$es
+      if (self$options$plot_log) {
+             x <- seq(log(nmin),log(nmax),by=.1)
+             n <- exp(x)
+             ticks<-round(pretty(x,n=5))
+             tickslabels<-round(exp(ticks))
+             point.x<-log(private$.operator$data$n)
+             y <- seq(log(emin),log(emax),len=20)
+             es <- exp(y)
+             point.y <- log(data$es)
+             
+        }  else {
+             x <- seq(nmin,nmax,len=20)
+             n <- x
+             ticks<-pretty(x,n=5)
+             tickslabels<-ticks
+             point.x<-private$.operator$data$n
+             y <- seq(emin,emax,len=20)
+             es <- y
+             point.y <- data$es
+        }
+
+      .data <- private$.operator$data
+      .data$n<-n
+      .data$es <- NULL
+      yline=powervector(private$.operator,.data)[["es"]]
+      if (self$options$plot_log) {
+        yline=log(yline)
+      }
+      .data <- private$.operator$data
+      .data$power<-NULL
+      .data$n<-n
+#       mark(.data$n)
+       mark(es)
+       out<-lapply(es,function(ind)  {
+         .data$es<-ind
+         powervector(private$.operator,.data)[["power"]]
+         })
+       z<-do.call(cbind,out)
+
       image$setState(list(x=x,y=y,z=z,
                           point.x=point.x,point.y=point.y,
-                          n=data$n,power=data$power,yline=yline))
+                          n=data$n,power=data$power,yline=yline,
+                          ticks=ticks,
+                          tickslabels=tickslabels))
     
     },
      .prepareNcurve = function() {
@@ -196,13 +235,13 @@ Plotter <- R6::R6Class(
         if (self$options$plot_log) {
              x <- seq(log(nmin),log(nmax),by=.1)
              n <- exp(x)
-             ticks<-round(pretty(x))
+             ticks<-round(pretty(x,n=5))
              tickslabels<-round(exp(ticks))
              point.x<-log(private$.operator$data$n)
         }  else {
-             x <- seq(nmin,nmax,by=.1)
+             x <- seq(nmin,nmax,len=20)
              n <- x
-             ticks<-pretty(x)
+             ticks<-pretty(x,n=5)
              tickslabels<-ticks
              point.x<-private$.operator$data$n
 
@@ -214,7 +253,6 @@ Plotter <- R6::R6Class(
          ydata <- powervector(private$.operator,.data)
          ydata$x <- x
          ydata$y <- ydata$power
-         mark(ticks,tickslabels)
          image$setState(list(data=ydata,
                             point.x = point.x,
                             point.y = private$.operator$data$power,
