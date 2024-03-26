@@ -35,8 +35,7 @@ Plotter <- R6::R6Class(
             return()
 
         data<-image$state
-
-      
+        
         if (self$option("plot_log")) {
              yticks<-seq(-7,0,1)
              ytickslabels<-round(exp(yticks),digits=2)
@@ -46,19 +45,17 @@ Plotter <- R6::R6Class(
         }
         filled.contour(data$x,data$y,data$z,color.palette =  paml_palette,
                key.title = {mtext("Power",3, .5)},
-               ylab = expression(paste("Hypothetical effect size (",data$letter,")", sep = "")),
+               ylab =paste("Hypothetical effect size (",data$letter,")", sep = ""),
                xlab="Sample Size (N)",
                plot.axes={
                   axis(1, at=data$ticks, labels=data$tickslabels)
                   axis(2, at=yticks, labels=ytickslabels)
                   yor<-par()$usr[3]
                   xor<-par()$usr[1]
-
                   lines(data$x, data$yline, type = "l", lty = 1, lwd=2)
                   segments(xor,data$point.y,data$point.x,data$point.y, lwd=2)
                   segments(data$point.x,yor,data$point.x,data$point.y, lwd=2)
                   points(data$point.x,data$point.y,pch=21,bg="white",cex=1.5)
-
                })
 
       },
