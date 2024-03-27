@@ -17,7 +17,7 @@ items:
       title: A Priori Power Analysis
       type: Table
       rows:  1
-      refs: pwr
+      refs: pwrx    
       clearWith:
         - mode
         - b_es
@@ -118,7 +118,7 @@ items:
         - e_r2
         - v_r2
         - gncp
-
+        - plot_log
     - name: powerEscurve
       title: Power Curve by Effect Size
       type: Image
@@ -142,6 +142,7 @@ items:
         - e_r2
         - v_r2
         - gncp
+        - plot_log
 
     - name: powerNcurve
       title: Power Curve by N
@@ -166,5 +167,17 @@ items:
         - e_r2
         - v_r2
         - gncp
+        - plot_log
 
-
+    - name: powerCustom
+      title: Power Parameters
+      type: Image
+      width:  450
+      height: 350
+      renderFun: .plot_custom
+      visible: false
+      
+    - name: plotnotes
+      title: Plot notes
+      type: Html
+      visible: false

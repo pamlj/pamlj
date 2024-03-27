@@ -5,6 +5,7 @@ const events = {
          console.log("Updating analysis");
          update_structure(ui);
          update_model(ui);
+         update_z_value(ui);
     },
     mode_changed: function(ui) {
         console.log("mode has changed in " + ui.mode.value());
@@ -18,7 +19,6 @@ const events = {
 
     },
     
-
     onChange_factors_list_change: function(ui) {
       console.log("list changed");
       update_df(ui);
@@ -33,7 +33,53 @@ const events = {
       console.log("convert changed");
        update_convert(ui);
 
+    },
+    plot_x_changed: function(ui) {
+      
+         ui.plot_x_from.setValue(0);
+         ui.plot_x_to.setValue(0);
+
+    },
+    plot_z_changed: function(ui) {
+
+     ui.plot_z_value.setValue([]);
+     ui.plot_z_lines.setValue(0);
+    },
+    
+    plot_z_lines_changed: function(ui) {
+      
+      var n_lines=ui.plot_z_lines.value();
+      if (n_lines === 0) {
+          ui.plot_value_label.$el.hide();
+          return
+      }
+      
+     var values = ui.plot_z_value.value();
+     var n = ui.plot_z_lines.value();
+     var newvalues = [];
+
+     for (let i = 0; i < n ; i++) {
+
+            var newval = Number(values[i]);  
+            console.log(newval, typeof newval)
+            if (isNaN(newval))
+                  newval = 0;
+            newvalues.push(newval);
+     } 
+
+      ui.plot_z_value.setValue(newvalues);
+      update_z_value(ui);
+      ui.plot_value_label.$el.show();
+      
+    },
+    
+    onChange_value_added: function(ui) {
+      
+    },
+    onChange_value_removed: function(ui) {
+      
     }
+
 
 
 
@@ -41,34 +87,56 @@ const events = {
 
 module.exports = events;
 
+var update_z_value = function( ui ) {
+  
+      ui.plot_z_value.$el.css("background-color","inherit");
+      ui.plot_z_value.$el.css("border","0");
+      ui.plot_z_value.$el.css("height","");
+ 
+      if (ui.plot_z_lines.value() < 6) {
+                 ui.plot_z_value.$el.css("display","contents");
+      } else {
+                 ui.plot_z_value.$el.css("display","block");
+      }
+      ui.plot_z_value.$el.children().width("70px");
+
+  
+}
+
 var update_convert = function( ui) {
 
-   if (ui.model.value !== "peta" ) {
+   if (ui.mode.value() !== "peta" ) {
      return
    } 
   
    console.log("converting ES");
    var eta = ui.eta.value();
-   if (eta === 0) return
+   if (eta === 0) {
+     ui.omega.setValue(0);
+     ui.epsilon.setValue(0);
+     ui.gpower.setValue(0);
+     return
+   }
    var df = ui.v_df_effect.value();
    if (df === 0) return
    var df_model = ui.v_df_model.value();
-   
    var df_error = ui.eta_df_error.value();
+   
    if (df_error === 0) return
-   var N=df   
+   
    var f = eta*df_error/((1-eta)*df)
-   var omega = ((f - 1) * df)/(f * df + df_error + 1);
+   var omega = ((f - 1) * df)/( (f -1 ) * df + df_model + df_error + 1);
    var epsilon = ((f - 1) * df)/(f * df + df_error) ;
    var k = df+1
-   var N = df_model + df_error + 1
+   var N = df_model + df_model + df_error + 1
    var gpower = eta*(k-N)/((eta*k)-N)
 
+console.log(omega)
    ui.omega.setValue(omega.toFixed(3));
    ui.epsilon.setValue(epsilon.toFixed(3));
    ui.gpower.setValue(gpower.toFixed(3));
 
-   var obj = ui.e_es;
+   var obj = ui.v_es;
 
    if (ui.use.value() === "epsilon")
        obj.setValue(epsilon.toFixed(3));
@@ -109,6 +177,19 @@ var update_structure = function( ui) {
           ui.gpower.$input.css("background-color","#CFECEC");
           ui.gpower.$input.css("border-color","#5981b3");
 
+        }
+        
+        if (typeof ui.plot_value_label !== "undefined" ) {
+          
+          var z = ui.plot_z.value();
+          if (z === "none") {
+            ui.plot_value_label.$el.hide();
+          }
+          var zv = ui.plot_z_value.value();
+          if (z === 0) {
+            ui.plot_value_label.$el.hide();
+          }
+          
         }
         
 
@@ -160,7 +241,6 @@ var update_df = function( ui) {
               inter = inter.filter(obj => {return obj.length < order});
               df1= inter.map( (value) => value.reduce( (a,b) => a*b)).reduce( (a,b) => a+b);
       }
-    
       var ncovs=ui.covs.value();
       var df_covs= []
       var df2 = 0;
@@ -171,6 +251,7 @@ var update_df = function( ui) {
             inter = inter.filter(obj => {return obj.length < order});
             df2= inter.map( (value) => value.reduce( (a,b) => a*b)).reduce( (a,b) => a+b);
       }    
+
       var df3 = 0;
           order = order_num(ui.mixed_order.value());
       if (order > 1 && df_factors.length > 0 &&  df_covs.length > 0) {
@@ -180,6 +261,7 @@ var update_df = function( ui) {
                var sel = inter.filter((obj) =>  obj.length < order);
                df3=  sel.map( (value) => value.reduce( (a,b) => a*b)).reduce( (a,b) => a+b);
       }
+    console.log(df3)
 
      var df = df1+df2+df3 ;
      if ( df > 0 ) {

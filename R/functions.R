@@ -35,8 +35,17 @@ required_param<-function(data) {
   whichnull
 }
 
-nicify_param<- function(what) {
-  
+nicify_param<- function(what,short=FALSE) {
+
+  if (short) {
+  name=switch (what,
+       n  = "N",
+       es = "ES",
+       power= "Power",
+       alpha = "Alpha"
+      )
+    return(name)
+  }  
   switch (what,
     n  = "Sample size (N)",
     es = "Effect size",
