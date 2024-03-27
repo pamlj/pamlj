@@ -96,9 +96,10 @@ Plotter <- R6::R6Class(
        },
       plot_custom= function(image,ggtheme,theme) {
          
+        mark(private$.operator$ok)
+        mark(image$state)
         if (!private$.operator$ok) return()
-        if (!self$option("plot_custom"))
-                return()
+
         if (!is.something(image$state)) return()
         
          state<-image$state
@@ -149,8 +150,8 @@ Plotter <- R6::R6Class(
     .operator=NULL,
     .prepareContour = function() {
       
-#     if (!self$option("plot_contour"))
-#              return()
+     if (!self$option("plot_contour"))
+              return()
       jinfo("PLOTTER: preparing contour plot")
       
       data <- private$.operator$data
@@ -313,15 +314,11 @@ Plotter <- R6::R6Class(
      .prepareCustom = function() {
       
         private$.results$plotnotes$setContent(" ")
-        if (!self$option("plot_custom"))
-                return()
 
         if (self$option("plot_y","none")) {
-          self$warning<-list(topic="plotnotes",message="Please specify the custom plot Y-axis values")          
           return()
         }
         if (self$option("plot_x","none")) {
-          self$warning<-list(topic="plotnotes",message="Please specify the custom plot X-axis values")          
           return()
         }
 
@@ -398,7 +395,7 @@ Plotter <- R6::R6Class(
                    }
                        
         }
-
+        image$setVisible(TRUE)
         image$setState(list(data=ydata,
                             tickdata=tickdata,
                             xlab=nicify_param(self$options$plot_x),

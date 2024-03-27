@@ -175,7 +175,7 @@ items:
       width:  450
       height: 350
       renderFun: .plot_custom
-      visible: (plot_custom)
+      visible: false
       
     - name: plotnotes
       title: Plot notes

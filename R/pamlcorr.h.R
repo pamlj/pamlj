@@ -336,7 +336,7 @@ pamlcorrResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 width=450,
                 height=350,
                 renderFun=".plot_custom",
-                visible="(plot_custom)"))
+                visible=FALSE))
             self$add(jmvcore::Html$new(
                 options=options,
                 name="plotnotes",
