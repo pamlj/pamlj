@@ -1,0 +1,130 @@
+---
+name: pamlttest
+title: T-Test
+menuGroup: Power
+version: '0.0.1'
+jas: '1.2'
+export: true
+completeWhenFilled: false
+description:
+    main: |
+           Something here
+
+options:
+    - name: .caller
+      type: String
+      default: ttest
+      hidden: true
+
+    - name: aim
+      title: Calculate 
+      type:  List
+      default: n
+      options:
+        - name:  n
+          title: N
+        - name: power
+          title: Power
+        - name: es
+          title: Effect Size
+        - name: alpha
+          title: Required Alpha
+
+    - name: mode
+      title: "t-test type"
+      type: List
+      options:
+            - name: ttestind
+              title: Independent samples
+            - name: ttestpaired
+              title: Paired samples
+            - name: ttestone
+              title: One Sample
+      default: ttestind
+
+### this is for mode ttestind       
+    - name: ttestind_es
+      title: "Expected Cohen's d (&delta;)"
+      type:  Number
+      default: .2
+
+    - name: ttestind_n
+      title: "N of group 1"
+      type:  Number
+      default: 20
+
+    - name: ttestind_nratio
+      title: "Relatve size of groups"
+      type:  Number
+      default: 1
+
+#### this is for mode ttestpaired
+
+    - name: ttestpaired_es
+      title: "Expected Cohen'a d (&delta;)"
+      type:  Number
+      default: .2
+
+    - name: ttestpaired_n
+      title: "N"
+      type:  Number
+      default: 20
+
+#### this is for mode ttestone
+
+    - name: ttestone_es
+      title: "Expected Cohen'a d (&delta;)"
+      type:  Number
+      default: .2
+
+    - name: ttestone_n
+      title: "N"
+      type:  Number
+      default: 20
+
+
+
+### this is in general
+    - name: power
+      title: Minimal desired power 
+      type:  Number
+      default: .90
+
+    - name: sample
+      title: N 
+      type:  Number
+      default: 20
+
+    - name: alpha
+      title: Alpha (Type I rate)  
+      type:  Number
+      default: .05
+
+    - name: tails
+      title: Tails  
+      type:  List
+      default: two
+      options:
+        - name:  two
+          title: Two-tailed
+        - name:  one
+          title: One-tailed
+
+    - name: plot_contour
+      title: Power contour plot
+      type: Bool
+      default: false
+
+    - name: plot_escurve
+      title: Power curve by effect size
+      type: Bool
+      default: false
+      
+    - name: plot_ncurve
+      title: Power curve by N
+      type: Bool
+      default: false
+
+
+...
+
