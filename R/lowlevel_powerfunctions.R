@@ -45,11 +45,14 @@ p.body <- quote({
 }
 ### These two functions are from jpower https://github.com/richarddmorey/jpower/blob/master/jpower/R/utils.R
 
-pamlj.ttest<-function(n= NULL, ratio=NULL, d = NULL, sig.level = .05, power = NULL, alternative = "two.sided") {
+pamlj.ttestind<-function(n= NULL, n_ratio=NULL, n1 = NULL, n2 = NULL, d = NULL, sig.level = .05, power = NULL, alternative = "two.sided") {
   
-  
-  
-  
+    if(is.null(n)) 
+       ret <- pamlj.t2n.ratio(n_ratio = n_ratio, d=d, sig.level=sig.level, power=power, alternative=alternative)
+    else
+       ret <- pamlj.t2n.test(n1 = n1, n2 = n2, d=d, sig.level=sig.level, power=power, alternative=alternative)
+      
+    return(ret)  
 }
 
 pamlj.t2n.test = function(n1 = NULL, n2 = NULL, d = NULL, sig.level = .05, power = NULL, alternative = c("two.sided", "less", "greater")){

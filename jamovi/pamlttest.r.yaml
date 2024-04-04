@@ -40,7 +40,7 @@ items:
         - name: df
           title: 'df'
           type: integer
-        - name: alpha
+        - name: sig.level
           title: '&alpha;'
           type: number
 

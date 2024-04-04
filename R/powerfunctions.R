@@ -22,7 +22,7 @@ powerfunction <- function(x, ...) UseMethod(".powerfunction")
          if (required_param(obj$input) == "n") {
              ret <-pamlj.t2n.ratio(n_ratio = obj$options$ttestind_nratio, 
                            d = obj$input$es, 
-                           sig.level = obj$input$alpha, 
+                           sig.level = obj$input$sig.level, 
                            power = obj$input$power, 
                            alternative = alt)      
              obj$data$n1 <- ret$n1
@@ -36,23 +36,23 @@ powerfunction <- function(x, ...) UseMethod(".powerfunction")
                                  n2=obj$input$n2,
                                  d =obj$input$es,
                                  power=obj$input$power,
-                                 sig.level=obj$input$alpha,
-                                 alternative=alt)
+                                 sig.level=obj$input$sig.level,
+                                 alternative=obj$input$alternative)
 
             obj$data$es<-res$d
             obj$data$power<-res$power
             obj$data$df<-obj$data$n-2
-            obj$data$alpha<-res$sig.level
+            obj$data$sig.level<-res$sig.level
 
          }
 
     } else {
  
-        res<-pwr::pwr.t.test(n=obj$input[["n"]],
-                           d=obj$input[["es"]],
-                           power=obj$input[["power"]],
-                           sig.level=obj$input[["alpha"]],
-                           alternative=alt,
+        res<-pwr::pwr.t.test(n=obj$input$n,
+                           d=obj$input$es,
+                           power=obj$input$power,
+                           sig.level=obj$input$sig.level,
+                           alternative=obj$input$alternative,
                            type=type)
     obj$data[["n"]]<-ceiling(res$n)
     obj$data[["es"]]<-res$d
@@ -265,5 +265,24 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                 return(results)
 }
 
+.powervector.ttestind <- function(obj,data) {
+                
+                rp <- required_param(data)
+
+                .data<-expand.grid(data)
+                .names <- intersect(names(.data),rlang::fn_fmls_names(pamlj.ttestind))
+                results<-lapply(1:nrow(.data),function(i) {
+                     one<-.data[i,.names]
+                     mark(one)
+                     do.call(pamlj.ttestind,one)
+                    })
+                 results<-as.data.frame(do.call("rbind",results))
+                 mark(results)
+                 for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
+                 results$es<-obj$fromaes(results$f2)
+                 odata<-.data[, !names(.data) %in% names(results)]
+                 results<-cbind(odata,results)
+                return(results)
+}
 
 

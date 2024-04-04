@@ -26,11 +26,11 @@ Initer <- R6::R6Class(
           self$toaes               <- function(value) value
           self$fromaes             <- function(value) value
 
-          self$aim               <- jmvobj$options$aim
-          self$data[["alpha"]]   <- jmvobj$options$alpha
-          self$data[["power"]]   <- jmvobj$options$power
-          self$tails             <- jmvobj$options$tails
-          self$caller            <- jmvobj$options$.caller
+          self$aim                   <- jmvobj$options$aim
+          self$data[["sig.level"]]   <- jmvobj$options$sig.level
+          self$data[["power"]]       <- jmvobj$options$power
+          self$tails                 <- jmvobj$options$tails
+          self$caller                <- jmvobj$options$.caller
           
           if (self$option("mode")) {
                  self$mode <- self$options$mode

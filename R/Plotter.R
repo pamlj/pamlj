@@ -96,8 +96,6 @@ Plotter <- R6::R6Class(
        },
       plot_custom= function(image,ggtheme,theme) {
          
-        mark(private$.operator$ok)
-        mark(image$state)
         if (!private$.operator$ok) return()
 
         if (!is.something(image$state)) return()
@@ -148,9 +146,10 @@ Plotter <- R6::R6Class(
   private = list(
     .results=NULL,
     .operator=NULL,
+    
     .prepareContour = function() {
       
-     if (!self$option("plot_contour"))
+    if (!self$option("plot_contour"))
               return()
       jinfo("PLOTTER: preparing contour plot")
       

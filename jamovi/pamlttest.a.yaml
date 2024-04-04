@@ -27,7 +27,7 @@ options:
           title: Power
         - name: es
           title: Effect Size
-        - name: alpha
+        - name: sig.level
           title: Required Alpha
 
     - name: mode
@@ -90,21 +90,23 @@ options:
       type:  Number
       default: .90
 
-    - name: alpha
+    - name: sig.level
       title: Alpha (Type I rate)  
       type:  Number
       default: .05
 
-    - name: tails
+    - name: alternative
       title: Tails  
       type:  List
-      default: two
+      default: two.sided
       options:
-        - name:  two
+        - name:  two.sided
           title: Two-tailed
-        - name:  one
-          title: One-tailed
-
+        - name:  less
+          title: Less
+        - name:  greater
+          title: Greater
+          
     - name: plot_contour
       title: Power contour plot
       type: Bool
@@ -136,7 +138,7 @@ options:
           title: Power
         - name: es
           title: Effect size
-        - name: alpha
+        - name: sig.level
           title: "Type I error"
 
     - name: plot_y
@@ -152,7 +154,7 @@ options:
           title: Power
         - name: es
           title: Effect size
-        - name: alpha
+        - name: sig.level
           title: "Type I error"
 
     - name: plot_custom_labels
@@ -173,7 +175,7 @@ options:
           title: Power
         - name: es
           title: Effect size
-        - name: alpha
+        - name: sig.level
           title: "Type I error"
 
 

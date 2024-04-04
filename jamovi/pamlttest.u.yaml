@@ -81,13 +81,11 @@ children:
             label: Minimum desired power
             format: number
             enable: (!aim:power)
-          - name: alpha
+          - name: sig.level
             type: TextBox
             label: '&alpha; (type I error rate)'
             format: number
             enable: (!aim:alpha)
-          - type: ComboBox
-            name: tails
   - type: CollapseBox
     label: Sensitivity Analysis
     name: panel_sensitivity
@@ -107,6 +105,11 @@ children:
               - type: CheckBox
                 name: plot_ncurve
                 enable: (!aim:es)
+  - type: LayoutBox
+    margin: large
+    children:
+      - type: ComboBox
+        name: alternative
   - type: CollapseBox
     label: Power Parameters plot
     name: panel_customplot

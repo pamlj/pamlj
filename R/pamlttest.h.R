@@ -17,8 +17,8 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             ttestone_es = 0.2,
             ttestone_n = 20,
             power = 0.9,
-            alpha = 0.05,
-            tails = "two",
+            sig.level = 0.05,
+            alternative = "two.sided",
             plot_contour = FALSE,
             plot_escurve = FALSE,
             plot_ncurve = FALSE,
@@ -50,7 +50,7 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "n",
                     "power",
                     "es",
-                    "alpha"))
+                    "sig.level"))
             private$..mode <- jmvcore::OptionList$new(
                 "mode",
                 mode,
@@ -91,17 +91,18 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "power",
                 power,
                 default=0.9)
-            private$..alpha <- jmvcore::OptionNumber$new(
-                "alpha",
-                alpha,
+            private$..sig.level <- jmvcore::OptionNumber$new(
+                "sig.level",
+                sig.level,
                 default=0.05)
-            private$..tails <- jmvcore::OptionList$new(
-                "tails",
-                tails,
-                default="two",
+            private$..alternative <- jmvcore::OptionList$new(
+                "alternative",
+                alternative,
+                default="two.sided",
                 options=list(
-                    "two",
-                    "one"))
+                    "two.sided",
+                    "less",
+                    "greater"))
             private$..plot_contour <- jmvcore::OptionBool$new(
                 "plot_contour",
                 plot_contour,
@@ -123,7 +124,7 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "n",
                     "power",
                     "es",
-                    "alpha"))
+                    "sig.level"))
             private$..plot_y <- jmvcore::OptionList$new(
                 "plot_y",
                 plot_y,
@@ -133,7 +134,7 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "n",
                     "power",
                     "es",
-                    "alpha"))
+                    "sig.level"))
             private$..plot_custom_labels <- jmvcore::OptionBool$new(
                 "plot_custom_labels",
                 plot_custom_labels,
@@ -147,7 +148,7 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "n",
                     "power",
                     "es",
-                    "alpha"))
+                    "sig.level"))
             private$..plot_x_from <- jmvcore::OptionNumber$new(
                 "plot_x_from",
                 plot_x_from,
@@ -179,8 +180,8 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..ttestone_es)
             self$.addOption(private$..ttestone_n)
             self$.addOption(private$..power)
-            self$.addOption(private$..alpha)
-            self$.addOption(private$..tails)
+            self$.addOption(private$..sig.level)
+            self$.addOption(private$..alternative)
             self$.addOption(private$..plot_contour)
             self$.addOption(private$..plot_escurve)
             self$.addOption(private$..plot_ncurve)
@@ -205,8 +206,8 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ttestone_es = function() private$..ttestone_es$value,
         ttestone_n = function() private$..ttestone_n$value,
         power = function() private$..power$value,
-        alpha = function() private$..alpha$value,
-        tails = function() private$..tails$value,
+        sig.level = function() private$..sig.level$value,
+        alternative = function() private$..alternative$value,
         plot_contour = function() private$..plot_contour$value,
         plot_escurve = function() private$..plot_escurve$value,
         plot_ncurve = function() private$..plot_ncurve$value,
@@ -230,8 +231,8 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..ttestone_es = NA,
         ..ttestone_n = NA,
         ..power = NA,
-        ..alpha = NA,
-        ..tails = NA,
+        ..sig.level = NA,
+        ..alternative = NA,
         ..plot_contour = NA,
         ..plot_escurve = NA,
         ..plot_ncurve = NA,
@@ -307,7 +308,7 @@ pamlttestResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `title`="df", 
                         `type`="integer"),
                     list(
-                        `name`="alpha", 
+                        `name`="sig.level", 
                         `title`="&alpha;", 
                         `type`="number"))))
             self$add(jmvcore::Table$new(
@@ -438,8 +439,8 @@ pamlttestBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param ttestone_es .
 #' @param ttestone_n .
 #' @param power .
-#' @param alpha .
-#' @param tails .
+#' @param sig.level .
+#' @param alternative .
 #' @param plot_contour .
 #' @param plot_escurve .
 #' @param plot_ncurve .
@@ -483,8 +484,8 @@ pamlttest <- function(
     ttestone_es = 0.2,
     ttestone_n = 20,
     power = 0.9,
-    alpha = 0.05,
-    tails = "two",
+    sig.level = 0.05,
+    alternative = "two.sided",
     plot_contour = FALSE,
     plot_escurve = FALSE,
     plot_ncurve = FALSE,
@@ -513,8 +514,8 @@ pamlttest <- function(
         ttestone_es = ttestone_es,
         ttestone_n = ttestone_n,
         power = power,
-        alpha = alpha,
-        tails = tails,
+        sig.level = sig.level,
+        alternative = alternative,
         plot_contour = plot_contour,
         plot_escurve = plot_escurve,
         plot_ncurve = plot_ncurve,
