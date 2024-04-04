@@ -86,6 +86,9 @@ children:
             label: '&alpha; (type I error rate)'
             format: number
             enable: (!aim:alpha)
+          - type: ComboBox
+            name: alternative
+            
   - type: CollapseBox
     label: Sensitivity Analysis
     name: panel_sensitivity
@@ -105,11 +108,9 @@ children:
               - type: CheckBox
                 name: plot_ncurve
                 enable: (!aim:es)
-  - type: LayoutBox
-    margin: large
-    children:
-      - type: ComboBox
-        name: alternative
+              - type: CheckBox
+                name: plot_log
+                
   - type: CollapseBox
     label: Power Parameters plot
     name: panel_customplot

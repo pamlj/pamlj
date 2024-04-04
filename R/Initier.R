@@ -14,97 +14,37 @@ Initer <- R6::R6Class(
     aim  = NULL,
     caller=NULL,
     mode = NULL,
-    tails = NULL,
     info = list(),
     fromaes=NULL,
-    toaes  =NULL,
+    toaes  = NULL,
+    logy   = FALSE,
     ok= TRUE,
     nmin=5,
     initialize=function(jmvobj) {
 
       super$initialize(jmvobj)
+          ## different functions require to transform the effect size to a more suitable effect size ($toaes())
+          ## and transform it back to the original scale ($fromaes()). By default there's no 
+          ## transformation, for tests that need it, it is set in checkdata() 
+      
           self$toaes               <- function(value) value
           self$fromaes             <- function(value) value
 
-          self$aim                   <- jmvobj$options$aim
-          self$data[["sig.level"]]   <- jmvobj$options$sig.level
-          self$data[["power"]]       <- jmvobj$options$power
-          self$tails                 <- jmvobj$options$tails
-          self$caller                <- jmvobj$options$.caller
+          self$aim                 <- jmvobj$options$aim
+          self$data$sig.level      <- jmvobj$options$sig.level
+          self$data$power          <- jmvobj$options$power
+          self$caller              <- jmvobj$options$.caller
+          self$mode                <- self$optionValue("mode")
+          class(self)<-c(self$caller,self$mode,class(self))
           
-          if (self$option("mode")) {
-                 self$mode <- self$options$mode
-                if (self$mode == "beta") {
-                      self$data[["es"]]         <- as.numeric(jmvobj$options$b_es)
-                      self$data[["n"]]         <- jmvobj$options$sample
-                      self$data["df_model"]     <- jmvobj$options$b_df_model
-                      self$data["df_effect"]    <- 1
-                      self$data["r2"]           <- jmvobj$options$b_r2
-                      self$toaes                <- function(value)  {
-                                                         peta<-value^2/(value^2+1-self$data$r2)
-                                                         peta/(1-peta)
-                                                   }
-                      self$fromaes              <- function(value)  {
-                                                     peta<-(value/(1+value))
-                                                     sqrt(peta*(1-self$data$r2)/(1-peta))
-                                                     }
-                }
-                if (self$mode == "peta") {
-                    self$data[["n"]]       <- jmvobj$options$sample
-                    self$data[["es"]]         <- as.numeric(jmvobj$options$v_es)
-                    self$data["df_model"]     <- jmvobj$options$v_df_model
-                    self$data["df_effect"]    <- jmvobj$options$v_df_effect
-                    self$toaes                <- function(value) value/(1-value)
-                    self$fromaes              <- function(value) value/(1+value)
-                }
-                if (self$mode == "eta") {
-                    self$data[["n"]]       <- jmvobj$options$sample
-                    self$data[["es"]]         <- as.numeric(jmvobj$options$e_es)
-                    self$data["df_model"]     <- jmvobj$options$e_df_model
-                    self$data["df_effect"]    <- jmvobj$options$e_df_effect
-                    self$data["r2"]           <- jmvobj$options$e_r2
-                    self$toaes                <- function(value)  value/(1-self$data$r2)
-                    self$fromaes              <- function(value)  value*(1-self$data$r2) 
-                }
-                 
-                if (self$mode == "ttestind") {
-                    self$data[["es"]]         <- as.numeric(jmvobj$options$ttestind_es)
-                    self$data["n1"]           <- jmvobj$options$ttestind_n
-                    self$data[["nratio"]]     <- jmvobj$options$ttestind_nratio
-                    self$data["n2"]           <- self$data$n1*self$data$nratio
-                    self$data["n"]            <- self$data$n1+self$data$n2
-                
-                }
-                 
-                if (self$mode == "ttestpaired") {
-                    self$data[["es"]]         <- as.numeric(jmvobj$options$ttestpaired_es)
-                    self$data["n"]            <- jmvobj$options$ttestpaired_n
-                }
-               if (self$mode == "ttestone") {
-                    self$data[["es"]]         <- as.numeric(jmvobj$options$ttestone_es)
-                    self$data["n"]            <- jmvobj$options$ttestone_n
-               }
+          ## checkdata update the data depending on the type of test we are running (via S3 dispatch)
+          checkdata(self)
 
-          } #end of mode selection
-          
-          if (!is.null(self$data$df_model))
-              self$nmin <- self$data$df_model+4
-          else
-              self$nmin <- 6
-            
-          
-         if (is.null(self$mode)) self$mode<-self$caller
+          self$data[[self$aim]]  <- NULL  
+          self$input             <- self$data
+
          jmvobj$results$intro$setContent(paste(INFO[["common"]],INFO[[self$mode]]))   
-         if (!is.something(self$data$es))
-                self$data$es <- self$options$es
-
-         self$data[[self$aim]]  <- NULL  
-
-         class(self)<-c(self$caller,self$mode,class(self))
          jmvobj$results$issues$setContent(" ")
-
-         checkdata(self)
-         self$input             <- self$data
 
          jinfo("PAMLj: Initializing",self$caller,self$mode)
 

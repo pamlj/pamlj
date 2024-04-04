@@ -11,6 +11,7 @@ items:
     - name: issues
       title: Issues
       type: Html
+      visible: false
 
     - name:  powertab
       title: A Priori Power Analysis
@@ -71,18 +72,7 @@ items:
       height: 350
       renderFun: .plot_contour
       visible: (plot_contour)
-      clearWith:
-                    - mode
-                    - b_es
-                    - v_es
-                    - power
-                    - sample
-                    - alpha
-                    - aim
-                    - tails
-                    - b_df_model
-                    - v_df_model
-                    - r2
+
 
     - name: powerEscurve
       title: Power Curve by Effect Size

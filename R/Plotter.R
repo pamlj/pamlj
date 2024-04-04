@@ -155,7 +155,6 @@ Plotter <- R6::R6Class(
       
       data <- private$.operator$data
      .data <- data
-
       image<-private$.results$powerContour
       ## notice that we send the 'aes' (actual effect size), already transformed
       .data$es<-.data$es*.95
@@ -165,35 +164,43 @@ Plotter <- R6::R6Class(
       if (nmax< data$n) nmax<-data$n+10
       if (nmax<10) nmax=20
       nmin<-private$.operator$nmin
-      emax <- .99
-      emin<- .01
-      
+      emax <- private$.operator$data$esmax
+      emin<-  private$.operator$data$esmin
+
+      point.x<-private$.operator$data$n
+      y <- seq(emin,emax,len=20)
+      es <- y
+      point.y <- data$es
+
       if (self$option("plot_log")) {
              x <- seq(log(nmin),log(nmax),by=.1)
              n <- exp(x)
-             ticks<-round(pretty(x,n=5))
-             tickslabels<-round(exp(ticks))
              point.x<-log(private$.operator$data$n)
-             y <- seq(log(emin),log(emax),len=20)
-             es <- exp(y)
-             point.y <- log(data$es)
+             mark(point.x)
+
+             ticks<-sort(c(round(pretty(x,n=5)),point.x))
+             mark(ticks)
+             tickslabels<-round(exp(ticks))
+             mark(tickslabels)
+
+             if (private$.operator$logy) {
+                  y <- seq(log(emin),log(emax),len=20)
+                  es <- exp(y)
+                  point.y <- log(data$es)
+             }
              
         }  else {
              x <- seq(nmin,nmax,len=20)
              n <- x
-             ticks<-pretty(x,n=5)
+             ticks<-sort(c(round(pretty(x,n=5)),point.x))
              tickslabels<-ticks
-             point.x<-private$.operator$data$n
-             y <- seq(emin,emax,len=20)
-             es <- y
-             point.y <- data$es
         }
 
       .data <- private$.operator$data
       .data$n<-n
       .data$es <- NULL
       yline=powervector(private$.operator,.data)[["es"]]
-      if (self$option("plot_log")) {
+      if (self$option("plot_log") && private$.operator$logy) {
         yline=log(yline)
       }
       .data <- private$.operator$data
@@ -261,21 +268,21 @@ Plotter <- R6::R6Class(
                             tickslabels=tickslabels,
                             xlab="Required Sample Size (N)",
                             ylab="Power",
-                            text=paste(data$letter,"=",data$es," ",greek_vector["alpha"],"=",round(data$alpha,digits=3))
+                            text=paste(data$letter,"=",data$es," ",greek_vector["alpha"],"=",round(data$sig.level,digits=3))
                           ))
 
 
     },
     .prepareEscurve = function() {
       
-        if (!self$option("plot_escurve"))
+       if (!self$option("plot_escurve"))
                 return()
         jinfo("PLOTTER: preparing Es curve plot")
 
         data <- private$.operator$data
         image<-private$.results$powerEscurve
-        emax <- .99
-        emin<- .01
+        emax <- private$.operator$data$esmax
+        emin<-  private$.operator$data$esmin
 
         if (self$option("plot_log")) {
              x <- seq(log(emin),log(emax),by=.01)
@@ -306,7 +313,7 @@ Plotter <- R6::R6Class(
                             tickslabels=tickslabels,
                             xlab="Hypothetical effect size",
                             ylab="Power",
-                            text=paste("N =",data$n," ",greek_vector["alpha"],"=",round(data$alpha,digits=3))
+                            text=paste("N =",data$n," ",greek_vector["alpha"],"=",round(data$sig.level,digits=3))
                           ))
     },
     

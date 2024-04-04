@@ -56,7 +56,8 @@ pamlj.ttestind<-function(n= NULL, n_ratio=NULL, n1 = NULL, n2 = NULL, d = NULL, 
 }
 
 pamlj.t2n.test = function(n1 = NULL, n2 = NULL, d = NULL, sig.level = .05, power = NULL, alternative = c("two.sided", "less", "greater")){
-  if(!is.null(power))
+
+    if(!is.null(power))
     if(power>=1) stop("Power cannot be 1.")
   if(is.null(d)){
     if(power<sig.level) stop("power < alpha")
@@ -102,6 +103,7 @@ pamlj.t2n.test = function(n1 = NULL, n2 = NULL, d = NULL, sig.level = .05, power
 
 
 pamlj.t2n.ratio = function(n_ratio = 1, d, sig.level, power, alternative){
+  
   if(power>=1) return(Inf)
   fn = Vectorize(function(n1){
     effN = n1 * n_ratio /  (1 + n_ratio)
@@ -124,6 +126,7 @@ pamlj.t2n.ratio = function(n_ratio = 1, d, sig.level, power, alternative){
   rt = uniroot(fn, c(ceiling( 3 / (1 + n_ratio) ), 1e+09))$root
   n1 <- ceiling(rt)
   n2 <- ceiling(n1*n_ratio)
+  
   ret = structure(list(n1 = n1, n2 = n2, d = d, sig.level = sig.level,
                            power = power, alternative = alternative),
                       class = "power.htest")

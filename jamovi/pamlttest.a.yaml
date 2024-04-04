@@ -122,6 +122,11 @@ options:
       type: Bool
       default: false
 
+    - name: plot_log
+      title: X-axis Log Scale
+      type: Bool
+      default: false
+
 ### custom plots 
     
 

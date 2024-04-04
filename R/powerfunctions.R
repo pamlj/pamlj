@@ -3,68 +3,6 @@
 powerfunction <- function(x, ...) UseMethod(".powerfunction")
 
 
-.powerfunction.ttest <- function(obj) {
-  
-    jinfo("MODULE: powerfuctions: ttest")
-    if (obj$tails == "two") 
-           alt="two.sided"
-    else {
-          alt="greater"
-    }
-    
-    type=switch(obj$mode,
-             "ttestind"    = "two.sample",
-             "ttestpaired" = "paired",
-             "ttestone"    = "one.sample"
-    )
-    if (obj$mode == "ttestind") {
-         
-         if (required_param(obj$input) == "n") {
-             ret <-pamlj.t2n.ratio(n_ratio = obj$options$ttestind_nratio, 
-                           d = obj$input$es, 
-                           sig.level = obj$input$sig.level, 
-                           power = obj$input$power, 
-                           alternative = alt)      
-             obj$data$n1 <- ret$n1
-             obj$data$n2 <- ret$n2
-             obj$data$n  <- obj$data$n1+obj$data$n2
-             obj$data$df<-obj$data$n-2
-
-         } else {
-
-            res<- pamlj.t2n.test(n1=obj$input$n1,
-                                 n2=obj$input$n2,
-                                 d =obj$input$es,
-                                 power=obj$input$power,
-                                 sig.level=obj$input$sig.level,
-                                 alternative=obj$input$alternative)
-
-            obj$data$es<-res$d
-            obj$data$power<-res$power
-            obj$data$df<-obj$data$n-2
-            obj$data$sig.level<-res$sig.level
-
-         }
-
-    } else {
- 
-        res<-pwr::pwr.t.test(n=obj$input$n,
-                           d=obj$input$es,
-                           power=obj$input$power,
-                           sig.level=obj$input$sig.level,
-                           alternative=obj$input$alternative,
-                           type=type)
-    obj$data[["n"]]<-ceiling(res$n)
-    obj$data[["es"]]<-res$d
-    obj$data[["alpha"]]<-res$sig.level
-    obj$data[["power"]]<-res$power
-    obj$data$n1<-NA
-    obj$data$n2<-NA
-    obj$data$df<-obj$data$n-1
-    }
-
-    return(obj$data)
-}
 
 .powerfunction.correlation <- function(obj) {
   
@@ -115,17 +53,13 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
 
 .powerbyes.ttest <- function(obj) {
 
-      if (obj$tails == "two") 
-           alt="two.sided"
-       else {
-          alt="greater"
-       }
 
             probs = c(.5, .8, .95)
+            .data<-obj$data
+            .data$es<-NULL
             probs_es = sapply(probs, function(p){
-              pwr::pwr.t.test(obj$data$n,
-                                 sig.level = obj$data$alpha, power = p,
-                                 alternative = alt)$d
+              .data$power<-p
+               powervector(obj,.data)$es
            })
             probs_es<-round(probs_es,digits=3)
             esList <-list(list(es=paste('0 <', obj$data$letter, greek_vector["leq"],probs_es[1])),
@@ -265,24 +199,62 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                 return(results)
 }
 
+
 .powervector.ttestind <- function(obj,data) {
                 
-                rp <- required_param(data)
-
+              
                 .data<-expand.grid(data)
+                 names(.data)[names(.data)=="es"]<-"d"
                 .names <- intersect(names(.data),rlang::fn_fmls_names(pamlj.ttestind))
+                .data$alternative<-as.character(.data$alternative)
+                if (hasName(.data,"n")) {
+                  .data$n1 <- .data$n/(1+.data$n_ratio)
+                  .data$n2 <- .data$n1*.data$n_ratio
+                }
                 results<-lapply(1:nrow(.data),function(i) {
-                     one<-.data[i,.names]
-                     mark(one)
+                     one<-as.list(.data[i,.names])
                      do.call(pamlj.ttestind,one)
                     })
                  results<-as.data.frame(do.call("rbind",results))
-                 mark(results)
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
-                 results$es<-obj$fromaes(results$f2)
                  odata<-.data[, !names(.data) %in% names(results)]
                  results<-cbind(odata,results)
+                 results$n  <- results$n1 + results$n2
+                 results$df <- results$n - 2
+                 results$es <- results$d
+                 results$d  <- NULL
                 return(results)
 }
 
+.powervector.ttestpaired <- function(obj,data) {
+                
+                .data<-expand.grid(data)
+                 names(.data)[names(.data)=="es"]<-"d"
+                .names <- intersect(names(.data),rlang::fn_fmls_names(pwr::pwr.t.test))
+                .data$alternative<-as.character(.data$alternative)
+
+                results<-lapply(1:nrow(.data),function(i) {
+                     one      <-as.list(.data[i,.names])
+                     one$type <-as.character(one$type)
+                     do.call(pwr::pwr.t.test,one)
+                    })
+                 results<-as.data.frame(do.call("rbind",results))
+                 results$note<-NULL
+  
+                 for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
+
+                 odata<-.data[, !names(.data) %in% names(results)]
+                 results<-cbind(odata,results)
+                 results$n  <- ceiling(results$n)
+                 results$df <- results$n - 1
+                 results$es <- results$d
+                 results$d  <- NULL
+
+                return(results)
+}
+
+.powervector.ttestone <- function(obj,data) {
+                
+  return(.powervector.ttestpaired(obj,data))
+}
 

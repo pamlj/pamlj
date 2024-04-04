@@ -3,12 +3,49 @@
 
 checkdata <- function(obj, ...) UseMethod(".checkdata")
 
-.checkdata.ttest <- function(obj) {
+.checkdata.ttestind <- function(obj) {
 
-      obj$data[["aes"]] <- obj$data$es
-      obj$data$letter   <- greek_vector["delta"]
+      obj$data$letter      <- greek_vector["delta"]
+      obj$data$es          <- obj$options$ttestind_es
+      obj$data$n1          <- obj$options$ttestind_n
+      obj$data$n_ratio      <- obj$options$ttestind_nratio
+      obj$data$n2          <- obj$data$n1*obj$data$n_ratio
+      obj$data$n           <- obj$data$n1+obj$data$n2
+      obj$nmin             <- 6
+      obj$data$alternative <- obj$options$alternative
+      obj$data$esmax       <- 2.5
+      obj$data$esmin       <- .01
 
 }
+
+.checkdata.ttestpaired <- function(obj) {
+
+      obj$data$letter      <- greek_vector["delta"]
+      obj$data$es          <- obj$options$ttestpaired_es
+      obj$data$aes         <- obj$data$es
+      obj$data$n           <- obj$options$ttestind_n
+      obj$nmin             <- 6
+      obj$data$alternative <- obj$options$alternative
+      obj$data$type        <- "paired"
+      obj$data$esmax       <- 2.5
+      obj$data$esmin       <- .01
+
+}
+
+.checkdata.ttestone <- function(obj) {
+
+      obj$data$letter      <- greek_vector["delta"]
+      obj$data$es          <- obj$options$ttestpaired_es
+      obj$data$aes         <- obj$data$es
+      obj$data$n           <- obj$options$ttestind_n
+      obj$nmin             <- 6
+      obj$data$alternative <- obj$options$alternative
+      obj$data$type        <- "one.sample"
+      obj$data$esmax       <- 2.5
+      obj$data$esmin       <- .01
+
+}
+
 .checkdata.correlation <- function(obj) {
   
   if (is.something(obj$data$es)) {

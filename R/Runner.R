@@ -8,14 +8,16 @@ Runner <- R6::R6Class("Runner",
                         class=TRUE,
                         public=list(
                               run= function() {
-                                resobj <- try_hard( powerfunction(self) )
+                                resobj <- try_hard(powervector(self,self$input) )
                                 if (!isFALSE(resobj$warning))
                                      warning(resobj$warning)
                                 if (!isFALSE(resobj$error)) {
                                             checkfailure(self,resobj)
                                             self$ok <- FALSE
                                             return(NULL)
-                                    }
+                                }
+                                self$data<-as.list(resobj$obj)
+                                  
 
                               },
                               run_powertab = function() {
