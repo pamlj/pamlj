@@ -17,36 +17,28 @@ items:
       type: Table
       rows:  1
       refs: pwr
-      clearWith:
-        - mode
-        - b_es
-        - v_es
-        - power
-        - sample
-        - alpha
-        - aim
-        - tails
-        - b_df_model
-        - v_df_model
-        - r2
       columns: 
         - name: n
           title: 'N'
           type: integer
+        - name: n1
+          title: N₁
+          type: integer
+          visible: false
+
+        - name: n2
+          title: N₂
+          type: integer
+          visible: false
+
         - name: es
           title: 'Effect size'
-          type: number
-        - name: aes
-          title: f²
           type: number
         - name: power
           title: 'Power'
           type: number
-        - name: df1
+        - name: df
           title: 'df'
-          type: integer
-        - name: df2
-          title: 'df(res)'
           type: integer
         - name: alpha
           title: '&alpha;'
@@ -57,19 +49,6 @@ items:
       title: Power by Effect Size
       type: Table
       rows:  4
-      clearWith:
-        - mode
-        - b_es
-        - v_es
-        - power
-        - sample
-        - alpha
-        - aim
-        - tails
-        - b_df_model
-        - v_df_model
-        - r2
-        
       columns:
         - name: es
           title: 'True effect size'
@@ -144,5 +123,19 @@ items:
                     - b_df_model
                     - v_df_model
                     - r2
+
+
+    - name: powerCustom
+      title: Power Parameters
+      type: Image
+      width:  450
+      height: 350
+      renderFun: .plot_custom
+      visible: false
+      
+    - name: plotnotes
+      title: Plot notes
+      type: Html
+      visible: false
 
 

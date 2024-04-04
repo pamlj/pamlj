@@ -56,11 +56,6 @@ children:
               - type: CheckBox
                 name: plot_ncurve
                 enable: (!aim:es)
-          - type: LayoutBox
-            margin: large
-            children:
-              - type: CheckBox
-                name: plot_custom
   - type: CollapseBox
     label: Power Parameters plot
     name: panel_customplot

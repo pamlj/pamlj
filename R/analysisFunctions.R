@@ -3,6 +3,12 @@
 
 checkdata <- function(obj, ...) UseMethod(".checkdata")
 
+.checkdata.ttest <- function(obj) {
+
+      obj$data[["aes"]] <- obj$data$es
+      obj$data$letter   <- greek_vector["delta"]
+
+}
 .checkdata.correlation <- function(obj) {
   
   if (is.something(obj$data$es)) {

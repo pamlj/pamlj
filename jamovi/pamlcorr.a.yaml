@@ -78,10 +78,6 @@ options:
 ### custom plots 
 
 
-    - name: plot_custom
-      type: Bool
-      title: "Custom Plot"
-      default: false
 
     - name: plot_x
       type: List

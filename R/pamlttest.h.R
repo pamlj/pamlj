@@ -17,12 +17,19 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             ttestone_es = 0.2,
             ttestone_n = 20,
             power = 0.9,
-            sample = 20,
             alpha = 0.05,
             tails = "two",
             plot_contour = FALSE,
             plot_escurve = FALSE,
-            plot_ncurve = FALSE, ...) {
+            plot_ncurve = FALSE,
+            plot_x = "none",
+            plot_y = "none",
+            plot_custom_labels = FALSE,
+            plot_z = "none",
+            plot_x_from = 0,
+            plot_x_to = 0,
+            plot_z_lines = 0,
+            plot_z_value = list(), ...) {
 
             super$initialize(
                 package="pamlj",
@@ -84,10 +91,6 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "power",
                 power,
                 default=0.9)
-            private$..sample <- jmvcore::OptionNumber$new(
-                "sample",
-                sample,
-                default=20)
             private$..alpha <- jmvcore::OptionNumber$new(
                 "alpha",
                 alpha,
@@ -111,6 +114,59 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "plot_ncurve",
                 plot_ncurve,
                 default=FALSE)
+            private$..plot_x <- jmvcore::OptionList$new(
+                "plot_x",
+                plot_x,
+                default="none",
+                options=list(
+                    "none",
+                    "n",
+                    "power",
+                    "es",
+                    "alpha"))
+            private$..plot_y <- jmvcore::OptionList$new(
+                "plot_y",
+                plot_y,
+                default="none",
+                options=list(
+                    "none",
+                    "n",
+                    "power",
+                    "es",
+                    "alpha"))
+            private$..plot_custom_labels <- jmvcore::OptionBool$new(
+                "plot_custom_labels",
+                plot_custom_labels,
+                default=FALSE)
+            private$..plot_z <- jmvcore::OptionList$new(
+                "plot_z",
+                plot_z,
+                default="none",
+                options=list(
+                    "none",
+                    "n",
+                    "power",
+                    "es",
+                    "alpha"))
+            private$..plot_x_from <- jmvcore::OptionNumber$new(
+                "plot_x_from",
+                plot_x_from,
+                default=0)
+            private$..plot_x_to <- jmvcore::OptionNumber$new(
+                "plot_x_to",
+                plot_x_to,
+                default=0)
+            private$..plot_z_lines <- jmvcore::OptionNumber$new(
+                "plot_z_lines",
+                plot_z_lines,
+                default=0)
+            private$..plot_z_value <- jmvcore::OptionArray$new(
+                "plot_z_value",
+                plot_z_value,
+                default=list(),
+                template=jmvcore::OptionString$new(
+                    "plot_z_value",
+                    NULL))
 
             self$.addOption(private$...caller)
             self$.addOption(private$..aim)
@@ -123,12 +179,19 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..ttestone_es)
             self$.addOption(private$..ttestone_n)
             self$.addOption(private$..power)
-            self$.addOption(private$..sample)
             self$.addOption(private$..alpha)
             self$.addOption(private$..tails)
             self$.addOption(private$..plot_contour)
             self$.addOption(private$..plot_escurve)
             self$.addOption(private$..plot_ncurve)
+            self$.addOption(private$..plot_x)
+            self$.addOption(private$..plot_y)
+            self$.addOption(private$..plot_custom_labels)
+            self$.addOption(private$..plot_z)
+            self$.addOption(private$..plot_x_from)
+            self$.addOption(private$..plot_x_to)
+            self$.addOption(private$..plot_z_lines)
+            self$.addOption(private$..plot_z_value)
         }),
     active = list(
         .caller = function() private$...caller$value,
@@ -142,12 +205,19 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ttestone_es = function() private$..ttestone_es$value,
         ttestone_n = function() private$..ttestone_n$value,
         power = function() private$..power$value,
-        sample = function() private$..sample$value,
         alpha = function() private$..alpha$value,
         tails = function() private$..tails$value,
         plot_contour = function() private$..plot_contour$value,
         plot_escurve = function() private$..plot_escurve$value,
-        plot_ncurve = function() private$..plot_ncurve$value),
+        plot_ncurve = function() private$..plot_ncurve$value,
+        plot_x = function() private$..plot_x$value,
+        plot_y = function() private$..plot_y$value,
+        plot_custom_labels = function() private$..plot_custom_labels$value,
+        plot_z = function() private$..plot_z$value,
+        plot_x_from = function() private$..plot_x_from$value,
+        plot_x_to = function() private$..plot_x_to$value,
+        plot_z_lines = function() private$..plot_z_lines$value,
+        plot_z_value = function() private$..plot_z_value$value),
     private = list(
         ...caller = NA,
         ..aim = NA,
@@ -160,12 +230,19 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..ttestone_es = NA,
         ..ttestone_n = NA,
         ..power = NA,
-        ..sample = NA,
         ..alpha = NA,
         ..tails = NA,
         ..plot_contour = NA,
         ..plot_escurve = NA,
-        ..plot_ncurve = NA)
+        ..plot_ncurve = NA,
+        ..plot_x = NA,
+        ..plot_y = NA,
+        ..plot_custom_labels = NA,
+        ..plot_z = NA,
+        ..plot_x_from = NA,
+        ..plot_x_to = NA,
+        ..plot_z_lines = NA,
+        ..plot_z_value = NA)
 )
 
 pamlttestResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
@@ -178,7 +255,9 @@ pamlttestResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         powerbyes = function() private$.items[["powerbyes"]],
         powerContour = function() private$.items[["powerContour"]],
         powerEscurve = function() private$.items[["powerEscurve"]],
-        powerNcurve = function() private$.items[["powerNcurve"]]),
+        powerNcurve = function() private$.items[["powerNcurve"]],
+        powerCustom = function() private$.items[["powerCustom"]],
+        plotnotes = function() private$.items[["plotnotes"]]),
     private = list(),
     public=list(
         initialize=function(options) {
@@ -200,42 +279,32 @@ pamlttestResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 title="A Priori Power Analysis",
                 rows=1,
                 refs="pwr",
-                clearWith=list(
-                    "mode",
-                    "b_es",
-                    "v_es",
-                    "power",
-                    "sample",
-                    "alpha",
-                    "aim",
-                    "tails",
-                    "b_df_model",
-                    "v_df_model",
-                    "r2"),
                 columns=list(
                     list(
                         `name`="n", 
                         `title`="N", 
                         `type`="integer"),
                     list(
+                        `name`="n1", 
+                        `title`="N\u2081", 
+                        `type`="integer", 
+                        `visible`=FALSE),
+                    list(
+                        `name`="n2", 
+                        `title`="N\u2082", 
+                        `type`="integer", 
+                        `visible`=FALSE),
+                    list(
                         `name`="es", 
                         `title`="Effect size", 
-                        `type`="number"),
-                    list(
-                        `name`="aes", 
-                        `title`="f\u00B2", 
                         `type`="number"),
                     list(
                         `name`="power", 
                         `title`="Power", 
                         `type`="number"),
                     list(
-                        `name`="df1", 
+                        `name`="df", 
                         `title`="df", 
-                        `type`="integer"),
-                    list(
-                        `name`="df2", 
-                        `title`="df(res)", 
                         `type`="integer"),
                     list(
                         `name`="alpha", 
@@ -246,18 +315,6 @@ pamlttestResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 name="powerbyes",
                 title="Power by Effect Size",
                 rows=4,
-                clearWith=list(
-                    "mode",
-                    "b_es",
-                    "v_es",
-                    "power",
-                    "sample",
-                    "alpha",
-                    "aim",
-                    "tails",
-                    "b_df_model",
-                    "v_df_model",
-                    "r2"),
                 columns=list(
                     list(
                         `name`="es", 
@@ -330,7 +387,20 @@ pamlttestResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "tails",
                     "b_df_model",
                     "v_df_model",
-                    "r2")))}))
+                    "r2")))
+            self$add(jmvcore::Image$new(
+                options=options,
+                name="powerCustom",
+                title="Power Parameters",
+                width=450,
+                height=350,
+                renderFun=".plot_custom",
+                visible=FALSE))
+            self$add(jmvcore::Html$new(
+                options=options,
+                name="plotnotes",
+                title="Plot notes",
+                visible=FALSE))}))
 
 pamlttestBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     "pamlttestBase",
@@ -368,12 +438,19 @@ pamlttestBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param ttestone_es .
 #' @param ttestone_n .
 #' @param power .
-#' @param sample .
 #' @param alpha .
 #' @param tails .
 #' @param plot_contour .
 #' @param plot_escurve .
 #' @param plot_ncurve .
+#' @param plot_x .
+#' @param plot_y .
+#' @param plot_custom_labels .
+#' @param plot_z .
+#' @param plot_x_from .
+#' @param plot_x_to .
+#' @param plot_z_lines .
+#' @param plot_z_value .
 #' @return A results object containing:
 #' \tabular{llllll}{
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
@@ -383,6 +460,8 @@ pamlttestBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$powerContour} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerEscurve} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerNcurve} \tab \tab \tab \tab \tab an image \cr
+#'   \code{results$powerCustom} \tab \tab \tab \tab \tab an image \cr
+#'   \code{results$plotnotes} \tab \tab \tab \tab \tab a html \cr
 #' }
 #'
 #' Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:
@@ -404,12 +483,19 @@ pamlttest <- function(
     ttestone_es = 0.2,
     ttestone_n = 20,
     power = 0.9,
-    sample = 20,
     alpha = 0.05,
     tails = "two",
     plot_contour = FALSE,
     plot_escurve = FALSE,
-    plot_ncurve = FALSE) {
+    plot_ncurve = FALSE,
+    plot_x = "none",
+    plot_y = "none",
+    plot_custom_labels = FALSE,
+    plot_z = "none",
+    plot_x_from = 0,
+    plot_x_to = 0,
+    plot_z_lines = 0,
+    plot_z_value = list()) {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
         stop("pamlttest requires jmvcore to be installed (restart may be required)")
@@ -427,12 +513,19 @@ pamlttest <- function(
         ttestone_es = ttestone_es,
         ttestone_n = ttestone_n,
         power = power,
-        sample = sample,
         alpha = alpha,
         tails = tails,
         plot_contour = plot_contour,
         plot_escurve = plot_escurve,
-        plot_ncurve = plot_ncurve)
+        plot_ncurve = plot_ncurve,
+        plot_x = plot_x,
+        plot_y = plot_y,
+        plot_custom_labels = plot_custom_labels,
+        plot_z = plot_z,
+        plot_x_from = plot_x_from,
+        plot_x_to = plot_x_to,
+        plot_z_lines = plot_z_lines,
+        plot_z_value = plot_z_value)
 
     analysis <- pamlttestClass$new(
         options = options,

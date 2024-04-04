@@ -27,7 +27,6 @@ Initer <- R6::R6Class(
           self$fromaes             <- function(value) value
 
           self$aim               <- jmvobj$options$aim
-          self$data[["n"]]       <- jmvobj$options$sample
           self$data[["alpha"]]   <- jmvobj$options$alpha
           self$data[["power"]]   <- jmvobj$options$power
           self$tails             <- jmvobj$options$tails
@@ -37,6 +36,7 @@ Initer <- R6::R6Class(
                  self$mode <- self$options$mode
                 if (self$mode == "beta") {
                       self$data[["es"]]         <- as.numeric(jmvobj$options$b_es)
+                      self$data[["n"]]         <- jmvobj$options$sample
                       self$data["df_model"]     <- jmvobj$options$b_df_model
                       self$data["df_effect"]    <- 1
                       self$data["r2"]           <- jmvobj$options$b_r2
@@ -50,6 +50,7 @@ Initer <- R6::R6Class(
                                                      }
                 }
                 if (self$mode == "peta") {
+                    self$data[["n"]]       <- jmvobj$options$sample
                     self$data[["es"]]         <- as.numeric(jmvobj$options$v_es)
                     self$data["df_model"]     <- jmvobj$options$v_df_model
                     self$data["df_effect"]    <- jmvobj$options$v_df_effect
@@ -57,6 +58,7 @@ Initer <- R6::R6Class(
                     self$fromaes              <- function(value) value/(1+value)
                 }
                 if (self$mode == "eta") {
+                    self$data[["n"]]       <- jmvobj$options$sample
                     self$data[["es"]]         <- as.numeric(jmvobj$options$e_es)
                     self$data["df_model"]     <- jmvobj$options$e_df_model
                     self$data["df_effect"]    <- jmvobj$options$e_df_effect
@@ -64,30 +66,54 @@ Initer <- R6::R6Class(
                     self$toaes                <- function(value)  value/(1-self$data$r2)
                     self$fromaes              <- function(value)  value*(1-self$data$r2) 
                 }
-                self$nmin <- self$data$df_model+3
+                 
+                if (self$mode == "ttestind") {
+                    self$data[["es"]]         <- as.numeric(jmvobj$options$ttestind_es)
+                    self$data["n1"]           <- jmvobj$options$ttestind_n
+                    self$data[["nratio"]]     <- jmvobj$options$ttestind_nratio
+                    self$data["n2"]           <- self$data$n1*self$data$nratio
+                    self$data["n"]            <- self$data$n1+self$data$n2
+                
+                }
+                 
+                if (self$mode == "ttestpaired") {
+                    self$data[["es"]]         <- as.numeric(jmvobj$options$ttestpaired_es)
+                    self$data["n"]            <- jmvobj$options$ttestpaired_n
+                }
+               if (self$mode == "ttestone") {
+                    self$data[["es"]]         <- as.numeric(jmvobj$options$ttestone_es)
+                    self$data["n"]            <- jmvobj$options$ttestone_n
+               }
 
           } #end of mode selection
           
-           if (is.null(self$mode)) self$mode<-self$caller
-           jmvobj$results$intro$setContent(paste(INFO[["common"]],INFO[[self$mode]]))   
-           if (!is.something(self$data$es))
+          if (!is.null(self$data$df_model))
+              self$nmin <- self$data$df_model+4
+          else
+              self$nmin <- 6
+            
+          
+         if (is.null(self$mode)) self$mode<-self$caller
+         jmvobj$results$intro$setContent(paste(INFO[["common"]],INFO[[self$mode]]))   
+         if (!is.something(self$data$es))
                 self$data$es <- self$options$es
 
-          self$data[[self$aim]]  <- NULL  
+         self$data[[self$aim]]  <- NULL  
 
-          class(self)<-c(self$caller,self$mode,class(self))
-          jmvobj$results$issues$setContent(" ")
+         class(self)<-c(self$caller,self$mode,class(self))
+         jmvobj$results$issues$setContent(" ")
 
-          checkdata(self)
-          self$input             <- self$data
+         checkdata(self)
+         self$input             <- self$data
 
+         jinfo("PAMLj: Initializing",self$caller,self$mode)
 
-    }, # here initialize ends
+  }, # here initialize ends
     #### init functions #####
     init_powertab = function() {
       
           tab<-list(self$data) 
-          
+            
           return(tab)
     },
     init_powerbyes= function() {
