@@ -34,8 +34,9 @@ Initer <- R6::R6Class(
           self$data$sig.level      <- jmvobj$options$sig.level
           self$data$power          <- jmvobj$options$power
           self$caller              <- jmvobj$options$.caller
-          self$mode                <- self$optionValue("mode")
-          class(self)<-c(self$caller,self$mode,class(self))
+          self$mode                <- ifelse(is.null(self$optionValue("mode")),self$caller,self$optionValue("mode"))
+
+          class(self)<-unique(c(self$caller,self$mode,class(self)))
           
           ## checkdata update the data depending on the type of test we are running (via S3 dispatch)
           checkdata(self)

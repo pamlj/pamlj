@@ -47,24 +47,17 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 }
 
 .checkdata.correlation <- function(obj) {
-  
-  if (is.something(obj$data$es)) {
-     if (abs(obj$data$es)<.001)
-         stop("Power parameters for correlation absolute value less than .001 cannot be computed.")
-    
-     if (abs(obj$data$es)==1) {
-         obj$warning<-list(topic="powertab",massage="")
-         obj$warning<-list(topic="powertab",message="Power parameters for correlation absolute value equal to 1 cannot be computed. The effect
-                           size is set to .999, which yields equivalent power values.")
-         obj$data$es<-.999
-     }
-     if (abs(obj$data$es)>1) {
-         stop("correlation absolute value cannot be larger than 1.")
-     }
 
-     }
-      obj$data[["aes"]] <- obj$data$es
-      obj$data$letter   <- greek_vector["rho"]
+      obj$data$letter      <- greek_vector["rho"]
+      obj$data$es          <- obj$options$es
+      obj$data$aes         <- obj$data$es
+      obj$data$n           <- obj$options$n
+      obj$nmin             <- 6
+      obj$data$alternative <- obj$options$alternative
+      obj$data$esmax       <-  .99
+      obj$data$esmin       <- .01
+      
+
 
 }
 

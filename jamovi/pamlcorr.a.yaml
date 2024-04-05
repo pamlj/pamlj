@@ -27,7 +27,7 @@ options:
           title: Power
         - name: es
           title: Effect Size
-        - name: alpha
+        - name:  alpha
           title: Required Alpha
       
     - name: es
@@ -40,25 +40,27 @@ options:
       type:  Number
       default: .90
 
-    - name: sample
+    - name: n
       title: N 
       type:  Number
       default: 20
 
-    - name: alpha
+    - name: sig.level
       title: Alpha (Type I rate)  
       type:  Number
       default: .05
 
-    - name: tails
+    - name: alternative
       title: Tails  
       type:  List
-      default: two
+      default: two.sided
       options:
-        - name:  two
+        - name:  two.sided
           title: Two-tailed
-        - name:  one
-          title: One-tailed
+        - name:  less
+          title: Less
+        - name:  greater
+          title: Greater
 
     - name: plot_contour
       title: Power contour plot
@@ -72,6 +74,11 @@ options:
       
     - name: plot_ncurve
       title: Power curve by N
+      type: Bool
+      default: false
+
+    - name: plot_log
+      title: X-axis Log Scale
       type: Bool
       default: false
 

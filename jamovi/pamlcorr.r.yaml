@@ -20,10 +20,10 @@ items:
       clearWith:
         - es
         - power
-        - sample
-        - alpha
+        - n
+        - sig.level
         - aim
-        - tails
+        - alternative
       columns: 
         - name: n
           title: 'N'
@@ -34,7 +34,7 @@ items:
         - name: power
           title: 'Power'
           type: number
-        - name: alpha
+        - name: sig.level
           title: '&alpha;'
           type: number
 
@@ -46,10 +46,10 @@ items:
       clearWith:
         - es
         - power
-        - sample
-        - alpha
+        - n
+        - sig.level
         - aim
-        - tails
+        - alternative
         
       columns:
         - name: es
@@ -71,13 +71,6 @@ items:
       height: 350
       renderFun: .plot_contour
       visible: (plot_contour)
-      clearWith:
-        - es
-        - power
-        - sample
-        - alpha
-        - aim
-        - tails
 
     - name: powerEscurve
       title: Power Curve by Effect Size
@@ -86,13 +79,6 @@ items:
       height: 350
       renderFun: .plot_escurve
       visible: (plot_escurve & !aim:n)
-      clearWith:
-        - es
-        - power
-        - sample
-        - alpha
-        - aim
-        - tails
 
     - name: powerNcurve
       title: Power Curve by N
@@ -101,13 +87,6 @@ items:
       height: 350
       renderFun: .plot_ncurve
       visible: (plot_ncurve & !aim:es)
-      clearWith:
-        - es
-        - power
-        - sample
-        - alpha
-        - aim
-        - tails
 
     - name: powerCustom
       title: Power Parameters
