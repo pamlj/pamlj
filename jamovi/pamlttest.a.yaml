@@ -46,7 +46,7 @@ options:
     - name: ttestind_es
       title: "Expected Cohen's d (&delta;)"
       type:  Number
-      default: .2
+      default: .5
 
     - name: ttestind_n
       title: "N of group 1"
@@ -63,7 +63,7 @@ options:
     - name: ttestpaired_es
       title: "Expected Cohen'a d (&delta;)"
       type:  Number
-      default: .2
+      default: .5
 
     - name: ttestpaired_n
       title: "N"
@@ -75,7 +75,7 @@ options:
     - name: ttestone_es
       title: "Expected Cohen'a d (&delta;)"
       type:  Number
-      default: .2
+      default: .5
 
     - name: ttestone_n
       title: "N"

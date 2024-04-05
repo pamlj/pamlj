@@ -81,18 +81,7 @@ items:
       height: 350
       renderFun: .plot_escurve
       visible: (plot_escurve & !aim:n)
-      clearWith:
-                    - mode
-                    - b_es
-                    - v_es
-                    - power
-                    - sample
-                    - alpha
-                    - aim
-                    - tails
-                    - b_df_model
-                    - v_df_model
-                    - r2
+
 
     - name: powerNcurve
       title: Power Curve by N
@@ -101,19 +90,6 @@ items:
       height: 350
       renderFun: .plot_ncurve
       visible: (plot_ncurve & !aim:es)
-      clearWith:
-                    - mode
-                    - b_es
-                    - v_es
-                    - power
-                    - sample
-                    - alpha
-                    - aim
-                    - tails
-                    - b_df_model
-                    - v_df_model
-                    - r2
-
 
     - name: powerCustom
       title: Power Parameters

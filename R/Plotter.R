@@ -35,14 +35,14 @@ Plotter <- R6::R6Class(
             return()
 
         data<-image$state
-        
-        if (self$option("plot_log")) {
+        if (self$option("plot_log") && private$.operator$logy) {
              yticks<-seq(-7,0,1)
              ytickslabels<-round(exp(yticks),digits=2)
         } else {
              yticks<-pretty(data$y,n=6)
              ytickslabels<-yticks
         }
+
         filled.contour(data$x,data$y,data$z,color.palette =  paml_palette,
                key.title = {mtext("Power",3, .5)},
                ylab =paste("Hypothetical effect size (",data$letter,")", sep = ""),

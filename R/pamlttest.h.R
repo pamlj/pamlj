@@ -9,12 +9,12 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             .caller = "ttest",
             aim = "n",
             mode = "ttestind",
-            ttestind_es = 0.2,
+            ttestind_es = 0.5,
             ttestind_n = 20,
             ttestind_nratio = 1,
-            ttestpaired_es = 0.2,
+            ttestpaired_es = 0.5,
             ttestpaired_n = 20,
-            ttestone_es = 0.2,
+            ttestone_es = 0.5,
             ttestone_n = 20,
             power = 0.9,
             sig.level = 0.05,
@@ -63,7 +63,7 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..ttestind_es <- jmvcore::OptionNumber$new(
                 "ttestind_es",
                 ttestind_es,
-                default=0.2)
+                default=0.5)
             private$..ttestind_n <- jmvcore::OptionNumber$new(
                 "ttestind_n",
                 ttestind_n,
@@ -75,7 +75,7 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..ttestpaired_es <- jmvcore::OptionNumber$new(
                 "ttestpaired_es",
                 ttestpaired_es,
-                default=0.2)
+                default=0.5)
             private$..ttestpaired_n <- jmvcore::OptionNumber$new(
                 "ttestpaired_n",
                 ttestpaired_n,
@@ -83,7 +83,7 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..ttestone_es <- jmvcore::OptionNumber$new(
                 "ttestone_es",
                 ttestone_es,
-                default=0.2)
+                default=0.5)
             private$..ttestone_n <- jmvcore::OptionNumber$new(
                 "ttestone_n",
                 ttestone_n,
@@ -353,19 +353,7 @@ pamlttestResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 width=400,
                 height=350,
                 renderFun=".plot_escurve",
-                visible="(plot_escurve & !aim:n)",
-                clearWith=list(
-                    "mode",
-                    "b_es",
-                    "v_es",
-                    "power",
-                    "sample",
-                    "alpha",
-                    "aim",
-                    "tails",
-                    "b_df_model",
-                    "v_df_model",
-                    "r2")))
+                visible="(plot_escurve & !aim:n)"))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerNcurve",
@@ -373,19 +361,7 @@ pamlttestResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 width=400,
                 height=350,
                 renderFun=".plot_ncurve",
-                visible="(plot_ncurve & !aim:es)",
-                clearWith=list(
-                    "mode",
-                    "b_es",
-                    "v_es",
-                    "power",
-                    "sample",
-                    "alpha",
-                    "aim",
-                    "tails",
-                    "b_df_model",
-                    "v_df_model",
-                    "r2")))
+                visible="(plot_ncurve & !aim:es)"))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerCustom",
@@ -474,12 +450,12 @@ pamlttest <- function(
     .caller = "ttest",
     aim = "n",
     mode = "ttestind",
-    ttestind_es = 0.2,
+    ttestind_es = 0.5,
     ttestind_n = 20,
     ttestind_nratio = 1,
-    ttestpaired_es = 0.2,
+    ttestpaired_es = 0.5,
     ttestpaired_n = 20,
-    ttestone_es = 0.2,
+    ttestone_es = 0.5,
     ttestone_n = 20,
     power = 0.9,
     sig.level = 0.05,
