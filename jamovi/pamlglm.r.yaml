@@ -24,15 +24,16 @@ items:
         - v_es
         - e_es
         - power
-        - sample
-        - alpha
+        - n
+        - sig.level
         - aim
-        - tails
+        - alternative
         - b_df_model
         - v_df_model
         - e_df_model
         - e_r2
         - v_r2
+        - b_r2
         - gncp
         
       columns: 
@@ -69,10 +70,10 @@ items:
         - v_es
         - e_es
         - power
-        - sample
-        - alpha
+        - n
+        - sig.level
         - aim
-        - tails
+        - alternative
         - b_df_model
         - v_df_model
         - e_df_model
@@ -108,10 +109,10 @@ items:
         - v_es
         - e_es
         - power
-        - sample
-        - alpha
+        - n
+        - sig.level
         - aim
-        - tails
+        - alternative
         - b_df_model
         - v_df_model
         - e_df_model
@@ -132,10 +133,10 @@ items:
         - v_es
         - e_es
         - power
-        - sample
-        - alpha
+        - n
+        - sig.level
         - aim
-        - tails
+        - alternative
         - b_df_model
         - v_df_model
         - e_df_model
@@ -157,10 +158,10 @@ items:
         - v_es
         - e_es
         - power
-        - sample
-        - alpha
+        - n
+        - sig.level
         - aim
-        - tails
+        - alternative
         - b_df_model
         - v_df_model
         - e_df_model

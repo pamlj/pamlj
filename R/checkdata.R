@@ -63,8 +63,21 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
 .checkdata.beta <- function(obj) {
   
-    obj$data$letter   <- greek_vector["beta"]
+      obj$data$letter   <- greek_vector["beta"]
+      obj$data$n           <- obj$options$n
+      obj$data$es          <- as.numeric(obj$options$b_es)
+      obj$data$r2          <- as.numeric(obj$options$b_r2)
+      obj$data$df_model    <- obj$options$b_df_model
+      obj$data$df_effect   <- 1
 
+      obj$data$df_model    <- obj$options$b_df_model
+      obj$data$esmax       <-  .99
+      obj$data$esmin       <- .01
+      obj$data$alternative <- obj$options$alternative
+      obj$nmin             <- obj$data$df_model+10
+      obj$logy             <- TRUE
+      obj$toaes            <- function(value) value^2/(1-obj$data$r2)
+      obj$fromaes          <- function(value) sqrt(value*(1-obj$data$r2))  
 
   if (is.something(obj$data$df_effect) && obj$data$df_effect==0) 
           stop("Effect degrees of freedom cannot be zero")

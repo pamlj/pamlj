@@ -33,7 +33,7 @@ INFO[["peta"]]<-"
 INFO[["eta"]]<-"
              <div>
              <p> In all cases, set the expected <b> R-squared </b> for the full model. 
-             For models with only one independent variable the R-square is calculated
+             For models with only one independent variable the R-squared is calculated
              as the square of the beta coefficients.<p>
              <p> Set the <b> Model degrees of freedom</b>. 
               If the model degrees of freedom are not easy to compute, please use the 
@@ -47,7 +47,7 @@ INFO[["beta"]]<-"
              are expected, please use the <b>Partial Eta-squared</b> interface</p>
              <p> In all cases, you can set the required Type I error rate and whether the test will be carried out two-tailed or one-tailed.</b></p>
              <p> In all cases, set the expected <b> R-squared </b> for the full model. 
-             For models with only one independent variable the R-square is calculated
+             For models with only one independent variable the R-squared is calculated
              as the square of the beta coefficients.<p>
              <p> Set the <b> Model degrees of freedom</b>. 
               If the model degrees of freedom are not easy to compute, please use the 

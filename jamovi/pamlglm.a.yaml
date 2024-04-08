@@ -114,7 +114,7 @@ options:
     - name: alternative
       title: Tails  
       type:  List
-      default: two
+      default: two.side
       options:
         - name:  two.sided
           title: Two-tailed
@@ -253,10 +253,6 @@ options:
 
 ### custom plots 
     
-    - name: plot_custom
-      type: Bool
-      title: "Custom Plot"
-      default: false
 
     - name: plot_x
       type: List

@@ -88,7 +88,7 @@ children:
             label: Minimum desired power
             format: number
             enable: (!aim:power)
-          - name: n
+          - name: 'n'
             type: TextBox
             label: N (Sample size)
             format: number
@@ -316,8 +316,3 @@ children:
             children:
               - name: gncp
                 type: CheckBox
-          - type: LayoutBox
-            margin: large
-            children:
-              - type: CheckBox
-                name: plot_custom
