@@ -42,7 +42,7 @@ items:
         - name: es
           title: 'Effect size'
           type: number
-        - name: aes
+        - name: f2
           title: f²
           type: number
         - name: power
@@ -54,7 +54,7 @@ items:
         - name: df2
           title: 'df(res)'
           type: integer
-        - name: alpha
+        - name: sig.level
           title: '&alpha;'
           type: number
 

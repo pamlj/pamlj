@@ -1,11 +1,11 @@
 ## these are low level power functions, modified from various sources to fit the need of the module
 
-pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,alpha=NULL,df_model=NULL,gpower=TRUE, tails="two") {
+pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,sig.level=NULL,df_model=NULL,gpower=TRUE, alternative="two.sided") {
   
 
-    if (tails=="one" ) {
-         if ( is.something(alpha) )
-               alpha <- alpha * 2
+    if (alternative=="one.sided" ) {
+         if ( is.something(sig.level) )
+               sig.level <- sig.level * 2
          else 
              stop("The required power parameter cannot be computed for one-tailed tests")
     }
@@ -21,7 +21,7 @@ pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,alpha=NULL,df_model=NULL,
 
 p.body <- quote({
         lambda <- ncp(f2 , u, v)
-        pf(qf(alpha, u, v, lower.tail = FALSE), u, v, lambda, lower.tail = FALSE)
+        pf(qf(sig.level, u, v, lower.tail = FALSE), u, v, lambda, lower.tail = FALSE)
     })
     if (is.null(power)) 
         power <- eval(p.body)
@@ -34,12 +34,12 @@ p.body <- quote({
     else if (is.null(f2)) 
         f2 <- uniroot(function(f2) eval(p.body) - power, c(1e-07, 
             1e+07))$root
-    else if (is.null(alpha)) 
-        alpha <- uniroot(function(sig.level) eval(p.body) - 
+    else if (is.null(sig.level)) 
+        sig.level <- uniroot(function(sig.level) eval(p.body) - 
             power, c(1e-10, 1 - 1e-10))$root
-    else stop("internal error")
+    else stop("internal error in pamlj.glm")
     n <- df_model+ v + 1
-    structure(list(u = u, v = v, f2 = f2, alpha = alpha, 
+    structure(list(u = u, v = v, f2 = f2, sig.level = sig.level, 
         power = power, n = n), class = "pamlj_power")
 
 }

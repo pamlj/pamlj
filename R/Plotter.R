@@ -149,8 +149,8 @@ Plotter <- R6::R6Class(
     
     .prepareContour = function() {
       
-    if (!self$option("plot_contour"))
-              return()
+#    if (!self$option("plot_contour"))
+#              return()
       jinfo("PLOTTER: preparing contour plot")
       
       data <- private$.operator$data
@@ -160,7 +160,9 @@ Plotter <- R6::R6Class(
       .data$es<-.data$es*.95
       .data$power<-.98
       .data$n <- NULL
+
       nmax<-powervector(private$.operator,.data)[["n"]]
+
       if (nmax< data$n) nmax<-data$n+10
       if (nmax<10) nmax=20
       nmin<-private$.operator$nmin
@@ -176,13 +178,9 @@ Plotter <- R6::R6Class(
              x <- seq(log(nmin),log(nmax),by=.1)
              n <- exp(x)
              point.x<-log(private$.operator$data$n)
-             mark(point.x)
-
              ticks<-sort(c(round(pretty(x,n=5)),point.x))
-             mark(ticks)
              tickslabels<-round(exp(ticks))
-             mark(tickslabels)
-
+ 
              if (private$.operator$logy) {
                   y <- seq(log(emin),log(emax),len=20)
                   es <- exp(y)

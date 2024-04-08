@@ -20,9 +20,9 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             e_r2 = 0.04,
             e_df_effect = 1,
             power = 0.9,
-            sample = 20,
-            alpha = 0.05,
-            tails = "two",
+            n = 20,
+            sig.level = 0.05,
+            alternative = "two",
             plot_contour = FALSE,
             plot_escurve = FALSE,
             plot_ncurve = FALSE,
@@ -129,21 +129,21 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "power",
                 power,
                 default=0.9)
-            private$..sample <- jmvcore::OptionNumber$new(
-                "sample",
-                sample,
+            private$..n <- jmvcore::OptionNumber$new(
+                "n",
+                n,
                 default=20)
-            private$..alpha <- jmvcore::OptionNumber$new(
-                "alpha",
-                alpha,
+            private$..sig.level <- jmvcore::OptionNumber$new(
+                "sig.level",
+                sig.level,
                 default=0.05)
-            private$..tails <- jmvcore::OptionList$new(
-                "tails",
-                tails,
+            private$..alternative <- jmvcore::OptionList$new(
+                "alternative",
+                alternative,
                 default="two",
                 options=list(
-                    "two",
-                    "one"))
+                    "two.sided",
+                    "one.sided"))
             private$..plot_contour <- jmvcore::OptionBool$new(
                 "plot_contour",
                 plot_contour,
@@ -319,9 +319,9 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..e_r2)
             self$.addOption(private$..e_df_effect)
             self$.addOption(private$..power)
-            self$.addOption(private$..sample)
-            self$.addOption(private$..alpha)
-            self$.addOption(private$..tails)
+            self$.addOption(private$..n)
+            self$.addOption(private$..sig.level)
+            self$.addOption(private$..alternative)
             self$.addOption(private$..plot_contour)
             self$.addOption(private$..plot_escurve)
             self$.addOption(private$..plot_ncurve)
@@ -365,9 +365,9 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         e_r2 = function() private$..e_r2$value,
         e_df_effect = function() private$..e_df_effect$value,
         power = function() private$..power$value,
-        sample = function() private$..sample$value,
-        alpha = function() private$..alpha$value,
-        tails = function() private$..tails$value,
+        n = function() private$..n$value,
+        sig.level = function() private$..sig.level$value,
+        alternative = function() private$..alternative$value,
         plot_contour = function() private$..plot_contour$value,
         plot_escurve = function() private$..plot_escurve$value,
         plot_ncurve = function() private$..plot_ncurve$value,
@@ -410,9 +410,9 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..e_r2 = NA,
         ..e_df_effect = NA,
         ..power = NA,
-        ..sample = NA,
-        ..alpha = NA,
-        ..tails = NA,
+        ..n = NA,
+        ..sig.level = NA,
+        ..alternative = NA,
         ..plot_contour = NA,
         ..plot_escurve = NA,
         ..plot_ncurve = NA,
@@ -503,7 +503,7 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `title`="Effect size", 
                         `type`="number"),
                     list(
-                        `name`="aes", 
+                        `name`="f2", 
                         `title`="f\u00B2", 
                         `type`="number"),
                     list(
@@ -519,7 +519,7 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `title`="df(res)", 
                         `type`="integer"),
                     list(
-                        `name`="alpha", 
+                        `name`="sig.level", 
                         `title`="&alpha;", 
                         `type`="number"))))
             self$add(jmvcore::Table$new(
@@ -684,9 +684,9 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param e_r2 .
 #' @param e_df_effect .
 #' @param power .
-#' @param sample .
-#' @param alpha .
-#' @param tails .
+#' @param n .
+#' @param sig.level .
+#' @param alternative .
 #' @param plot_contour .
 #' @param plot_escurve .
 #' @param plot_ncurve .
@@ -749,9 +749,9 @@ pamlglm <- function(
     e_r2 = 0.04,
     e_df_effect = 1,
     power = 0.9,
-    sample = 20,
-    alpha = 0.05,
-    tails = "two",
+    n = 20,
+    sig.level = 0.05,
+    alternative = "two",
     plot_contour = FALSE,
     plot_escurve = FALSE,
     plot_ncurve = FALSE,
@@ -800,9 +800,9 @@ pamlglm <- function(
         e_r2 = e_r2,
         e_df_effect = e_df_effect,
         power = power,
-        sample = sample,
-        alpha = alpha,
-        tails = tails,
+        n = n,
+        sig.level = sig.level,
+        alternative = alternative,
         plot_contour = plot_contour,
         plot_escurve = plot_escurve,
         plot_ncurve = plot_ncurve,

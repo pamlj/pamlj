@@ -30,7 +30,7 @@ Runner <- R6::R6Class("Runner",
       
                                      if (!self$ok) return()
                                      results <- powerbyes(self)
-                                     warning("Estimated for N=",self$data$n)
+                                     warning("Estimated for N=",round(self$data$n))
                                      return(results)
                                }
 

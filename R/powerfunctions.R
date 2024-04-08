@@ -1,32 +1,5 @@
 ### computes the actual power parameters
 
-powerfunction <- function(x, ...) UseMethod(".powerfunction")
-
-
-
-
-.powerfunction.glm <- function(obj) {
-  
-    if (is.something(obj$input$n)) 
-      v<-obj$input$n-obj$input$df_model-1
-    else
-      v<-NULL
-    
-    u <- obj$input$df_effect
-    
-    f2<-obj$input$aes
-
-    res<-pamlj.glm(f2=f2,u=u,v=v,power=obj$input$power,alpha=obj$data$alpha,df_model=obj$data$df_model, gpower=obj$options$gncp,tails=obj$tails)
-    obj$data[["aes"]]<-res$f2
-    obj$data[["n"]]<-round(res$n)
-    obj$data[["es"]]<-obj$fromaes(res$f2)
-    obj$data[["alpha"]]<-res$alpha
-    obj$data[["power"]]<-res$power
-    obj$data[["df1"]]<-res$u
-    obj$data[["df2"]]<-round(res$v)
-    return(obj$data)
-}
-
 
 ### computes the  power effect sizes
 
@@ -66,7 +39,11 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
             probs_es = sapply(probs, function(p){
               v<-obj$data$n-obj$data$df_model-1
                      pamlj.glm(u=obj$data$df_effect,v=v,
-                                 alpha = obj$data$alpha, power = p,df_model=obj$data$df_model,gpower=obj$options$gncp,tails=obj$tails)$f2
+                                 sig.level = obj$data$sig.level, 
+                                 power = p,
+                                 df_model=obj$data$df_model,
+                                 gpower=obj$options$gncp,
+                                 alternative=obj$data$alternative)$f2
            })
             probs_es<-obj$fromaes(probs_es)
             probs_es<-round(probs_es,digits=3)
@@ -100,7 +77,6 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
                 results<-lapply(1:nrow(.data),function(i) {
                      one      <-as.list(.data[i,.names])
-                     mark(one)
                      do.call(pwr::pwr.r.test,one)
                     })
                  results<-as.data.frame(do.call("rbind",results))
@@ -116,32 +92,36 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 }
 
 .powervector.glm <- function(obj,data) {
+
+                u <- data$df_effect
                 
-                u  <- obj$data$df_effect
-                rp <- required_param(data)
-                f2 <- NULL
                 if (is.something(data$es)) {
                                      data$f2<-obj$toaes(data$es)
                                      data$es<-NULL
                 }
                 else 
-                    rp <- "f2"
+                    data$f2 <- NULL
 
+                if (!is.something(data$n)) 
+                                     data$v<-NULL
+
+                
                 .data<-expand.grid(data)  
                 if (is.something(.data$n))
                    .data[["v"]]<- .data$n - obj$data$df_model -1
-
+                
 
                  results<-lapply(1:nrow(.data),function(i) {
                    one<-.data[i,]
+                
                    pamlj.glm(u=u,
                              v=one$v,
                              f2=one$f2,
                              power=one$power,
-                              alpha=one$alpha,
+                              sig.level=one$sig.level,
                               df_model=obj$data$df_model,
                               gpower=obj$options$gncp,
-                              tails=obj$tails
+                              alternative=as.character(obj$data$alternative)
                               )
                     
                     })
@@ -150,6 +130,9 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                  results$es<-obj$fromaes(results$f2)
                  odata<-.data[, !names(.data) %in% names(results)]
                  results<-cbind(odata,results)
+                 results$df1<-results$df_effect
+                 results$df2<-ceiling(results$v)
+             
                 return(results)
 }
 
