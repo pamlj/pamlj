@@ -114,7 +114,7 @@ options:
     - name: alternative
       title: Tails  
       type:  List
-      default: two.side
+      default: two.sided
       options:
         - name:  two.sided
           title: Two-tailed

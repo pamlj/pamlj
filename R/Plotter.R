@@ -149,8 +149,8 @@ Plotter <- R6::R6Class(
     
     .prepareContour = function() {
       
-#    if (!self$option("plot_contour"))
-#              return()
+    if (!self$option("plot_contour"))
+              return()
       jinfo("PLOTTER: preparing contour plot")
       
       data <- private$.operator$data
@@ -198,6 +198,7 @@ Plotter <- R6::R6Class(
       .data$n<-n
       .data$es <- NULL
       yline=powervector(private$.operator,.data)[["es"]]
+
       if (self$option("plot_log") && private$.operator$logy) {
         yline=log(yline)
       }
@@ -209,7 +210,6 @@ Plotter <- R6::R6Class(
          powervector(private$.operator,.data)[["power"]]
          })
        z<-do.call(cbind,out)
-
       image$setState(list(x=x,y=y,z=z,
                           point.x=point.x,point.y=point.y,
                           n=data$n,power=data$power,yline=yline,
@@ -266,7 +266,7 @@ Plotter <- R6::R6Class(
                             tickslabels=tickslabels,
                             xlab="Required Sample Size (N)",
                             ylab="Power",
-                            text=paste(data$letter,"=",data$es," ",greek_vector["alpha"],"=",round(data$sig.level,digits=3))
+                            text=paste(data$letter,"=",round(data$es,digits=3)," ",greek_vector["alpha"],"=",round(data$sig.level,digits=3))
                           ))
 
 

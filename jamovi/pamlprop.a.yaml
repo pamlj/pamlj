@@ -1,6 +1,6 @@
 ---
-name: pamlttest
-title: T-Test
+name: pamlprop
+title: Propotions
 menuGroup: Power
 version: '0.0.1'
 jas: '1.2'
@@ -13,7 +13,7 @@ description:
 options:
     - name: .caller
       type: String
-      default: ttest
+      default: proportions
       hidden: true
 
     - name: aim
@@ -31,53 +31,48 @@ options:
           title: Required Alpha
 
     - name: mode
-      title: "T-Test type"
+      title: "Two Sample"
       type: List
       options:
-            - name: ttestind
+            - name: propind
               title: Independent samples
-            - name: ttestpaired
-              title: Paired samples
-            - name: ttestone
+            - name: propone
               title: One Sample
-      default: ttestind
+      default: propind
 
 ### this is for mode ttestind       
-    - name: ttestind_es
-      title: "Expected Cohen's d (&delta;)"
+    - name: propind_p1
+      title: "Expected Propotion 1 (P1)"
+      type:  Number
+      default: .6
+    - name: propind_p2
+      title: "Expected Propotion 2 (P2)"
       type:  Number
       default: .5
 
-    - name: ttestind_n
+    - name: propind_n
       title: "N of group 1"
       type:  Number
       default: 20
 
-    - name: ttestind_nratio
+    - name: propind_nratio
       title: "Relatve size of groups"
       type:  Number
       default: 1
 
-#### this is for mode ttestpaired
 
-    - name: ttestpaired_es
-      title: "Expected Cohen'a d (&delta;)"
+#### this is for mode propone
+
+    - name: propone_p1
+      title: "Expected Proportion 1 (P1)"
+      type:  Number
+      default: .6
+    - name: propone_p2
+      title: "Expected Proportion 1 (P2)"
       type:  Number
       default: .5
 
-    - name: ttestpaired_n
-      title: "N"
-      type:  Number
-      default: 20
-
-#### this is for mode ttestone
-
-    - name: ttestone_es
-      title: "Expected Cohen'a d (&delta;)"
-      type:  Number
-      default: .5
-
-    - name: ttestone_n
+    - name: propone_n
       title: "N"
       type:  Number
       default: 20
@@ -104,7 +99,7 @@ options:
           title: Two-tailed
         - name:  greater
           title: One-tailed
-          
+
     - name: plot_contour
       title: Power contour plot
       type: Bool
@@ -123,7 +118,7 @@ options:
     - name: plot_log
       title: X-axis Log Scale
       type: Bool
-      default: false
+      default: true
 
 ### custom plots 
     
@@ -204,6 +199,19 @@ options:
       default: []
       template:
           type: String
+
+
+    - name: es_type
+      title: Tails  
+      type:  List
+      default: odd
+      options:
+        - name:  odd
+          title: Odd
+        - name:  dif
+          title: Difference
+        - name:  rr
+          title: Relative Risk
 
 ...
 

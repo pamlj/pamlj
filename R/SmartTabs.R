@@ -324,6 +324,7 @@ SmartTable <- R6::R6Class("SmartTable",
                                               obj$setNote(jmvcore::toB64(w),w,init=FALSE)
 
                                 }
+                                if (is.something(attr(rtable,"titles"))) self$columnTitles<-attr(rtable,"titles")
                                 return(rtable) 
                               }
                               if (inherits(fun,"function") ) {

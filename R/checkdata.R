@@ -46,6 +46,8 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
 }
 
+### correlation ####
+
 .checkdata.correlation <- function(obj) {
 
       obj$data$letter      <- greek_vector["rho"]
@@ -60,6 +62,135 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
 
 }
+
+### proportions ###
+.checkdata.propind <- function(obj) {
+
+      obj$data$letter      <- "Odd"
+      obj$data$n1          <- obj$options$propind_n
+      obj$data$n_ratio      <- obj$options$propind_nratio
+      obj$data$n2          <- obj$data$n1*obj$data$n_ratio
+      obj$data$n           <- obj$data$n1+obj$data$n2
+      obj$nmin             <- 6
+      obj$data$alternative <- obj$options$alternative
+      obj$data$p1          <- obj$options$propind_p1
+      obj$data$p2          <- obj$options$propind_p2
+      
+      if (!is.something(obj$data$p1)) 
+           stop("P1 (baserate) is required")
+
+      if (is.something(obj$data$p2)) {
+          if (obj$data$p2 > obj$data$p1)  {
+              p1<- obj$data$p1
+              obj$data$p1 <- obj$data$p2
+              obj$data$p2 <- p1
+              obj$warning<-list(topic="issues",
+                                message="P1 is supposed to be larger than P2. Proportions are recomputed to yield equivalent results."
+                               )
+          }
+          obj$data$es<-(obj$data$p1/(1-obj$data$p1))/(obj$data$p2/(1-obj$data$p2))
+          }
+      
+      obj$data$esmax       <-  10
+      obj$data$esmin       <-  1
+      
+      obj$toaes            <- function(data) {
+         odd2 <- (data$p1/(1-data$p1))/data$es
+         p2   <- odd2/(1+odd2)
+         pwr::ES.h(data$p1,p2)
+      }
+      
+      if (is.something(obj$data$p1) && obj$data$p1<0.001) 
+           stop("Proportions cannot be less than 0.001")
+      if (is.something(obj$data$p2) && obj$data$p2<0.001) 
+           stop("Proportions cannot be less than 0.001")
+      if (is.something(obj$data$p2) && obj$data$p2==obj$data$p1) 
+           stop("Proportions cannot be equal (null power)")
+
+      if (is.something(obj$data$p2) && obj$data$p2==obj$data$p1) 
+           stop("Proportions cannot be equal (null power)")
+
+}
+
+.checkdata.propone <- function(obj) {
+
+      obj$data$n          <- obj$options$propone_n
+      obj$nmin             <- 6
+      obj$data$alternative <- obj$options$alternative
+      obj$data$p1          <- obj$options$propone_p1
+      obj$data$p2          <- obj$options$propone_p2
+      
+      if (!is.something(obj$data$p1)) 
+           stop("P1 (baserate) is required")
+
+      if (is.something(obj$data$p2)) {
+          if (obj$data$p2 > obj$data$p1)  {
+              p1<- obj$data$p1
+              obj$data$p1 <- obj$data$p2
+              obj$data$p2 <- p1
+              obj$warning<-list(topic="issues",
+                                message="P1 is supposed to be larger than P2. Proportions are recomputed to yield equivalent results."
+                               )
+          }
+        }
+      switch(obj$options$es_type,
+             odd = {
+                   obj$data$letter      <- "Odd"
+                   obj$data$es          <-(obj$data$p1/(1-obj$data$p1))/(obj$data$p2/(1-obj$data$p2))
+                   obj$data$esmax       <-  10
+                   obj$data$esmin       <-  1
+                   obj$toaes            <- function(data) {
+                                               odd2 <- (data$p1/(1-data$p1))/data$es
+                                               p2   <- odd2/(1+odd2)
+                                               pwr::ES.h(data$p1,p2)
+                                              }
+                   obj$fromaes            <- function(data)  (data$p1/(1-data$p1))/(data$p2/(1-data$p2))
+                                              
+             },
+             dif = {
+                   obj$data$letter      <- greek_vector["Delta"] 
+                   obj$data$es          <- obj$data$p1-obj$data$p2
+                   obj$data$esmax       <-  obj$data$p1
+                   obj$data$esmin       <-  .01
+                   obj$toaes            <- function(data) {
+                     mark(data)
+                                               p2   <- data$p1-data$es
+                                               pwr::ES.h(data$p1,p2)
+                                        }
+                   obj$fromaes          <- function(data)  data$p1 - data$p2
+
+                    },
+             rr = {
+                   obj$data$letter      <- "RR" 
+                   obj$data$es<- obj$data$p1/obj$data$p2
+                   obj$data$esmax       <-  10
+                   obj$data$esmin       <-  1
+                   obj$toaes            <- function(data) {
+                                               p2   <-  data$p1/data$es
+                                               pwr::ES.h(data$p1,p2)
+                                          }
+                   obj$fromaes          <- function(data)  data$p1 / data$p2
+
+                    }
+               
+      )
+    
+      
+      if (is.something(obj$data$p1) && obj$data$p1<0.001) 
+           stop("Proportions cannot be less than 0.001")
+      if (is.something(obj$data$p2) && obj$data$p2<0.001) 
+           stop("Proportions cannot be less than 0.001")
+      if (is.something(obj$data$p2) && obj$data$p2==obj$data$p1) 
+           stop("Proportions cannot be equal (null power)")
+
+      if (is.something(obj$data$p2) && obj$data$p2==obj$data$p1) 
+           stop("Proportions cannot be equal (null power)")
+
+}
+
+
+### GLM ###
+
 
 .checkdata.beta <- function(obj) {
   

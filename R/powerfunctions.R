@@ -5,7 +5,7 @@
 
 powerbyes <- function(x, ...) UseMethod(".powerbyes")
 
-.powerbyes.ttest <- function(obj) {
+.powerbyes.default <- function(obj) {
 
 
             probs = c(.5, .8, .95)
@@ -15,8 +15,9 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
               .data$power<-p
                powervector(obj,.data)$es
            })
+            emin<-ifelse(is.null(obj$data$esmin),0,obj$data$esmin)
             probs_es<-round(probs_es,digits=3)
-            esList <-list(list(es=paste('0 <', obj$data$letter, greek_vector["leq"],probs_es[1])),
+            esList <-list(list(es=paste(emin,' <', obj$data$letter, greek_vector["leq"],probs_es[1])),
                           list(es=paste(probs_es[1],'<', obj$data$letter, greek_vector["leq"],probs_es[2])),
                           list(es=paste(probs_es[2],'<', obj$data$letter, greek_vector["leq"],probs_es[3])),
                           list(es=paste(obj$data$letter, greek_vector["geq"],probs_es[3]))
@@ -26,12 +27,6 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
             
 }
 
-
-.powerbyes.correlation <- function(obj) {
-
-  .powerbyes.ttest(obj)
-
-}
 
 .powerbyes.glm <- function(obj) {
 
@@ -56,6 +51,7 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
             return(esList)
             
 }
+
 
 
 
@@ -195,3 +191,72 @@ powervector <- function(obj, ...) UseMethod(".powervector")
   return(.powervector.ttestpaired(obj,data))
 }
 
+
+.powervector.propind <- function(obj,data) {
+                
+                if (!is.null(data$es)) {
+                  data$h<-obj$toaes(data)
+                } else {
+                  data$p1-NULL
+                  data$p2<-NULL
+                }
+                if (is.null(data$n)) {
+                  data$n1<-NULL
+                  data$n2<-NULL
+                } 
+                .data<-expand.grid(data)
+             
+                .names <- intersect(names(.data),rlang::fn_fmls_names(pamlj.propind))
+                .data$alternative<-as.character(.data$alternative)
+                if (hasName(.data,"n")) {
+                  .data$n1 <- .data$n/(1+.data$n_ratio)
+                  .data$n2 <- .data$n1*.data$n_ratio
+                }
+                results<-lapply(1:nrow(.data),function(i) {
+                     one<-as.list(.data[i,.names])
+                     do.call(pamlj.propind,one)
+                    })
+                 results<-as.data.frame(do.call("rbind",results))
+                 for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
+                 odata<-.data[, !names(.data) %in% names(results)]
+                 results<-cbind(odata,results)
+                 results$n  <- results$n1 + results$n2
+               
+                 tp2 <-   (2 * asin(sqrt(results$p1))) - results$h 
+                 results$p2 <- sin(tp2/2)^2
+                 results$es <- (results$p1/(1-results$p1))/(results$p2/(1-results$p2))
+                 results$es[tp2<0]<-NA                  
+ 
+
+                 results$h  <- NULL
+                return(results)
+}
+
+.powervector.propone <- function(obj,data) {
+                
+                if (!is.null(data$es)) {
+                  data$h<-obj$toaes(data)
+                } else {
+                  data$p1-NULL
+                  data$p2<-NULL
+                }
+                .data<-expand.grid(data)
+                .names <- intersect(names(.data),rlang::fn_fmls_names(pwr::pwr.p.test))
+                .data$alternative<-as.character(.data$alternative)
+                results<-lapply(1:nrow(.data),function(i) {
+                     one<-as.list(.data[i,.names])
+                     do.call(pwr::pwr.p.test,one)
+                    })
+                 results<-as.data.frame(do.call("rbind",results))
+                 for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
+                 odata<-.data[, !names(.data) %in% names(results)]
+                 results<-cbind(odata,results)
+                 tp2 <-   (2 * asin(sqrt(results$p1))) - results$h 
+                 results$p2 <- sin(tp2/2)^2
+                 results$es <- obj$fromaes(results)
+                 results$es[tp2<0]<-NA                  
+                 results$n1<-NA
+                 results$n2<-NA
+                 results$h  <- NULL
+                return(results)
+}

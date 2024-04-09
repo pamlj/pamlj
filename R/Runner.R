@@ -23,8 +23,8 @@ Runner <- R6::R6Class("Runner",
                               run_powertab = function() {
                                 
                                      if (!self$ok) return()
-                                
-                                     return(list(self$data))
+                                     l<-list(self$data)
+                                     return(l)
                                },
                               run_powerbyes = function() {
       

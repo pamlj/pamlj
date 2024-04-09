@@ -33,6 +33,14 @@ analyses:
     description: |
       Something here
     menuGroup: Power
+  - title: Propotions
+    name: pamlprop
+    ns: pamlj
+    menuSubgroup: Pamlj
+    menuTitle: Propotions
+    description: |
+      Something here
+    menuGroup: Power
   - title: General Linear Model
     name: pamlglm
     ns: pamlj

@@ -23,6 +23,8 @@ Initer <- R6::R6Class(
     initialize=function(jmvobj) {
 
       super$initialize(jmvobj)
+      jmvobj$results$issues$setContent(" ")
+
           ## different functions require to transform the effect size to a more suitable effect size ($toaes())
           ## and transform it back to the original scale ($fromaes()). By default there's no 
           ## transformation, for tests that need it, it is set in checkdata() 
@@ -38,6 +40,7 @@ Initer <- R6::R6Class(
 
           class(self)<-unique(c(self$caller,self$mode,class(self)))
           
+         jinfo("PAMLj: Initializing",self$caller,self$mode)
           ## checkdata update the data depending on the type of test we are running (via S3 dispatch)
           checkdata(self)
 
@@ -45,16 +48,14 @@ Initer <- R6::R6Class(
           self$input             <- self$data
 
          jmvobj$results$intro$setContent(paste(INFO[["common"]],INFO[[self$mode]]))   
-         jmvobj$results$issues$setContent(" ")
 
-         jinfo("PAMLj: Initializing",self$caller,self$mode)
 
   }, # here initialize ends
     #### init functions #####
     init_powertab = function() {
       
           tab<-list(self$data) 
-            
+          attr(tab,"titles")<-list(es=self$data$letter)  
           return(tab)
     },
     init_powerbyes= function() {

@@ -22,7 +22,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             power = 0.9,
             n = 20,
             sig.level = 0.05,
-            alternative = "two.side",
+            alternative = "two.sided",
             plot_contour = FALSE,
             plot_escurve = FALSE,
             plot_ncurve = FALSE,
@@ -139,7 +139,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..alternative <- jmvcore::OptionList$new(
                 "alternative",
                 alternative,
-                default="two.side",
+                default="two.sided",
                 options=list(
                     "two.sided",
                     "one.sided"))
@@ -743,7 +743,7 @@ pamlglm <- function(
     power = 0.9,
     n = 20,
     sig.level = 0.05,
-    alternative = "two.side",
+    alternative = "two.sided",
     plot_contour = FALSE,
     plot_escurve = FALSE,
     plot_ncurve = FALSE,
