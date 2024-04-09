@@ -38,6 +38,9 @@ options:
               title: Independent samples
             - name: propone
               title: One Sample
+            - name: proppaired
+              title: Paired Samples
+
       default: propind
 
 ### this is for mode ttestind       
@@ -77,6 +80,21 @@ options:
       type:  Number
       default: 20
 
+#### this is for mode proppaired
+
+    - name: proppaired_p1
+      title: "Discordant Proportion 1 (P21)"
+      type:  Number
+      default: .4
+    - name: proppaired_p2
+      title: "Discordant Proportion 1 (P12)"
+      type:  Number
+      default: .2
+
+    - name: proppaired_n
+      title: "N pairs"
+      type:  Number
+      default: 20
 
 
 ### this is in general

@@ -254,9 +254,37 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                  tp2 <-   (2 * asin(sqrt(results$p1))) - results$h 
                  results$p2 <- sin(tp2/2)^2
                  results$es <- obj$fromaes(results)
+            
                  results$es[tp2<0]<-NA                  
                  results$n1<-NA
                  results$n2<-NA
                  results$h  <- NULL
+                return(results)
+}
+
+.powervector.proppaired <- function(obj,data) {
+                
+                if (!is.null(data$es)) {
+                  data$psi<-obj$toaes(data)
+                } 
+                .data<-expand.grid(data)
+                .data$method<-"normal"
+                .names <- intersect(names(.data),rlang::fn_fmls_names(pamlj.prop.paired))
+                .data$alternative<-as.character(.data$alternative)
+      
+                results<-lapply(1:nrow(.data),function(i) {
+                     one<-as.list(.data[i,.names])
+                     r<-do.call(pamlj.prop.paired,one)
+                     r
+                    })
+                 results<-as.data.frame(do.call("rbind",results))
+                 for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
+                 odata<-.data[, !names(.data) %in% names(results)]
+                 results<-cbind(odata,results)
+                 results$p2 <- results$p1/results$psi
+                 results$es <- obj$fromaes(results)
+                 results$n1<-NA
+                 results$n2<-NA
+                 results$psi  <- NULL
                 return(results)
 }

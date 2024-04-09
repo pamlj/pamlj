@@ -163,5 +163,62 @@ pamlj.p2n.ratio<-function(n_ratio = n_ratio, h=h, sig.level=sig.level, power=pow
 
 }
   
-  
+ 
+### This is adjusted from MESS  power_mcnemar_test code. 
 
+pamlj.prop.paired <- function (n = NULL, p2 = NULL, psi = NULL, sig.level = 0.05, 
+    power = NULL, alternative = c("two.sided", "greater")) {
+      
+    if (sum(sapply(list(n, p2, psi, power, sig.level), is.null)) !=       1) {
+        stop("exactly one of 'n', 'p2', 'psi', 'power', and 'sig.level' must be NULL")
+    }
+    if (!is.null(sig.level) && !is.numeric(sig.level) || any(0 > sig.level | sig.level > 1)) 
+        stop("'sig.level' must be numeric in [0, 1]")
+      
+    if (!is.null(p2)) {
+        if (any(p2 <= 0) || any(p2 >= 0.5)) {
+            stop("p2 is the smallest discordant probability and must be 0<p2<0.5")
+        }
+    }
+    if (!is.null(psi)) {
+        if (any(psi <= 1)) {
+            stop("psi must be 1 or greater since it is the ratio of the larger discordant probability to the smaller discordant probability")
+        }
+        if (any((psi + 1) * p2 > 1)) {
+            stop("psi cannot be so big that the sum of the discordant probabilities exceed 1: ie., (1+p2)*psi>1")
+        }
+    }
+    alternative <- match.arg(alternative)
+
+    tside <- switch(alternative, greater = 1, two.sided = 2)
+    f <- function(n, p2, psi, sig.level, power) {
+        bc <- ceiling(p2 * n * (1 + psi))
+        pbinom(qbinom(sig.level/tside, size = bc, prob = 0.5) - 
+            1, size = bc, prob = 1/(1 + psi)) + 1 - pbinom(qbinom(1 - 
+            sig.level/tside, size = bc, prob = 0.5), size = bc, 
+            prob = 1/(1 + psi))
+    }
+        p.body <- quote(pnorm((sqrt(n * p2) * (psi - 1) - qnorm(sig.level/tside, 
+            lower.tail = FALSE) * sqrt(psi + 1))/sqrt((psi + 
+            1) - p2 * (psi - 1)^2)))
+        
+    if (is.null(power)) {
+        power <- eval(p.body)
+    }
+    else if (is.null(n)) {
+        n <- uniroot(function(n) eval(p.body) - power, c(ceiling(log(sig.level)/log(0.5)), 
+            1e+07))$root
+    }
+    else if (is.null(p2)) 
+        p2 <- uniroot(function(p2) eval(p.body) - power, 
+            c(1e-10, 1/(1 + psi) - 1e-10))$root
+    else if (is.null(psi)) 
+        psi <- uniroot(function(psi) eval(p.body) - power, c(1 + 
+            1e-10, 1/p2 - 1 - 1e-10))$root
+    else if (is.null(sig.level)) 
+        sig.level <- uniroot(function(sig.level) eval(p.body) - 
+            power, c(1e-10, 1 - 1e-10))$root
+    else stop("internal error", domain = NA)
+    structure(list(n = n, p2 = p2, psi = psi, sig.level = sig.level, 
+        power = power, alternative = alternative), class = "power.htest")
+}

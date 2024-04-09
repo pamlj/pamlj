@@ -121,7 +121,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$data$p2          <- obj$options$propone_p2
       
       if (!is.something(obj$data$p1)) 
-           stop("P1 (baserate) is required")
+           stop("P1  is required")
 
       if (is.something(obj$data$p2)) {
           if (obj$data$p2 > obj$data$p1)  {
@@ -188,6 +188,68 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
 }
 
+.checkdata.proppaired <- function(obj) {
+
+      obj$data$n          <- obj$options$proppaired_n
+      obj$nmin             <- 6
+      obj$data$alternative <- obj$options$alternative
+      obj$data$p1          <- obj$options$proppaired_p1
+      obj$data$p2          <- obj$options$proppaired_p2
+      
+      if (!is.something(obj$data$p1)) 
+           stop("P1  is required")
+
+      if (is.something(obj$data$p2)) {
+          if (obj$data$p2 > obj$data$p1)  {
+              p1<- obj$data$p1
+              obj$data$p1 <- obj$data$p2
+              obj$data$p2 <- p1
+              obj$warning<-list(topic="issues",
+                                message="P1 is supposed to be larger than P2. Proportions are recomputed to yield equivalent results."
+                               )
+          }
+        }
+      switch(obj$options$es_type,
+             dif = {
+                   obj$data$letter      <- greek_vector["Delta"] 
+                   obj$data$es          <- obj$data$p1-obj$data$p2
+                   obj$data$esmax       <-  obj$data$p1
+                   obj$data$esmin       <-  .01
+                   obj$toaes            <- function(data) {
+                                               p2   <- data$p1-data$es
+                                               data$p1/p2
+                                        }
+                   obj$fromaes          <- function(data)  data$p1 - data$p2
+
+                    },
+             {
+                   obj$data$letter      <- "Odd"
+                   obj$data$es          <-(obj$data$p1/obj$data$p2)
+                   obj$data$esmax       <-  10
+                   obj$data$esmin       <-  1.01
+                   obj$toaes            <- function(data) {
+                                               p2 <- data$p1/data$es
+                                               data$p1/p2
+                                              }
+                   obj$fromaes            <- function(data)  (data$psi)
+                                              
+             }
+             
+
+      )
+    
+      
+      if (is.something(obj$data$p1) && obj$data$p1<0.001) 
+           stop("Proportions cannot be less than 0.001")
+      if (is.something(obj$data$p2) && obj$data$p2<0.001) 
+           stop("Proportions cannot be less than 0.001")
+      if (is.something(obj$data$p2) && obj$data$p2==obj$data$p1) 
+           stop("Proportions cannot be equal (null power)")
+
+      if (is.something(obj$data$p2) && obj$data$p2==obj$data$p1) 
+           stop("Proportions cannot be equal (null power)")
+
+}
 
 ### GLM ###
 

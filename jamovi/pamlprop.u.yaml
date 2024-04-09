@@ -59,6 +59,28 @@ children:
                     type: TextBox
                     format: number
                     enable: (!aim:n)
+      - type: Content
+        name: proppaired
+        children:
+          - type: LayoutBox
+            margin: large
+            children:
+              - type: Label
+                label: Effect information
+                children:
+                  - name: proppaired_p1
+                    type: TextBox
+                    format: number
+                  - name: proppaired_p2
+                    type: TextBox
+                    format: number
+                    enable: (!aim:es)
+                  - name: proppaired_n
+                    type: TextBox
+                    label: N (Group 1 size)
+                    format: number
+                    enable: (!aim:n)
+
   - type: LayoutBox
     margin: large
     children:
@@ -182,3 +204,4 @@ children:
                 name: es_type_rr
                 optionName: es_type
                 optionPart: rr
+                enable: (!mode:proppaired)

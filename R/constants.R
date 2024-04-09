@@ -87,6 +87,19 @@ INFO[["propone"]]<-"
                    </div>
 
                    " 
+INFO[["proppaired"]]<-"
+                   <div>
+                   In all cases, you can also decide whether the test will be carried out two-tailed or one-tailed.
+                   </div>
+                   <div>
+                   The analysis is carried out based on  McNemar paired comparison of proportions approximate power calculation.
+                   </div>
+                   <div>
+                   The default effect size is the odd of the proportion in input (P21/P12). In the <b> Options </b> panel
+                   one can choose to use the proportion differences (P21-P12). Results are equivalent.
+                   </div>
+
+                   " 
 
 
 

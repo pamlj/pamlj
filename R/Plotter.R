@@ -149,7 +149,7 @@ Plotter <- R6::R6Class(
     
     .prepareContour = function() {
       
-    if (!self$option("plot_contour"))
+     if (!self$option("plot_contour"))
               return()
       jinfo("PLOTTER: preparing contour plot")
       
@@ -160,12 +160,10 @@ Plotter <- R6::R6Class(
       .data$es<-.data$es*.95
       .data$power<-.98
       .data$n <- NULL
-
+      nmin<-  find_min_n(private$.operator,data)
       nmax<-powervector(private$.operator,.data)[["n"]]
-
       if (nmax< data$n) nmax<-data$n+10
-      if (nmax<10) nmax=20
-      nmin<-private$.operator$nmin
+      if (nmax<(nmin*2)) nmax=(nmin*2)
       emax <- private$.operator$data$esmax
       emin<-  private$.operator$data$esmin
 
@@ -205,6 +203,7 @@ Plotter <- R6::R6Class(
       .data <- private$.operator$data
       .data$power<-NULL
       .data$n<-n
+     
        out<-lapply(es,function(ind)  {
          .data$es<-ind
          powervector(private$.operator,.data)[["power"]]
@@ -227,17 +226,15 @@ Plotter <- R6::R6Class(
         data <- private$.operator$data
         image<-private$.results$powerNcurve
         ## notice that we send the 'es' (actual effect size), not transformed
-        mes<-data$es*.95
        .data<-data
        .data$power<-.98
-       .data$es<-mes
+       .data$es<-.data$es*.95
        .data$n<-NULL
+        nmin<-  find_min_n(private$.operator,data)
         nmax<-powervector(private$.operator,.data)[["n"]]
         if (nmax< data$n) nmax<-data$n+10
-        if (nmax<10) nmax=20
-
-        nmin <-  private$.operator$nmin
-        
+        if (nmax<(nmin*2)) nmax=(nmin*2)
+         
         if (self$option("plot_log")) {
              x <- seq(log(nmin),log(nmax),by=.1)
              n <- exp(x)

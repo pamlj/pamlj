@@ -16,6 +16,9 @@ pamlpropOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             propone_p1 = 0.6,
             propone_p2 = 0.5,
             propone_n = 20,
+            proppaired_p1 = 0.4,
+            proppaired_p2 = 0.2,
+            proppaired_n = 20,
             power = 0.9,
             sig.level = 0.05,
             alternative = "two.sided",
@@ -58,7 +61,8 @@ pamlpropOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 mode,
                 options=list(
                     "propind",
-                    "propone"),
+                    "propone",
+                    "proppaired"),
                 default="propind")
             private$..propind_p1 <- jmvcore::OptionNumber$new(
                 "propind_p1",
@@ -87,6 +91,18 @@ pamlpropOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..propone_n <- jmvcore::OptionNumber$new(
                 "propone_n",
                 propone_n,
+                default=20)
+            private$..proppaired_p1 <- jmvcore::OptionNumber$new(
+                "proppaired_p1",
+                proppaired_p1,
+                default=0.4)
+            private$..proppaired_p2 <- jmvcore::OptionNumber$new(
+                "proppaired_p2",
+                proppaired_p2,
+                default=0.2)
+            private$..proppaired_n <- jmvcore::OptionNumber$new(
+                "proppaired_n",
+                proppaired_n,
                 default=20)
             private$..power <- jmvcore::OptionNumber$new(
                 "power",
@@ -191,6 +207,9 @@ pamlpropOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..propone_p1)
             self$.addOption(private$..propone_p2)
             self$.addOption(private$..propone_n)
+            self$.addOption(private$..proppaired_p1)
+            self$.addOption(private$..proppaired_p2)
+            self$.addOption(private$..proppaired_n)
             self$.addOption(private$..power)
             self$.addOption(private$..sig.level)
             self$.addOption(private$..alternative)
@@ -219,6 +238,9 @@ pamlpropOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         propone_p1 = function() private$..propone_p1$value,
         propone_p2 = function() private$..propone_p2$value,
         propone_n = function() private$..propone_n$value,
+        proppaired_p1 = function() private$..proppaired_p1$value,
+        proppaired_p2 = function() private$..proppaired_p2$value,
+        proppaired_n = function() private$..proppaired_n$value,
         power = function() private$..power$value,
         sig.level = function() private$..sig.level$value,
         alternative = function() private$..alternative$value,
@@ -246,6 +268,9 @@ pamlpropOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..propone_p1 = NA,
         ..propone_p2 = NA,
         ..propone_n = NA,
+        ..proppaired_p1 = NA,
+        ..proppaired_p2 = NA,
+        ..proppaired_n = NA,
         ..power = NA,
         ..sig.level = NA,
         ..alternative = NA,
@@ -423,6 +448,9 @@ pamlpropBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param propone_p1 .
 #' @param propone_p2 .
 #' @param propone_n .
+#' @param proppaired_p1 .
+#' @param proppaired_p2 .
+#' @param proppaired_n .
 #' @param power .
 #' @param sig.level .
 #' @param alternative .
@@ -470,6 +498,9 @@ pamlprop <- function(
     propone_p1 = 0.6,
     propone_p2 = 0.5,
     propone_n = 20,
+    proppaired_p1 = 0.4,
+    proppaired_p2 = 0.2,
+    proppaired_n = 20,
     power = 0.9,
     sig.level = 0.05,
     alternative = "two.sided",
@@ -502,6 +533,9 @@ pamlprop <- function(
         propone_p1 = propone_p1,
         propone_p2 = propone_p2,
         propone_n = propone_n,
+        proppaired_p1 = proppaired_p1,
+        proppaired_p2 = proppaired_p2,
+        proppaired_n = proppaired_n,
         power = power,
         sig.level = sig.level,
         alternative = alternative,
