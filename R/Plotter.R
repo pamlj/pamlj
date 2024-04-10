@@ -258,10 +258,6 @@ Plotter <- R6::R6Class(
         if (self$option("plot_log")) {
             FLX<-log
             FEX<-exp
-            if (private$.operator$loges && emax > private$.operator$loges_from) {
-               FLY<-log
-               FEY<-exp
-            }
         }
 
        x <- seq(FLX(nmin),FLX(nmax),len=20)
