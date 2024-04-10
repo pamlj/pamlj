@@ -1,6 +1,6 @@
 ---
-name: pamlcorr
-title: Correlation 
+name: pamlttest
+title: T-Test
 menuGroup: Power
 version: '0.0.1'
 jas: '1.2'
@@ -13,7 +13,7 @@ description:
 options:
     - name: .caller
       type: String
-      default: correlation
+      default: ttest
       hidden: true
 
     - name: aim
@@ -28,20 +28,65 @@ options:
         - name: es
           title: Effect Size
 
-    - name: es
-      title: Minimal-interesting effect size 
+    - name: mode
+      title: "T-Test type"
+      type: List
+      options:
+            - name: ttestind
+              title: Independent samples
+            - name: ttestpaired
+              title: Paired samples
+            - name: ttestone
+              title: One Sample
+      default: ttestind
+
+### this is for mode ttestind       
+    - name: ttestind_es
+      title: "Expected Cohen's d (&delta;)"
       type:  Number
       default: .5
 
+    - name: ttestind_n
+      title: "N of group 1"
+      type:  Number
+      default: 20
+
+    - name: ttestind_nratio
+      title: "Relatve size of groups"
+      type:  Number
+      default: 1
+
+#### this is for mode ttestpaired
+
+    - name: ttestpaired_es
+      title: "Expected Cohen'a d (&delta;)"
+      type:  Number
+      default: .5
+
+    - name: ttestpaired_n
+      title: "N"
+      type:  Number
+      default: 20
+
+#### this is for mode ttestone
+
+    - name: ttestone_es
+      title: "Expected Cohen'a d (&delta;)"
+      type:  Number
+      default: .5
+
+    - name: ttestone_n
+      title: "N"
+      type:  Number
+      default: 20
+
+
+
+### this is in general
     - name: power
       title: Minimal desired power 
       type:  Number
       default: .90
-
-    - name: n
-      title: N 
-      type:  Number
-      default: 20
 
     - name: sig.level
       title: Alpha (Type I rate)  
@@ -55,11 +100,9 @@ options:
       options:
         - name:  two.sided
           title: Two-tailed
-        - name:  less
-          title: Less
         - name:  greater
-          title: Greater
-
+          title: One-tailed
+          
     - name: plot_contour
       title: Power contour plot
       type: Bool
@@ -81,8 +124,7 @@ options:
       default: false
 
 ### custom plots 
-
-
+    
 
     - name: plot_x
       type: List
@@ -97,7 +139,7 @@ options:
           title: Power
         - name: es
           title: Effect size
-        - name: alpha
+        - name: sig.level
           title: "Type I error"
 
     - name: plot_y
@@ -113,7 +155,7 @@ options:
           title: Power
         - name: es
           title: Effect size
-        - name: alpha
+        - name: sig.level
           title: "Type I error"
 
     - name: plot_custom_labels
@@ -134,7 +176,7 @@ options:
           title: Power
         - name: es
           title: Effect size
-        - name: alpha
+        - name: sig.level
           title: "Type I error"
 
 
@@ -160,7 +202,6 @@ options:
       default: []
       template:
           type: String
-
 
 ...
 

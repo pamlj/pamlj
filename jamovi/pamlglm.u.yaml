@@ -76,7 +76,7 @@ children:
                     name: b_df_model
                     format: number
                   - type: ComboBox
-                    name: tails
+                    name: alternative
   - type: LayoutBox
     margin: large
     children:
@@ -88,14 +88,13 @@ children:
             label: Minimum desired power
             format: number
             enable: (!aim:power)
-          - name: sample
+          - name: 'n'
             type: TextBox
             label: N (Sample size)
             format: number
             enable: (!aim:n)
-          - name: alpha
+          - name: sig.level
             type: TextBox
-            label: '&alpha; (type I error rate)'
             format: number
             enable: (!aim:alpha)
   - type: CollapseBox
@@ -317,8 +316,3 @@ children:
             children:
               - name: gncp
                 type: CheckBox
-          - type: LayoutBox
-            margin: large
-            children:
-              - type: CheckBox
-                name: plot_custom

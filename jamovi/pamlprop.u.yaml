@@ -1,0 +1,207 @@
+title: Proportions power analysis
+name: pamlprop
+jus: '3.0'
+stage: 0
+compilerMode: tame
+events:
+  update: ./pamlprop::update
+children:
+  - type: LayoutBox
+    margin: large
+    children:
+      - type: ComboBox
+        name: aim
+  - type: ModeSelector
+    name: mode
+    stretchFactor: 1
+    children:
+      - type: Content
+        name: propind
+        children:
+          - type: LayoutBox
+            margin: large
+            children:
+              - type: Label
+                label: Effect information
+                children:
+                  - name: propind_p1
+                    type: TextBox
+                    format: number
+                  - name: propind_p2
+                    type: TextBox
+                    format: number
+                    enable: (!aim:es)
+                  - name: propind_n
+                    type: TextBox
+                    label: N (Group 1 size)
+                    format: number
+                    enable: (!aim:n)
+                  - type: TextBox
+                    name: propind_nratio
+                    format: number
+      - type: Content
+        name: propone
+        children:
+          - type: LayoutBox
+            margin: large
+            children:
+              - type: Label
+                label: Effect information
+                children:
+                  - name: propone_p1
+                    type: TextBox
+                    format: number
+                  - name: propone_p2
+                    type: TextBox
+                    format: number
+                    enable: (!aim:es)
+                  - name: propone_n
+                    type: TextBox
+                    format: number
+                    enable: (!aim:n)
+      - type: Content
+        name: proppaired
+        children:
+          - type: LayoutBox
+            margin: large
+            children:
+              - type: Label
+                label: Effect information
+                children:
+                  - name: proppaired_p1
+                    type: TextBox
+                    format: number
+                  - name: proppaired_p2
+                    type: TextBox
+                    format: number
+                    enable: (!aim:es)
+                  - name: proppaired_n
+                    type: TextBox
+                    label: N (Group 1 size)
+                    format: number
+                    enable: (!aim:n)
+
+  - type: LayoutBox
+    margin: large
+    children:
+      - type: Label
+        label: Parameters
+        children:
+          - name: power
+            type: TextBox
+            label: Minimum desired power
+            format: number
+            enable: (!aim:power)
+          - name: sig.level
+            type: TextBox
+            label: '&alpha; (type I error rate)'
+            format: number
+            enable: (!aim:alpha)
+          - type: ComboBox
+            name: alternative
+            
+  - type: CollapseBox
+    label: Sensitivity Analysis
+    name: panel_sensitivity
+    collapsed: true
+    stretchFactor: 1
+    children:
+      - type: LayoutBox
+        children:
+          - type: Label
+            label: Plots
+            children:
+              - type: CheckBox
+                name: plot_contour
+              - type: CheckBox
+                name: plot_escurve
+                enable: (!aim:n)
+              - type: CheckBox
+                name: plot_ncurve
+                enable: (!aim:es)
+              - type: CheckBox
+                name: plot_log
+                
+  - type: CollapseBox
+    label: Power Parameters plot
+    name: panel_customplot
+    collapsed: true
+    stretchFactor: 1
+    children:
+      - type: LayoutBox
+        children:
+          - type: Label
+            label: Plot Y-axis
+            children:
+              - type: LayoutBox
+                style: inline
+                children:
+                  - type: ComboBox
+                    name: plot_y
+                  - type: CheckBox
+                    name: plot_custom_labels
+          - type: Label
+            label: Plot X-axis
+            children:
+              - type: LayoutBox
+                style: inline
+                children:
+                  - type: ComboBox
+                    name: plot_x
+                  - type: TextBox
+                    name: plot_x_from
+                    format: number
+                  - type: TextBox
+                    name: plot_x_to
+                    format: number
+          - type: Label
+            label: Plot Different lines by
+            children:
+              - type: LayoutBox
+                style: inline
+                children:
+                  - type: ComboBox
+                    name: plot_z
+                  - type: TextBox
+                    name: plot_z_lines
+                    format: number
+          - type: Label
+            label: Values for each line
+            name: plot_value_label
+            children:
+              - type: ListBox
+                name: plot_z_value
+                events:
+                  listItemAdded: ./pamlprop::onChange_value_added
+                  listItemRemoved: ./pamlprop::onChange_value_removed
+                showColumnHeaders: false
+                columns:
+                  - name: var
+                    label: Value
+                    template:
+                      type: TextBox
+
+  - type: CollapseBox
+    label: Options
+    name: panel_options
+    collapsed: true
+    stretchFactor: 1
+    children:
+      - type: LayoutBox
+        children:
+          - type: Label
+            label: Effect size type
+            children:
+              - type: RadioButton
+                name: es_type_odd
+                optionName: es_type
+                optionPart: odd
+              - type: RadioButton
+                name: es_type_dif
+                optionName: es_type
+                optionPart: dif
+              - type: RadioButton
+                name: es_type_rr
+                optionName: es_type
+                optionPart: rr
+                enable: (!mode:proppaired)

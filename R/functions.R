@@ -28,10 +28,10 @@ fields_tome <- function(obj, ...) UseMethod(".fields_tome")
 
 
 required_param<-function(data) {
-  
-  whichnull<-setdiff(c("n","es","alpha","power"), names(data))  
+
+  whichnull<-setdiff(c("n","es","sig.level","power"), names(data))  
   if (length(whichnull)>1 || length(whichnull)==0)
-         stop("PAMLJ: only one parameters should be NULL")
+         stop("PAMLj: only one parameters should be NULL")
   whichnull
 }
 
@@ -52,4 +52,12 @@ nicify_param<- function(what,short=FALSE) {
     power= "Power",
     alpha = "Required critical alpha"
   )
+}
+
+niceround<-function(x) {
+  x<-round(x,2)
+  a<-round(x,1)
+  w<- abs(x-a) < .01001
+  x[w]<-round(x[w],1)
+  x
 }

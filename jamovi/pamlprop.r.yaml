@@ -1,6 +1,6 @@
 ---
-name:  pamlcorr
-title: Correlation power analysis
+name:  pamlprop
+title: Proportions power analysis
 jrs:   "1.1"
 
 items:
@@ -12,24 +12,30 @@ items:
       title: Issues
       type: Html
       visible: false
- 
+
     - name:  powertab
       title: A Priori Power Analysis
       type: Table
       rows:  1
-      clearWith:
-        - es
-        - power
-        - n
-        - sig.level
-        - aim
-        - alternative
+      refs: pwr
       columns: 
         - name: n
           title: 'N'
           type: integer
+        - name: n1
+          title: N₁
+          type: integer
+        - name: n2
+          title: N₂
+          type: integer
+        - name: p1
+          title: P₁
+          type: number
+        - name: p2
+          title: P₂
+          type: number
         - name: es
-          title: 'Effect size'
+          title: 'es'
           type: number
         - name: power
           title: 'Power'
@@ -43,14 +49,6 @@ items:
       title: Power by Effect Size
       type: Table
       rows:  4
-      clearWith:
-        - es
-        - power
-        - n
-        - sig.level
-        - aim
-        - alternative
-        
       columns:
         - name: es
           title: 'True effect size'
@@ -64,6 +62,8 @@ items:
           title: 'Description'
           type: text
 
+
+
     - name: powerContour
       title: Power Contour
       type: Image
@@ -72,6 +72,7 @@ items:
       renderFun: .plot_contour
       visible: (plot_contour)
 
+
     - name: powerEscurve
       title: Power Curve by Effect Size
       type: Image
@@ -79,6 +80,7 @@ items:
       height: 350
       renderFun: .plot_escurve
       visible: (plot_escurve & !aim:n)
+
 
     - name: powerNcurve
       title: Power Curve by N
@@ -99,5 +101,6 @@ items:
     - name: plotnotes
       title: Plot notes
       type: Html
-      visible: false
+      visible: true
+
 

@@ -8,27 +8,28 @@ Runner <- R6::R6Class("Runner",
                         class=TRUE,
                         public=list(
                               run= function() {
-                                resobj <- try_hard( powerfunction(self) )
+                                resobj <- try_hard(powervector(self,self$input) )
                                 if (!isFALSE(resobj$warning))
                                      warning(resobj$warning)
                                 if (!isFALSE(resobj$error)) {
                                             checkfailure(self,resobj)
                                             self$ok <- FALSE
                                             return(NULL)
-                                    }
+                                }
+                                self$data<-as.list(resobj$obj)
+                                  
 
                               },
                               run_powertab = function() {
-                                
                                      if (!self$ok) return()
-                                
-                                     return(list(self$data))
+                                     l<-list(self$data)
+                                     return(l)
                                },
                               run_powerbyes = function() {
       
                                      if (!self$ok) return()
                                      results <- powerbyes(self)
-                                     warning("Estimated for N=",self$data$n)
+                                     warning("Estimated for N=",round(self$data$n))
                                      return(results)
                                }
 

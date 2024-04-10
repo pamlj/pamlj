@@ -33,7 +33,7 @@ INFO[["peta"]]<-"
 INFO[["eta"]]<-"
              <div>
              <p> In all cases, set the expected <b> R-squared </b> for the full model. 
-             For models with only one independent variable the R-square is calculated
+             For models with only one independent variable the R-squared is calculated
              as the square of the beta coefficients.<p>
              <p> Set the <b> Model degrees of freedom</b>. 
               If the model degrees of freedom are not easy to compute, please use the 
@@ -44,10 +44,10 @@ INFO[["eta"]]<-"
 INFO[["beta"]]<-"
              <div>
              <p> Please notice that in case of multiple regression, the predictors are <b> assumed to be uncorrelated </b>. If correlated predictors
-             are expected, please use the <b>Partial Eta-squared</b> interface</p>
+             are expected, please use the <b>Partial Eta-squared</b> interface.</p>
              <p> In all cases, you can set the required Type I error rate and whether the test will be carried out two-tailed or one-tailed.</b></p>
              <p> In all cases, set the expected <b> R-squared </b> for the full model. 
-             For models with only one independent variable the R-square is calculated
+             For models with only one independent variable the R-squared is calculated
              as the square of the beta coefficients.<p>
              <p> Set the <b> Model degrees of freedom</b>. 
               If the model degrees of freedom are not easy to compute, please use the 
@@ -61,6 +61,46 @@ INFO[["correlation"]]<-"
                    </div>
                    " 
 
+INFO[["propind"]]<-"
+                   <div>
+                   In all cases, you can also decide whether the test will be carried out two-tailed or one-tailed.
+                   </div>
+                   <div>
+                   The analysis is carried out based on binomial distribution and arcsine transformation.
+                   </div>
+                   <div>
+                   The default effect size is the odd of the proportions in input (P1/(1-P1)/(P2/(1-P2)). In the <b> Options </b> panel
+                   one can choose to use the proportion differences (P1-P2) or the relative risk (P1/P2). Results are equivalent.
+                   </div>
+
+                   " 
+INFO[["propone"]]<-"
+                   <div>
+                   In all cases, you can also decide whether the test will be carried out two-tailed or one-tailed.
+                   </div>
+                   <div>
+                   The analysis is carried out based on binomial distribution and arcsine transformation.
+                   </div>
+                   <div>
+                   The default effect size is the odd of the proportion in input (P1/(1-P1)/(P2/(1-P2)). In the <b> Options </b> panel
+                   one can choose to use the proportion differences (P1-P2) or the relative risk (P1/P2). Results are equivalent.
+                   </div>
+
+                   " 
+INFO[["proppaired"]]<-"
+                   <div>
+                   In all cases, you can also decide whether the test will be carried out two-tailed or one-tailed.
+                   </div>
+                   <div>
+                   The analysis is carried out based on  McNemar paired comparison of proportions approximate power calculation.
+                   The default effect size is the odd of the proportion in input (P12/P21). P12 is the <b> smaller proportion
+                   of discordant pairs </b> and P21 is the largest propotion of discordant pairs.
+                   <div>
+                   In the <b> Options </b> panel
+                   one can choose to use the proportion differences (P12-P21). Results are equivalent.
+                   </div>
+
+                   " 
 
 
 

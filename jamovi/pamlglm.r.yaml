@@ -24,15 +24,16 @@ items:
         - v_es
         - e_es
         - power
-        - sample
-        - alpha
+        - n
+        - sig.level
         - aim
-        - tails
+        - alternative
         - b_df_model
         - v_df_model
         - e_df_model
         - e_r2
         - v_r2
+        - b_r2
         - gncp
         
       columns: 
@@ -42,7 +43,7 @@ items:
         - name: es
           title: 'Effect size'
           type: number
-        - name: aes
+        - name: f2
           title: f²
           type: number
         - name: power
@@ -54,7 +55,7 @@ items:
         - name: df2
           title: 'df(res)'
           type: integer
-        - name: alpha
+        - name: sig.level
           title: '&alpha;'
           type: number
 
@@ -69,10 +70,10 @@ items:
         - v_es
         - e_es
         - power
-        - sample
-        - alpha
+        - n
+        - sig.level
         - aim
-        - tails
+        - alternative
         - b_df_model
         - v_df_model
         - e_df_model
@@ -108,10 +109,10 @@ items:
         - v_es
         - e_es
         - power
-        - sample
-        - alpha
+        - n
+        - sig.level
         - aim
-        - tails
+        - alternative
         - b_df_model
         - v_df_model
         - e_df_model
@@ -132,10 +133,10 @@ items:
         - v_es
         - e_es
         - power
-        - sample
-        - alpha
+        - n
+        - sig.level
         - aim
-        - tails
+        - alternative
         - b_df_model
         - v_df_model
         - e_df_model
@@ -157,10 +158,10 @@ items:
         - v_es
         - e_es
         - power
-        - sample
-        - alpha
+        - n
+        - sig.level
         - aim
-        - tails
+        - alternative
         - b_df_model
         - v_df_model
         - e_df_model

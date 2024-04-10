@@ -12,6 +12,8 @@ Plotter <- R6::R6Class(
             super$initialize(jmvobj)
             private$.results<-jmvobj$results
             private$.operator<-runner
+            private$.results$plotnotes$setContent(" ")
+
       },
 
       initPlots=function() {
@@ -35,21 +37,16 @@ Plotter <- R6::R6Class(
             return()
 
         data<-image$state
+        if (is.null(data)) return()
         
-        if (self$option("plot_log")) {
-             yticks<-seq(-7,0,1)
-             ytickslabels<-round(exp(yticks),digits=2)
-        } else {
-             yticks<-pretty(data$y,n=6)
-             ytickslabels<-yticks
-        }
+
         filled.contour(data$x,data$y,data$z,color.palette =  paml_palette,
                key.title = {mtext("Power",3, .5)},
                ylab =paste("Hypothetical effect size (",data$letter,")", sep = ""),
                xlab="Sample Size (N)",
                plot.axes={
                   axis(1, at=data$ticks, labels=data$tickslabels)
-                  axis(2, at=yticks, labels=ytickslabels)
+                  axis(2, at=data$yticks, labels=data$ytickslabels)
                   yor<-par()$usr[3]
                   xor<-par()$usr[1]
                   lines(data$x, data$yline, type = "l", lty = 1, lwd=2)
@@ -96,8 +93,6 @@ Plotter <- R6::R6Class(
        },
       plot_custom= function(image,ggtheme,theme) {
          
-        mark(private$.operator$ok)
-        mark(image$state)
         if (!private$.operator$ok) return()
 
         if (!is.something(image$state)) return()
@@ -148,6 +143,7 @@ Plotter <- R6::R6Class(
   private = list(
     .results=NULL,
     .operator=NULL,
+    
     .prepareContour = function() {
       
      if (!self$option("plot_contour"))
@@ -155,151 +151,179 @@ Plotter <- R6::R6Class(
       jinfo("PLOTTER: preparing contour plot")
       
       data <- private$.operator$data
-     .data <- data
-
       image<-private$.results$powerContour
-      ## notice that we send the 'aes' (actual effect size), already transformed
-      .data$es<-.data$es*.95
+      ## check the min-max for effect size
+      emax <- private$.operator$data$esmax
+      if (emax < data$es) emax<-data$es
+      emin<-  private$.operator$data$esmin
+
+      ## check min-max for N
+      
+      .data <- data
+      .data$es<-ifelse(.data$es*.95 > .data$esmin, .data$es*.95, .data$esmin)
       .data$power<-.98
       .data$n <- NULL
-      nmax<-powervector(private$.operator,.data)[["n"]]
+       nmax<-powervector(private$.operator,.data)[["n"]]
+      .data <- data
+      .data$esmax <- emax
+       nmin<-  find_min_n(private$.operator,.data)
+     
       if (nmax< data$n) nmax<-data$n+10
-      if (nmax<10) nmax=20
-      nmin<-private$.operator$nmin
-      emax <- .99
-      emin<- .01
+      if (nmax<(nmin*2)) nmax=(nmin*2)
       
-      if (self$option("plot_log")) {
-             x <- seq(log(nmin),log(nmax),by=.1)
-             n <- exp(x)
-             ticks<-round(pretty(x,n=5))
-             tickslabels<-round(exp(ticks))
-             point.x<-log(private$.operator$data$n)
-             y <- seq(log(emin),log(emax),len=20)
-             es <- exp(y)
-             point.y <- log(data$es)
-             
-        }  else {
-             x <- seq(nmin,nmax,len=20)
-             n <- x
-             ticks<-pretty(x,n=5)
-             tickslabels<-ticks
-             point.x<-private$.operator$data$n
-             y <- seq(emin,emax,len=20)
-             es <- y
-             point.y <- data$es
-        }
+      point.x<-private$.operator$data$n
+      y <- seq(emin,emax,len=20)
+      es <- y
+      point.y <- data$es
+      FLX<-identity
+      FEX<-identity
+      FLY<-identity
+      FEY<-identity
 
+      if (self$option("plot_log")) {
+         FLX<-log
+         FEX<-exp
+         if (private$.operator$loges(data$es)) {
+            FLY<-log
+            FEY<-exp
+         }
+      }
+
+       x <- seq(FLX(nmin),FLX(nmax),len=20)
+       n <- FEX(x)
+       point.x<-FLX(private$.operator$data$n)
+       ticks<-seq(FLX(nmin),FLX(nmax),len=6)
+       tickslabels<-round(FEX(ticks))
+       y  <- seq(FLY(emin),FLY(emax),len=20)
+       es <- FEY(y)
+       point.y <- FLY(data$es)
+       yticks <- seq(FLY(emin),FLY(emax),len=6)
+       ytickslabels<-niceround(FEY(yticks))
       .data <- private$.operator$data
       .data$n<-n
       .data$es <- NULL
-      yline=powervector(private$.operator,.data)[["es"]]
-      if (self$option("plot_log")) {
-        yline=log(yline)
-      }
+       yline=powervector(private$.operator,.data)[["es"]]
+       yline=FLY(yline)
       .data <- private$.operator$data
       .data$power<-NULL
       .data$n<-n
+     
        out<-lapply(es,function(ind)  {
          .data$es<-ind
          powervector(private$.operator,.data)[["power"]]
          })
        z<-do.call(cbind,out)
-
       image$setState(list(x=x,y=y,z=z,
                           point.x=point.x,point.y=point.y,
                           n=data$n,power=data$power,yline=yline,
                           ticks=ticks,
                           tickslabels=tickslabels,
+                          yticks=yticks,
+                          ytickslabels=ytickslabels,
                           letter=data$letter))
-    
+
     },
      .prepareNcurve = function() {
       
-        if (!self$option("plot_ncurve"))
+      if (!self$option("plot_ncurve"))
                 return()
-        jinfo("PLOTTER: preparing N curve plot")
+      jinfo("PLOTTER: preparing N curve plot")
 
         data <- private$.operator$data
         image<-private$.results$powerNcurve
-        ## notice that we send the 'es' (actual effect size), not transformed
-        mes<-data$es*.95
-       .data<-data
-       .data$power<-.98
-       .data$es<-mes
-       .data$n<-NULL
-        nmax<-powervector(private$.operator,.data)[["n"]]
-        if (nmax< data$n) nmax<-data$n+10
-        if (nmax<10) nmax=20
+      ## check the min-max for effect size
+      emax <- private$.operator$data$esmax
+      if (emax < data$es) emax<-data$es
+      emin<-  private$.operator$data$esmin
 
-        nmin <-  private$.operator$nmin
-        
+      ## check min-max for N
+      
+      .data <- data
+      .data$es<-ifelse(.data$es*.95 > .data$esmin, .data$es*.95, .data$esmin)
+      .data$power<-.98
+      .data$n <- NULL
+       nmax<-powervector(private$.operator,.data)[["n"]]
+      .data <- data
+      .data$esmax <- emax
+       nmin<-  find_min_n(private$.operator,.data)
+     
+      if (nmax< data$n) nmax<-data$n+10
+      if (nmax<(nmin*2)) nmax=(nmin*2)
+
+        FLX<-identity
+        FEX<-identity
+        FLY<-identity
+        FEY<-identity
+
         if (self$option("plot_log")) {
-             x <- seq(log(nmin),log(nmax),by=.1)
-             n <- exp(x)
-             ticks<-round(pretty(x,n=5))
-             tickslabels<-round(exp(ticks))
-             point.x<-log(private$.operator$data$n)
-        }  else {
-             x <- seq(nmin,nmax,len=20)
-             n <- x
-             ticks<-pretty(x,n=5)
-             tickslabels<-ticks
-             point.x<-private$.operator$data$n
-
+            FLX<-log
+            FEX<-exp
         }
-        
-        .data<-data
-        .data$n <- n
-        .data$power <- NULL
-         ydata <- powervector(private$.operator,.data)
-         ydata$x <- x
-         ydata$y <- ydata$power
-         image$setState(list(data=ydata,
+
+       x <- seq(FLX(nmin),FLX(nmax),len=20)
+       n <- FEX(x)
+       point.x<-FLX(private$.operator$data$n)
+       ticks<-seq(FLX(nmin),FLX(nmax),len=6)
+       tickslabels<-round(FEX(ticks))
+      .data<-data
+      .data$n <- n
+      .data$power <- NULL
+
+       ydata <- powervector(private$.operator,.data)
+       ydata$x <- x
+       ydata$y <- ydata$power
+
+       image$setState(list(data=ydata,
                             point.x = point.x,
                             point.y = private$.operator$data$power,
                             ticks=ticks,
                             tickslabels=tickslabels,
                             xlab="Required Sample Size (N)",
                             ylab="Power",
-                            text=paste(data$letter,"=",data$es," ",greek_vector["alpha"],"=",round(data$alpha,digits=3))
+                            text=paste(data$letter,"=",round(data$es,digits=3)," ",greek_vector["alpha"],"=",round(data$sig.level,digits=3))
                           ))
 
 
     },
     .prepareEscurve = function() {
       
-        if (!self$option("plot_escurve"))
-                return()
+       if (!self$option("plot_escurve") || (self$options$aim=="n"))
+               return()
         jinfo("PLOTTER: preparing Es curve plot")
 
         data <- private$.operator$data
         image<-private$.results$powerEscurve
-        emax <- .99
-        emin<- .01
+    ## check the min-max for effect size
+      emax <- private$.operator$data$esmax
+      if (emax < data$es) emax<-data$es
+      emin<-  private$.operator$data$esmin
 
+  
+        FLX<-identity
+        FEX<-identity
+  
         if (self$option("plot_log")) {
-             x <- seq(log(emin),log(emax),by=.01)
-             es <- exp(x)
-             ticks<-seq(-7,0,1)
-             tickslabels<-round(exp(ticks),digits=3)
-             point.x<-log(private$.operator$data$es)
-
-        }  else {
-             x <- seq(emin,emax,by=.01)
-             es <- x
-             ticks<-pretty(x)
-             tickslabels<-ticks
-             point.x<-private$.operator$data$es
-
+            if (private$.operator$loges(emax)) {
+               FLX<-log
+               FEX<-exp
+            }
         }
-          
+
+       x <- seq(FLX(emin),FLX(emax),len=20)
+       es <- FEX(x)
+       point.x<-FLX(private$.operator$data$es)
+       ticks<- FLX(pretty(c(emin,emax),6))
+       tickslabels<-round(FEX(ticks),digits=3)
+
         .data<-data
         .data$power<-NULL
         .data$es<-es
+ 
         ydata<-powervector(private$.operator,.data)
         ydata$x <- x
         ydata$y <- ydata$power
+
+     
         image$setState(list(data=ydata,
                             point.x = point.x,
                             point.y = private$.operator$data$power,
@@ -307,13 +331,12 @@ Plotter <- R6::R6Class(
                             tickslabels=tickslabels,
                             xlab="Hypothetical effect size",
                             ylab="Power",
-                            text=paste("N =",data$n," ",greek_vector["alpha"],"=",round(data$alpha,digits=3))
+                            text=paste("N =",data$n," ",greek_vector["alpha"],"=",round(data$sig.level,digits=3))
                           ))
     },
     
      .prepareCustom = function() {
       
-        private$.results$plotnotes$setContent(" ")
 
         if (self$option("plot_y","none")) {
           return()

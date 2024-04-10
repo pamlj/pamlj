@@ -27,8 +27,6 @@ options:
           title: Power
         - name: es
           title: Effect Size
-        - name: alpha
-          title: Required Alpha
 
     - name: mode
       title: "Effect size type"
@@ -101,24 +99,24 @@ options:
       type:  Number
       default: .90
 
-    - name: sample
+    - name: n
       title: N 
       type:  Number
       default: 20
 
-    - name: alpha
-      title: Alpha (Type I rate)  
+    - name: sig.level
+      title: '&alpha; (type I error rate)'
       type:  Number
       default: .05
 
-    - name: tails
+    - name: alternative
       title: Tails  
       type:  List
-      default: two
+      default: two.sided
       options:
-        - name:  two
+        - name:  two.sided
           title: Two-tailed
-        - name:  one
+        - name:  one.sided
           title: One-tailed
 
     - name: plot_contour
@@ -137,7 +135,7 @@ options:
       default: false
 
     - name: plot_log
-      title: X-axis Log Scale
+      title: Log Scale (when needed)
       type: Bool
       default: false
 
@@ -253,10 +251,6 @@ options:
 
 ### custom plots 
     
-    - name: plot_custom
-      type: Bool
-      title: "Custom Plot"
-      default: false
 
     - name: plot_x
       type: List

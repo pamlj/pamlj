@@ -15,7 +15,7 @@ Dispatch <- R6::R6Class(
                         initialize=function(results) { 
                           
                                   self$tables<-results
-                                  
+                           
                         },
                         print=function() {
      
@@ -110,7 +110,15 @@ Dispatch <- R6::R6Class(
                           
                                path<-stringr::str_split(obj$topic,"_")[[1]]
                                table<-private$.find_table(path)
-                               table$setError(obj$message)
+                   
+                              if (inherits(table,"Html")) {
+                                  obj$head<-"warning"
+                                  table$setContent(private$.process_html(NULL,obj))
+                              } else {
+                                  table$setError(obj$message)
+                              }
+                              table$setVisible(TRUE)
+                           
 
                        },
                        warnings_topics=function() {return(names(private$.warnings))},
@@ -136,7 +144,7 @@ Dispatch <- R6::R6Class(
                               return(content)
                        },
                       .find_table=function(path) {
-                        
+
                         tableobj<-self$tables
                         found<-FALSE
                         for (aname in path)

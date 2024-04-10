@@ -1,6 +1,6 @@
 ---
-name: pamlcorr
-title: Correlation 
+name: pamlprop
+title: Propotions
 menuGroup: Power
 version: '0.0.1'
 jas: '1.2'
@@ -13,7 +13,7 @@ description:
 options:
     - name: .caller
       type: String
-      default: correlation
+      default: proportions
       hidden: true
 
     - name: aim
@@ -27,21 +27,78 @@ options:
           title: Power
         - name: es
           title: Effect Size
+    - name: mode
+      title: "Two Sample"
+      type: List
+      options:
+            - name: propind
+              title: Independent samples
+            - name: propone
+              title: One Sample
+            - name: proppaired
+              title: Paired Samples
 
-    - name: es
-      title: Minimal-interesting effect size 
+      default: propind
+
+### this is for mode ttestind       
+    - name: propind_p1
+      title: "Expected Propotion 1 (P1)"
+      type:  Number
+      default: .6
+    - name: propind_p2
+      title: "Expected Propotion 2 (P2)"
       type:  Number
       default: .5
 
+    - name: propind_n
+      title: "N of group 1"
+      type:  Number
+      default: 20
+
+    - name: propind_nratio
+      title: "Relatve size of groups"
+      type:  Number
+      default: 1
+
+
+#### this is for mode propone
+
+    - name: propone_p1
+      title: "Expected Proportion 1 (P1)"
+      type:  Number
+      default: .6
+    - name: propone_p2
+      title: "Expected Proportion 1 (P2)"
+      type:  Number
+      default: .5
+
+    - name: propone_n
+      title: "N"
+      type:  Number
+      default: 50
+
+#### this is for mode proppaired
+
+    - name: proppaired_p1
+      title: "Discordant Proportion P21 (smaller)"
+      type:  Number
+      default: .1
+    - name: proppaired_p2
+      title: "Discordant Proportion P12 (larger)"
+      type:  Number
+      default: .4
+
+    - name: proppaired_n
+      title: "N pairs"
+      type:  Number
+      default: 20
+
+
+### this is in general
     - name: power
       title: Minimal desired power 
       type:  Number
       default: .90
-
-    - name: n
-      title: N 
-      type:  Number
-      default: 20
 
     - name: sig.level
       title: Alpha (Type I rate)  
@@ -55,10 +112,8 @@ options:
       options:
         - name:  two.sided
           title: Two-tailed
-        - name:  less
-          title: Less
         - name:  greater
-          title: Greater
+          title: One-tailed
 
     - name: plot_contour
       title: Power contour plot
@@ -78,11 +133,10 @@ options:
     - name: plot_log
       title: Log Scale (when needed)
       type: Bool
-      default: false
+      default: true
 
 ### custom plots 
-
-
+    
 
     - name: plot_x
       type: List
@@ -97,7 +151,7 @@ options:
           title: Power
         - name: es
           title: Effect size
-        - name: alpha
+        - name: sig.level
           title: "Type I error"
 
     - name: plot_y
@@ -113,7 +167,7 @@ options:
           title: Power
         - name: es
           title: Effect size
-        - name: alpha
+        - name: sig.level
           title: "Type I error"
 
     - name: plot_custom_labels
@@ -134,7 +188,7 @@ options:
           title: Power
         - name: es
           title: Effect size
-        - name: alpha
+        - name: sig.level
           title: "Type I error"
 
 
@@ -161,6 +215,18 @@ options:
       template:
           type: String
 
+
+    - name: es_type
+      title: Tails  
+      type:  List
+      default: odd
+      options:
+        - name:  odd
+          title: Odd
+        - name:  dif
+          title: Difference
+        - name:  rr
+          title: Relative Risk
 
 ...
 
