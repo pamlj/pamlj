@@ -18,6 +18,9 @@ Initer <- R6::R6Class(
     fromaes=NULL,
     toaes  = NULL,
     logy   = FALSE,
+    loges  = FALSE,
+    loges_from  = 10^5,
+    
     ok= TRUE,
     nmin=5,
     initialize=function(jmvobj) {

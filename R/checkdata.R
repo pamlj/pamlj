@@ -66,49 +66,16 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 ### proportions ###
 .checkdata.propind <- function(obj) {
 
-      obj$data$letter      <- "Odd"
       obj$data$n1          <- obj$options$propind_n
-      obj$data$n_ratio      <- obj$options$propind_nratio
-      obj$data$n2          <- obj$data$n1*obj$data$n_ratio
-      obj$data$n           <- obj$data$n1+obj$data$n2
+      obj$data$n_ratio     <- obj$options$propind_nratio
+      obj$data$n2          <- ceiling(obj$data$n1 * obj$data$n_ratio)
+      obj$data$n           <- obj$data$n1 + obj$data$n2
+
       obj$nmin             <- 6
-      obj$data$alternative <- obj$options$alternative
       obj$data$p1          <- obj$options$propind_p1
       obj$data$p2          <- obj$options$propind_p2
-      
-      if (!is.something(obj$data$p1)) 
-           stop("P1 (baserate) is required")
+      .common_proportions(obj)
 
-      if (is.something(obj$data$p2)) {
-          if (obj$data$p2 > obj$data$p1)  {
-              p1<- obj$data$p1
-              obj$data$p1 <- obj$data$p2
-              obj$data$p2 <- p1
-              obj$warning<-list(topic="issues",
-                                message="P1 is supposed to be larger than P2. Proportions are recomputed to yield equivalent results."
-                               )
-          }
-          obj$data$es<-(obj$data$p1/(1-obj$data$p1))/(obj$data$p2/(1-obj$data$p2))
-          }
-      
-      obj$data$esmax       <-  10
-      obj$data$esmin       <-  1
-      
-      obj$toaes            <- function(data) {
-         odd2 <- (data$p1/(1-data$p1))/data$es
-         p2   <- odd2/(1+odd2)
-         pwr::ES.h(data$p1,p2)
-      }
-      
-      if (is.something(obj$data$p1) && obj$data$p1<0.001) 
-           stop("Proportions cannot be less than 0.001")
-      if (is.something(obj$data$p2) && obj$data$p2<0.001) 
-           stop("Proportions cannot be less than 0.001")
-      if (is.something(obj$data$p2) && obj$data$p2==obj$data$p1) 
-           stop("Proportions cannot be equal (null power)")
-
-      if (is.something(obj$data$p2) && obj$data$p2==obj$data$p1) 
-           stop("Proportions cannot be equal (null power)")
 
 }
 
@@ -116,10 +83,16 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
       obj$data$n          <- obj$options$propone_n
       obj$nmin             <- 6
-      obj$data$alternative <- obj$options$alternative
       obj$data$p1          <- obj$options$propone_p1
       obj$data$p2          <- obj$options$propone_p2
-      
+      .common_proportions(obj)
+
+}
+
+.common_proportions<-function(obj) {
+
+        obj$data$alternative <- obj$options$alternative
+     
       if (!is.something(obj$data$p1)) 
            stop("P1  is required")
 
@@ -139,6 +112,8 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                    obj$data$es          <-(obj$data$p1/(1-obj$data$p1))/(obj$data$p2/(1-obj$data$p2))
                    obj$data$esmax       <-  10
                    obj$data$esmin       <-  1
+                   obj$loges            <-  TRUE        
+                   obj$loges_from       <-  obj$data$esmax        
                    obj$toaes            <- function(data) {
                                                odd2 <- (data$p1/(1-data$p1))/data$es
                                                p2   <- odd2/(1+odd2)
@@ -194,41 +169,37 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$data$alternative <- obj$options$alternative
       obj$data$p1          <- obj$options$proppaired_p1
       obj$data$p2          <- obj$options$proppaired_p2
-      
-      if (!is.something(obj$data$p1)) 
-           stop("P1  is required")
+      if (obj$aim == "es") obj$data$p2<-1
 
-      if (is.something(obj$data$p2)) {
-          if (obj$data$p2 > obj$data$p1)  {
-              p1<- obj$data$p1
-              obj$data$p1 <- obj$data$p2
-              obj$data$p2 <- p1
-              obj$warning<-list(topic="issues",
-                                message="P1 is supposed to be larger than P2. Proportions are recomputed to yield equivalent results."
-                               )
-          }
-        }
+      if (!is.something(obj$data$p1)) 
+           stop("P21  is required")
+
+      if (obj$data$p1 >= obj$data$p2)
+           stop("P21  should be smaller than P12")
+
       switch(obj$options$es_type,
              dif = {
                    obj$data$letter      <- greek_vector["Delta"] 
-                   obj$data$es          <- obj$data$p1-obj$data$p2
-                   obj$data$esmax       <-  obj$data$p1
+                   obj$data$es          <- obj$data$p2-obj$data$p1
+                   obj$data$esmax       <-  1-obj$data$p1
                    obj$data$esmin       <-  .01
                    obj$toaes            <- function(data) {
-                                               p2   <- data$p1-data$es
-                                               data$p1/p2
+                                               p2   <- data$p2-data$es
+                                               data$p2/p1
                                         }
-                   obj$fromaes          <- function(data)  data$p1 - data$p2
+                   obj$fromaes          <- function(data)  data$p2 - data$p1
 
                     },
              {
                    obj$data$letter      <- "Odd"
-                   obj$data$es          <-(obj$data$p1/obj$data$p2)
-                   obj$data$esmax       <-  10
+                   obj$data$es          <-(obj$data$p2/obj$data$p1)
+                   obj$data$esmax       <-  (1-obj$data$p1)/obj$data$p1
                    obj$data$esmin       <-  1.01
+                   obj$loges            <- TRUE
+                   obj$loges_from       <- 10
                    obj$toaes            <- function(data) {
-                                               p2 <- data$p1/data$es
-                                               data$p1/p2
+                                               p1 <- data$p2/data$es
+                                               data$p2/p1
                                               }
                    obj$fromaes            <- function(data)  (data$psi)
                                               
@@ -238,15 +209,16 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       )
     
       
-      if (is.something(obj$data$p1) && obj$data$p1<0.001) 
+      if (obj$data$p1<0.001) 
            stop("Proportions cannot be less than 0.001")
-      if (is.something(obj$data$p2) && obj$data$p2<0.001) 
+      if (obj$data$p1>=0.5) 
+           stop("P12 is the smallest discordant probability and must be less than 0.5 ")
+      
+      if (obj$data$p2<0.001) 
            stop("Proportions cannot be less than 0.001")
-      if (is.something(obj$data$p2) && obj$data$p2==obj$data$p1) 
+      if (obj$data$p2==obj$data$p1) 
            stop("Proportions cannot be equal (null power)")
 
-      if (is.something(obj$data$p2) && obj$data$p2==obj$data$p1) 
-           stop("Proportions cannot be equal (null power)")
 
 }
 
@@ -268,6 +240,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$data$alternative <- obj$options$alternative
       obj$nmin             <- obj$data$df_model+10
       obj$logy             <- TRUE
+      obj$loges            <- TRUE
       obj$toaes            <- function(value) value^2/(1-obj$data$r2)
       obj$fromaes          <- function(value) sqrt(value*(1-obj$data$r2))  
 
@@ -406,3 +379,42 @@ checkfailure <- function(obj, ...) UseMethod(".checkfailure")
   
 }
 
+
+.checkfailure.proppaired <- function(obj,results) {
+ 
+  what <- required_param(obj$input)
+  
+  if (what == "es") {
+    
+    msg<-"A suitable (meaningfull) effect size cannot be found for the given P12 and N"
+    data    <-obj$data
+    p2      <-1-data$p1
+    data$es <-(p2/data$p1)-.0001
+    mark(data)
+    data$n  <-NULL
+
+    res<-powervector(obj,data)
+    n1<- ceiling(res$n)
+    data$power=.95
+    res<-powervector(obj,data)
+    n2<- ceiling(res$n)
+
+    msg<-paste0(msg,". To obtain a meaningful effect size with P12=",data$p1," one needs at lest at least an N=",n1,
+                     " for power=",data$power,", and at least N=",n2," for power .95")
+
+    obj$warning<-list(topic="issues",message=msg,head="issue")
+    return()   
+  }
+  
+  nice <- nicify_param(what)
+  test<-grep("values at end points not of opposite", results) 
+  if (length(test) > 0) {
+    message <- paste(nice, " cannot be computed for the combination of input parameters")
+    switch (what,
+      n = message <- paste(message,"The require power may be too low for or the effect size too large")
+    )
+   obj$warning<-list(topic="issues",message=message,head="issue")
+  
+  }
+  
+}

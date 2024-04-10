@@ -27,8 +27,6 @@ options:
           title: Power
         - name: es
           title: Effect Size
-        - name: alpha
-          title: Required Alpha
 
     - name: mode
       title: "Effect size type"
@@ -137,7 +135,7 @@ options:
       default: false
 
     - name: plot_log
-      title: X-axis Log Scale
+      title: Log Scale (when needed)
       type: Bool
       default: false
 

@@ -3,8 +3,13 @@ find_min_n <- function(obj, ...) UseMethod(".find_min_n")
 
 .find_min_n.default <- function(obj,data) {
   
-  data$es<-obj$data$esmax
+  data$es<- data$esmax
   data$n <- NULL
-  res<-powervector(obj,data)
-  ceiling(res$n)
+  res<-try_hard(powervector(obj,data))
+  if (isFALSE(res$error)) 
+    n<-ceiling(res$obj$n)
+  else
+    n<-10
+
 }
+

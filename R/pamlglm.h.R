@@ -69,8 +69,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=list(
                     "n",
                     "power",
-                    "es",
-                    "alpha"))
+                    "es"))
             private$..mode <- jmvcore::OptionList$new(
                 "mode",
                 mode,

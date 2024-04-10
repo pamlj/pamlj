@@ -15,9 +15,9 @@ pamlpropOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             propind_nratio = 1,
             propone_p1 = 0.6,
             propone_p2 = 0.5,
-            propone_n = 20,
-            proppaired_p1 = 0.4,
-            proppaired_p2 = 0.2,
+            propone_n = 50,
+            proppaired_p1 = 0.1,
+            proppaired_p2 = 0.4,
             proppaired_n = 20,
             power = 0.9,
             sig.level = 0.05,
@@ -54,8 +54,7 @@ pamlpropOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=list(
                     "n",
                     "power",
-                    "es",
-                    "sig.level"))
+                    "es"))
             private$..mode <- jmvcore::OptionList$new(
                 "mode",
                 mode,
@@ -91,15 +90,15 @@ pamlpropOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..propone_n <- jmvcore::OptionNumber$new(
                 "propone_n",
                 propone_n,
-                default=20)
+                default=50)
             private$..proppaired_p1 <- jmvcore::OptionNumber$new(
                 "proppaired_p1",
                 proppaired_p1,
-                default=0.4)
+                default=0.1)
             private$..proppaired_p2 <- jmvcore::OptionNumber$new(
                 "proppaired_p2",
                 proppaired_p2,
-                default=0.2)
+                default=0.4)
             private$..proppaired_n <- jmvcore::OptionNumber$new(
                 "proppaired_n",
                 proppaired_n,
@@ -497,9 +496,9 @@ pamlprop <- function(
     propind_nratio = 1,
     propone_p1 = 0.6,
     propone_p2 = 0.5,
-    propone_n = 20,
-    proppaired_p1 = 0.4,
-    proppaired_p2 = 0.2,
+    propone_n = 50,
+    proppaired_p1 = 0.1,
+    proppaired_p2 = 0.4,
     proppaired_n = 20,
     power = 0.9,
     sig.level = 0.05,

@@ -44,8 +44,7 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=list(
                     "n",
                     "power",
-                    "es",
-                    "alpha"))
+                    "es"))
             private$..es <- jmvcore::OptionNumber$new(
                 "es",
                 es,

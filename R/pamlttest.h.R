@@ -50,8 +50,7 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=list(
                     "n",
                     "power",
-                    "es",
-                    "sig.level"))
+                    "es"))
             private$..mode <- jmvcore::OptionList$new(
                 "mode",
                 mode,
@@ -272,7 +271,7 @@ pamlttestResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             super$initialize(
                 options=options,
                 name="",
-                title="GLM power analysis")
+                title="T-Test power analysis")
             self$add(jmvcore::Html$new(
                 options=options,
                 name="intro",

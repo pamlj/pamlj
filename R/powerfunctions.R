@@ -13,8 +13,13 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
             .data$es<-NULL
             probs_es = sapply(probs, function(p){
               .data$power<-p
-               powervector(obj,.data)$es
+               rr<-try_hard(powervector(obj,.data))
+               if (isFALSE(rr$error))
+                   return(rr$obj$es)
+               else
+                   return(NA)
            })
+         
             emin<-ifelse(is.null(obj$data$esmin),0,obj$data$esmin)
             probs_es<-round(probs_es,digits=3)
             esList <-list(list(es=paste(emin,' <', obj$data$letter, greek_vector["leq"],probs_es[1])),
@@ -278,7 +283,6 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
                 results<-lapply(1:nrow(.data),function(i) {
                      one<-as.list(.data[i,.names])
-                   
                      r<-do.call(pamlj.prop.paired,one)
                      r
                     })
@@ -286,7 +290,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
                  odata<-.data[, !names(.data) %in% names(results)]
                  results<-cbind(odata,results)
-                 results$p2 <- results$p1/results$psi
+                 results$p2 <- results$p1*results$psi
                  results$es <- obj$fromaes(results)
                  results$n1<-NA
                  results$n2<-NA

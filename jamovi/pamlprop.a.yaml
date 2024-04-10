@@ -27,9 +27,6 @@ options:
           title: Power
         - name: es
           title: Effect Size
-        - name: sig.level
-          title: Required Alpha
-
     - name: mode
       title: "Two Sample"
       type: List
@@ -78,18 +75,18 @@ options:
     - name: propone_n
       title: "N"
       type:  Number
-      default: 20
+      default: 50
 
 #### this is for mode proppaired
 
     - name: proppaired_p1
-      title: "Discordant Proportion 1 (P21)"
+      title: "Discordant Proportion P21 (smaller)"
+      type:  Number
+      default: .1
+    - name: proppaired_p2
+      title: "Discordant Proportion P12 (larger)"
       type:  Number
       default: .4
-    - name: proppaired_p2
-      title: "Discordant Proportion 1 (P12)"
-      type:  Number
-      default: .2
 
     - name: proppaired_n
       title: "N pairs"
@@ -134,7 +131,7 @@ options:
       default: false
 
     - name: plot_log
-      title: X-axis Log Scale
+      title: Log Scale (when needed)
       type: Bool
       default: true
 
