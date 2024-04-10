@@ -153,7 +153,6 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                    obj$data$esmax       <-  obj$data$p1
                    obj$data$esmin       <-  .01
                    obj$toaes            <- function(data) {
-                     mark(data)
                                                p2   <- data$p1-data$es
                                                pwr::ES.h(data$p1,p2)
                                         }

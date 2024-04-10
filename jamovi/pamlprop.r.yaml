@@ -101,6 +101,6 @@ items:
     - name: plotnotes
       title: Plot notes
       type: Html
-      visible: false
+      visible: true
 
 

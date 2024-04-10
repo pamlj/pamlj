@@ -12,6 +12,8 @@ Plotter <- R6::R6Class(
             super$initialize(jmvobj)
             private$.results<-jmvobj$results
             private$.operator<-runner
+            private$.results$plotnotes$setContent(" ")
+
       },
 
       initPlots=function() {
@@ -35,6 +37,8 @@ Plotter <- R6::R6Class(
             return()
 
         data<-image$state
+        if (is.null(data)) return()
+        
         if (self$option("plot_log") && private$.operator$logy) {
              yticks<-seq(-7,0,1)
              ytickslabels<-round(exp(yticks),digits=2)
@@ -149,8 +153,8 @@ Plotter <- R6::R6Class(
     
     .prepareContour = function() {
       
-     if (!self$option("plot_contour"))
-              return()
+#     if (!self$option("plot_contour"))
+#              return()
       jinfo("PLOTTER: preparing contour plot")
       
       data <- private$.operator$data
@@ -160,7 +164,13 @@ Plotter <- R6::R6Class(
       .data$es<-.data$es*.95
       .data$power<-.98
       .data$n <- NULL
-      nmin<-  find_min_n(private$.operator,data)
+      nminobj<-  try_hard(find_min_n(private$.operator,data))
+      if (isFALSE(nminobj$error) )
+           nmin<-nminobj$obj
+      else {
+           self$error<-list(topic="plotnotes",message="Plot cannot be produced for the combination of parameters in input")
+           return()
+      }
       nmax<-powervector(private$.operator,.data)[["n"]]
       if (nmax< data$n) nmax<-data$n+10
       if (nmax<(nmin*2)) nmax=(nmin*2)
@@ -225,7 +235,6 @@ Plotter <- R6::R6Class(
 
         data <- private$.operator$data
         image<-private$.results$powerNcurve
-        ## notice that we send the 'es' (actual effect size), not transformed
        .data<-data
        .data$power<-.98
        .data$es<-.data$es*.95
@@ -270,8 +279,8 @@ Plotter <- R6::R6Class(
     },
     .prepareEscurve = function() {
       
-       if (!self$option("plot_escurve"))
-                return()
+   #    if (!self$option("plot_escurve"))
+  #              return()
         jinfo("PLOTTER: preparing Es curve plot")
 
         data <- private$.operator$data
@@ -298,9 +307,12 @@ Plotter <- R6::R6Class(
         .data<-data
         .data$power<-NULL
         .data$es<-es
+ 
         ydata<-powervector(private$.operator,.data)
         ydata$x <- x
         ydata$y <- ydata$power
+
+     
         image$setState(list(data=ydata,
                             point.x = point.x,
                             point.y = private$.operator$data$power,
@@ -314,7 +326,6 @@ Plotter <- R6::R6Class(
     
      .prepareCustom = function() {
       
-        private$.results$plotnotes$setContent(" ")
 
         if (self$option("plot_y","none")) {
           return()

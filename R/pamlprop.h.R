@@ -411,7 +411,7 @@ pamlpropResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=options,
                 name="plotnotes",
                 title="Plot notes",
-                visible=FALSE))}))
+                visible=TRUE))}))
 
 pamlpropBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     "pamlpropBase",

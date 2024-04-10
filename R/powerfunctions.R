@@ -196,6 +196,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                 
                 if (!is.null(data$es)) {
                   data$h<-obj$toaes(data)
+                  data$es<-NULL
                 } else {
                   data$p1-NULL
                   data$p2<-NULL
@@ -204,8 +205,9 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                   data$n1<-NULL
                   data$n2<-NULL
                 } 
+                
                 .data<-expand.grid(data)
-             
+
                 .names <- intersect(names(.data),rlang::fn_fmls_names(pamlj.propind))
                 .data$alternative<-as.character(.data$alternative)
                 if (hasName(.data,"n")) {
@@ -236,6 +238,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                 
                 if (!is.null(data$es)) {
                   data$h<-obj$toaes(data)
+                  data$es<-NULL
                 } else {
                   data$p1-NULL
                   data$p2<-NULL
@@ -266,14 +269,16 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                 
                 if (!is.null(data$es)) {
                   data$psi<-obj$toaes(data)
+                  data$es<-NULL
                 } 
                 .data<-expand.grid(data)
                 .data$method<-"normal"
                 .names <- intersect(names(.data),rlang::fn_fmls_names(pamlj.prop.paired))
                 .data$alternative<-as.character(.data$alternative)
-      
+
                 results<-lapply(1:nrow(.data),function(i) {
                      one<-as.list(.data[i,.names])
+                   
                      r<-do.call(pamlj.prop.paired,one)
                      r
                     })
