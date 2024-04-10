@@ -93,9 +93,10 @@ INFO[["proppaired"]]<-"
                    </div>
                    <div>
                    The analysis is carried out based on  McNemar paired comparison of proportions approximate power calculation.
-                   </div>
+                   The default effect size is the odd of the proportion in input (P12/P21). P12 is the <b> smaller proportion
+                   of discordant pairs </b> and P21 is the largest propotion of discordant pairs.
                    <div>
-                   The default effect size is the odd of the proportion in input (P12/P21). In the <b> Options </b> panel
+                   In the <b> Options </b> panel
                    one can choose to use the proportion differences (P12-P21). Results are equivalent.
                    </div>
 

@@ -182,11 +182,12 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
              dif = {
                    obj$data$letter      <- greek_vector["Delta"] 
                    obj$data$es          <- obj$data$p2-obj$data$p1
-                   obj$data$esmax       <-  1-obj$data$p1
+                   obj$data$esmax       <-  .5-obj$data$p1
                    obj$data$esmin       <-  .01
                    obj$toaes            <- function(data) {
-                                               p2   <- data$p2-data$es
-                                               data$p2/p1
+                                               p2   <- data$es+data$p1
+                                               mark(p2,data$es,data$p1)
+                                               p2 / data$p1
                                         }
                    obj$fromaes          <- function(data)  data$p2 - data$p1
 

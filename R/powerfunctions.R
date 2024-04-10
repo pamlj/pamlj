@@ -271,11 +271,13 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 }
 
 .powervector.proppaired <- function(obj,data) {
-                
+  
+  
                 if (!is.null(data$es)) {
                   data$psi<-obj$toaes(data)
                   data$es<-NULL
                 } 
+ 
                 .data<-expand.grid(data)
                 .data$method<-"normal"
                 .names <- intersect(names(.data),rlang::fn_fmls_names(pamlj.prop.paired))
