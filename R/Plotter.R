@@ -146,8 +146,8 @@ Plotter <- R6::R6Class(
     
     .prepareContour = function() {
       
-#     if (!self$option("plot_contour"))
-#              return()
+     if (!self$option("plot_contour"))
+              return()
       jinfo("PLOTTER: preparing contour plot")
       
       data <- private$.operator$data
@@ -183,7 +183,7 @@ Plotter <- R6::R6Class(
       if (self$option("plot_log")) {
          FLX<-log
          FEX<-exp
-         if (private$.operator$loges && emax > private$.operator$loges_from) {
+         if (private$.operator$loges(data$es)) {
             FLY<-log
             FEY<-exp
          }
@@ -197,9 +197,8 @@ Plotter <- R6::R6Class(
        y  <- seq(FLY(emin),FLY(emax),len=20)
        es <- FEY(y)
        point.y <- FLY(data$es)
-       .ticks <- pretty(c(emin,emax),6)
-       yticks<-FLY(.ticks)
-       ytickslabels<-round(FEY(yticks),digits=2)
+       yticks <- seq(FLY(emin),FLY(emax),len=6)
+       ytickslabels<-niceround(FEY(yticks))
       .data <- private$.operator$data
       .data$n<-n
       .data$es <- NULL
@@ -270,7 +269,6 @@ Plotter <- R6::R6Class(
        point.x<-FLX(private$.operator$data$n)
        ticks<-seq(FLX(nmin),FLX(nmax),len=6)
        tickslabels<-round(FEX(ticks))
-
       .data<-data
       .data$n <- n
       .data$power <- NULL
@@ -278,6 +276,7 @@ Plotter <- R6::R6Class(
        ydata <- powervector(private$.operator,.data)
        ydata$x <- x
        ydata$y <- ydata$power
+
        image$setState(list(data=ydata,
                             point.x = point.x,
                             point.y = private$.operator$data$power,
@@ -308,7 +307,7 @@ Plotter <- R6::R6Class(
         FEX<-identity
   
         if (self$option("plot_log")) {
-            if (private$.operator$loges && emax > private$.operator$loges_from) {
+            if (private$.operator$loges(emax)) {
                FLX<-log
                FEX<-exp
             }

@@ -18,9 +18,7 @@ Initer <- R6::R6Class(
     fromaes=NULL,
     toaes  = NULL,
     logy   = FALSE,
-    loges  = FALSE,
-    loges_from  = 10^5,
-    
+    loges  = NULL,
     ok= TRUE,
     nmin=5,
     initialize=function(jmvobj) {
@@ -34,6 +32,7 @@ Initer <- R6::R6Class(
       
           self$toaes               <- function(value) value
           self$fromaes             <- function(value) value
+          self$loges               <- function(value) FALSE
 
           self$aim                 <- jmvobj$options$aim
           self$data$sig.level      <- jmvobj$options$sig.level
@@ -86,6 +85,7 @@ Initer <- R6::R6Class(
                 )
       
     }      
+
       
     
   ),   # End public

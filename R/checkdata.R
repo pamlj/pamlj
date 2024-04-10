@@ -112,8 +112,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                    obj$data$es          <-(obj$data$p1/(1-obj$data$p1))/(obj$data$p2/(1-obj$data$p2))
                    obj$data$esmax       <-  10
                    obj$data$esmin       <-  1
-                   obj$loges            <-  TRUE        
-                   obj$loges_from       <-  obj$data$esmax        
+                   obj$loges            <-  function(x) x > 10        
                    obj$toaes            <- function(data) {
                                                odd2 <- (data$p1/(1-data$p1))/data$es
                                                p2   <- odd2/(1+odd2)
@@ -139,6 +138,8 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                    obj$data$es<- obj$data$p1/obj$data$p2
                    obj$data$esmax       <-  10
                    obj$data$esmin       <-  1
+                   obj$loges            <-  function(x) x > 10        
+                   
                    obj$toaes            <- function(data) {
                                                p2   <-  data$p1/data$es
                                                pwr::ES.h(data$p1,p2)
@@ -195,8 +196,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                    obj$data$es          <-(obj$data$p2/obj$data$p1)
                    obj$data$esmax       <-  (1-obj$data$p1)/obj$data$p1
                    obj$data$esmin       <-  1.01
-                   obj$loges            <- TRUE
-                   obj$loges_from       <- 10
+                   obj$loges            <-  function(x) x > 10
                    obj$toaes            <- function(data) {
                                                p1 <- data$p2/data$es
                                                data$p2/p1
@@ -239,8 +239,6 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$data$esmin       <- .01
       obj$data$alternative <- obj$options$alternative
       obj$nmin             <- obj$data$df_model+10
-      obj$logy             <- TRUE
-      obj$loges            <- TRUE
       obj$toaes            <- function(value) value^2/(1-obj$data$r2)
       obj$fromaes          <- function(value) sqrt(value*(1-obj$data$r2))  
 
@@ -289,6 +287,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$data$df_effect   <- obj$options$v_df_effect
       obj$data$esmax       <-  .99
       obj$data$esmin       <- .01
+      obj$loges            <-  function(x) x < .3
       obj$data$alternative <- obj$options$alternative
       obj$nmin             <- obj$data$df_model+10
       obj$logy             <- TRUE

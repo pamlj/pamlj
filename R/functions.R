@@ -53,3 +53,11 @@ nicify_param<- function(what,short=FALSE) {
     alpha = "Required critical alpha"
   )
 }
+
+niceround<-function(x) {
+  x<-round(x,2)
+  a<-round(x,1)
+  w<- abs(x-a) < .01001
+  x[w]<-round(x[w],1)
+  x
+}
