@@ -37,7 +37,7 @@ options:
             - name: ttestpaired
               title: Paired samples
             - name: ttestone
-              title: One Sample
+              title: One sample
       default: ttestind
 
 ### this is for mode ttestind       
