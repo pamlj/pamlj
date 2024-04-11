@@ -23,7 +23,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$data$letter      <- greek_vector["delta"]
       obj$data$es          <- obj$options$ttestpaired_es
       obj$data$aes         <- obj$data$es
-      obj$data$n           <- obj$options$ttestind_n
+      obj$data$n           <- obj$options$ttestpaired_n
       obj$nmin             <- 6
       obj$data$alternative <- obj$options$alternative
       obj$data$type        <- "paired"
@@ -35,9 +35,9 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 .checkdata.ttestone <- function(obj) {
 
       obj$data$letter      <- greek_vector["delta"]
-      obj$data$es          <- obj$options$ttestpaired_es
+      obj$data$es          <- obj$options$ttestone_es
       obj$data$aes         <- obj$data$es
-      obj$data$n           <- obj$options$ttestind_n
+      obj$data$n           <- obj$options$ttestone_n
       obj$nmin             <- 6
       obj$data$alternative <- obj$options$alternative
       obj$data$type        <- "one.sample"
