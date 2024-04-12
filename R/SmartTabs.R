@@ -103,11 +103,19 @@ SmartTable <- R6::R6Class("SmartTable",
 
                               ### expand it if needed
                               if (self$expandOnInit) private$.expand(rtable)
+                              ## check if new columns titles have been passed
+                             .attr <- private$.getAttributes(rtable)
+                          
+                              if (utils::hasName(.attr,"titles"))
+                                  for (.name in names(.attr$titles)) {
+                                         self$setColumnTitle(.name,.attr$titles[[.name]])
+                                  }
+
                               private$.fill(self$table,rtable)
                               private$.indent()
                               private$.spaceBy()
                               ## in case is a go, the table may be invisible (if activatedOnData). turn visibility on
-                              self$table$setVisible(TRUE)
+                              private$.finalize()
                               private$.debug_msg("inited")
                             },
                             

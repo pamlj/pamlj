@@ -13,11 +13,11 @@ Plotter <- R6::R6Class(
             private$.results<-jmvobj$results
             private$.operator<-runner
             private$.results$plotnotes$setContent(" ")
-
       },
 
       initPlots=function() {
-        
+        ## PAMLj init plots
+        private$.initCustom()
 
       },
       preparePlots=function(image, ggtheme, theme, ...) {
@@ -73,7 +73,7 @@ Plotter <- R6::R6Class(
               ylim=c(0,1)
               )
          axis(1, at=state$ticks, labels=state$tickslabels)
-#         axis(1, at=state$ticks)
+#        axis(1, at=state$ticks)
 
          yrect <- seq(0,1,.1)
          yrect[1]<-yrect[1]-.5
@@ -335,9 +335,8 @@ Plotter <- R6::R6Class(
                           ))
     },
     
-     .prepareCustom = function() {
-      
-
+     .initCustom    = function() {
+       
         if (self$option("plot_y","none")) {
           return()
         }
@@ -359,14 +358,27 @@ Plotter <- R6::R6Class(
             self$warning<-list(topic="plotnotes",message="Please set a suitable range for custom plot X-axis values")          
             return()
         }
+         jinfo("PLOTTER: init  custom plot")
+         image<-private$.results$powerCustom
+         z_values<-private$.test_z()
+         y <- self$options$plot_y
+         x <- self$options$plot_x
+         image$setState(list(y=y, x=x, z=z_values))
+       
+     },
+     .prepareCustom = function() {
+      
 
+        image<-private$.results$powerCustom
+        if (is.null(image$state))
+            return()
         z_values<-private$.test_z()
 
         jinfo("PLOTTER: preparing custom plot")
 
 
         data <- private$.operator$data
-        image<-private$.results$powerCustom
+       
         what<-self$options$plot_x
         data[[what]]<-pretty(c(self$options$plot_x_from,self$options$plot_x_to),n=20)
         data[[what]][1]<-self$options$plot_x_from
@@ -418,6 +430,7 @@ Plotter <- R6::R6Class(
                    }
                        
         }
+
         image$setVisible(TRUE)
         image$setState(list(data=ydata,
                             tickdata=tickdata,

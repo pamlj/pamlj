@@ -104,4 +104,27 @@ items:
       type: Html
       visible: false
 
-
+    - name:  customtable
+      title: Power Analysis parameters
+      type: Table
+      visible: (plot_to_table && !plot_x:none && !plot_y:none)
+      columns: 
+        - name:  y
+          title: 'Y'
+          type: number
+        - name:  x
+          title: "X"
+          type: number
+        - name:  z
+          title: "Z"
+          type: number
+          visible: false
+        - name: n1
+          title: N₁
+          type: integer
+          visible: false
+        - name: n2
+          title: N₂
+          type: integer
+          visible: false
+        
