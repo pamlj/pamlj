@@ -31,7 +31,19 @@ Runner <- R6::R6Class("Runner",
                                      results <- powerbyes(self)
                                      warning("Estimated for N=",round(self$data$n))
                                      return(results)
+                               },
+                              run_customtable = function() {
+     
+                                     if (!self$ok) return()
+                                     info <- self$analysis$results$powerCustom$state
+                               mark(info$data)
+                                     if (is.null(info))
+                                         return()
+                                     
+
+                                     return(info$data)
                                }
+
 
 
 

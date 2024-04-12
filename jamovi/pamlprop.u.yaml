@@ -130,16 +130,24 @@ children:
     children:
       - type: LayoutBox
         children:
-          - type: Label
-            label: Plot Y-axis
+          - type: LayoutBox
+            style: inline
             children:
-              - type: LayoutBox
-                style: inline
+              - type: Label
+                label: Plot Y-axis
                 children:
-                  - type: ComboBox
-                    name: plot_y
-                  - type: CheckBox
-                    name: plot_custom_labels
+                  - type: LayoutBox
+                    style: inline
+                    children:
+                      - type: ComboBox
+                        name: plot_y
+                      - type: CheckBox
+                        name: plot_custom_labels
+              - type: Label
+                label: Results in table
+                children:
+                      - type: CheckBox
+                        name: plot_to_table
           - type: Label
             label: Plot X-axis
             children:

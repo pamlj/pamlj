@@ -231,7 +231,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                
                  tp2 <-   (2 * asin(sqrt(results$p1))) - results$h 
                  results$p2 <- sin(tp2/2)^2
-                 results$es <- (results$p1/(1-results$p1))/(results$p2/(1-results$p2))
+                 results$es <- obj$fromaes(results)
                  results$es[tp2<0]<-NA                  
  
 
