@@ -49,7 +49,8 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             plot_x_from = 0,
             plot_x_to = 0,
             plot_z_lines = 0,
-            plot_z_value = list(), ...) {
+            plot_z_value = list(),
+            plot_to_table = FALSE, ...) {
 
             super$initialize(
                 package="pamlj",
@@ -298,6 +299,10 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 template=jmvcore::OptionString$new(
                     "plot_z_value",
                     NULL))
+            private$..plot_to_table <- jmvcore::OptionBool$new(
+                "plot_to_table",
+                plot_to_table,
+                default=FALSE)
 
             self$.addOption(private$...caller)
             self$.addOption(private$..aim)
@@ -342,6 +347,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..plot_x_to)
             self$.addOption(private$..plot_z_lines)
             self$.addOption(private$..plot_z_value)
+            self$.addOption(private$..plot_to_table)
         }),
     active = list(
         .caller = function() private$...caller$value,
@@ -386,7 +392,8 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         plot_x_from = function() private$..plot_x_from$value,
         plot_x_to = function() private$..plot_x_to$value,
         plot_z_lines = function() private$..plot_z_lines$value,
-        plot_z_value = function() private$..plot_z_value$value),
+        plot_z_value = function() private$..plot_z_value$value,
+        plot_to_table = function() private$..plot_to_table$value),
     private = list(
         ...caller = NA,
         ..aim = NA,
@@ -430,7 +437,8 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..plot_x_from = NA,
         ..plot_x_to = NA,
         ..plot_z_lines = NA,
-        ..plot_z_value = NA)
+        ..plot_z_value = NA,
+        ..plot_to_table = NA)
 )
 
 pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
@@ -445,7 +453,8 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         powerEscurve = function() private$.items[["powerEscurve"]],
         powerNcurve = function() private$.items[["powerNcurve"]],
         powerCustom = function() private$.items[["powerCustom"]],
-        plotnotes = function() private$.items[["plotnotes"]]),
+        plotnotes = function() private$.items[["plotnotes"]],
+        customtable = function() private$.items[["customtable"]]),
     private = list(),
     public=list(
         initialize=function(options) {
@@ -635,7 +644,36 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=options,
                 name="plotnotes",
                 title="Plot notes",
-                visible=FALSE))}))
+                visible=FALSE))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="customtable",
+                title="Power Analysis parameters",
+                visible="(plot_to_table && !plot_x:none && !plot_y:none)",
+                columns=list(
+                    list(
+                        `name`="y", 
+                        `title`="Y", 
+                        `type`="number"),
+                    list(
+                        `name`="x", 
+                        `title`="X", 
+                        `type`="number"),
+                    list(
+                        `name`="z", 
+                        `title`="Z", 
+                        `type`="number", 
+                        `visible`=FALSE),
+                    list(
+                        `name`="n1", 
+                        `title`="N\u2081", 
+                        `type`="integer", 
+                        `visible`=FALSE),
+                    list(
+                        `name`="n2", 
+                        `title`="N\u2082", 
+                        `type`="integer", 
+                        `visible`=FALSE))))}))
 
 pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     "pamlglmBase",
@@ -705,6 +743,7 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param plot_x_to .
 #' @param plot_z_lines .
 #' @param plot_z_value .
+#' @param plot_to_table .
 #' @return A results object containing:
 #' \tabular{llllll}{
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
@@ -716,6 +755,7 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$powerNcurve} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerCustom} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$plotnotes} \tab \tab \tab \tab \tab a html \cr
+#'   \code{results$customtable} \tab \tab \tab \tab \tab a table \cr
 #' }
 #'
 #' Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:
@@ -769,7 +809,8 @@ pamlglm <- function(
     plot_x_from = 0,
     plot_x_to = 0,
     plot_z_lines = 0,
-    plot_z_value = list()) {
+    plot_z_value = list(),
+    plot_to_table = FALSE) {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
         stop("pamlglm requires jmvcore to be installed (restart may be required)")
@@ -818,7 +859,8 @@ pamlglm <- function(
         plot_x_from = plot_x_from,
         plot_x_to = plot_x_to,
         plot_z_lines = plot_z_lines,
-        plot_z_value = plot_z_value)
+        plot_z_value = plot_z_value,
+        plot_to_table = plot_to_table)
 
     analysis <- pamlglmClass$new(
         options = options,

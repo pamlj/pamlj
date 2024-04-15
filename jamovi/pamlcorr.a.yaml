@@ -161,6 +161,10 @@ options:
       template:
           type: String
 
+    - name: plot_to_table
+      type: Bool
+      title: "Show table"
+      default: false
 
 ...
 
