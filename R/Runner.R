@@ -8,6 +8,7 @@ Runner <- R6::R6Class("Runner",
                         class=TRUE,
                         public=list(
                               run= function() {
+                                checkextradata(self)
                                 resobj <- try_hard(powervector(self,self$input) )
                                 if (!isFALSE(resobj$warning))
                                      warning(resobj$warning)
@@ -25,6 +26,12 @@ Runner <- R6::R6Class("Runner",
                                      l<-list(self$data)
                                      return(l)
                                },
+                              run_effectsize = function() {
+                                
+                                     return(effectsize(self))
+                                    
+                               },
+
                               run_powerbyes = function() {
       
                                      if (!self$ok) return()

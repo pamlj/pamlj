@@ -17,7 +17,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             v_df_effect = 1,
             e_es = 0.2,
             e_df_model = 1,
-            e_r2 = 0.04,
+            e_r2 = 0.2,
             e_df_effect = 1,
             power = 0.9,
             n = 20,
@@ -42,6 +42,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             f2 = 0,
             use = "none",
             gncp = TRUE,
+            rx = NULL,
             plot_x = "none",
             plot_y = "none",
             plot_custom_labels = FALSE,
@@ -55,7 +56,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             super$initialize(
                 package="pamlj",
                 name="pamlglm",
-                requiresData=FALSE,
+                requiresData=TRUE,
                 ...)
 
             private$...caller <- jmvcore::OptionString$new(
@@ -118,7 +119,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..e_r2 <- jmvcore::OptionNumber$new(
                 "e_r2",
                 e_r2,
-                default=0.04)
+                default=0.2)
             private$..e_df_effect <- jmvcore::OptionNumber$new(
                 "e_df_effect",
                 e_df_effect,
@@ -246,6 +247,14 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "gncp",
                 gncp,
                 default=TRUE)
+            private$..rx <- jmvcore::OptionVariables$new(
+                "rx",
+                rx,
+                suggested=list(
+                    "continuous"),
+                permitted=list(
+                    "numeric"),
+                default=NULL)
             private$..plot_x <- jmvcore::OptionList$new(
                 "plot_x",
                 plot_x,
@@ -339,6 +348,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..f2)
             self$.addOption(private$..use)
             self$.addOption(private$..gncp)
+            self$.addOption(private$..rx)
             self$.addOption(private$..plot_x)
             self$.addOption(private$..plot_y)
             self$.addOption(private$..plot_custom_labels)
@@ -385,6 +395,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         f2 = function() private$..f2$value,
         use = function() private$..use$value,
         gncp = function() private$..gncp$value,
+        rx = function() private$..rx$value,
         plot_x = function() private$..plot_x$value,
         plot_y = function() private$..plot_y$value,
         plot_custom_labels = function() private$..plot_custom_labels$value,
@@ -430,6 +441,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..f2 = NA,
         ..use = NA,
         ..gncp = NA,
+        ..rx = NA,
         ..plot_x = NA,
         ..plot_y = NA,
         ..plot_custom_labels = NA,
@@ -448,6 +460,7 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         intro = function() private$.items[["intro"]],
         issues = function() private$.items[["issues"]],
         powertab = function() private$.items[["powertab"]],
+        effectsize = function() private$.items[["effectsize"]],
         powerbyes = function() private$.items[["powerbyes"]],
         powerContour = function() private$.items[["powerContour"]],
         powerEscurve = function() private$.items[["powerEscurve"]],
@@ -476,7 +489,6 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 name="powertab",
                 title="A Priori Power Analysis",
                 rows=1,
-                refs="pwrx",
                 clearWith=list(
                     "mode",
                     "b_es",
@@ -493,7 +505,9 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "e_r2",
                     "v_r2",
                     "b_r2",
-                    "gncp"),
+                    "gncp",
+                    "rx",
+                    "ry"),
                 columns=list(
                     list(
                         `name`="n", 
@@ -522,6 +536,39 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     list(
                         `name`="sig.level", 
                         `title`="&alpha;", 
+                        `type`="number"))))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="effectsize",
+                title="Computed Effect Sizes",
+                visible="(mode:beta || mode:eta)",
+                clearWith=list(
+                    "mode",
+                    "b_es",
+                    "v_es",
+                    "e_es",
+                    "power",
+                    "n",
+                    "sig.level",
+                    "aim",
+                    "alternative",
+                    "b_df_model",
+                    "v_df_model",
+                    "e_df_model",
+                    "e_r2",
+                    "v_r2",
+                    "b_r2",
+                    "gncp",
+                    "rx",
+                    "ry"),
+                columns=list(
+                    list(
+                        `name`="index", 
+                        `title`="Index", 
+                        `type`="text"),
+                    list(
+                        `name`="value", 
+                        `title`="Value", 
                         `type`="number"))))
             self$add(jmvcore::Table$new(
                 options=options,
@@ -693,13 +740,14 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 pause = NULL,
                 completeWhenFilled = FALSE,
                 requiresMissings = FALSE,
-                weightsSupport = 'na')
+                weightsSupport = 'auto')
         }))
 
 #' General Linear Model
 #'
 #' Something here
 #' 
+#' @param data the data as a data frame
 #' @param .caller .
 #' @param aim .
 #' @param mode .
@@ -735,6 +783,8 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param f2 .
 #' @param use .
 #' @param gncp .
+#' @param rx a vector of strings naming the columns from \code{data}
+#'   containing the correlations among independent variables
 #' @param plot_x .
 #' @param plot_y .
 #' @param plot_custom_labels .
@@ -749,6 +799,7 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$issues} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$effectsize} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powerbyes} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powerContour} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerEscurve} \tab \tab \tab \tab \tab an image \cr
@@ -766,6 +817,7 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'
 #' @export
 pamlglm <- function(
+    data,
     .caller = "glm",
     aim = "n",
     mode = "peta",
@@ -777,7 +829,7 @@ pamlglm <- function(
     v_df_effect = 1,
     e_es = 0.2,
     e_df_model = 1,
-    e_r2 = 0.04,
+    e_r2 = 0.2,
     e_df_effect = 1,
     power = 0.9,
     n = 20,
@@ -802,6 +854,7 @@ pamlglm <- function(
     f2 = 0,
     use = "none",
     gncp = TRUE,
+    rx = NULL,
     plot_x = "none",
     plot_y = "none",
     plot_custom_labels = FALSE,
@@ -814,6 +867,12 @@ pamlglm <- function(
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
         stop("pamlglm requires jmvcore to be installed (restart may be required)")
+
+    if ( ! missing(rx)) rx <- jmvcore::resolveQuo(jmvcore::enquo(rx))
+    if (missing(data))
+        data <- jmvcore::marshalData(
+            parent.frame(),
+            `if`( ! missing(rx), rx, NULL))
 
 
     options <- pamlglmOptions$new(
@@ -852,6 +911,7 @@ pamlglm <- function(
         f2 = f2,
         use = use,
         gncp = gncp,
+        rx = rx,
         plot_x = plot_x,
         plot_y = plot_y,
         plot_custom_labels = plot_custom_labels,

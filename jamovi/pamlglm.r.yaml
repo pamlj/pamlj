@@ -17,7 +17,6 @@ items:
       title: A Priori Power Analysis
       type: Table
       rows:  1
-      refs: pwrx    
       clearWith:
         - mode
         - b_es
@@ -35,7 +34,8 @@ items:
         - v_r2
         - b_r2
         - gncp
-        
+        - rx
+        - ry
       columns: 
         - name: n
           title: 'N'
@@ -57,6 +57,38 @@ items:
           type: integer
         - name: sig.level
           title: '&alpha;'
+          type: number
+
+    - name:  effectsize
+      title: Computed Effect Sizes
+      type: Table
+      visible: (mode:beta || mode:eta)
+      clearWith:
+        - mode
+        - b_es
+        - v_es
+        - e_es
+        - power
+        - n
+        - sig.level
+        - aim
+        - alternative
+        - b_df_model
+        - v_df_model
+        - e_df_model
+        - e_r2
+        - v_r2
+        - b_r2
+        - gncp
+        - rx
+        - ry
+        
+      columns: 
+        - name: index
+          title: 'Index'
+          type: text
+        - name: value
+          title: 'Value'
           type: number
 
 
