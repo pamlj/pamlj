@@ -35,6 +35,16 @@ const events = {
        update_convert(ui);
 
     },
+    onChange_rx: function(ui) {
+      console.log("rx changed");
+      var rx = ui.rx.value();
+      if (rx.length > 0 ) {
+            ui.covs.setValue(rx.length)
+      }
+       update_convert(ui);
+
+    },
+
     plot_x_changed: function(ui) {
       
          ui.plot_x_from.setValue(0);

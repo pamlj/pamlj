@@ -8,7 +8,10 @@ Runner <- R6::R6Class("Runner",
                         class=TRUE,
                         public=list(
                               run= function() {
-                                checkextradata(self)
+                                 checkdata(self)
+                                 self$data[[self$aim]]  <- NULL  
+                                 self$input             <- self$data
+
                                 resobj <- try_hard(powervector(self,self$input) )
                                 if (!isFALSE(resobj$warning))
                                      warning(resobj$warning)
@@ -18,8 +21,7 @@ Runner <- R6::R6Class("Runner",
                                             return(NULL)
                                 }
                                 self$data<-as.list(resobj$obj)
-                                  
-
+                            
                               },
                               run_powertab = function() {
                                      if (!self$ok) return()
@@ -43,7 +45,6 @@ Runner <- R6::R6Class("Runner",
      
                                      if (!self$ok) return()
                                      info <- self$analysis$results$powerCustom$state
-                               mark(info$data)
                                      if (is.null(info))
                                          return()
                                      

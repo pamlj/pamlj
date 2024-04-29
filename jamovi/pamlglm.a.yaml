@@ -54,7 +54,7 @@ options:
     - name: b_r2
       title: R-squared 
       type:  Number
-      default: .04
+      default: .05
 
     - name: b_df_model
       title: Model degrees of freedom 

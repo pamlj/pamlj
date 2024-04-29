@@ -60,7 +60,7 @@ items:
           type: number
 
     - name:  effectsize
-      title: Computed Effect Sizes
+      title: Computed Parameters
       type: Table
       visible: (mode:beta || mode:eta)
       clearWith:

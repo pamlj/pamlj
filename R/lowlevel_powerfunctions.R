@@ -38,8 +38,8 @@ p.body <- quote({
         sig.level <- uniroot(function(sig.level) eval(p.body) - 
             power, c(1e-10, 1 - 1e-10))$root
     else stop("internal error in pamlj.glm")
-    n <- df_model+ v + 1
-    structure(list(u = u, v = v, f2 = f2, sig.level = sig.level, 
+    n <- df_model+ ceiling(v) + 1
+    structure(list(u = u, v = ceiling(v), f2 = f2, sig.level = sig.level, 
         power = power, n = n), class = "pamlj_power")
 
 }

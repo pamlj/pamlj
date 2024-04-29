@@ -10,7 +10,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             aim = "n",
             mode = "peta",
             b_es = 0.2,
-            b_r2 = 0.04,
+            b_r2 = 0.05,
             b_df_model = 1,
             v_es = 0.2,
             v_df_model = 1,
@@ -87,7 +87,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..b_r2 <- jmvcore::OptionNumber$new(
                 "b_r2",
                 b_r2,
-                default=0.04)
+                default=0.05)
             private$..b_df_model <- jmvcore::OptionNumber$new(
                 "b_df_model",
                 b_df_model,
@@ -540,7 +540,7 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$add(jmvcore::Table$new(
                 options=options,
                 name="effectsize",
-                title="Computed Effect Sizes",
+                title="Computed Parameters",
                 visible="(mode:beta || mode:eta)",
                 clearWith=list(
                     "mode",
@@ -822,7 +822,7 @@ pamlglm <- function(
     aim = "n",
     mode = "peta",
     b_es = 0.2,
-    b_r2 = 0.04,
+    b_r2 = 0.05,
     b_df_model = 1,
     v_es = 0.2,
     v_df_model = 1,

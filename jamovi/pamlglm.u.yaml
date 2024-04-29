@@ -261,6 +261,9 @@ children:
               - type: VariablesListBox
                 name: rx
                 isTarget: true
+                events: 
+                  change: ./pamlglm::onChange_rx
+                  
   - type: CollapseBox
     label: Options
     name: panel_options
