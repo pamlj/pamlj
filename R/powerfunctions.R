@@ -106,7 +106,6 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                 if (!is.something(data$n)) 
                                      data$v<-NULL
 
-                
                 .data<-expand.grid(data)  
                 if (is.something(.data$n))
                    .data[["v"]]<- .data$n - obj$data$df_model -1
@@ -114,7 +113,6 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
                  results<-lapply(1:nrow(.data),function(i) {
                    one<-.data[i,]
-                
                    pamlj.glm(u=u,
                              v=one$v,
                              f2=one$f2,

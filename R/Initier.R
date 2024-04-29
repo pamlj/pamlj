@@ -47,8 +47,6 @@ Initer <- R6::R6Class(
           ## checkdata update the data depending on the type of test we are running (via S3 dispatch)
           checkdata(self)
 
-          self$data[[self$aim]]  <- NULL  
-          self$input             <- self$data
 
          jmvobj$results$intro$setContent(paste(INFO[["common"]],INFO[[self$mode]]))   
 
@@ -63,7 +61,7 @@ Initer <- R6::R6Class(
     },
     init_effectsize = function() {
           tab<-effectsize(self)
-          return(lapply(tab,function(x) x$index))
+          return(tab)
     },
 
     init_powerbyes= function() {
