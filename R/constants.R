@@ -44,7 +44,7 @@ INFO[["eta"]]<-"
 INFO[["beta"]]<-"
              <div>
              <p> Please notice that in case of multiple regression, the predictors are <b> assumed to be uncorrelated </b>. If correlated predictors
-             are expected, please use the <b>Partial Eta-squared</b> interface.</p>
+             are expected, please insert the correlations among covariates in the <b>Correlations panle </b> or use the <b>Partial Eta-squared</b> interface.</p>
              <p> In all cases, you can set the required Type I error rate and whether the test will be carried out two-tailed or one-tailed.</b></p>
              <p> In all cases, set the expected <b> R-squared </b> for the full model. 
              For models with only one independent variable the R-squared is calculated
@@ -125,6 +125,7 @@ greek_vector <- c( # lowercase Greek letters
   logicalAnd='\u2227', logicalOr='\u2228', intersection='\u2229', union='\u222a')
 
 
+letter_r2<-paste("R",'\u00B2',sep="")
 letter_chi2<-paste(greek_vector["chi"],'\u00B2',sep="")
 letter_eta2<-paste(greek_vector["eta"],'\u00B2',sep="")
 letter_peta2<-paste("p",greek_vector["eta"],'\u00B2',sep="")

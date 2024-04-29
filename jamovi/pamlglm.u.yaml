@@ -142,9 +142,8 @@ children:
               - type: Label
                 label: Results in table
                 children:
-                      - type: CheckBox
-                        name: plot_to_table
-                    
+                  - type: CheckBox
+                    name: plot_to_table
           - type: Label
             label: Plot X-axis
             children:
@@ -246,6 +245,22 @@ children:
                 type: ComboBox
                 events:
                   change: ./pamlglm::onChange_factors_list_change
+  - type: CollapseBox
+    label: Correlations
+    name: panel_correlations
+    collapsed: true
+    stretchFactor: 1
+    children:
+      - name: correlationsupplier
+        type: VariableSupplier
+        persistentItems: false
+        stretchFactor: 1
+        children:
+          - type: TargetLayoutBox
+            children:
+              - type: VariablesListBox
+                name: rx
+                isTarget: true
   - type: CollapseBox
     label: Options
     name: panel_options

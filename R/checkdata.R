@@ -234,18 +234,17 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$data$r2          <- as.numeric(obj$options$b_r2)
       obj$data$df_model    <- obj$options$b_df_model
       obj$data$df_effect   <- 1
-
       obj$data$df_model    <- obj$options$b_df_model
       obj$data$esmax       <-  .99
       obj$data$esmin       <- .01
       obj$data$alternative <- obj$options$alternative
       obj$nmin             <- obj$data$df_model+10
-      obj$toaes            <- function(value) value^2/(1-obj$data$r2)
-      obj$fromaes          <- function(value) sqrt(value*(1-obj$data$r2))  
+      obj$extradata$ri2    <- 0
+      obj$toaes            <- function(value) value^2*(1-obj$extradata$ri2)/(1-obj$data$r2)
+      obj$fromaes          <- function(value) sqrt( value * (1-obj$data$r2)/ (1-obj$extradata$ri2) ) 
 
-  if (is.something(obj$data$df_effect) && obj$data$df_effect==0) 
-          stop("Effect degrees of freedom cannot be zero")
-  
+
+
   if (is.something(obj$data$es)) {
      if (abs(obj$data$es)<.001)
          stop("Beta coefficient absolute value cannot be less than .001")
@@ -253,14 +252,11 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
          stop("Beta coefficient absolute value cannot be more than .99")
   }
   
-    if (is.something(obj$data$r2 ) ) {
-        if ( is.something(obj$data$es) && obj$data$r2+.0001 < obj$data$es^2  )
-                   stop("R-squared cannot be less than the square of the beta coefficient")
-        if (abs(obj$data$r2)>.99)
-                   stop("The R-squared cannot be more than .99")
-    } else {
-        stop("GLM power analysis based on beta coefficients requires an expected R-squared for the model")
-    }
+    if (!needextradata(obj)) {
+      
+    
+    if (is.something(obj$data$df_effect) && obj$data$df_effect==0) 
+          stop("Effect degrees of freedom cannot be zero")
   
     if (is.something(obj$data$df_model)) {
                 if (obj$data$df_model < 1)
@@ -270,12 +266,20 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                            obj$data$r2<-obj$data$es^2
                 }
     } else {
-        stop("GLM power analysis based on beta coefficients requires the expected degrees of freedom of the model")
+         stop("GLM power analysis based on beta coefficients requires the expected degrees of freedom of the model")
     }
-    if (!is.something(obj$data[["es"]]))
-       return()
+        if (is.something(obj$data$r2 ) ) {
+        if ( is.something(obj$data$es) && obj$data$r2+.0001 < obj$data$es^2  )
+                   stop("R-squared cannot be less than the square of the beta coefficient")
+        if (abs(obj$data$r2)>.99)
+                   stop("The R-squared cannot be more than .99")
+    } else {
+        stop("GLM power analysis based on beta coefficients requires an expected R-squared for the model")
+    }
+  
+    }
 
-    obj$data[["aes"]] <- obj$data$es^2/(1-obj$data$r2)
+
 
 }
 
@@ -312,8 +316,10 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$nmin             <- obj$data$df_model+10
       obj$logy             <- TRUE
       obj$toaes            <- function(value) value/(1-obj$data$r2)
-      obj$fromaes          <- function(value) value*(1-obj$data$r2)  
+      obj$fromaes          <- function(value) value*(1-obj$data$r2) 
 
+  
+      
   if (is.something(obj$data$es)) {
      if (abs(obj$data$es)<.001)
          stop("Eta-squared value cannot be less than .001")
@@ -328,22 +334,23 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
         stop("GLM power analysis based on eta-squared requires the expected degrees of freedom of the model")
     }
   
-    if (is.something(obj$data$df_effect)) {
-                if (obj$data$df_effect < 1)
-                           stop("Effect degrees of freedom cannot be less than 1")
-    } else {
-        stop("GLM power analysis based on eta-squared requires the expected degrees of freedom of the effect")
-    }
-
+  
     if ( obj$data$df_model < obj$data$df_effect ) {
            obj$data$df_model <- obj$data$df_effect
            obj$warning<-list(topic="powertab",message="Model degrees of freedom cannot be less than the effect degrees of freedom. 
                                                    They have been set equal. ")
     }
+      
+    if ( obj$data$df_model == 1 &&  obj$data$es != obj$data$r2) {
+           obj$data$r2 <- obj$data$es
+           obj$warning<-list(topic="powertab",message="With a model of 1 degree of freedom the R-squared must be equal to the Eta-squared. 
+                                                   The R-squared has been set equal to Eta-squared. ")
+    }
+  
 
     if (is.something(obj$data$r2 ) ) {
-        if ( is.something(obj$data$es) && obj$data$r2+.0001 < obj$data$es^2  )
-                   stop("R-squared cannot be less than the square of the beta coefficient")
+        if ( is.something(obj$data$es) && obj$data$r2+.0001 < obj$data$es  )
+                   stop("R-squared cannot be less than the Eta coefficient")
         if (abs(obj$data$r2)>.99)
                    stop("The R-squared cannot be more than .99")
     } else {
@@ -351,11 +358,6 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
     }
 
   
-    if (!is.something(obj$data[["es"]]))
-       return()
-  
-    f2 <-  obj$data$es/(1-obj$data$r2)
-    obj$data[["aes"]] <- f2
 
 
 }
@@ -418,3 +420,65 @@ checkfailure <- function(obj, ...) UseMethod(".checkfailure")
   }
   
 }
+
+
+### additional check for models requiring extra data (from dataset)
+
+
+checkextradata <- function(obj, ...) UseMethod(".checkextradata")
+
+.checkextradata.default<- function(obj) return()
+
+
+.checkextradata.beta<- function(obj) {
+
+ 
+      if (is.something(obj$options$rx)) {
+
+           if (length(obj$options$rx)==1) {
+              obj$warning<-list(topic="powertab",message=paste("Variables in 'Correlations' do not define a squared correlation matrix. Correlations are ignored"))
+              return()
+           }
+
+           obj$extradata$rx <- obj$options$rx
+           local_df<-length(obj$extradata$rx)
+           if (local_df >  obj$data$df_model) {
+              obj$warning<-list(topic="powertab",message=paste("Model df cannot be less then the number of covariates. Model df are set to",local_df))
+              obj$data$df_model<-local_df     
+           }
+           data<-obj$analysis$data[,obj$options$rx]
+           rtarget<-data[2:nrow(data),obj$options$rx[1]]
+           rcovs<-data[-1,obj$options$rx[2:ncol(data)]]
+           bobj<-try_hard(chol2inv(as.matrix(rcovs))  %*% as.numeric(rtarget))
+           if (!isFALSE(bobj$error))
+              stop("The correlation matrix cannot be used to compute the power. Please check the correlations.")
+           else
+               beta <- bobj$obj
+           r2 <- sum(beta*rtarget)
+           if (r2 > 1 || r2 < 0) stop("The correlation matrix yields impossible values for the R-squared. Please check the correlations.")
+           
+           obj$extradata$ri2<-r2
+      } 
+         
+
+    
+
+}
+
+### check if the model needs extra data
+
+
+needextradata <- function(obj, ...) UseMethod(".needextradata")
+
+.needextradata.default<- function(obj) return(FALSE)
+
+.needextradata.beta <- function(obj) {
+  
+  if (is.something(obj$options$rx) && length(obj$options$rx)>1) return(TRUE)
+  
+
+  return(FALSE)
+  
+}
+
+

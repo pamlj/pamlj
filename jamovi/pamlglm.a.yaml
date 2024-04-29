@@ -11,6 +11,11 @@ description:
            Something here
 
 options:
+    - name: data
+      type: Data
+      description:
+                R: the data as a data frame
+
     - name: .caller
       type: String
       default: glm
@@ -42,7 +47,7 @@ options:
 
       
     - name: b_es
-      title: Expected standardized coefficients (&beta;)
+      title: Expected standardized coefficient (&beta;)
       type:  Number
       default: .2
 
@@ -87,7 +92,7 @@ options:
     - name: e_r2
       title: R-squared 
       type:  Number
-      default: .04
+      default: .2
     - name: e_df_effect
       title: Effect degrees of freedom 
       type:  Number
@@ -203,8 +208,9 @@ options:
         -       name:  orderall
                 title: All possible
 
+
     - name: eta
-      title: Observed Eta squared  
+      title: Observed Partial Eta-squared  
       type:  Number
       default: .2
     - name: eta_df_error
@@ -248,6 +254,22 @@ options:
       type: Bool
       title: "G*Power NCP"
       default: true
+
+
+
+### correlations ###
+
+    - name: rx
+      title: Correlations among covariates (target first)
+      type: Variables
+      suggested:
+       - continuous
+      permitted:
+        - numeric
+      default: ~
+      description:
+                R: a vector of strings naming the columns from `data` containing the correlations among independent variables
+
 
 ### custom plots 
     

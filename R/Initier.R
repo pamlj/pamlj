@@ -11,6 +11,7 @@ Initer <- R6::R6Class(
     ready=FALSE,
     data = list(),
     input=list(),
+    extradata=list(),
     aim  = NULL,
     caller=NULL,
     mode = NULL,
@@ -60,6 +61,11 @@ Initer <- R6::R6Class(
           attr(tab,"titles")<-list(es=self$data$letter)  
           return(tab)
     },
+    init_effectsize = function() {
+          tab<-effectsize(self)
+          return(lapply(tab,function(x) x$index))
+    },
+
     init_powerbyes= function() {
       
       list(list(power='\u226450%',desc='Likely miss'),
@@ -77,7 +83,6 @@ Initer <- R6::R6Class(
     
        if (is.null(info))
            return()
-       mark(info)
        titles<-list(y=stringr::str_to_title(info$y),x=stringr::str_to_title(info$x))
        if (is.something(info$z)) titles$z<-stringr::str_to_title(self$options$plot_z)
        tab<-list(list(y=NA))

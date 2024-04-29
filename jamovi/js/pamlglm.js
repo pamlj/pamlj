@@ -1,6 +1,7 @@
 
 const events = {
   
+
     update: function(ui) {
          console.log("Updating analysis");
          update_structure(ui);
@@ -178,6 +179,15 @@ var update_structure = function( ui) {
           ui.gpower.$input.css("border-color","#5981b3");
 
         }
+        
+        if (ui.mode.value() === "beta") {
+          ui.panel_correlations.$el.show()
+          
+        } else {
+          ui.panel_correlations.$el.hide()
+          
+        }
+
         
         if (typeof ui.plot_value_label !== "undefined" ) {
           
