@@ -287,6 +287,8 @@ var update_df = function( ui) {
      if ( df > 0 ) {
        ui.b_df_model.setValue(df);
        ui.v_df_model.setValue(df);
+       ui.e_df_model.setValue(df);
+
      }
 
      console.log("df_model updated to: " + df);
