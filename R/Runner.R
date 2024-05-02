@@ -11,8 +11,7 @@ Runner <- R6::R6Class("Runner",
                                  checkdata(self)
                                  self$data[[self$aim]]  <- NULL  
                                  self$input             <- self$data
-                                 mark(self$data)
-
+                                
                                 resobj <- try_hard(powervector(self,self$input) )
                                 if (!isFALSE(resobj$warning))
                                      warning(resobj$warning)
@@ -22,7 +21,7 @@ Runner <- R6::R6Class("Runner",
                                             return(NULL)
                                 }
                                 self$data<-as.list(resobj$obj)
-                                mark(self$data)
+                             
                             
                               },
                               run_powertab = function() {
@@ -37,7 +36,7 @@ Runner <- R6::R6Class("Runner",
                                },
 
                               run_powerbyes = function() {
-      
+
                                      if (!self$ok) return()
                                      results <- powerbyes(self)
                                      warning("Estimated for N=",round(self$data$n))

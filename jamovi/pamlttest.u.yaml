@@ -85,9 +85,22 @@ children:
             type: TextBox
             label: '&alpha; (type I error rate)'
             format: number
-            enable: (!aim:alpha)
           - type: ComboBox
             name: alternative
+  - type: LayoutBox
+    margin: large
+    children:
+      - type: Label
+        label: Equivalence Testing
+        children:
+          - name: is_equi
+            type: CheckBox  
+            enable: (aim:n)
+          - name: equi_limit
+            type: TextBox   
+            format: number
+            enable: (is_equi)
+  
   - type: CollapseBox
     label: Sensitivity Analysis
     name: panel_sensitivity
@@ -101,6 +114,7 @@ children:
             children:
               - type: CheckBox
                 name: plot_contour
+                enable: (!is_equi)
               - type: CheckBox
                 name: plot_escurve
                 enable: (!aim:n)

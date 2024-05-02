@@ -28,6 +28,7 @@ pamlttestClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
       
       ### info table ###
                  aSmartObj<-SmartTable$new(self$results$powertab,private$.runner)
+                 aSmartObj$hideOn<-list("z"=NA, "n1"=NA, "n2"=NA)
                  ladd(private$.smartObjs)<-aSmartObj
 
                  aSmartObj<-SmartTable$new(self$results$powerbyes,private$.runner)

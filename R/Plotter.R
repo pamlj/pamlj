@@ -148,6 +148,9 @@ Plotter <- R6::R6Class(
       
      if (!self$option("plot_contour"))
               return()
+     if (self$option("is_equi"))
+              return()
+
       jinfo("PLOTTER: preparing contour plot")
       
       data <- private$.operator$data
