@@ -71,7 +71,7 @@ items:
       width:  400
       height: 350
       renderFun: .plot_contour
-      visible: (plot_contour)
+      visible: (plot_contour & !is_equi)
 
 
     - name: powerEscurve

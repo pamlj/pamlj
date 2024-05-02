@@ -15,6 +15,20 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$data$alternative <- obj$options$alternative
       obj$data$esmax       <- 2.5
       obj$data$esmin       <- .01
+      if (obj$options$is_equi ) {
+        if (abs(obj$options$equi_limit)>0) {
+        obj$data$equi_limit <- obj$options$equi_limit
+        obj$toaes<- function(x) abs(x-obj$data$equi_limit)
+        obj$fromaes<- function(x) abs(x-obj$data$equi_limit)
+        obj$data$esmin       <-  0
+        obj$data$esmax       <-  obj$data$equi_limit-.0001
+        }
+        if (obj$options$equi_limit<obj$data$es) 
+          stop("Equivalence tests require the expected effect size to be smaller than the equivalence limit")
+         if (obj$options$equi_limit==0) 
+          stop("Equivalence tests require the equivalence limit to be larger than 0")
+
+      }
 
 }
 
@@ -30,6 +44,23 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$data$esmax       <- 2.5
       obj$data$esmin       <- .01
 
+      if (obj$options$is_equi ) {
+        if (abs(obj$options$equi_limit)>0) {
+        obj$data$equi_limit <- obj$options$equi_limit
+        obj$toaes<- function(x) abs(x-obj$data$equi_limit)
+        obj$fromaes<- function(x) abs(x-obj$data$equi_limit)
+        obj$data$esmin       <-  0
+        obj$data$esmax       <-  obj$data$equi_limit-.0001
+        }
+        if (obj$options$equi_limit<obj$data$es) 
+          stop("Equivalence tests require the expected effect size to be smaller than the equivalence limit")
+         if (obj$options$equi_limit==0) 
+          stop("Equivalence tests require the equivalence limit to be larger than 0")
+
+      }
+
+      
+      
 }
 
 .checkdata.ttestone <- function(obj) {
@@ -44,6 +75,22 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$data$esmax       <- 2.5
       obj$data$esmin       <- .01
 
+      if (obj$options$is_equi ) {
+        if (abs(obj$options$equi_limit)>0) {
+        obj$data$equi_limit <- obj$options$equi_limit
+        obj$toaes<- function(x) abs(x-obj$data$equi_limit)
+        obj$fromaes<- function(x) abs(x-obj$data$equi_limit)
+        obj$data$esmin       <-  0
+        obj$data$esmax       <-  obj$data$equi_limit-.0001
+        }
+        if (obj$options$equi_limit<obj$data$es) 
+          stop("Equivalence tests require the expected effect size to be smaller than the equivalence limit")
+         if (obj$options$equi_limit==0) 
+          stop("Equivalence tests require the equivalence limit to be larger than 0")
+
+      }
+
+      
 }
 
 ### correlation ####

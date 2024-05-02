@@ -1,4 +1,3 @@
-### computes the actual power parameters
 
 
 ### computes the  power effect sizes
@@ -8,6 +7,7 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
 .powerbyes.default <- function(obj) {
 
 
+  
             probs = c(.5, .8, .95)
             .data<-obj$data
             .data$es<-NULL
@@ -27,6 +27,37 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
                           list(es=paste(probs_es[2],'<', obj$data$letter, greek_vector["leq"],probs_es[3])),
                           list(es=paste(obj$data$letter, greek_vector["geq"],probs_es[3]))
             )
+
+            return(esList)
+            
+}
+
+.powerbyes.ttest <- function(obj) {
+
+
+  
+            if (!obj$option("is_equi"))
+               return(.powerbyes.default(obj))
+  
+            probs = c(.5, .8, .95)
+            .data<-obj$data
+            .data$es<-NULL
+            probs_es = sapply(probs, function(p){
+              .data$power<-p
+               rr<-try_hard(powervector(obj,.data))
+               if (isFALSE(rr$error))
+                   return(rr$obj$es)
+               else
+                   return(NA)
+           })
+            emin<-ifelse(is.null(obj$data$esmin),0,obj$data$esmin)
+            probs_es<-round(probs_es,digits=3)
+            esList <-list(list(es=paste(obj$data$letter, ">",probs_es[1])),
+                          list(es=paste(probs_es[1],greek_vector["geq"], obj$data$letter, ">",probs_es[2])),
+                          list(es=paste(probs_es[2],greek_vector["geq"], obj$data$letter, ">",probs_es[3])),
+                          list(es=paste(obj$data$letter, greek_vector["leq"],probs_es[3]))
+            )
+            attr(esList,"titles")<-list(power="Power for equivalence")
 
             return(esList)
             
@@ -138,9 +169,13 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
 .powervector.ttestind <- function(obj,data) {
                 
-              
                 .data<-expand.grid(data)
-                 names(.data)[names(.data)=="es"]<-"d"
+                if (is.something(.data$es))
+                    .data$d <- obj$toaes(.data$es)
+                if (is.something(obj$data$equi_limit)) {
+                    if (is.something(.data$power)) .data$power<-(1+.data$power)/2
+                    .data$sig.level<-.data$sig.level*2
+                }
                 .names <- intersect(names(.data),rlang::fn_fmls_names(pamlj.ttestind))
                 .data$alternative<-as.character(.data$alternative)
                 if (hasName(.data,"n")) {
@@ -157,7 +192,12 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                  results<-cbind(odata,results)
                  results$n  <- results$n1 + results$n2
                  results$df <- results$n - 2
-                 results$es <- results$d
+                 results$es <- obj$fromaes(results$d)
+                 if (is.something(obj$data$equi_limit)) {
+                    results$power<-2*results$power-1
+                    results$sig.level<-results$sig.level/2
+                 }
+                 results$power[results$power<0] <- NA
                  results$d  <- NULL
                 return(results)
 }
@@ -165,7 +205,12 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 .powervector.ttestpaired <- function(obj,data) {
                 
                 .data<-expand.grid(data)
-                 names(.data)[names(.data)=="es"]<-"d"
+                if (is.something(.data$es))
+                    .data$d <- obj$toaes(.data$es)
+                if (is.something(obj$data$equi_limit)) {
+                    if (is.something(.data$power)) .data$power<-(1+.data$power)/2
+                    .data$sig.level<-.data$sig.level*2
+                }
                 .names <- intersect(names(.data),rlang::fn_fmls_names(pwr::pwr.t.test))
                 .data$alternative<-as.character(.data$alternative)
 
@@ -183,7 +228,12 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                  results<-cbind(odata,results)
                  results$n  <- ceiling(results$n)
                  results$df <- results$n - 1
-                 results$es <- results$d
+                 results$es <- obj$fromaes(results$d)
+                 if (is.something(obj$data$equi_limit)) {
+                    results$power<-2*results$power-1
+                    results$sig.level<-results$sig.level/2
+                 }
+                 results$power[results$power<0] <- NA
                  results$d  <- NULL
 
                 return(results)

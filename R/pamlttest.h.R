@@ -16,6 +16,8 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             ttestpaired_n = 20,
             ttestone_es = 0.5,
             ttestone_n = 20,
+            is_equi = FALSE,
+            equi_limit = 0.1,
             power = 0.9,
             sig.level = 0.05,
             alternative = "two.sided",
@@ -88,6 +90,14 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "ttestone_n",
                 ttestone_n,
                 default=20)
+            private$..is_equi <- jmvcore::OptionBool$new(
+                "is_equi",
+                is_equi,
+                default=FALSE)
+            private$..equi_limit <- jmvcore::OptionNumber$new(
+                "equi_limit",
+                equi_limit,
+                default=0.1)
             private$..power <- jmvcore::OptionNumber$new(
                 "power",
                 power,
@@ -187,6 +197,8 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..ttestpaired_n)
             self$.addOption(private$..ttestone_es)
             self$.addOption(private$..ttestone_n)
+            self$.addOption(private$..is_equi)
+            self$.addOption(private$..equi_limit)
             self$.addOption(private$..power)
             self$.addOption(private$..sig.level)
             self$.addOption(private$..alternative)
@@ -215,6 +227,8 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ttestpaired_n = function() private$..ttestpaired_n$value,
         ttestone_es = function() private$..ttestone_es$value,
         ttestone_n = function() private$..ttestone_n$value,
+        is_equi = function() private$..is_equi$value,
+        equi_limit = function() private$..equi_limit$value,
         power = function() private$..power$value,
         sig.level = function() private$..sig.level$value,
         alternative = function() private$..alternative$value,
@@ -242,6 +256,8 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..ttestpaired_n = NA,
         ..ttestone_es = NA,
         ..ttestone_n = NA,
+        ..is_equi = NA,
+        ..equi_limit = NA,
         ..power = NA,
         ..sig.level = NA,
         ..alternative = NA,
@@ -352,7 +368,7 @@ pamlttestResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 width=400,
                 height=350,
                 renderFun=".plot_contour",
-                visible="(plot_contour)"))
+                visible="(plot_contour & !is_equi)"))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerEscurve",
@@ -447,6 +463,8 @@ pamlttestBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param ttestpaired_n .
 #' @param ttestone_es .
 #' @param ttestone_n .
+#' @param is_equi .
+#' @param equi_limit .
 #' @param power .
 #' @param sig.level .
 #' @param alternative .
@@ -495,6 +513,8 @@ pamlttest <- function(
     ttestpaired_n = 20,
     ttestone_es = 0.5,
     ttestone_n = 20,
+    is_equi = FALSE,
+    equi_limit = 0.1,
     power = 0.9,
     sig.level = 0.05,
     alternative = "two.sided",
@@ -527,6 +547,8 @@ pamlttest <- function(
         ttestpaired_n = ttestpaired_n,
         ttestone_es = ttestone_es,
         ttestone_n = ttestone_n,
+        is_equi = is_equi,
+        equi_limit = equi_limit,
         power = power,
         sig.level = sig.level,
         alternative = alternative,

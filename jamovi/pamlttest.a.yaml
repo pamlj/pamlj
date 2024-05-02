@@ -80,6 +80,17 @@ options:
       type:  Number
       default: 20
 
+## equivalence test
+
+    - name: is_equi
+      title: "Perform equivalence testing"
+      type:  Bool
+      default: false
+
+    - name: equi_limit
+      title: "Equivalence limit"
+      type:  Number
+      default: 0.1
 
 
 ### this is in general

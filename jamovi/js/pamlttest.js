@@ -5,6 +5,38 @@ const events = {
          console.log("Updating analysis");
          update_z_value(ui);
     },
+    aim_changed: function(ui) {
+      ui.is_equi.setValue(false);
+    },
+    is_equi_changed: function(ui) {
+      var mod = ui.mode.value();
+      
+      if (ui.is_equi.value() === true) { 
+        if (mod == "ttestind") {
+           ui.ttestind_es.setValue(0)
+         }
+        if (mod == "ttestpaired") {
+          ui.ttestpaired_es.setValue(0)
+         }
+        if (mod == "ttestone") {
+           ui.ttestone_es.setValue(0)
+        }
+      
+      } else {
+        
+        if (mod == "ttestind") {
+           ui.ttestind_es.setValue(.20)
+         }
+        if (mod == "ttestpaired") {
+          ui.ttestpaired_es.setValue(.20)
+         }
+        if (mod == "ttestone") {
+           ui.ttestone_es.setValue(.20)
+        }
+      }     
+        
+    },
+    
     plot_x_changed: function(ui) {
       
          ui.plot_x_from.setValue(0);
