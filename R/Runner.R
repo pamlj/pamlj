@@ -31,7 +31,7 @@ Runner <- R6::R6Class("Runner",
                                },
                               run_effectsize = function() {
                                 
-                                     return(effectsize(self))
+                                     return(effectsize_run(self))
                                     
                                },
 

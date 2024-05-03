@@ -60,7 +60,7 @@ Initer <- R6::R6Class(
           return(tab)
     },
     init_effectsize = function() {
-          tab<-effectsize(self)
+          tab<-effectsize_init(self)
           return(tab)
     },
 
