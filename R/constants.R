@@ -12,7 +12,7 @@ INFO[["common"]]<-" <h1> Info </h1>
              <ul>
              <li> <b> Calculate N</b> computes the required sample size given the <b> Target effect size</b> and <b> Minimum desire power</b>  </li>          
              <li> <b> Calculate Power</b> computes the achievable power given the <b> Target effect size</b> and <b> N (Sample size)</b>  </li>          
-             <li> <b> Calculate Effect Size</b> computes the minimally-detectable effect size given the <b> N (Sample size)</b> and <b> Minimum desire power</b>  </li>          
+             <li> <b> Calculate Effect Size</b> computes the minimally-detectable effect size given the <b> N (Sample size)</b> and <b> Minimum desired power</b>  </li>          
           
              </ul>
               <p> In all cases, you can set the required Type I error rate (significance cut-off)</b>
