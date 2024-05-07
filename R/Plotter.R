@@ -153,29 +153,24 @@ Plotter <- R6::R6Class(
 
       jinfo("PLOTTER: preparing contour plot")
       
+      obj  <- private$.operator
       data <- private$.operator$data
       image<-private$.results$powerContour
       ## check the min-max for effect size
-      emax <- private$.operator$data$esmax
-      if (emax < data$es) emax<-data$es
-      esmin<-  private$.operator$data$esmin
+      esmax <- obj$info$esmax
+      if (esmax < data$es) esmax<-data$es
+      esmin<-  obj$info$esmin
 
       ## check min-max for N
-      
-      .data <- data
-      .data$es<-ifelse(.data$es*.95 > esmin, .data$es*.95, esmin)
-      .data$power<-.98
-      .data$n <- NULL
-       nmax<-powervector(private$.operator,.data)[["n"]]
-      .data <- data
-      .data$esmax <- emax
-       nmin<-  find_min_n(private$.operator,.data)
-   
+
+      nmin<-  find_min_n(obj,data)
+      nmax<-  find_max_n(obj,data)
+
       if (nmax< data$n) nmax<-data$n+10
       if (nmax<(nmin*2)) nmax=(nmin*2)
       
-      point.x<-private$.operator$data$n
-      y <- seq(emin,emax,len=20)
+      point.x<-obj$data$n
+      y <- seq(esmin,esmax,len=20)
       es <- y
       point.y <- data$es
       FLX<-identity
@@ -186,7 +181,7 @@ Plotter <- R6::R6Class(
       if (self$option("plot_log")) {
          FLX<-log
          FEX<-exp
-         if (private$.operator$loges(data$es)) {
+         if (obj$info$loges(data$es)) {
             FLY<-log
             FEY<-exp
          }
@@ -194,29 +189,24 @@ Plotter <- R6::R6Class(
 
        x <- seq(FLX(nmin),FLX(nmax),len=20)
        n <- FEX(x)
-       point.x<-FLX(private$.operator$data$n)
+       point.x<-FLX(obj$data$n)
        ticks<-seq(FLX(nmin),FLX(nmax),len=6)
        tickslabels<-round(FEX(ticks))
-       y  <- seq(FLY(emin),FLY(emax),len=20)
+       y  <- seq(FLY(esmin),FLY(esmax),len=20)
        es <- FEY(y)
        point.y <- FLY(data$es)
-       yticks <- seq(FLY(emin),FLY(emax),len=6)
+       yticks <- seq(FLY(esmin),FLY(esmax),len=6)
        ytickslabels<-niceround(FEY(yticks))
-      .data <- private$.operator$data
-      .data$n<-n
+      .data <- cbind(n,obj$data)
       .data$es <- NULL
-      mark("yline")
-       yline=powervector(private$.operator,.data)[["es"]]
-      
+       yline=powervector(obj,.data)[["es"]]
 
        yline=FLY(yline)
-      .data <- private$.operator$data
+      .data <- cbind(n,obj$data)
       .data$power<-NULL
-      .data$n<-n
-
        out<-lapply(es,function(ind)  {
          .data$es<-ind
-         powervector(private$.operator,.data)[["power"]]
+         powervector(obj,.data)[["power"]]
          })
        z<-do.call(cbind,out)
       image$setState(list(x=x,y=y,z=z,
@@ -226,7 +216,7 @@ Plotter <- R6::R6Class(
                           tickslabels=tickslabels,
                           yticks=yticks,
                           ytickslabels=ytickslabels,
-                          letter=data$letter))
+                          letter=obj$info$letter))
 
     },
      .prepareNcurve = function() {
@@ -234,25 +224,19 @@ Plotter <- R6::R6Class(
       if (!self$option("plot_ncurve"))
                 return()
       jinfo("PLOTTER: preparing N curve plot")
-
-        data <- private$.operator$data
-        image<-private$.results$powerNcurve
+      
+      obj  <- private$.operator
+      data <- private$.operator$data
+      image<-private$.results$powerNcurve
       ## check the min-max for effect size
-      emax <- private$.operator$data$esmax
-      if (emax < data$es) emax<-data$es
-      emin<-  private$.operator$data$esmin
+      esmax <- obj$info$esmax
+      if (esmax < data$es) esmax<-data$es
+      esmin<-  obj$info$esmin
 
       ## check min-max for N
-      
-      .data <- data
-      .data$es<-ifelse(.data$es*.95 > .data$esmin, .data$es*.95, .data$esmin)
-      .data$power<-.98
-      .data$n <- NULL
-       nmax<-powervector(private$.operator,.data)[["n"]]
-      .data <- data
-      .data$esmax <- emax
-       nmin<-  find_min_n(private$.operator,.data)
-     
+      nmin<-  find_min_n(obj,data)
+      nmax<-  find_max_n(obj,data)
+
       if (nmax< data$n) nmax<-data$n+10
       if (nmax<(nmin*2)) nmax=(nmin*2)
 
@@ -268,13 +252,11 @@ Plotter <- R6::R6Class(
 
        x <- seq(FLX(nmin),FLX(nmax),len=20)
        n <- FEX(x)
-       point.x<-FLX(private$.operator$data$n)
+       point.x<-FLX(obj$data$n)
        ticks<-seq(FLX(nmin),FLX(nmax),len=6)
        tickslabels<-round(FEX(ticks))
-      .data<-data
-      .data$n <- n
-      .data$power <- NULL
-
+      .data <- cbind(n,obj$data)
+      .data$power<-NULL
        ydata <- powervector(private$.operator,.data)
        ydata$x <- x
        ydata$y <- ydata$power
@@ -384,18 +366,20 @@ Plotter <- R6::R6Class(
 
 
         data <- private$.operator$data
-       
         what<-self$options$plot_x
-        data[[what]]<-pretty(c(self$options$plot_x_from,self$options$plot_x_to),n=20)
-        data[[what]][1]<-self$options$plot_x_from
-        data[[what]][length(data[[what]])]<-self$options$plot_x_to
-        
+        data[[what]]<-NULL
+        x<-pretty(c(self$options$plot_x_from,self$options$plot_x_to),n=20)
+        data<-cbind(x,data)
+        names(data)[1]<-what
         zlab<-NULL
 
         if (is.something(z_values)) {
-          data[[self$options$plot_z]]<-z_values
+          data[[self$options$plot_z]]<-NULL
+          data<-merge(z_values,data)
+          names(data)[1]<-self$options$plot_z
         }
         data[[self$options$plot_y]]<-NULL
+       
         tryobj<-try_hard(powervector(private$.operator,data))
         if (!isFALSE(tryobj$error)) {
             self$warning<-list(topic="plotnotes",message="The required plot cannot be produced. Please update the plot settings")          

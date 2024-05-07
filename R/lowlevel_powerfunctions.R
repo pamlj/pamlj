@@ -1,8 +1,12 @@
 ## these are low level power functions, modified from various sources to fit the need of the module
+## they take one set of parameters and return the power parameters (input+estimates)
+## they should return a structure of class "paml_power" or ""power.htest" with one set of parameters
+## Basically, they are used for one estimate, usually by the powervector() functions that work for multiple estimates (runs))
+
 
 pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,sig.level=NULL,df_model=NULL,gpower=TRUE, alternative="two.sided") {
   
-
+# mark(u,v,f2,power,sig.level,df_model,gpower,alternative)
     if (alternative=="one.sided" ) {
          if ( is.something(sig.level) )
                sig.level <- sig.level * 2

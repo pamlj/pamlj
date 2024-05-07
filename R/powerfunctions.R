@@ -1,104 +1,8 @@
-### computes the  power for the first table
-
-powertable <- function(x, ...) UseMethod(".powertable")
-
-powertable.default <- function(obj) return (obj$data)
 
 
-### computes the  power effect sizes
-
-powerbyes <- function(x, ...) UseMethod(".powerbyes")
-
-.powerbyes.default <- function(obj) {
-
-
-            probs = c(.5, .8, .95)
-            .data<-obj$data
-            .data$es<-NULL
-            probs_es = sapply(probs, function(p){
-              .data$power<-p
-               rr<-try_hard(powervector(obj,.data))
-               if (isFALSE(rr$error))
-                   return(rr$obj$es)
-               else
-                   return(NA)
-           })
-         
-            emin<-ifelse(is.null(obj$data$esmin),0,obj$data$esmin)
-            probs_es<-round(probs_es,digits=3)
-            esList <-list(list(es=paste(emin,' <', obj$data$letter, greek_vector["leq"],probs_es[1])),
-                          list(es=paste(probs_es[1],'<', obj$data$letter, greek_vector["leq"],probs_es[2])),
-                          list(es=paste(probs_es[2],'<', obj$data$letter, greek_vector["leq"],probs_es[3])),
-                          list(es=paste(obj$data$letter, greek_vector["geq"],probs_es[3]))
-            )
-
-            return(esList)
-            
-}
-
-.powerbyes.ttest <- function(obj) {
-
-
-  
-            if (!obj$option("is_equi"))
-               return(.powerbyes.default(obj))
-  
-            probs = c(.5, .8, .95)
-            .data<-obj$data
-            .data$es<-NULL
-            probs_es = sapply(probs, function(p){
-              .data$power<-p
-               rr<-try_hard(powervector(obj,.data))
-               if (isFALSE(rr$error))
-                   return(rr$obj$es)
-               else
-                   return(NA)
-           })
-            emin<-ifelse(is.null(obj$data$esmin),0,obj$data$esmin)
-            probs_es<-round(probs_es,digits=3)
-            esList <-list(list(es=paste(obj$data$letter, ">",probs_es[1])),
-                          list(es=paste(probs_es[1],greek_vector["geq"], obj$data$letter, ">",probs_es[2])),
-                          list(es=paste(probs_es[2],greek_vector["geq"], obj$data$letter, ">",probs_es[3])),
-                          list(es=paste(obj$data$letter, greek_vector["leq"],probs_es[3]))
-            )
-            attr(esList,"titles")<-list(power="Power for equivalence")
-
-            return(esList)
-            
-}
-
-
-.powerbyes.glm <- function(obj) {
-            jinfo("PAMLj: powerbyes for glm")
-            probs = c(.5, .8, .95)
-            probs_es = sapply(probs, function(p){
-              v<-obj$data$n-obj$data$df_model-1
-                     pamlj.glm(u=obj$data$df_effect,v=v,
-                                 sig.level = obj$data$sig.level, 
-                                 power = p,
-                                 df_model=obj$data$df_model,
-                                 gpower=obj$options$gncp,
-                                 alternative=obj$data$alternative)$f2
-           })
-            probs_es<-obj$fromaes(probs_es)
-            probs_es<-round(probs_es,digits=3)
-            esList <-list(list(es=paste('0 <', obj$data$letter, greek_vector["leq"],probs_es[1])),
-                          list(es=paste(probs_es[1],'<', obj$data$letter, greek_vector["leq"],probs_es[2])),
-                          list(es=paste(probs_es[2],'<', obj$data$letter, greek_vector["leq"],probs_es[3])),
-                          list(es=paste(obj$data$letter,">" ,probs_es[3]))
-            )
-
-            return(esList)
-            
-}
-
-
-
-
-## powervector must accept a runner object and a list of data. It must be able to return either a vector
-## of parameters as a function of a vector in data, or a single parameter if no vector is found in input
-## for this function the effect size is assumed to be the one original one, so not transformed (when necessary)
-## and returns the actual effect size (transformed back)
+## powervector must accept a runner object and a data.frame. It must return a data.frame with nrow() equal to the input data.frame
+## they are used across all table and plots to estimate parameters, so the input data.frame is not necessarely the 
+## orginal input data of the user.
 
 powervector <- function(obj, ...) UseMethod(".powervector")
 
@@ -131,10 +35,9 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 .powervector.glm <- function(obj,data) {
 
 
-                u <- data$df_effect
-                
+
                 if (is.something(data$es)) {
-                                     data$f2<-obj$toaes(data$es)
+                                     data$f2<-obj$info$toaes(data$es)
                                      data$es<-NULL
                 }
                 else 
@@ -142,33 +45,29 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
                 if (!is.something(data$n)) 
                                      data$v<-NULL
-                .data<-expand.grid(data)  
-                mark(data,.data)
-
-                if (is.something(.data$n))
-                   .data[["v"]]<- .data$n - obj$data$df_model -1
-                 results<-lapply(1:nrow(.data),function(i) {
-                   one<-.data[i,]
-                   pamlj.glm(u=u,
+                else
+                    data[["v"]]<- data$n - obj$data$df_model -1
+                
+                 results<-lapply(1:nrow(data),function(i) {
+                   one<-data[i,]
+                   pamlj.glm(u=one$df_effect,
                              v=one$v,
                              f2=one$f2,
                              power=one$power,
                               sig.level=one$sig.level,
-                              df_model=obj$data$df_model,
+                              df_model=one$df_model,
                               gpower=obj$options$gncp,
-                              alternative=as.character(obj$data$alternative)
+                              alternative=as.character(obj$info$alternative)
                               )
                     
                     })
                  results<-as.data.frame(do.call("rbind",results))
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
-                 results$es<-obj$fromaes(results$f2)
-                 mark(results)
-                 odata<-.data[, !names(.data) %in% names(results)]
+                 results$es<-obj$info$fromaes(results$f2)
+                 odata<-data[, !names(data) %in% names(results)]
                  results<-cbind(odata,results)
                  results$df1<-results$df_effect
                  results$df2<-ceiling(results$v)
-             
                 return(results)
 }
 

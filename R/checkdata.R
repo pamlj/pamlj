@@ -353,19 +353,19 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
 .checkdata.peta <- function(obj) {
 
-      obj$data$letter      <- letter_peta2
+      obj$info$letter      <- letter_peta2
       obj$data$n           <- obj$options$n
       obj$data$es          <- as.numeric(obj$options$v_es)
       obj$data$df_model    <- obj$options$v_df_model
       obj$data$df_effect   <- obj$options$v_df_effect
-      obj$data$esmax       <-  .99
-      obj$data$esmin       <- .01
-      obj$loges            <-  function(x) x < .3
-      obj$data$alternative <- obj$options$alternative
-      obj$nmin             <- obj$data$df_model+10
-      obj$logy             <- TRUE
-      obj$toaes            <- function(value) value/(1-value)
-      obj$fromaes          <- function(value) value/(1+value)  
+      obj$info$esmax       <-  .99
+      obj$info$esmin       <- .01
+      obj$info$loges            <-  function(x) x < .3
+      obj$info$alternative <- obj$options$alternative
+      obj$info$nmin             <- obj$data$df_model+10
+      obj$info$logy             <- TRUE
+      obj$info$toaes            <- function(value) value/(1-value)
+      obj$info$fromaes          <- function(value) value/(1+value)  
   
 }
 
@@ -433,22 +433,23 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
 .checkdata.factorial <- function(obj) {
 
-      obj$data$letter      <- letter_peta2
-      obj$data$esmax       <- .99
-      obj$data$esmin       <- .01
-      obj$data$alternative <- "two.sided"
-       means   <- obj$options$means
-       sds     <- obj$options$sds
-       factors <- obj$options$factors
-       obj$ok <- FALSE
-       obj$toaes            <- function(value) value/(1-value)
-       obj$fromaes          <- function(value) value/(1+value)  
-         
-       if (is.null(means))   return()
-       if (is.null(sds))     return()
-       if (is.null(factors)) return()
+      obj$ok <- FALSE
 
-       exdata<-obj$analysis$data
+      obj$info$letter      <- letter_peta2
+      obj$info$esmax       <- .98
+      obj$info$esmin       <- .01
+      obj$info$alternative <- "two.sided"
+      obj$info$toaes       <- function(value) value/(1-value)
+      obj$info$fromaes     <- function(value) value/(1+value)  
+      
+      means   <- obj$options$means
+      sds     <- obj$options$sds
+      factors <- obj$options$factors
+      if (is.null(means))   return()
+      if (is.null(sds))     return()
+      if (is.null(factors)) return()
+
+      exdata<-obj$analysis$data
         
       if (nrow(exdata) > 0) {
         for (f in factors) {
@@ -467,15 +468,16 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                         n=obj$options$n,
                         sig.level=obj$options$sig.level,
                         power=obj$options$power,
-                        alternative="two.sided",
-                        letter=letter_peta2,
-                        esmax=.99,
-                        esmin=.01, stringsAsFactors=F
+                        stringsAsFactors=F
                         )
-        res$df_model<-length(exdata[[means]])-1
+        res$df_model<- sum(dfs)
         res$df_effect<-dfs
-        obj$data<-as.list(res[which.min(res$es),])
-        obj$nmin <- res$df_model + 10  
+        obj$extradata<-res
+        obj$extradata[[obj$aim]]<-NULL
+        obj$data <- subset(res,res$es==min(res$es))
+        obj$info$nmin <- res$df_model + 10  
+        # at least one parameter should be empty for parameters estimation
+        obj$data[[obj$aim]]<-NULL
         class(obj)<-c(class(obj),"glm")
         obj$ok <- TRUE
       } else {

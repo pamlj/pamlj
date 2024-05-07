@@ -9,55 +9,53 @@ Runner <- R6::R6Class("Runner",
                         public=list(
                               run= function() {
                                 
+                                 # this is run before any table or plot is filled.
+                                 # it produces the basic estimation required for all tables and plots
+                                 # it fills self$data with all power parameters
                                  checkdata(self)
                                  if (!self$ok) return()
-                                 self$data[[self$aim]]  <- NULL  
-                                 self$input             <- self$data
-                              
-                                 jinfo("PAMLj first run for class",class(self))
-                                resobj <- try_hard(powervector(self,self$input) )
-                                if (!isFALSE(resobj$warning))
+                       
+                                 resobj <- try_hard(powervector(self,self$data) )
+                                 if (!isFALSE(resobj$warning))
                                      warning(resobj$warning)
-                                if (!isFALSE(resobj$error)) {
+                                 if (!isFALSE(resobj$error)) {
                                             checkfailure(self,resobj)
                                             self$ok <- FALSE
                                             return(NULL)
-                                }
-                                self$data<-as.list(resobj$obj)
-                             
-                            
+                                 }
+                                 # everything went well, so fill self$data
+                                 self$data<-resobj$obj
+                                
                               },
                               run_powertab = function() {
                                      if (!self$ok) return()
-                                     l<-list(self$data)
-                                     return(l)
+                                     tab<-powertab(self)
+                                     return(tab)
+                                     
                                },
                               run_effectsize = function() {
                                 
+                                     if (!self$ok) return()
                                      return(effectsize_run(self))
                                     
                                },
 
                               run_powerbyes = function() {
-
                                      if (!self$ok) return()
-                                     results <- powerbyes(self)
+                                     tab <- powerbyes(self)
                                      warning("Estimated for N=",round(self$data$n))
-                                     return(results)
+                                     return(tab)
                                },
                               run_customtable = function() {
      
                                      if (!self$ok) return()
-                                     info <- self$analysis$results$powerCustom$state
-                                     if (is.null(info))
+                                     ## this is filled by plotter$prepateCustom
+                                     ## here we simply pass it to the table
+                                     state <- self$analysis$results$powerCustom$state
+                                     if (is.null(state))
                                          return()
-                                     
-
-                                     return(info$data)
+                                     return(state$data)
                                }
-
-
-
 
                           ), # end of public function estimate
 
