@@ -1,0 +1,153 @@
+title: Factorial designs power analysis
+name: pamlfactorial
+jus: '3.0'
+stage: 0
+compilerMode: tame
+children:
+  - type: LayoutBox
+    margin: large
+    children:
+      - type: ComboBox
+        name: aim
+  - type: VariableSupplier
+    persistentItems: false
+    stretchFactor: 1
+    children:
+      - type: TargetLayoutBox
+        children:
+          - type: VariablesListBox
+            name: factors
+            isTarget: true
+      - type: TargetLayoutBox
+        children:
+          - type: VariablesListBox
+            name: means
+            maxItemCount: 1
+            isTarget: true
+      - type: TargetLayoutBox
+        children:
+          - type: VariablesListBox
+            name: sds
+            maxItemCount: 1
+            isTarget: true
+
+
+  - type: LayoutBox
+    margin: large
+    children:
+      - type: Label
+        label: Parameters
+        children:
+          - name: power
+            type: TextBox
+            label: Minimum desired power
+            format: number
+            enable: (!aim:power)
+          - name: 'n'
+            type: TextBox
+            label: N (Sample size)
+            format: number
+            enable: (!aim:n)
+          - name: sig.level
+            type: TextBox
+            label: '&alpha; (type I error rate)'
+            format: number
+            enable: (!aim:alpha)
+
+  - type: CollapseBox
+    label: Sensitivity Analysis
+    name: panel_sensitivity
+    collapsed: true
+    stretchFactor: 1
+    children:
+      - type: LayoutBox
+        children:
+          - type: Label
+            label: Plots
+            children:
+              - type: CheckBox
+                name: plot_contour
+              - type: CheckBox
+                name: plot_escurve
+                enable: (!aim:n)
+              - type: CheckBox
+                name: plot_ncurve
+                enable: (!aim:es)
+              - name: plot_log
+                type: CheckBox
+  - type: CollapseBox
+    label: Power Parameters plot
+    name: panel_customplot
+    collapsed: true
+    stretchFactor: 1
+    children:
+      - type: LayoutBox
+        children:
+          - type: LayoutBox
+            style: inline
+            children:
+              - type: Label
+                label: Plot Y-axis
+                children:
+                  - type: LayoutBox
+                    style: inline
+                    children:
+                      - type: ComboBox
+                        name: plot_y
+                      - type: CheckBox
+                        name: plot_custom_labels
+              - type: Label
+                label: Results in table
+                children:
+                  - type: CheckBox
+                    name: plot_to_table
+          - type: Label
+            label: Plot X-axis
+            children:
+              - type: LayoutBox
+                style: inline
+                children:
+                  - type: ComboBox
+                    name: plot_x
+                  - type: TextBox
+                    name: plot_x_from
+                    format: number
+                  - type: TextBox
+                    name: plot_x_to
+                    format: number
+          - type: Label
+            label: Plot Different lines by
+            children:
+              - type: LayoutBox
+                style: inline
+                children:
+                  - type: ComboBox
+                    name: plot_z
+                  - type: TextBox
+                    name: plot_z_lines
+                    format: number
+          - type: Label
+            label: Values for each line
+            name: plot_value_label
+            children:
+              - type: ListBox
+                name: plot_z_value
+                events:
+                  listItemAdded: ./pamlglm::onChange_value_added
+                  listItemRemoved: ./pamlglm::onChange_value_removed
+                showColumnHeaders: false
+                columns:
+                  - name: var
+                    label: Value
+                    template:
+                      type: TextBox
+  - type: CollapseBox
+    label: Options
+    name: panel_options
+    collapsed: true
+    stretchFactor: 1
+    children:
+      - type: LayoutBox
+        children:
+           - type: CheckBox
+             name: gncp

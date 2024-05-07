@@ -9,7 +9,7 @@ find_min_n <- function(obj, ...) UseMethod(".find_min_n")
   if (isFALSE(res$error)) 
     n<-ceiling(res$obj$n)
   else
-    n<-10
-
+    n<-obj$nmin
+return(n)
 }
 

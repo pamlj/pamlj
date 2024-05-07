@@ -158,19 +158,19 @@ Plotter <- R6::R6Class(
       ## check the min-max for effect size
       emax <- private$.operator$data$esmax
       if (emax < data$es) emax<-data$es
-      emin<-  private$.operator$data$esmin
+      esmin<-  private$.operator$data$esmin
 
       ## check min-max for N
       
       .data <- data
-      .data$es<-ifelse(.data$es*.95 > .data$esmin, .data$es*.95, .data$esmin)
+      .data$es<-ifelse(.data$es*.95 > esmin, .data$es*.95, esmin)
       .data$power<-.98
       .data$n <- NULL
        nmax<-powervector(private$.operator,.data)[["n"]]
       .data <- data
       .data$esmax <- emax
        nmin<-  find_min_n(private$.operator,.data)
-     
+   
       if (nmax< data$n) nmax<-data$n+10
       if (nmax<(nmin*2)) nmax=(nmin*2)
       
@@ -205,12 +205,15 @@ Plotter <- R6::R6Class(
       .data <- private$.operator$data
       .data$n<-n
       .data$es <- NULL
+      mark("yline")
        yline=powervector(private$.operator,.data)[["es"]]
+      
+
        yline=FLY(yline)
       .data <- private$.operator$data
       .data$power<-NULL
       .data$n<-n
-     
+
        out<-lapply(es,function(ind)  {
          .data$es<-ind
          powervector(private$.operator,.data)[["power"]]

@@ -1,3 +1,8 @@
+### computes the  power for the first table
+
+powertable <- function(x, ...) UseMethod(".powertable")
+
+powertable.default <- function(obj) return (obj$data)
 
 
 ### computes the  power effect sizes
@@ -7,7 +12,6 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
 .powerbyes.default <- function(obj) {
 
 
-  
             probs = c(.5, .8, .95)
             .data<-obj$data
             .data$es<-NULL
@@ -65,7 +69,7 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
 
 
 .powerbyes.glm <- function(obj) {
-
+            jinfo("PAMLj: powerbyes for glm")
             probs = c(.5, .8, .95)
             probs_es = sapply(probs, function(p){
               v<-obj$data$n-obj$data$df_model-1
@@ -105,7 +109,8 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                 .data<-expand.grid(data)
                  names(.data)[names(.data)=="es"]<-"r"
                 .names <- intersect(names(.data),rlang::fn_fmls_names(pwr::pwr.r.test))
-                .data$alternative<-as.character(.data$alternative)
+                .data$alternative<-ifelse(.data$alternative=="two.sided","two.sided","greater")
+
 
                 results<-lapply(1:nrow(.data),function(i) {
                      one      <-as.list(.data[i,.names])
@@ -125,6 +130,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
 .powervector.glm <- function(obj,data) {
 
+
                 u <- data$df_effect
                 
                 if (is.something(data$es)) {
@@ -136,12 +142,11 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
                 if (!is.something(data$n)) 
                                      data$v<-NULL
-
                 .data<-expand.grid(data)  
+                mark(data,.data)
+
                 if (is.something(.data$n))
                    .data[["v"]]<- .data$n - obj$data$df_model -1
-                
-
                  results<-lapply(1:nrow(.data),function(i) {
                    one<-.data[i,]
                    pamlj.glm(u=u,
@@ -158,6 +163,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                  results<-as.data.frame(do.call("rbind",results))
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
                  results$es<-obj$fromaes(results$f2)
+                 mark(results)
                  odata<-.data[, !names(.data) %in% names(results)]
                  results<-cbind(odata,results)
                  results$df1<-results$df_effect
@@ -165,6 +171,9 @@ powervector <- function(obj, ...) UseMethod(".powervector")
              
                 return(results)
 }
+
+
+
 
 
 .powervector.ttestind <- function(obj,data) {

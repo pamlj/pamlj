@@ -1,6 +1,6 @@
 ---
-name:  pamlcorr
-title: Correlation power analysis
+name:  pamlfactorial
+title: Factorial designs power analysis
 jrs:   "1.1"
 
 items:
@@ -16,7 +16,6 @@ items:
     - name:  powertab
       title: A Priori Power Analysis
       type: Table
-      rows:  1
       clearWith:
         - es
         - power
@@ -24,19 +23,38 @@ items:
         - sig.level
         - aim
         - alternative
+        - factors
+        - means
+        - sds
       columns: 
+        - name: effect
+          title: 'Effect'
+          type: text
         - name: n
           title: 'N'
           type: integer
         - name: es
           title: 'Effect size'
           type: number
+        - name: f2
+          title: f²
+          type: number
         - name: power
           title: 'Power'
           type: number
+        - name: df_model
+          title: 'df(model)'
+          type: integer
+        - name: df1
+          title: 'df'
+          type: integer
+        - name: df2
+          title: 'df(res)'
+          type: integer
         - name: sig.level
-          title: α
+          title: '&alpha;'
           type: number
+
 
 
     - name:  powerbyes

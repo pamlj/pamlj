@@ -431,6 +431,62 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 }
 
 
+.checkdata.factorial <- function(obj) {
+
+      obj$data$letter      <- letter_peta2
+      obj$data$esmax       <- .99
+      obj$data$esmin       <- .01
+      obj$data$alternative <- "two.sided"
+       means   <- obj$options$means
+       sds     <- obj$options$sds
+       factors <- obj$options$factors
+       obj$ok <- FALSE
+       obj$toaes            <- function(value) value/(1-value)
+       obj$fromaes          <- function(value) value/(1+value)  
+         
+       if (is.null(means))   return()
+       if (is.null(sds))     return()
+       if (is.null(factors)) return()
+
+       exdata<-obj$analysis$data
+        
+      if (nrow(exdata) > 0) {
+        for (f in factors) {
+            exdata[[f]]<-factor(exdata[[f]])
+            contrasts(exdata[[f]])<-contr.sum(nlevels(exdata[[f]]))
+        }
+        form<-paste(means,"~",paste(factors,collapse="*"))
+        a<-aov(formula=as.formula(form),data=exdata)
+        anov<-summary(a)
+        .names<-attr(a$terms,"term.labels")
+        sos<-anov[[1]]$`Sum Sq`[1:length(.names)]
+        dfs<-anov[[1]]$`Df`[1:length(.names)]
+        sigma2<-sum((exdata[[sds]])^2)/length(exdata[[sds]])
+        res<-data.frame(effect=.names,
+                        es=sos/(sos+sigma2),
+                        n=obj$options$n,
+                        sig.level=obj$options$sig.level,
+                        power=obj$options$power,
+                        alternative="two.sided",
+                        letter=letter_peta2,
+                        esmax=.99,
+                        esmin=.01, stringsAsFactors=F
+                        )
+        res$df_model<-length(exdata[[means]])-1
+        res$df_effect<-dfs
+        obj$data<-as.list(res[which.min(res$es),])
+        obj$nmin <- res$df_model + 10  
+        class(obj)<-c(class(obj),"glm")
+        obj$ok <- TRUE
+      } else {
+        form<-as.formula(paste(means,"~",paste(factors,collapse="*")))
+        .names<-attr(terms(form),"term.labels")
+         obj$data<-data.frame(effect=.names)
+      }
+
+}
+
+
 checkfailure <- function(obj, ...) UseMethod(".checkfailure")
 
 .checkfailure.default <- function(obj,results) {

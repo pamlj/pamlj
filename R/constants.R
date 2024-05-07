@@ -103,6 +103,14 @@ INFO[["proppaired"]]<-"
                    " 
 
 
+INFO[["factorial"]]<-"
+             <div>
+             <p> Please insert at least one <b>factor</b> and the data column containing the groups means and the group standard deviations.
+                 If more than one factor is defined, the <b>means</b> and <b>standard deviations</b> should correspond to the means of the cells
+                 resulting from the combinations of the factor levels.
+              </p>
+             </div>
+             "
 
 ########### Greek Letters  ###############
 

@@ -1,6 +1,6 @@
 ---
-name: pamlcorr
-title: Correlation 
+name: pamlfactorial
+title: Factorial Designs 
 menuGroup: Power
 version: '0.0.1'
 jas: '1.2'
@@ -12,6 +12,11 @@ description:
 
 options:
 
+    - name: data
+      type: Data
+      description:
+                R: the data as a data frame
+
     - name: aim
       title: Calculate 
       type:  List
@@ -21,22 +26,44 @@ options:
           title: N
         - name: power
           title: Power
-        - name: es
-          title: Effect Size
       description:
                 R: |
-                        The aim of the analysis: `n` (default) for sample size, `power` to estimate power, `es` for effect size (correlation)
+                        The aim of the analysis: `n` (default) for sample size, `power` to estimate power
                 ui: |
-                        The aim of the analysis: `N` (default) for sample size, `Power` to estimate power, `Effect Size` for effect size (correlation)
+                        The aim of the analysis: `N` (default) for sample size, `Power` to estimate power
 
-    - name: es
-      title: Minimal-interesting effect size 
-      type:  Number
-      default: .5
+
+    - name: means
+      title: Means
+      type: Variable
+      default: ~
+      permitted:
+      - numeric
       description:
                 R: |
-                        The expected effect size, i.e. the expected correlation
+                        a string naming the variable containing the means from `data`; the variable must be numeric.
 
+    - name: sds
+      title: Standard Deviations
+      type: Variable
+      default: ~
+      permitted:
+      - numeric
+      description:
+                R: |
+                        a string naming the variable containing the standard deviations from `data`; the variable must be numeric.
+
+    - name: factors
+      title: Factors
+      type: Variables
+      suggested:
+        - nominal
+      permitted:
+        - factor
+      default: ~
+      description:
+                R: a vector of strings naming the fixed factors from `data`. Not needed
+                        if `formula` is used.
     - name: power
       title: Minimal desired power 
       type:  Number
@@ -60,15 +87,6 @@ options:
                 R: |
                         Type I error rate (significance cut-off or alpha) 
 
-    - name: alternative
-      title: Tails  
-      type:  List
-      default: two.sided
-      options:
-        - name:  two.sided
-          title: Two-tailed
-        - name:  one.sided
-          title: One-tailed
 
     - name: plot_contour
       title: Power contour plot
@@ -178,11 +196,17 @@ options:
 
     - name: .caller
       type: String
-      default: correlation
+      default: factorial
       hidden: true
       description:
                 R: |
                         Used for internal purposes 
+
+
+    - name: gncp
+      type: Bool
+      title: "G*Power NCP"
+      default: true
 
 ...
 

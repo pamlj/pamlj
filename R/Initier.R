@@ -55,7 +55,10 @@ Initer <- R6::R6Class(
     #### init functions #####
     init_powertab = function() {
       
-          tab<-list(self$data) 
+          if (is.data.frame(self$data))
+                  tab<-self$data
+          else
+                  tab<-list(self$data) 
           attr(tab,"titles")<-list(es=self$data$letter)  
           return(tab)
     },

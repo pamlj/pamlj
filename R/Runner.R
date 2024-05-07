@@ -8,10 +8,13 @@ Runner <- R6::R6Class("Runner",
                         class=TRUE,
                         public=list(
                               run= function() {
+                                
                                  checkdata(self)
+                                 if (!self$ok) return()
                                  self$data[[self$aim]]  <- NULL  
                                  self$input             <- self$data
-                                
+                              
+                                 jinfo("PAMLj first run for class",class(self))
                                 resobj <- try_hard(powervector(self,self$input) )
                                 if (!isFALSE(resobj$warning))
                                      warning(resobj$warning)
