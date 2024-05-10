@@ -116,7 +116,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$info$letter      <- greek_vector["rho"]
       obj$info$esmax       <-  .99
       obj$info$esmin       <- .01
-      obj$info$nmin             <- 6
+      obj$info$nmin        <- 6
       
 
 
@@ -125,14 +125,15 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 ### proportions ###
 .checkdata.propind <- function(obj) {
 
+      obj$data<-data.frame(power=obj$options$power)
       obj$data$n1          <- obj$options$propind_n
       obj$data$n_ratio     <- obj$options$propind_nratio
       obj$data$n2          <- ceiling(obj$data$n1 * obj$data$n_ratio)
       obj$data$n           <- obj$data$n1 + obj$data$n2
-
-      obj$nmin             <- 6
       obj$data$p1          <- obj$options$propind_p1
       obj$data$p2          <- obj$options$propind_p2
+   
+      
       .common_proportions(obj)
 
 
@@ -140,18 +141,85 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
 .checkdata.propone <- function(obj) {
 
+      obj$data<-data.frame(power=obj$options$power)
       obj$data$n          <- obj$options$propone_n
-      obj$nmin             <- 6
       obj$data$p1          <- obj$options$propone_p1
       obj$data$p2          <- obj$options$propone_p2
       .common_proportions(obj)
 
 }
 
+.checkdata.proppaired <- function(obj) {
+
+      obj$data<-data.frame(power=obj$options$power)
+      obj$data$n           <- obj$options$proppaired_n
+      obj$data$alternative <- obj$options$alternative
+      obj$data$sig.level   <- obj$options$sig.level
+      
+      obj$data$p1          <- obj$options$proppaired_p1
+      obj$data$p2          <- obj$options$proppaired_p2
+      
+      if (obj$aim == "es") obj$data$p2<-1
+
+      if (!is.something(obj$data$p1)) 
+           stop("P21  is required")
+
+      if (obj$data$p1 >= obj$data$p2)
+           stop("P21  should be smaller than P12")
+
+      switch(obj$options$es_type,
+             dif = {
+                   obj$data$es          <- obj$data$p2-obj$data$p1
+               
+                   obj$info$letter      <- greek_vector["Delta"] 
+                   obj$info$esmax       <-  .5-obj$data$p1
+                   obj$info$esmin       <-  .01
+                   obj$info$toaes       <- function(data) {
+                                               p2   <- data$es+data$p1
+                                               p2 / data$p1
+                                        }
+                   obj$info$fromaes          <- function(data)  data$p2 - data$p1
+
+                    },
+             {
+                   obj$data$es          <-(obj$data$p2/obj$data$p1)
+                   obj$info$letter      <- "Odd"
+                   obj$info$esmax       <-  (1-obj$data$p1)/obj$data$p1
+                   obj$info$esmin       <-  1.01
+                   obj$info$loges            <-  function(x) x > 10
+                   obj$info$toaes            <- function(data) {
+                                               p1 <- data$p2/data$es
+                                               data$p2/p1
+                                              }
+                   obj$info$fromaes            <- function(data)  (data$psi)
+                                              
+             }
+             
+
+      )
+    
+      obj$info$nmin             <- 6
+      
+      if (obj$data$p1<0.001) 
+           stop("Proportions cannot be less than 0.001")
+      if (obj$data$p1>=0.5) 
+           stop("P12 is the smallest discordant probability and must be less than 0.5 ")
+      
+      if (obj$data$p2<0.001) 
+           stop("Proportions cannot be less than 0.001")
+      if (obj$data$p2==obj$data$p1) 
+           stop("Proportions cannot be equal (null power)")
+
+      obj$data[[obj$aim]]<-NULL
+}
+
+
 .common_proportions<-function(obj) {
 
+        obj$data$sig.level   <- obj$options$sig.level
         obj$data$alternative <- obj$options$alternative
-     
+        obj$info$nmin <- 6
+        
       if (!is.something(obj$data$p1)) 
            stop("P1  is required")
 
@@ -164,46 +232,49 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                                 message="P1 is supposed to be larger than P2. Proportions are recomputed to yield equivalent results."
                                )
           }
-        }
+      }
+    
       switch(obj$options$es_type,
              odd = {
-                   obj$data$letter      <- "Odd"
                    obj$data$es          <-(obj$data$p1/(1-obj$data$p1))/(obj$data$p2/(1-obj$data$p2))
-                   obj$data$esmax       <-  10
-                   obj$data$esmin       <-  1
-                   obj$loges            <-  function(x) x > 10        
-                   obj$toaes            <- function(data) {
+                   obj$info$letter      <- "Odd"
+                   obj$info$esmax       <-  10
+                   obj$info$esmin       <-  1
+                   obj$info$loges            <-  function(x) x > 10        
+                   obj$info$toaes            <- function(data) {
                                                odd2 <- (data$p1/(1-data$p1))/data$es
                                                p2   <- odd2/(1+odd2)
                                                pwr::ES.h(data$p1,p2)
                                               }
-                   obj$fromaes            <- function(data)  (data$p1/(1-data$p1))/(data$p2/(1-data$p2))
+                   obj$info$fromaes            <- function(data)  (data$p1/(1-data$p1))/(data$p2/(1-data$p2))
                                               
              },
              dif = {
-                   obj$data$letter      <- greek_vector["Delta"] 
+               
                    obj$data$es          <- obj$data$p1-obj$data$p2
-                   obj$data$esmax       <-  obj$data$p1
-                   obj$data$esmin       <-  .01
-                   obj$toaes            <- function(data) {
+                   obj$info$letter      <- greek_vector["Delta"] 
+                   obj$info$esmax       <-  obj$data$p1
+                   obj$info$esmin       <-  .01
+                   obj$info$toaes            <- function(data) {
                                                p2   <- data$p1-data$es
                                                pwr::ES.h(data$p1,p2)
                                         }
-                   obj$fromaes          <- function(data)  data$p1 - data$p2
+                   obj$info$fromaes          <- function(data)  data$p1 - data$p2
 
                     },
              rr = {
-                   obj$data$letter      <- "RR" 
+
                    obj$data$es<- obj$data$p1/obj$data$p2
-                   obj$data$esmax       <-  10
-                   obj$data$esmin       <-  1
-                   obj$loges            <-  function(x) x > 10        
+                   obj$info$letter      <- "RR" 
+                   obj$info$esmax       <-  10
+                   obj$info$esmin       <-  1
+                   obj$info$loges            <-  function(x) x > 10        
                    
-                   obj$toaes            <- function(data) {
+                   obj$info$toaes            <- function(data) {
                                                p2   <-  data$p1/data$es
                                                pwr::ES.h(data$p1,p2)
                                           }
-                   obj$fromaes          <- function(data)  data$p1 / data$p2
+                   obj$info$fromaes          <- function(data)  data$p1 / data$p2
 
                     }
                
@@ -219,67 +290,11 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
       if (is.something(obj$data$p2) && obj$data$p2==obj$data$p1) 
            stop("Proportions cannot be equal (null power)")
+    mark(obj$data)  
+      obj$data[[obj$aim]]<-NULL
 
 }
 
-.checkdata.proppaired <- function(obj) {
-
-      obj$data$n          <- obj$options$proppaired_n
-      obj$nmin             <- 6
-      obj$data$alternative <- obj$options$alternative
-      obj$data$p1          <- obj$options$proppaired_p1
-      obj$data$p2          <- obj$options$proppaired_p2
-      if (obj$aim == "es") obj$data$p2<-1
-
-      if (!is.something(obj$data$p1)) 
-           stop("P21  is required")
-
-      if (obj$data$p1 >= obj$data$p2)
-           stop("P21  should be smaller than P12")
-
-      switch(obj$options$es_type,
-             dif = {
-                   obj$data$letter      <- greek_vector["Delta"] 
-                   obj$data$es          <- obj$data$p2-obj$data$p1
-                   obj$data$esmax       <-  .5-obj$data$p1
-                   obj$data$esmin       <-  .01
-                   obj$toaes            <- function(data) {
-                                               p2   <- data$es+data$p1
-                                               p2 / data$p1
-                                        }
-                   obj$fromaes          <- function(data)  data$p2 - data$p1
-
-                    },
-             {
-                   obj$data$letter      <- "Odd"
-                   obj$data$es          <-(obj$data$p2/obj$data$p1)
-                   obj$data$esmax       <-  (1-obj$data$p1)/obj$data$p1
-                   obj$data$esmin       <-  1.01
-                   obj$loges            <-  function(x) x > 10
-                   obj$toaes            <- function(data) {
-                                               p1 <- data$p2/data$es
-                                               data$p2/p1
-                                              }
-                   obj$fromaes            <- function(data)  (data$psi)
-                                              
-             }
-             
-
-      )
-    
-      
-      if (obj$data$p1<0.001) 
-           stop("Proportions cannot be less than 0.001")
-      if (obj$data$p1>=0.5) 
-           stop("P12 is the smallest discordant probability and must be less than 0.5 ")
-      
-      if (obj$data$p2<0.001) 
-           stop("Proportions cannot be less than 0.001")
-      if (obj$data$p2==obj$data$p1) 
-           stop("Proportions cannot be equal (null power)")
-
-
-}
 
 ### GLM ###
 

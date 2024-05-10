@@ -153,7 +153,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 .powervector.propind <- function(obj,data) {
                 
                 if (!is.null(data$es)) {
-                  data$h<-obj$toaes(data)
+                  data$h<-obj$info$toaes(data)
                   data$es<-NULL
                 } else {
                   data$p1-NULL
@@ -163,31 +163,26 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                   data$n1<-NULL
                   data$n2<-NULL
                 } 
-                
-                .data<-expand.grid(data)
-
-                .names <- intersect(names(.data),rlang::fn_fmls_names(pamlj.propind))
-                .data$alternative<-as.character(.data$alternative)
-                if (hasName(.data,"n")) {
-                  .data$n1 <- .data$n/(1+.data$n_ratio)
-                  .data$n2 <- .data$n1*.data$n_ratio
+               .names <- intersect(names(data),rlang::fn_fmls_names(pamlj.propind))
+                data$alternative<-as.character(data$alternative)
+                if (hasName(data,"n")) {
+                  data$n1 <- data$n/(1+data$n_ratio)
+                  data$n2 <- data$n1*data$n_ratio
                 }
-                results<-lapply(1:nrow(.data),function(i) {
-                     one<-as.list(.data[i,.names])
+                results<-lapply(1:nrow(data),function(i) {
+                     one<-as.list(data[i,.names])
                      do.call(pamlj.propind,one)
                     })
                  results<-as.data.frame(do.call("rbind",results))
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
-                 odata<-.data[, !names(.data) %in% names(results)]
+                 odata<- data[, !names(data) %in% names(results)]
                  results<-cbind(odata,results)
                  results$n  <- results$n1 + results$n2
                
                  tp2 <-   (2 * asin(sqrt(results$p1))) - results$h 
                  results$p2 <- sin(tp2/2)^2
-                 results$es <- obj$fromaes(results)
+                 results$es <- obj$info$fromaes(results)
                  results$es[tp2<0]<-NA                  
- 
-
                  results$h  <- NULL
                 return(results)
 }
@@ -195,26 +190,25 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 .powervector.propone <- function(obj,data) {
                 
                 if (!is.null(data$es)) {
-                  data$h<-obj$toaes(data)
+                  data$h<-obj$info$toaes(data)
                   data$es<-NULL
                 } else {
                   data$p1-NULL
                   data$p2<-NULL
                 }
-                .data<-expand.grid(data)
-                .names <- intersect(names(.data),rlang::fn_fmls_names(pwr::pwr.p.test))
-                .data$alternative<-as.character(.data$alternative)
-                results<-lapply(1:nrow(.data),function(i) {
-                     one<-as.list(.data[i,.names])
+                .names <- intersect(names(data),rlang::fn_fmls_names(pwr::pwr.p.test))
+                 data$alternative<-as.character(data$alternative)
+                 results<-lapply(1:nrow(data),function(i) {
+                     one<-as.list(data[i,.names])
                      do.call(pwr::pwr.p.test,one)
                     })
                  results<-as.data.frame(do.call("rbind",results))
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
-                 odata<-.data[, !names(.data) %in% names(results)]
+                 odata<- data[, !names( data) %in% names(results)]
                  results<-cbind(odata,results)
                  tp2 <-   (2 * asin(sqrt(results$p1))) - results$h 
                  results$p2 <- sin(tp2/2)^2
-                 results$es <- obj$fromaes(results)
+                 results$es <- obj$info$fromaes(results)
             
                  results$es[tp2<0]<-NA                  
                  results$n1<-NA
@@ -227,26 +221,25 @@ powervector <- function(obj, ...) UseMethod(".powervector")
   
   
                 if (!is.null(data$es)) {
-                  data$psi<-obj$toaes(data)
+                  data$psi<-obj$info$toaes(data)
                   data$es<-NULL
                 } 
  
-                .data<-expand.grid(data)
-                .data$method<-"normal"
-                .names <- intersect(names(.data),rlang::fn_fmls_names(pamlj.prop.paired))
-                .data$alternative<-as.character(.data$alternative)
+                 data$method<-"normal"
+                .names <- intersect(names(data),rlang::fn_fmls_names(pamlj.prop.paired))
+                 data$alternative<-as.character(data$alternative)
 
-                results<-lapply(1:nrow(.data),function(i) {
-                     one<-as.list(.data[i,.names])
+                results<-lapply(1:nrow(data),function(i) {
+                     one<-as.list(data[i,.names])
                      r<-do.call(pamlj.prop.paired,one)
                      r
                     })
                  results<-as.data.frame(do.call("rbind",results))
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
-                 odata<-.data[, !names(.data) %in% names(results)]
+                 odata<- data[, !names( data) %in% names(results)]
                  results<-cbind(odata,results)
                  results$p2 <- results$p1*results$psi
-                 results$es <- obj$fromaes(results)
+                 results$es <- obj$info$fromaes(results)
                  results$n1<-NA
                  results$n2<-NA
                  results$psi  <- NULL

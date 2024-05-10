@@ -256,18 +256,18 @@ Plotter <- R6::R6Class(
        tickslabels<-round(FEX(ticks))
       .data <- cbind(n,obj$data)
       .data$power<-NULL
-       ydata <- powervector(private$.operator,.data)
+       ydata <- powervector(obj,.data)
        ydata$x <- x
        ydata$y <- ydata$power
 
        image$setState(list(data=ydata,
                             point.x = point.x,
-                            point.y = private$.operator$data$power,
+                            point.y = obj$data$power,
                             ticks=ticks,
                             tickslabels=tickslabels,
                             xlab="Required Sample Size (N)",
                             ylab="Power",
-                            text=paste(data$letter,"=",round(data$es,digits=3)," ",greek_vector["alpha"],"=",round(data$sig.level,digits=3))
+                            text=paste(obj$info$letter,"=",round(data$es,digits=3)," ",greek_vector["alpha"],"=",round(data$sig.level,digits=3))
                           ))
 
 
@@ -283,7 +283,7 @@ Plotter <- R6::R6Class(
         image<-private$.results$powerEscurve
     ## check the min-max for effect size
       esmax <- find_max_es(obj,data)
-      mark(esmax)
+ 
       if (esmax < data$es) esmax<-data$es
       esmin<-  obj$info$esmin
 
