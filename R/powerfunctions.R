@@ -10,20 +10,19 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 .powervector.correlation <- function(obj,data) {
 
 
-                .data<-expand.grid(data)
-                 names(.data)[names(.data)=="es"]<-"r"
-                .names <- intersect(names(.data),rlang::fn_fmls_names(pwr::pwr.r.test))
-                .data$alternative<-ifelse(.data$alternative=="two.sided","two.sided","greater")
+                 names(data)[names(data)=="es"]<-"r"
+                .names <- intersect(names(data),rlang::fn_fmls_names(pwr::pwr.r.test))
+                 data$alternative<-ifelse(data$alternative=="two.sided","two.sided","greater")
 
 
-                results<-lapply(1:nrow(.data),function(i) {
-                     one      <-as.list(.data[i,.names])
+                results<-lapply(1:nrow(data),function(i) {
+                     one      <-as.list(data[i,.names])
                      do.call(pwr::pwr.r.test,one)
                     })
                  results<-as.data.frame(do.call("rbind",results))
            
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
-                 odata<-.data[, !names(.data) %in% names(results)]
+                 odata<- data[, !names(data) %in% names(results)]
                  results<-cbind(odata,results)
                  results$n  <- ceiling(results$n)
                  results$es <- results$r

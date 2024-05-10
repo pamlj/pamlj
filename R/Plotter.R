@@ -274,8 +274,8 @@ Plotter <- R6::R6Class(
     },
     .prepareEscurve = function() {
       
-  #     if (!self$option("plot_escurve"))
-  #             return()
+       if (!self$option("plot_escurve"))
+               return()
         jinfo("PLOTTER: preparing Es curve plot")
 
         obj <- private$.operator

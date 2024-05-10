@@ -106,14 +106,17 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
 .checkdata.correlation <- function(obj) {
 
-      obj$data$letter      <- greek_vector["rho"]
-      obj$data$es          <- obj$options$es
-      obj$data$aes         <- obj$data$es
-      obj$data$n           <- obj$options$n
-      obj$nmin             <- 6
+      obj$data<-data.frame(es=obj$options$es)
+      obj$data$n           <- obj$data$n
+      obj$data$sig.level   <- obj$options$sig.level
+      obj$data$power       <- obj$options$power
       obj$data$alternative <- obj$options$alternative
-      obj$data$esmax       <-  .99
-      obj$data$esmin       <- .01
+      obj$data[[obj$aim]]  <- NULL
+      
+      obj$info$letter      <- greek_vector["rho"]
+      obj$info$esmax       <-  .99
+      obj$info$esmin       <- .01
+      obj$info$nmin             <- 6
       
 
 
