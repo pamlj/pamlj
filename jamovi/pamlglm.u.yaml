@@ -112,10 +112,8 @@ children:
                 name: plot_contour
               - type: CheckBox
                 name: plot_escurve
-                enable: (!aim:n)
               - type: CheckBox
                 name: plot_ncurve
-                enable: (!aim:es)
               - type: CheckBox
                 name: plot_log
   - type: CollapseBox

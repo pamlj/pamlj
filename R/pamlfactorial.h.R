@@ -320,7 +320,10 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                     "n",
                     "sig.level",
                     "aim",
-                    "alternative"),
+                    "alternative",
+                    "factors",
+                    "means",
+                    "sds"),
                 columns=list(
                     list(
                         `name`="es", 

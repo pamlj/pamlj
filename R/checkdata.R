@@ -5,23 +5,27 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
 .checkdata.ttestind <- function(obj) {
 
-      obj$data$letter      <- greek_vector["delta"]
-      obj$data$es          <- obj$options$ttestind_es
+      obj$data<-data.frame(es=obj$options$ttestind_es)
       obj$data$n1          <- obj$options$ttestind_n
       obj$data$n_ratio      <- obj$options$ttestind_nratio
       obj$data$n2          <- obj$data$n1*obj$data$n_ratio
       obj$data$n           <- obj$data$n1+obj$data$n2
-      obj$nmin             <- 6
+      obj$data$sig.level   <- obj$options$sig.level
+      obj$data$power       <- obj$options$power
       obj$data$alternative <- obj$options$alternative
-      obj$data$esmax       <- 2.5
-      obj$data$esmin       <- .01
+      obj$data[[obj$aim]]  <- NULL
+      
+      obj$info$letter      <- greek_vector["delta"]
+      obj$info$esmax       <- 2.5
+      obj$info$esmin       <- .01
+      obj$info$nmin             <- 6
       if (obj$options$is_equi ) {
         if (abs(obj$options$equi_limit)>0) {
-        obj$data$equi_limit <- obj$options$equi_limit
-        obj$toaes<- function(x) abs(x-obj$data$equi_limit)
-        obj$fromaes<- function(x) abs(x-obj$data$equi_limit)
-        obj$data$esmin       <-  0
-        obj$data$esmax       <-  obj$data$equi_limit-.0001
+        obj$info$equi_limit <- obj$options$equi_limit
+        obj$info$toaes<- function(value) abs(value-obj$info$equi_limit)
+        obj$info$fromaes<- function(value) abs(value-obj$info$equi_limit)
+        obj$info$esmin       <-  0
+        obj$info$esmax       <-  obj$data$equi_limit-.0001
         }
         if (obj$options$equi_limit<obj$data$es) 
           stop("Equivalence tests require the expected effect size to be smaller than the equivalence limit")
@@ -34,23 +38,25 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
 .checkdata.ttestpaired <- function(obj) {
 
-      obj$data$letter      <- greek_vector["delta"]
-      obj$data$es          <- obj$options$ttestpaired_es
-      obj$data$aes         <- obj$data$es
+      obj$data<-data.frame(es=obj$options$ttestpaired_es)
       obj$data$n           <- obj$options$ttestpaired_n
-      obj$nmin             <- 6
+      obj$data$sig.level   <- obj$options$sig.level
+      obj$data$power       <- obj$options$power
       obj$data$alternative <- obj$options$alternative
       obj$data$type        <- "paired"
-      obj$data$esmax       <- 2.5
-      obj$data$esmin       <- .01
-
+      obj$data[[obj$aim]]  <- NULL
+      
+      obj$info$letter      <- greek_vector["delta"]
+      obj$info$esmax       <- 2.5
+      obj$info$esmin       <- .01
+      obj$info$nmin             <- 6
       if (obj$options$is_equi ) {
         if (abs(obj$options$equi_limit)>0) {
-        obj$data$equi_limit <- obj$options$equi_limit
-        obj$toaes<- function(x) abs(x-obj$data$equi_limit)
-        obj$fromaes<- function(x) abs(x-obj$data$equi_limit)
-        obj$data$esmin       <-  0
-        obj$data$esmax       <-  obj$data$equi_limit-.0001
+        obj$info$equi_limit <- obj$options$equi_limit
+        obj$info$toaes<- function(value) abs(value-obj$info$equi_limit)
+        obj$info$fromaes<- function(value) abs(value-obj$info$equi_limit)
+        obj$info$esmin       <-  0
+        obj$info$esmax       <-  obj$data$equi_limit-.0001
         }
         if (obj$options$equi_limit<obj$data$es) 
           stop("Equivalence tests require the expected effect size to be smaller than the equivalence limit")
@@ -65,23 +71,25 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
 .checkdata.ttestone <- function(obj) {
 
-      obj$data$letter      <- greek_vector["delta"]
-      obj$data$es          <- obj$options$ttestone_es
-      obj$data$aes         <- obj$data$es
+      obj$data<-data.frame(es=obj$options$ttestone_es)
       obj$data$n           <- obj$options$ttestone_n
-      obj$nmin             <- 6
+      obj$data$sig.level   <- obj$options$sig.level
+      obj$data$power       <- obj$options$power
       obj$data$alternative <- obj$options$alternative
       obj$data$type        <- "one.sample"
-      obj$data$esmax       <- 2.5
-      obj$data$esmin       <- .01
-
+      obj$data[[obj$aim]]  <- NULL
+      
+      obj$info$letter      <- greek_vector["delta"]
+      obj$info$esmax       <- 2.5
+      obj$info$esmin       <- .01
+      obj$info$nmin             <- 6
       if (obj$options$is_equi ) {
         if (abs(obj$options$equi_limit)>0) {
-        obj$data$equi_limit <- obj$options$equi_limit
-        obj$toaes<- function(x) abs(x-obj$data$equi_limit)
-        obj$fromaes<- function(x) abs(x-obj$data$equi_limit)
-        obj$data$esmin       <-  0
-        obj$data$esmax       <-  obj$data$equi_limit-.0001
+        obj$info$equi_limit <- obj$options$equi_limit
+        obj$info$toaes<- function(value) abs(value-obj$info$equi_limit)
+        obj$info$fromaes<- function(value) abs(value-obj$info$equi_limit)
+        obj$info$esmin       <-  0
+        obj$info$esmax       <-  obj$data$equi_limit-.0001
         }
         if (obj$options$equi_limit<obj$data$es) 
           stop("Equivalence tests require the expected effect size to be smaller than the equivalence limit")
@@ -89,6 +97,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
           stop("Equivalence tests require the equivalence limit to be larger than 0")
 
       }
+
 
       
 }
@@ -274,21 +283,25 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
 .checkdata.beta <- function(obj) {
   
-      obj$data$letter   <- greek_vector["beta"]
-      obj$data$n           <- obj$options$n
-      obj$data$es          <- as.numeric(obj$options$b_es)
-      obj$data$r2          <- as.numeric(obj$options$b_r2)
-      obj$data$df_model    <- obj$options$b_df_model
-      obj$data$df_effect   <- 1
-      obj$data$df_model    <- obj$options$b_df_model
-      obj$data$esmax       <-  .99
-      obj$data$esmin       <- .01
-      obj$data$alternative <- obj$options$alternative
-      obj$nmin             <- obj$data$df_model+10
-      obj$data$ri2    <- 0
-      obj$toaes            <- function(value) value^2*(1-obj$data$ri2)/(1-obj$data$r2)
-      obj$fromaes          <- function(value) sqrt( value * (1-obj$data$r2)/ (1-obj$data$ri2) ) 
-
+      obj$data<-data.frame(n = obj$options$n,
+                       es = as.numeric(obj$options$b_es),
+                       power=obj$options$power,
+                       df_model = obj$options$b_df_model,
+                       df_effect = 1,
+                       sig.level = obj$options$sig.level)
+      obj$data[[obj$aim]]<-NULL
+      obj$info$letter      <- greek_vector["beta"]
+      obj$info$esmax       <-  .99
+      obj$info$esmin       <- .01
+      obj$info$loges            <-  function(x) x < .3
+      obj$info$alternative <- obj$options$alternative
+      obj$info$nmin             <- obj$data$df_model+10
+      obj$info$logy             <- TRUE
+      obj$info$r2          <- as.numeric(obj$options$b_r2)
+      
+      obj$info$ri2         <- 0
+      obj$info$toaes            <- function(value) value^2*(1-obj$info$ri2)/(1-obj$info$r2)
+      obj$info$fromaes          <- function(value) sqrt( value * (1-obj$info$r2)/ (1-obj$info$ri2) ) 
 
 
        if (is.something(obj$data$es)) {
@@ -324,7 +337,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                          beta <- bobj$obj
                  r2 <- sum(beta*rtarget)
                  if (r2 > 1 || r2 < 0) stop("The correlation matrix yields impossible values for the R-squared. Please check the correlations.")
-                 obj$data$ri2<-r2
+                 obj$info$ri2<-r2
             }  
       }
       
@@ -333,17 +346,20 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                            stop("Model degrees of freedom cannot be less than 1")
                  if (obj$data$df_model == 1 && is.something(obj$data$es)) {
                            obj$warning<-list(topic="powertab",message=paste("When df=1 the R-square is the square of the beta coefficient."))
-                           obj$data$r2<-obj$data$es^2
+                           obj$info$r2<-obj$data$es^2
                 }
       } else {
                     stop("GLM power analysis based on beta coefficients requires the expected degrees of freedom of the model")
          }
-      if (is.something(obj$data$r2 ) ) {
+      if (is.something(obj$info$r2 ) ) {
 
-          if ( obj$data$r2+.0001 < obj$data$es^2  )
-                    stop("R-squared cannot be less than the square of the beta coefficient")
-          if (abs(obj$data$r2)>.99)
+          if (abs(obj$info$r2)>.99)
                      stop("The R-squared cannot be more than .99")
+        
+          if (is.something(obj$data$es))
+             if ( obj$info$r2+.0001 < obj$data$es^2  )
+                    stop("R-squared cannot be less than the square of the beta coefficient")
+   
         } else {
                 stop("GLM power analysis based on beta coefficients requires an expected R-squared for the model")
        }
@@ -353,11 +369,14 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
 .checkdata.peta <- function(obj) {
 
+      obj$data<-data.frame(n = obj$options$n,
+                       es = as.numeric(obj$options$v_es),
+                       power=obj$options$power,
+                       df_model = obj$options$v_df_model,
+                       df_effect = obj$options$v_df_effect,
+                       sig.level = obj$options$sig.level)
+      obj$data[[obj$aim]]<-NULL
       obj$info$letter      <- letter_peta2
-      obj$data$n           <- obj$options$n
-      obj$data$es          <- as.numeric(obj$options$v_es)
-      obj$data$df_model    <- obj$options$v_df_model
-      obj$data$df_effect   <- obj$options$v_df_effect
       obj$info$esmax       <-  .99
       obj$info$esmin       <- .01
       obj$info$loges            <-  function(x) x < .3
@@ -366,28 +385,46 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$info$logy             <- TRUE
       obj$info$toaes            <- function(value) value/(1-value)
       obj$info$fromaes          <- function(value) value/(1+value)  
+
+    if (is.something(obj$data$df_model)) {
+                if (obj$data$df_model < 1)
+                           stop("Model degrees of freedom cannot be less than 1")
+    } else {
+        stop("GLM power analysis based on eta-squared requires the expected degrees of freedom of the model")
+    }
   
+  
+    if ( obj$data$df_model < obj$data$df_effect ) {
+           obj$data$df_model <- obj$data$df_effect
+           obj$warning<-list(topic="powertab",message="Model degrees of freedom cannot be less than the effect degrees of freedom. 
+                                                   They have been set equal. ")
+    }
+
+        
 }
 
 .checkdata.eta <- function(obj) {
 
-      obj$data$letter      <- letter_eta2
-      obj$data$n           <- obj$options$n
-      obj$data$es          <- as.numeric(obj$options$e_es)
-      obj$data$r2          <- as.numeric(obj$options$e_r2)
+      obj$data<-data.frame(n = obj$options$n,
+                       es = as.numeric(obj$options$e_es),
+                       power=obj$options$power,
+                       df_model = obj$options$e_df_model,
+                       df_effect = obj$options$e_df_effect,
+                       sig.level = obj$options$sig.level)
+      obj$data[[obj$aim]]<-NULL
+      obj$info$letter      <- letter_eta2
+      obj$info$esmax       <-  .99
+      obj$info$esmin       <- .01
+      obj$info$loges            <-  function(x) x < .3
+      obj$info$alternative <- obj$options$alternative
+      obj$info$nmin             <- obj$data$df_model+10
+      obj$info$logy             <- TRUE
+      obj$info$r2               <- obj$options$e_r2
 
-      obj$data$df_model    <- obj$options$e_df_model
-      obj$data$df_effect   <- obj$options$e_df_effect
-      obj$data$esmax       <-  .99
-      obj$data$esmin       <- .01
-      obj$data$alternative <- obj$options$alternative
-      obj$nmin             <- obj$data$df_model+10
-      obj$logy             <- TRUE
-      obj$toaes            <- function(value) value/(1-obj$data$r2)
-      obj$fromaes          <- function(value) value*(1-obj$data$r2) 
+      obj$info$toaes            <- function(value) value/(1-obj$info$r2)
+      obj$info$fromaes          <- function(value) value*(1-obj$info$r2) 
 
   
-      
   if (is.something(obj$data$es)) {
      if (abs(obj$data$es)<.001)
          stop("Eta-squared value cannot be less than .001")
@@ -409,17 +446,17 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                                                    They have been set equal. ")
     }
       
-    if ( obj$data$df_model == 1 &&  obj$data$es != obj$data$r2) {
-           obj$data$r2 <- obj$data$es
+    if ( obj$data$df_model == 1 &&  obj$data$es != obj$info$r2) {
+           obj$info$r2 <- obj$data$es
            obj$warning<-list(topic="powertab",message="With a model of 1 degree of freedom the R-squared must be equal to the Eta-squared. 
                                                    The R-squared has been set equal to Eta-squared. ")
     }
   
 
-    if (is.something(obj$data$r2 ) ) {
-        if ( is.something(obj$data$es) && obj$data$r2+.0001 < obj$data$es  )
+    if (is.something(obj$info$r2 ) ) {
+        if ( is.something(obj$data$es) && obj$info$r2+.0001 < obj$data$es  )
                    stop("R-squared cannot be less than the Eta coefficient")
-        if (abs(obj$data$r2)>.99)
+        if (abs(obj$info$r2)>.99)
                    stop("The R-squared cannot be more than .99")
     } else {
         stop("GLM power analysis based on Eta-squared coefficient requires an expected R-squared for the model")
@@ -445,6 +482,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       means   <- obj$options$means
       sds     <- obj$options$sds
       factors <- obj$options$factors
+      
       if (is.null(means))   return()
       if (is.null(sds))     return()
       if (is.null(factors)) return()
@@ -474,11 +512,15 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
         res$df_effect<-dfs
         obj$extradata<-res
         obj$extradata[[obj$aim]]<-NULL
-        obj$data <- subset(res,res$es==min(res$es))
-        obj$info$nmin <- res$df_model + 10  
-        # at least one parameter should be empty for parameters estimation
-        obj$data[[obj$aim]]<-NULL
         class(obj)<-c(class(obj),"glm")
+        pwr<-powervector(obj,obj$extradata)
+        obj$data <- subset( obj$extradata,pwr$n==max(pwr$n) )
+        
+
+
+        obj$data[[obj$aim]]<-NULL
+        obj$info$nmin <- obj$data$df_model + 10  
+        # at least one parameter should be empty for parameters estimation
         obj$ok <- TRUE
       } else {
         form<-as.formula(paste(means,"~",paste(factors,collapse="*")))
@@ -547,6 +589,19 @@ checkfailure <- function(obj, ...) UseMethod(".checkfailure")
 }
 
 
-### additional check for models requiring extra data (from dataset)
+### additional check for models
+
+commonchecks <- function(obj) {
+  
+  
+    if (is.something(obj$data$sig.level ) ) {
+        if ( obj$data$sig.level < 0.00001 ||  obj$data$sig.level > .90)
+                   stop("Type I rate should be between .00001 and .90")
+    } else {
+        stop("Power analysis requires Type I rate")
+    }
+  
+  
+}
 
 

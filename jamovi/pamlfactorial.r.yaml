@@ -68,6 +68,9 @@ items:
         - sig.level
         - aim
         - alternative
+        - factors
+        - means
+        - sds
         
       columns:
         - name: es

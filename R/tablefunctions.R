@@ -20,6 +20,7 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
 
             power = c(.5, .8, .95)
             data<-obj$data
+            mark(obj$data)
             data$power<-NULL
             suppressWarnings(dd<-as.data.frame(cbind(power,data)))
             dd$es<-NULL
@@ -53,12 +54,11 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
                else
                    return(NA)
            })
-            emin<-ifelse(is.null(obj$data$esmin),0,obj$data$esmin)
             probs_es<-round(probs_es,digits=3)
-            esList <-list(list(es=paste(obj$data$letter, ">",probs_es[1])),
-                          list(es=paste(probs_es[1],greek_vector["geq"], obj$data$letter, ">",probs_es[2])),
-                          list(es=paste(probs_es[2],greek_vector["geq"], obj$data$letter, ">",probs_es[3])),
-                          list(es=paste(obj$data$letter, greek_vector["leq"],probs_es[3]))
+            esList <-list(list(es=paste(obj$info$letter, ">",probs_es[1])),
+                          list(es=paste(probs_es[1],greek_vector["geq"], obj$info$letter, ">",probs_es[2])),
+                          list(es=paste(probs_es[2],greek_vector["geq"], obj$info$letter, ">",probs_es[3])),
+                          list(es=paste(obj$info$letter, greek_vector["leq"],probs_es[3]))
             )
             attr(esList,"titles")<-list(power="Power for equivalence")
 

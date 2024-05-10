@@ -58,7 +58,6 @@ Plotter <- R6::R6Class(
       },
       plot_curve= function(image,ggtheme,theme) {
          
-        
         if (!private$.operator$ok) return()
         if (!self$option("plot_ncurve") && !self$option("plot_escurve"))
                 return()
@@ -220,7 +219,7 @@ Plotter <- R6::R6Class(
 
     },
      .prepareNcurve = function() {
-      
+
       if (!self$option("plot_ncurve"))
                 return()
       jinfo("PLOTTER: preparing N curve plot")
@@ -275,43 +274,41 @@ Plotter <- R6::R6Class(
     },
     .prepareEscurve = function() {
       
-       if (!self$option("plot_escurve") || (self$options$aim=="n"))
-               return()
+  #     if (!self$option("plot_escurve"))
+  #             return()
         jinfo("PLOTTER: preparing Es curve plot")
 
+        obj <- private$.operator
         data <- private$.operator$data
         image<-private$.results$powerEscurve
     ## check the min-max for effect size
-      emax <- private$.operator$data$esmax
-      if (emax < data$es) emax<-data$es
-      emin<-  private$.operator$data$esmin
+      esmax <- find_max_es(obj,data)
+      mark(esmax)
+      if (esmax < data$es) esmax<-data$es
+      esmin<-  obj$info$esmin
 
   
         FLX<-identity
         FEX<-identity
   
         if (self$option("plot_log")) {
-            if (private$.operator$loges(emax)) {
+            if (obj$info$loges(esmax)) {
                FLX<-log
                FEX<-exp
             }
         }
 
-       x <- seq(FLX(emin),FLX(emax),len=20)
+       x <- seq(FLX(esmin),FLX(esmax),len=20)
        es <- FEX(x)
-       point.x<-FLX(private$.operator$data$es)
-       ticks<- FLX(pretty(c(emin,emax),6))
+       point.x<-FLX(obj$data$es)
+       ticks<- FLX(pretty(c(esmin,esmax),6))
        tickslabels<-round(FEX(ticks),digits=3)
 
-        .data<-data
+        .data <- cbind(es,obj$data) 
         .data$power<-NULL
-        .data$es<-es
- 
-        ydata<-powervector(private$.operator,.data)
+        ydata<-powervector(obj,.data)
         ydata$x <- x
         ydata$y <- ydata$power
-
-     
         image$setState(list(data=ydata,
                             point.x = point.x,
                             point.y = private$.operator$data$power,

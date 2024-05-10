@@ -10,6 +10,7 @@ find_min_n <- function(obj, ...) UseMethod(".find_min_n")
     n<-ceiling(res$obj$n)
   else
     n<-obj$info$nmin
+
   return(n)
 }
 
@@ -26,5 +27,20 @@ find_max_n <- function(obj, ...) UseMethod(".find_max_n")
   else
     stop("there must be a max n")
 return(n)
+}
+
+
+find_max_es <- function(obj, ...) UseMethod(".find_max_es")
+
+.find_max_es.default <- function(obj,data) {
+
+  data$power=.99
+  data$es <- NULL
+  res<-try_hard(powervector(obj,data))
+  if (isFALSE(res$error)) 
+    es<-res$obj$es
+  else
+    stop("there must be a max es")
+return(es)
 }
 

@@ -76,31 +76,31 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
 
 .powervector.ttestind <- function(obj,data) {
-                
-                .data<-expand.grid(data)
-                if (is.something(.data$es))
-                    .data$d <- obj$toaes(.data$es)
-                if (is.something(obj$data$equi_limit)) {
-                    if (is.something(.data$power)) .data$power<-(1+.data$power)/2
-                    .data$sig.level<-.data$sig.level*2
+  
+                if (is.something(data$es))
+                    data$d <- obj$info$toaes(data$es)
+                if (is.something(obj$info$equi_limit)) {
+                    if (is.something(data$power)) data$power<-(1+data$power)/2
+                     data$sig.level<- data$sig.level*2
                 }
-                .names <- intersect(names(.data),rlang::fn_fmls_names(pamlj.ttestind))
-                .data$alternative<-as.character(.data$alternative)
-                if (hasName(.data,"n")) {
-                  .data$n1 <- .data$n/(1+.data$n_ratio)
-                  .data$n2 <- .data$n1*.data$n_ratio
+                 .names <- intersect(names(data),rlang::fn_fmls_names(pamlj.ttestind))
+                 data$alternative<-as.character(data$alternative)
+                if (hasName(data,"n")) {
+                  data$n1 <- data$n/(1+data$n_ratio)
+                  data$n2 <- data$n1*data$n_ratio
                 }
-                results<-lapply(1:nrow(.data),function(i) {
-                     one<-as.list(.data[i,.names])
+
+                results<-lapply(1:nrow(data),function(i) {
+                     one<-as.list(data[i,.names])
                      do.call(pamlj.ttestind,one)
                     })
                  results<-as.data.frame(do.call("rbind",results))
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
-                 odata<-.data[, !names(.data) %in% names(results)]
+                 odata<-data[, !names(data) %in% names(results)]
                  results<-cbind(odata,results)
                  results$n  <- results$n1 + results$n2
                  results$df <- results$n - 2
-                 results$es <- obj$fromaes(results$d)
+                 results$es <- obj$info$fromaes(results$d)
                  if (is.something(obj$data$equi_limit)) {
                     results$power<-2*results$power-1
                     results$sig.level<-results$sig.level/2
@@ -112,32 +112,30 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
 .powervector.ttestpaired <- function(obj,data) {
                 
-                .data<-expand.grid(data)
-                if (is.something(.data$es))
-                    .data$d <- obj$toaes(.data$es)
-                if (is.something(obj$data$equi_limit)) {
-                    if (is.something(.data$power)) .data$power<-(1+.data$power)/2
-                    .data$sig.level<-.data$sig.level*2
+                if (is.something(data$es))
+                     data$d <- obj$info$toaes(data$es)
+                if (is.something(obj$info$equi_limit)) {
+                    if (is.something(data$power)) data$power<-(1+data$power)/2
+                    data$sig.level <- data$sig.level*2
                 }
-                .names <- intersect(names(.data),rlang::fn_fmls_names(pwr::pwr.t.test))
-                .data$alternative<-as.character(.data$alternative)
-
-                results<-lapply(1:nrow(.data),function(i) {
-                     one      <-as.list(.data[i,.names])
+                .names <- intersect(names(data),rlang::fn_fmls_names(pwr::pwr.t.test))
+                 data$alternative<-as.character(data$alternative)
+                results<-lapply(1:nrow(data),function(i) {
+                     one      <-as.list(data[i,.names])
                      one$type <-as.character(one$type)
                      do.call(pwr::pwr.t.test,one)
                     })
                  results<-as.data.frame(do.call("rbind",results))
                  results$note<-NULL
-  
+
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
 
-                 odata<-.data[, !names(.data) %in% names(results)]
+                 odata<-subset(data, select= !(names(data) %in% names(results)))
                  results<-cbind(odata,results)
                  results$n  <- ceiling(results$n)
                  results$df <- results$n - 1
-                 results$es <- obj$fromaes(results$d)
-                 if (is.something(obj$data$equi_limit)) {
+                 results$es <- obj$info$fromaes(results$d)
+                 if (is.something(obj$info$equi_limit)) {
                     results$power<-2*results$power-1
                     results$sig.level<-results$sig.level/2
                  }

@@ -30,6 +30,9 @@ items:
         - b_df_model
         - v_df_model
         - e_df_model
+        - b_df_effect
+        - v_df_effect
+        - e_df_effect
         - e_r2
         - v_r2
         - b_r2
@@ -76,12 +79,16 @@ items:
         - b_df_model
         - v_df_model
         - e_df_model
+        - b_df_effect
+        - v_df_effect
+        - e_df_effect
         - e_r2
         - v_r2
         - b_r2
         - gncp
         - rx
         - ry
+        - gncp
         
       columns: 
         - name: index
@@ -109,8 +116,15 @@ items:
         - b_df_model
         - v_df_model
         - e_df_model
+        - b_df_effect
+        - v_df_effect
+        - e_df_effect
         - e_r2
         - v_r2
+        - b_r2
+        - gncp
+        - rx
+        - ry
         - gncp
         
       columns:
@@ -158,7 +172,7 @@ items:
       width:  400
       height: 350
       renderFun: .plot_escurve
-      visible: (plot_escurve & !aim:n)
+      visible: (plot_escurve)
       clearWith:
         - mode
         - b_es
@@ -183,7 +197,7 @@ items:
       width:  400
       height: 350
       renderFun: .plot_ncurve
-      visible: (plot_ncurve & !aim:es)
+      visible: (plot_ncurve)
       clearWith:
         - mode
         - b_es

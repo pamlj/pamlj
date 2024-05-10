@@ -14,7 +14,6 @@ Runner <- R6::R6Class("Runner",
                                  # it fills self$data with all power parameters
                                  checkdata(self)
                                  if (!self$ok) return()
-                       
                                  resobj <- try_hard(powervector(self,self$data) )
                                  if (!isFALSE(resobj$warning))
                                      warning(resobj$warning)

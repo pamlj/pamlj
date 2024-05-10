@@ -43,6 +43,7 @@ Initer <- R6::R6Class(
           jinfo("PAMLj: Initializing",self$caller,self$mode)
           ## checkdata update the data depending on the type of test we are running (via S3 dispatch)
           checkdata(self)
+          commonchecks(self)
           jmvobj$results$intro$setContent(paste(INFO[["common"]],INFO[[self$mode]]))   
 
 
@@ -51,7 +52,8 @@ Initer <- R6::R6Class(
     init_powertab = function() {
       
           tab<-self$data
-          attr(tab,"titles")<-list(es=self$data$letter)  
+          if (!is.null(self$data))
+                 attr(tab,"titles")<-list(es=self$info$letter)  
           return(tab)
     },
     init_effectsize = function() {
@@ -66,7 +68,6 @@ Initer <- R6::R6Class(
            list(power='80% \u2013 95%',desc='Probably detect'),
            list(power='\u226595%',desc='Almost surely detect')
                 )
-      
     },      
 
 
