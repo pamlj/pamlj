@@ -517,24 +517,39 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
             contrasts(exdata[[f]])<-contr.sum(nlevels(exdata[[f]]))
         }
         form<-paste(means,"~",paste(factors,collapse="*"))
-        aa<-summary(stats::aov(as.formula(form),data=exdata))[[1]]
-        ss<-aa$`Sum Sq`
-        sigma2<-sum((exdata[[sds]])^2)
+        aa<-stats::aov(as.formula(form),data=exdata)
+        sumr<-summary(aa)[[1]]
+        if (aa$df.residual>0) sumr<-sumr[-nrow(sumr),]
+        ss<-sumr$`Sum Sq`
+        ## for sigma, we need to aggregate the sd
+        form<-paste(sds,"~",paste(factors,collapse="*"))
+        sdmod<-lm(form,data=exdata)
+        suppressWarnings({
+           msds<-as.data.frame(emmeans::emmeans(sdmod,specs=factors))
+         })
+        sigma2<-sum(msds$emmean^2)
         res<-data.frame(ss=ss)
         res$es<-res$ss/(res$ss+sigma2)
         res$n=obj$options$n
         res$sig.level=obj$options$sig.level
         res$power=obj$options$power
-        res$df_effect<-aa$Df
+        res$df_effect<-sumr$Df
         res$df_model<- sum(res$df_effect)
-        res$effect<-rownames(aa)
+        res$effect<-rownames(sumr)
         obj$extradata<-res
         obj$extradata[[obj$aim]]<-NULL
-        
+        obj$extradata$id<-1:nrow(obj$extradata)
+        obj$info$r2<-sum(res$ss)/((sum(res$ss))+sigma2)
+        obj$info$sigma<-sqrt(sigma2)
         class(obj)<-c(class(obj),"glm")
-        mark(obj$extradata)
-         pwr<-powervector(obj,obj$extradata)
-         obj$data <- subset( obj$extradata,pwr$n==max(pwr$n) )
+        pwr<-powervector(obj,obj$extradata)
+         ## we select the effect to focus on
+         if (obj$aim=="n") 
+           w<-which.max(pwr$n)
+         else
+           w<-which.min(pwr$es)
+         w<-w[1]
+        obj$data <- subset( obj$extradata, obj$extradata$id==w)
         obj$data[[obj$aim]]<-NULL
         obj$info$nmin <- obj$data$df_model + 10  
         # at least one parameter should be empty for parameters estimation

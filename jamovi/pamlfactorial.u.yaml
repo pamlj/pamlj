@@ -153,3 +153,5 @@ children:
              name: gncp
            - type: CheckBox
              name: emeans
+           - type: CheckBox
+             name: esos

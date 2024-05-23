@@ -33,6 +33,10 @@ items:
         - name: n
           title: 'N'
           type: integer
+        - name: ss
+          title: 'SS'
+          type: number
+          visible: (esos)
         - name: es
           title: 'Effect size'
           type: number
@@ -55,6 +59,28 @@ items:
           title: '&alpha;'
           type: number
 
+
+    - name:  effectsize
+      title: Computed Parameters
+      type: Table
+      clearWith:
+        - es
+        - power
+        - n
+        - sig.level
+        - aim
+        - alternative
+        - factors
+        - means
+        - sds
+        
+      columns: 
+        - name: index
+          title: 'Index'
+          type: text
+        - name: value
+          title: 'Value'
+          type: number
 
 
     - name:  powerbyes
@@ -96,6 +122,9 @@ items:
         columns:
         - name: emmean
           title: 'Mean'
+          type: number
+        - name: sd
+          title: 'SD'
           type: number
 
 

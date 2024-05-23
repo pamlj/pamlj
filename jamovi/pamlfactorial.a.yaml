@@ -210,7 +210,11 @@ options:
     - name: emeans
       type: Bool
       title: "Expected Means"
-      default: true
+      default: false
+    - name: esos
+      type: Bool
+      title: "Expected SS"
+      default: false
 
 ...
 

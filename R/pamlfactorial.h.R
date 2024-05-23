@@ -28,7 +28,8 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
             plot_to_table = FALSE,
             .caller = "factorial",
             gncp = TRUE,
-            emeans = TRUE, ...) {
+            emeans = FALSE,
+            esos = FALSE, ...) {
 
             super$initialize(
                 package="pamlj",
@@ -160,7 +161,11 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
             private$..emeans <- jmvcore::OptionBool$new(
                 "emeans",
                 emeans,
-                default=TRUE)
+                default=FALSE)
+            private$..esos <- jmvcore::OptionBool$new(
+                "esos",
+                esos,
+                default=FALSE)
 
             self$.addOption(private$..aim)
             self$.addOption(private$..means)
@@ -185,6 +190,7 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
             self$.addOption(private$...caller)
             self$.addOption(private$..gncp)
             self$.addOption(private$..emeans)
+            self$.addOption(private$..esos)
         }),
     active = list(
         aim = function() private$..aim$value,
@@ -209,7 +215,8 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
         plot_to_table = function() private$..plot_to_table$value,
         .caller = function() private$...caller$value,
         gncp = function() private$..gncp$value,
-        emeans = function() private$..emeans$value),
+        emeans = function() private$..emeans$value,
+        esos = function() private$..esos$value),
     private = list(
         ..aim = NA,
         ..means = NA,
@@ -233,7 +240,8 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
         ..plot_to_table = NA,
         ...caller = NA,
         ..gncp = NA,
-        ..emeans = NA)
+        ..emeans = NA,
+        ..esos = NA)
 )
 
 pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
@@ -243,6 +251,7 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
         intro = function() private$.items[["intro"]],
         issues = function() private$.items[["issues"]],
         powertab = function() private$.items[["powertab"]],
+        effectsize = function() private$.items[["effectsize"]],
         powerbyes = function() private$.items[["powerbyes"]],
         means = function() private$.items[["means"]],
         powerContour = function() private$.items[["powerContour"]],
@@ -291,6 +300,11 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                         `title`="N", 
                         `type`="integer"),
                     list(
+                        `name`="ss", 
+                        `title`="SS", 
+                        `type`="number", 
+                        `visible`="(esos)"),
+                    list(
                         `name`="es", 
                         `title`="Effect size", 
                         `type`="number"),
@@ -317,6 +331,29 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                     list(
                         `name`="sig.level", 
                         `title`="&alpha;", 
+                        `type`="number"))))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="effectsize",
+                title="Computed Parameters",
+                clearWith=list(
+                    "es",
+                    "power",
+                    "n",
+                    "sig.level",
+                    "aim",
+                    "alternative",
+                    "factors",
+                    "means",
+                    "sds"),
+                columns=list(
+                    list(
+                        `name`="index", 
+                        `title`="Index", 
+                        `type`="text"),
+                    list(
+                        `name`="value", 
+                        `title`="Value", 
                         `type`="number"))))
             self$add(jmvcore::Table$new(
                 options=options,
@@ -358,6 +395,10 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                         list(
                             `name`="emmean", 
                             `title`="Mean", 
+                            `type`="number"),
+                        list(
+                            `name`="sd", 
+                            `title`="SD", 
                             `type`="number")))))
             self$add(jmvcore::Image$new(
                 options=options,
@@ -479,11 +520,13 @@ pamlfactorialBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param .caller Used for internal purposes
 #' @param gncp .
 #' @param emeans .
+#' @param esos .
 #' @return A results object containing:
 #' \tabular{llllll}{
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$issues} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$effectsize} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powerbyes} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$means} \tab \tab \tab \tab \tab an array of predicted means tables \cr
 #'   \code{results$powerContour} \tab \tab \tab \tab \tab an image \cr
@@ -525,7 +568,8 @@ pamlfactorial <- function(
     plot_to_table = FALSE,
     .caller = "factorial",
     gncp = TRUE,
-    emeans = TRUE) {
+    emeans = FALSE,
+    esos = FALSE) {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
         stop("pamlfactorial requires jmvcore to be installed (restart may be required)")
@@ -565,7 +609,8 @@ pamlfactorial <- function(
         plot_to_table = plot_to_table,
         .caller = .caller,
         gncp = gncp,
-        emeans = emeans)
+        emeans = emeans,
+        esos = esos)
 
     analysis <- pamlfactorialClass$new(
         options = options,

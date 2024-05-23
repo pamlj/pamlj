@@ -60,19 +60,23 @@ Runner <- R6::R6Class("Runner",
                                         exdata[[f]]<-factor(exdata[[f]])
                                         contrasts(exdata[[f]])<-contr.sum(nlevels(exdata[[f]]))
                                   }
-                                  form<-paste(means,"~",paste(factors,collapse="*"))
-                                  model<-lm(form,exdata)
+                                  form1<-paste(means,"~",paste(factors,collapse="*"))
+                                  model1<-lm(form1,exdata)
+                                  form2<-paste(sds,"~",paste(factors,collapse="*"))
+                                  model2<-lm(form2,exdata)
+
                                   effects<-self$extradata$effect
                                   suppressWarnings({
                                   tabs<-lapply(effects,function(e) {
                                     form<-as.formula(paste("~",e))
-                                    ee<-emmeans::emmeans(model,specs=form)
-                                    dd<-as.data.frame(ee)
-                                    for (n in names(dd)) if (is.factor(dd[[n]])) dd[[n]]<-as.character(dd[[n]])
-                                    w<-which(names(dd)=="emmean")
-                                    dd<-dd[,1:w]
-                                    for (i in w:1) dd<-dd[order(dd[[i]]),]
-                                    dd
+                                    em<-as.data.frame(emmeans::emmeans(model1,specs=form))
+                                    es<-as.data.frame(emmeans::emmeans(model2,specs=form))
+                                    for (n in names(em)) if (is.factor(em[[n]])) em[[n]]<-as.character(em[[n]])
+                                    w<-which(names(em)=="emmean")
+                                    em<-em[,1:w]
+                                    em$sd<-es$emmean
+                                    for (i in w:1) em<-em[order(em[[i]]),]
+                                    em
                                   })
                                   })
                                   return(tabs)
