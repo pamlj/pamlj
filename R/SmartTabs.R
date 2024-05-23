@@ -646,9 +646,8 @@ SmartArray <- R6::R6Class("SmartArray",
                                     .keys<-attr(rtables,"keys")
 
 
-                              if (!is.something(self$table$items)) {
-                                library(jmvcore)
-                                  
+                              if (!hasName(self$table,"items")) {
+
                                 for (i in seq_along(rtables)) {
                                 
                                   if (is.something(.keys))
@@ -658,7 +657,7 @@ SmartArray <- R6::R6Class("SmartArray",
 
                                   self$table$addItem(key = .key)
                                 }
-                                
+                         
                                 self$children<-seq_along(rtables)
                                 
                               }
@@ -707,6 +706,7 @@ SmartArray <- R6::R6Class("SmartArray",
                               rtables<-private$.getData()
                               self$cleanNotes()
                               nfound<-length(rtables)
+                              
                               for (i in seq_along(self$childrenObjs)) {
                                  obj<-self$childrenObjs[[i]]
                                  if (i<=nfound) {
@@ -746,7 +746,7 @@ SmartArray <- R6::R6Class("SmartArray",
                               } else {
                                 
                                 fun<-private$.run_source
-                                filled<-(self$table$isFilled() && is.something(self$table$items))
+                                filled<-(self$table$isFilled() && hasName(self$table,"items") && is.something(self$table$items))
                               }
                               
                               if (is.null(fun)) 

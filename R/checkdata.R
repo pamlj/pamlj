@@ -198,7 +198,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
       )
     
-      obj$info$nmin             <- 6
+      obj$info$nmin  <- 6
       
       if (obj$data$p1<0.001) 
            stop("Proportions cannot be less than 0.001")
@@ -290,7 +290,6 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
       if (is.something(obj$data$p2) && obj$data$p2==obj$data$p1) 
            stop("Proportions cannot be equal (null power)")
-    mark(obj$data)  
       obj$data[[obj$aim]]<-NULL
 
 }
@@ -487,6 +486,8 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
 
 .checkdata.factorial <- function(obj) {
+  
+      jinfo("PAMLj: Checkdata factorial")
 
       obj$ok <- FALSE
 
@@ -496,10 +497,12 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$info$alternative <- "two.sided"
       obj$info$toaes       <- function(value) value/(1-value)
       obj$info$fromaes     <- function(value) value/(1+value)  
-      
       means   <- obj$options$means
       sds     <- obj$options$sds
       factors <- obj$options$factors
+      
+      obj$data<-data.frame(power=obj$options$power,
+                           sig.level=obj$options$sig.level)
       
       if (is.null(means))   return()
       if (is.null(sds))     return()
@@ -508,34 +511,30 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       exdata<-obj$analysis$data
         
       if (nrow(exdata) > 0) {
+        
         for (f in factors) {
             exdata[[f]]<-factor(exdata[[f]])
             contrasts(exdata[[f]])<-contr.sum(nlevels(exdata[[f]]))
         }
         form<-paste(means,"~",paste(factors,collapse="*"))
-        a<-aov(formula=as.formula(form),data=exdata)
-        anov<-summary(a)
-        .names<-attr(a$terms,"term.labels")
-        sos<-anov[[1]]$`Sum Sq`[1:length(.names)]
-        dfs<-anov[[1]]$`Df`[1:length(.names)]
-        sigma2<-sum((exdata[[sds]])^2)/length(exdata[[sds]])
-        res<-data.frame(effect=.names,
-                        es=sos/(sos+sigma2),
-                        n=obj$options$n,
-                        sig.level=obj$options$sig.level,
-                        power=obj$options$power,
-                        stringsAsFactors=F
-                        )
-        res$df_model<- sum(dfs)
-        res$df_effect<-dfs
+        aa<-summary(stats::aov(as.formula(form),data=exdata))[[1]]
+        ss<-aa$`Sum Sq`
+        sigma2<-sum((exdata[[sds]])^2)
+        res<-data.frame(ss=ss)
+        res$es<-res$ss/(res$ss+sigma2)
+        res$n=obj$options$n
+        res$sig.level=obj$options$sig.level
+        res$power=obj$options$power
+        res$df_effect<-aa$Df
+        res$df_model<- sum(res$df_effect)
+        res$effect<-rownames(aa)
         obj$extradata<-res
         obj$extradata[[obj$aim]]<-NULL
-        class(obj)<-c(class(obj),"glm")
-        pwr<-powervector(obj,obj$extradata)
-        obj$data <- subset( obj$extradata,pwr$n==max(pwr$n) )
         
-
-
+        class(obj)<-c(class(obj),"glm")
+        mark(obj$extradata)
+         pwr<-powervector(obj,obj$extradata)
+         obj$data <- subset( obj$extradata,pwr$n==max(pwr$n) )
         obj$data[[obj$aim]]<-NULL
         obj$info$nmin <- obj$data$df_model + 10  
         # at least one parameter should be empty for parameters estimation
@@ -543,7 +542,10 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       } else {
         form<-as.formula(paste(means,"~",paste(factors,collapse="*")))
         .names<-attr(terms(form),"term.labels")
-         obj$data<-data.frame(effect=.names)
+         obj$data<-data.frame(effect=.names, 
+                              power=obj$options$power,
+                              sig.level=obj$options$sig.level)
+     
       }
 
 }
@@ -611,9 +613,8 @@ checkfailure <- function(obj, ...) UseMethod(".checkfailure")
 
 commonchecks <- function(obj) {
   
-  
     if (is.something(obj$data$sig.level ) ) {
-        if ( obj$data$sig.level < 0.00001 ||  obj$data$sig.level > .90)
+        if ( any(obj$data$sig.level < 0.00001) ||  any(obj$data$sig.level > .90))
                    stop("Type I rate should be between .00001 and .90")
     } else {
         stop("Power analysis requires Type I rate")

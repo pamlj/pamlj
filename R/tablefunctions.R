@@ -20,7 +20,6 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
 
             power = c(.5, .8, .95)
             data<-obj$data
-            mark(obj$data)
             data$power<-NULL
             suppressWarnings(dd<-as.data.frame(cbind(power,data)))
             dd$es<-NULL

@@ -26,6 +26,13 @@ pamlfactorialClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class
 
                  aSmartObj<-SmartTable$new(self$results$powerbyes,private$.runner)
                  ladd(private$.smartObjs)<-aSmartObj
+                 
+                 aSmartObj<-SmartArray$new(self$results$means,private$.runner)
+                 aSmartObj$expandOnInit<-TRUE
+                 aSmartObj$combineBelow="new!"
+                 aSmartObj$spaceBy="new!"
+                 ladd(private$.smartObjs)<-aSmartObj
+
           
                  ### init all ####
                  for (tab in private$.smartObjs) {

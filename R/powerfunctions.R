@@ -34,7 +34,6 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 .powervector.glm <- function(obj,data) {
 
 
-
                 if (is.something(data$es)) {
                                      data$f2<-obj$info$toaes(data$es)
                                      data$es<-NULL
@@ -45,8 +44,8 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                 if (!is.something(data$n)) 
                                      data$v<-NULL
                 else
-                    data[["v"]]<- data$n - obj$data$df_model -1
-                
+                    data[["v"]]<- data$n - data$df_model -1
+
                  results<-lapply(1:nrow(data),function(i) {
                    one<-data[i,]
                    pamlj.glm(u=one$df_effect,

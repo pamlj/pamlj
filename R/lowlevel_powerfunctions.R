@@ -6,7 +6,6 @@
 
 pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,sig.level=NULL,df_model=NULL,gpower=TRUE, alternative="two.sided") {
   
-# mark(u,v,f2,power,sig.level,df_model,gpower,alternative)
     if (alternative=="one.sided" ) {
          if ( is.something(sig.level) )
                sig.level <- sig.level * 2

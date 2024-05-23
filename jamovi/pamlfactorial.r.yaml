@@ -85,6 +85,20 @@ items:
           title: 'Description'
           type: text
 
+    - name: means
+      type: Array
+      title: Expected Marginal Means
+      description: an array of predicted means tables
+      visible: (emeans)
+      template:
+        title:  Marginal Means - ___key___
+        type: Table
+        columns:
+        - name: emmean
+          title: 'Mean'
+          type: number
+
+
     - name: powerContour
       title: Power Contour
       type: Image

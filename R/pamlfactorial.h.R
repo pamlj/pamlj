@@ -27,7 +27,8 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
             plot_z_value = list(),
             plot_to_table = FALSE,
             .caller = "factorial",
-            gncp = TRUE, ...) {
+            gncp = TRUE,
+            emeans = TRUE, ...) {
 
             super$initialize(
                 package="pamlj",
@@ -156,6 +157,10 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                 "gncp",
                 gncp,
                 default=TRUE)
+            private$..emeans <- jmvcore::OptionBool$new(
+                "emeans",
+                emeans,
+                default=TRUE)
 
             self$.addOption(private$..aim)
             self$.addOption(private$..means)
@@ -179,6 +184,7 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
             self$.addOption(private$..plot_to_table)
             self$.addOption(private$...caller)
             self$.addOption(private$..gncp)
+            self$.addOption(private$..emeans)
         }),
     active = list(
         aim = function() private$..aim$value,
@@ -202,7 +208,8 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
         plot_z_value = function() private$..plot_z_value$value,
         plot_to_table = function() private$..plot_to_table$value,
         .caller = function() private$...caller$value,
-        gncp = function() private$..gncp$value),
+        gncp = function() private$..gncp$value,
+        emeans = function() private$..emeans$value),
     private = list(
         ..aim = NA,
         ..means = NA,
@@ -225,7 +232,8 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
         ..plot_z_value = NA,
         ..plot_to_table = NA,
         ...caller = NA,
-        ..gncp = NA)
+        ..gncp = NA,
+        ..emeans = NA)
 )
 
 pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
@@ -236,6 +244,7 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
         issues = function() private$.items[["issues"]],
         powertab = function() private$.items[["powertab"]],
         powerbyes = function() private$.items[["powerbyes"]],
+        means = function() private$.items[["means"]],
         powerContour = function() private$.items[["powerContour"]],
         powerEscurve = function() private$.items[["powerEscurve"]],
         powerNcurve = function() private$.items[["powerNcurve"]],
@@ -337,6 +346,19 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                         `name`="desc", 
                         `title`="Description", 
                         `type`="text"))))
+            self$add(jmvcore::Array$new(
+                options=options,
+                name="means",
+                title="Expected Marginal Means",
+                visible="(emeans)",
+                template=jmvcore::Table$new(
+                    options=options,
+                    title="Marginal Means - ___key___",
+                    columns=list(
+                        list(
+                            `name`="emmean", 
+                            `title`="Mean", 
+                            `type`="number")))))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerContour",
@@ -456,12 +478,14 @@ pamlfactorialBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param plot_to_table .
 #' @param .caller Used for internal purposes
 #' @param gncp .
+#' @param emeans .
 #' @return A results object containing:
 #' \tabular{llllll}{
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$issues} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powerbyes} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$means} \tab \tab \tab \tab \tab an array of predicted means tables \cr
 #'   \code{results$powerContour} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerEscurve} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerNcurve} \tab \tab \tab \tab \tab an image \cr
@@ -500,7 +524,8 @@ pamlfactorial <- function(
     plot_z_value = list(),
     plot_to_table = FALSE,
     .caller = "factorial",
-    gncp = TRUE) {
+    gncp = TRUE,
+    emeans = TRUE) {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
         stop("pamlfactorial requires jmvcore to be installed (restart may be required)")
@@ -539,7 +564,8 @@ pamlfactorial <- function(
         plot_z_value = plot_z_value,
         plot_to_table = plot_to_table,
         .caller = .caller,
-        gncp = gncp)
+        gncp = gncp,
+        emeans = emeans)
 
     analysis <- pamlfactorialClass$new(
         options = options,

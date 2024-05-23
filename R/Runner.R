@@ -45,6 +45,39 @@ Runner <- R6::R6Class("Runner",
                                      warning("Estimated for N=",round(self$data$n))
                                      return(tab)
                                },
+                              run_means = function() {
+                          
+                                  exdata<-self$analysis$data
+                                  factors <- self$options$factors
+                                  means   <- self$options$means
+                                  sds     <- self$options$sds
+                                  if (is.null(means))   return()
+                                  if (is.null(sds))     return()
+                                  if (is.null(factors)) return()
+
+
+                                  for (f in factors) {
+                                        exdata[[f]]<-factor(exdata[[f]])
+                                        contrasts(exdata[[f]])<-contr.sum(nlevels(exdata[[f]]))
+                                  }
+                                  form<-paste(means,"~",paste(factors,collapse="*"))
+                                  model<-lm(form,exdata)
+                                  effects<-self$extradata$effect
+                                  suppressWarnings({
+                                  tabs<-lapply(effects,function(e) {
+                                    form<-as.formula(paste("~",e))
+                                    ee<-emmeans::emmeans(model,specs=form)
+                                    dd<-as.data.frame(ee)
+                                    for (n in names(dd)) if (is.factor(dd[[n]])) dd[[n]]<-as.character(dd[[n]])
+                                    w<-which(names(dd)=="emmean")
+                                    dd<-dd[,1:w]
+                                    for (i in w:1) dd<-dd[order(dd[[i]]),]
+                                    dd
+                                  })
+                                  })
+                                  return(tabs)
+                                
+                              },
                               run_customtable = function() {
      
                                      if (!self$ok) return()

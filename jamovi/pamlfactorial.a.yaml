@@ -207,6 +207,10 @@ options:
       type: Bool
       title: "G*Power NCP"
       default: true
+    - name: emeans
+      type: Bool
+      title: "Expected Means"
+      default: true
 
 ...
 
