@@ -10,6 +10,8 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
             means = NULL,
             sds = NULL,
             factors = NULL,
+            within = NULL,
+            r = 0,
             power = 0.9,
             n = 20,
             sig.level = 0.05,
@@ -64,6 +66,16 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                 permitted=list(
                     "factor"),
                 default=NULL)
+            private$..within <- jmvcore::OptionTerms$new(
+                "within",
+                within,
+                default=NULL)
+            private$..r <- jmvcore::OptionNumber$new(
+                "r",
+                r,
+                default=0,
+                min=0,
+                max=0.99)
             private$..power <- jmvcore::OptionNumber$new(
                 "power",
                 power,
@@ -171,6 +183,8 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
             self$.addOption(private$..means)
             self$.addOption(private$..sds)
             self$.addOption(private$..factors)
+            self$.addOption(private$..within)
+            self$.addOption(private$..r)
             self$.addOption(private$..power)
             self$.addOption(private$..n)
             self$.addOption(private$..sig.level)
@@ -197,6 +211,8 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
         means = function() private$..means$value,
         sds = function() private$..sds$value,
         factors = function() private$..factors$value,
+        within = function() private$..within$value,
+        r = function() private$..r$value,
         power = function() private$..power$value,
         n = function() private$..n$value,
         sig.level = function() private$..sig.level$value,
@@ -222,6 +238,8 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
         ..means = NA,
         ..sds = NA,
         ..factors = NA,
+        ..within = NA,
+        ..r = NA,
         ..power = NA,
         ..n = NA,
         ..sig.level = NA,
@@ -289,7 +307,9 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                     "alternative",
                     "factors",
                     "means",
-                    "sds"),
+                    "sds",
+                    "within",
+                    "r"),
                 columns=list(
                     list(
                         `name`="effect", 
@@ -345,7 +365,9 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                     "alternative",
                     "factors",
                     "means",
-                    "sds"),
+                    "sds",
+                    "within",
+                    "r"),
                 columns=list(
                     list(
                         `name`="index", 
@@ -369,7 +391,9 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                     "alternative",
                     "factors",
                     "means",
-                    "sds"),
+                    "sds",
+                    "within",
+                    "r"),
                 columns=list(
                     list(
                         `name`="es", 
@@ -501,6 +525,9 @@ pamlfactorialBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   from \code{data}; the variable must be numeric.
 #' @param factors a vector of strings naming the fixed factors from
 #'   \code{data}. Not needed if \code{formula} is used.
+#' @param within a vector of strings naming the repeated measures factors from
+#'   \code{data}. Not needed if \code{formula} is used.
+#' @param r Expected correlation among repeated measures
 #' @param power Minimal desired power
 #' @param n Sample size
 #' @param sig.level Type I error rate (significance cut-off or alpha)
@@ -550,6 +577,8 @@ pamlfactorial <- function(
     means = NULL,
     sds = NULL,
     factors = NULL,
+    within = NULL,
+    r = 0,
     power = 0.9,
     n = 20,
     sig.level = 0.05,
@@ -585,12 +614,15 @@ pamlfactorial <- function(
             `if`( ! missing(factors), factors, NULL))
 
     for (v in factors) if (v %in% names(data)) data[[v]] <- as.factor(data[[v]])
+    if (inherits(within, "formula")) within <- jmvcore::decomposeFormula(within)
 
     options <- pamlfactorialOptions$new(
         aim = aim,
         means = means,
         sds = sds,
         factors = factors,
+        within = within,
+        r = r,
         power = power,
         n = n,
         sig.level = sig.level,

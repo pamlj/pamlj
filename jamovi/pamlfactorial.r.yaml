@@ -26,6 +26,8 @@ items:
         - factors
         - means
         - sds
+        - within
+        - r
       columns: 
         - name: effect
           title: 'Effect'
@@ -73,6 +75,8 @@ items:
         - factors
         - means
         - sds
+        - within
+        - r
         
       columns: 
         - name: index
@@ -97,6 +101,8 @@ items:
         - factors
         - means
         - sds
+        - within
+        - r
         
       columns:
         - name: es

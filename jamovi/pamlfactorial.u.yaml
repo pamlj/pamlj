@@ -3,6 +3,8 @@ name: pamlfactorial
 jus: '3.0'
 stage: 0
 compilerMode: tame
+events:
+        update: ./pamlfactorial::update
 children:
   - type: LayoutBox
     margin: large
@@ -30,8 +32,6 @@ children:
             name: sds
             maxItemCount: 1
             isTarget: true
-
-
   - type: LayoutBox
     margin: large
     children:
@@ -53,7 +53,35 @@ children:
             label: '&alpha; (type I error rate)'
             format: number
             enable: (!aim:alpha)
-
+  - type: CollapseBox
+    label: Repeated Measures
+    name: panel_repeated
+    collapsed: true
+    stretchFactor: 1
+    children:
+       - type: Supplier
+         name: rmSupplier
+         label: Factors
+         persistentItems: false
+         stretchFactor: 1
+         format: term
+         children:
+             - type: TargetLayoutBox
+               label: Repeated Measures (within)
+               children:
+                       -        type: ListBox
+                                name: within
+                                isTarget: true
+                                valueFilter: unique                                
+                                template:
+                                        type: TermLabel                                
+       - type: LayoutBox
+         margin: large
+         children:
+               - type: TextBox
+                 name: r
+                 format: number
+                
   - type: CollapseBox
     label: Sensitivity Analysis
     name: panel_sensitivity
@@ -149,9 +177,9 @@ children:
     children:
       - type: LayoutBox
         children:
-           - type: CheckBox
-             name: gncp
-           - type: CheckBox
-             name: emeans
-           - type: CheckBox
-             name: esos
+          - type: CheckBox
+            name: gncp
+          - type: CheckBox
+            name: emeans
+          - type: CheckBox
+            name: esos

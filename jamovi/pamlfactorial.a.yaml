@@ -64,6 +64,26 @@ options:
       description:
                 R: a vector of strings naming the fixed factors from `data`. Not needed
                         if `formula` is used.
+
+    - name: within
+      title: Within Factors
+      type: Terms
+      default: null
+      description:
+                R: a vector of strings naming the repeated measures factors from `data`. Not needed
+                        if `formula` is used.
+
+
+    - name: r
+      title: Repeated Measure correlation 
+      type:  Number
+      default: .0
+      min: .0
+      max: .99
+      description:
+                R: |
+                        Expected correlation among repeated measures 
+
     - name: power
       title: Minimal desired power 
       type:  Number

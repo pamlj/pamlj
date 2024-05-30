@@ -495,12 +495,12 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$info$esmax       <- .98
       obj$info$esmin       <- .01
       obj$info$alternative <- "two.sided"
-      obj$info$toaes       <- function(value) value/(1-value)
+      obj$info$r           <- obj$options$r 
+      obj$info$toaes       <- function(value) value/(1-value) 
       obj$info$fromaes     <- function(value) value/(1+value)  
       means   <- obj$options$means
       sds     <- obj$options$sds
       factors <- obj$options$factors
-      
       obj$data<-data.frame(power=obj$options$power,
                            sig.level=obj$options$sig.level)
       
@@ -509,27 +509,70 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       if (is.null(factors)) return()
 
       exdata<-obj$analysis$data
+      within  <- unlist(obj$options$within)
+      between <- setdiff(factors,within)
+
+      if (!is.something(within))       obj$info$r <- 0 
         
       if (nrow(exdata) > 0) {
-        
+        nlevbet<-1
+        nlevwit<-1
         for (f in factors) {
             exdata[[f]]<-factor(exdata[[f]])
             contrasts(exdata[[f]])<-contr.sum(nlevels(exdata[[f]]))
+            if (f %in% between) nlevbet<-nlevbet*nlevels(exdata[[f]])
+            else nlevwit<-nlevwit*nlevels(exdata[[f]])
         }
+        ## we need to be sure that jamovi does not pass the data as factors
+        ## like when the sd are a computed variable with one integer
+        exdata[[means]]<-as.numeric(as.character(exdata[[means]]))
+        exdata[[sds]]<-as.numeric(as.character(exdata[[sds]]))
+
         form<-paste(means,"~",paste(factors,collapse="*"))
         aa<-stats::aov(as.formula(form),data=exdata)
         sumr<-summary(aa)[[1]]
         if (aa$df.residual>0) sumr<-sumr[-nrow(sumr),]
-        ss<-sumr$`Sum Sq`
         ## for sigma, we need to aggregate the sd
         form<-paste(sds,"~",paste(factors,collapse="*"))
         sdmod<-lm(form,data=exdata)
         suppressWarnings({
            msds<-as.data.frame(emmeans::emmeans(sdmod,specs=factors))
          })
-        sigma2<-sum(msds$emmean^2)
-        res<-data.frame(ss=ss)
-        res$es<-res$ss/(res$ss+sigma2)
+         res<-data.frame(source=rownames(sumr),df=sumr$Df)
+         res$type<-"b"
+         res$type<-unlist(lapply(res$source, function(x) {
+             terms<-stringr::str_split(x,":",simplify=T)
+             terms<-trimws(terms)
+             test <-length(intersect(terms,within))>0
+             if (test) return("w")
+             else return("b")
+           }))
+         res$levs<-unlist(lapply(res$source, function(x) {
+             terms<-stringr::str_split(x,":",simplify=T)
+             terms<-trimws(terms)
+             bterms <-intersect(terms,between)
+             levs<-1
+             if (length(bterms)>0) {
+               for (f in bterms) levs<-levs*nlevels(exdata[[f]])
+             }
+             return(levs)
+           }))
+         
+        res$ss<-0
+        res$sigma2<-0
+        mse<-mean(msds$emmean^2)
+        # here comes the magic. This computes the correct partial eta-square for within, between and mixed designs
+        for (i in 1:nrow(res)) {
+           if (res$type[i]=="w") {
+            res$ss[i]     <- sumr$`Sum Sq`[i]
+            res$sigma2[i] <- res$df[i]*nlevbet*mse*(1-obj$info$r)
+           } else {
+            res$ss[i]     <- sumr$`Sum Sq`[i]
+            res$sigma2[i] <- nlevbet*mse*(1+(nlevwit-1)*obj$info$r)
+           }
+        } 
+        res$es<-res$ss/(res$ss+res$sigma2)
+        mark(res)
         res$n=obj$options$n
         res$sig.level=obj$options$sig.level
         res$power=obj$options$power
@@ -539,8 +582,6 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
         obj$extradata<-res
         obj$extradata[[obj$aim]]<-NULL
         obj$extradata$id<-1:nrow(obj$extradata)
-        obj$info$r2<-sum(res$ss)/((sum(res$ss))+sigma2)
-        obj$info$sigma<-sqrt(sigma2)
         class(obj)<-c(class(obj),"glm")
         pwr<-powervector(obj,obj$extradata)
          ## we select the effect to focus on
