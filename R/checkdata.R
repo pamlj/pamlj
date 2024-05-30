@@ -515,94 +515,98 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       if (!is.something(within))       obj$info$r <- 0 
         
       if (nrow(exdata) > 0) {
-        nlevbet<-1
-        nlevwit<-1
-        for (f in factors) {
-            exdata[[f]]<-factor(exdata[[f]])
-            contrasts(exdata[[f]])<-contr.sum(nlevels(exdata[[f]]))
-            if (f %in% between) nlevbet<-nlevbet*nlevels(exdata[[f]])
-            else nlevwit<-nlevwit*nlevels(exdata[[f]])
-        }
+                nlevbet<-1
+                nlevwit<-1
+                for (f in factors) {
+                        exdata[[f]]<-factor(exdata[[f]])
+                        contrasts(exdata[[f]])<-contr.sum(nlevels(exdata[[f]]))
+                        if (f %in% between) nlevbet<-nlevbet*nlevels(exdata[[f]])
+                        else nlevwit<-nlevwit*nlevels(exdata[[f]])
+                 }
+         
         ## we need to be sure that jamovi does not pass the data as factors
         ## like when the sd are a computed variable with one integer
-        exdata[[means]]<-as.numeric(as.character(exdata[[means]]))
-        exdata[[sds]]<-as.numeric(as.character(exdata[[sds]]))
+                exdata[[means]]<-as.numeric(as.character(exdata[[means]]))
+                exdata[[sds]]<-as.numeric(as.character(exdata[[sds]]))
+                
+                # now we start computing the SS
+                form<-paste(means,"~",paste(factors,collapse="*"))
+                aa<-stats::aov(as.formula(form),data=exdata)
+                sumr<-summary(aa)[[1]]
+                res<-as.data.frame(sumr)
+                res$source<-trimws(rownames(res))
+                res$type<-unlist(lapply(res$source, function(x) {
+                            terms<-stringr::str_split(x,":",simplify=T)
+                            terms<-trimws(terms)
+                            test <-length(intersect(terms,within))>0
+                            if (test) return("w")
+                            else return("b")
+                           }))
+                res$cells<-unlist(lapply(res$source, function(x) {
+                             terms<-stringr::str_split(x,":",simplify=T)
+                             terms<-trimws(terms)
+                             bets <-intersect(terms,between)
+                             val<-1
+                             for (f in bets) val<-val*(nlevels(exdata[[f]])-1)
+                             val
+                            }))
+                    #        recall that sumr$`Sum Sq`/sumr$Df # this is for all within
+                    #                    sumr$`Sum Sq`/length(means) # this is for all between
 
-        form<-paste(means,"~",paste(factors,collapse="*"))
-        aa<-stats::aov(as.formula(form),data=exdata)
-        sumr<-summary(aa)[[1]]
-        if (aa$df.residual>0) sumr<-sumr[-nrow(sumr),]
-        ## for sigma, we need to aggregate the sd
-        form<-paste(sds,"~",paste(factors,collapse="*"))
-        sdmod<-lm(form,data=exdata)
-        suppressWarnings({
-           msds<-as.data.frame(emmeans::emmeans(sdmod,specs=factors))
-         })
-         res<-data.frame(source=rownames(sumr),df=sumr$Df)
-         res$type<-"b"
-         res$type<-unlist(lapply(res$source, function(x) {
-             terms<-stringr::str_split(x,":",simplify=T)
-             terms<-trimws(terms)
-             test <-length(intersect(terms,within))>0
-             if (test) return("w")
-             else return("b")
-           }))
-         res$levs<-unlist(lapply(res$source, function(x) {
-             terms<-stringr::str_split(x,":",simplify=T)
-             terms<-trimws(terms)
-             bterms <-intersect(terms,between)
-             levs<-1
-             if (length(bterms)>0) {
-               for (f in bterms) levs<-levs*nlevels(exdata[[f]])
-             }
-             return(levs)
-           }))
-         
-        res$ss<-0
-        res$sigma2<-0
-        mse<-mean(msds$emmean^2)
-        # here comes the magic. This computes the correct partial eta-square for within, between and mixed designs
-        for (i in 1:nrow(res)) {
-           if (res$type[i]=="w") {
-            res$ss[i]     <- sumr$`Sum Sq`[i]
-            res$sigma2[i] <- res$df[i]*nlevbet*mse*(1-obj$info$r)
-           } else {
-            res$ss[i]     <- sumr$`Sum Sq`[i]
-            res$sigma2[i] <- nlevbet*mse*(1+(nlevwit-1)*obj$info$r)
-           }
-        } 
-        res$es<-res$ss/(res$ss+res$sigma2)
-        mark(res)
-        res$n=obj$options$n
-        res$sig.level=obj$options$sig.level
-        res$power=obj$options$power
-        res$df_effect<-sumr$Df
-        res$df_model<- sum(res$df_effect)
-        res$effect<-rownames(sumr)
-        obj$extradata<-res
-        obj$extradata[[obj$aim]]<-NULL
-        obj$extradata$id<-1:nrow(obj$extradata)
-        class(obj)<-c(class(obj),"glm")
-        pwr<-powervector(obj,obj$extradata)
+                # here comes the magic. This computes the correct partial eta-square for within, between and mixed designs
+                
+                # here we compute the expected sums of squares
+                 res$ss<-0
+                 res$sigma2<-0
+                 for (i in seq_len(nrow(res))) {
+                           if (res$type[i]=="b") res$ss[i]<-res$`Sum Sq`[i]/nlevbet
+                           else                 res$ss[i]<-res$cells[i]*res$`Sum Sq`[i]/(nlevbet*res$Df[i])
+                  }
+                # now we compute the expected error(s)
+                 ## first we need to average sds in case there are more cells that needed
+                 form<-paste(sds,"~",paste(factors,collapse="*"))
+                 aa<-stats::aov(as.formula(form),data=exdata)
+                 msds<-as.data.frame(emmeans::emmeans(aa,specs=factors))
+                 mse<-mean(msds$emmean^2)
+                 for (i in 1:nrow(res)) {
+                        if (res$type[i]=="w") {
+                               res$sigma2[i] <- res$Df[i]*nlevbet*mse*(1-obj$info$r)
+                        } else {
+                               res$sigma2[i] <- mse*(1+(nlevwit-1)*obj$info$r)
+                        }
+                  } 
+                 res$es<-res$ss/(res$ss+res$sigma2)
+                 mark(res)
+                 res$n=obj$options$n
+                 res$sig.level=obj$options$sig.level
+                 res$power=obj$options$power
+                 res$df_effect<-sumr$Df
+                 res$df_model<- sum(res$df_effect)
+                 res$effect<-rownames(sumr)
+                 obj$extradata<-res
+                 obj$extradata[[obj$aim]]<-NULL
+                 obj$extradata$id<-1:nrow(obj$extradata)
+                 class(obj)<-c(class(obj),"glm")
+                 pwr<-powervector(obj,obj$extradata)
          ## we select the effect to focus on
-         if (obj$aim=="n") 
-           w<-which.max(pwr$n)
-         else
-           w<-which.min(pwr$es)
-         w<-w[1]
-        obj$data <- subset( obj$extradata, obj$extradata$id==w)
-        obj$data[[obj$aim]]<-NULL
-        obj$info$nmin <- obj$data$df_model + 10  
+                 if (obj$aim=="n") 
+                     w<-which.max(pwr$n)
+                 else
+                     w<-which.min(pwr$es)
+                 w<-w[1]
+                 obj$data <- subset( obj$extradata, obj$extradata$id==w)
+                 obj$data[[obj$aim]]<-NULL
+                 obj$info$nmin <- obj$data$df_model + 10  
         # at least one parameter should be empty for parameters estimation
-        obj$ok <- TRUE
-      } else {
-        form<-as.formula(paste(means,"~",paste(factors,collapse="*")))
-        .names<-attr(terms(form),"term.labels")
-         obj$data<-data.frame(effect=.names, 
+                 obj$ok <- TRUE
+                 } else {
+                  form<-as.formula(paste(means,"~",paste(factors,collapse="*")))
+                .names<-attr(terms(form),"term.labels")
+                 obj$data<-data.frame(effect=.names, 
                               power=obj$options$power,
                               sig.level=obj$options$sig.level)
      
-      }
+                 }         
 
 }
 
