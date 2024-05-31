@@ -28,6 +28,14 @@ items:
         - sds
         - within
         - r
+        - mode
+        - peta_r
+        - peta
+        - effect_groups
+        - design_groups
+        - effect_type
+        - repeated_type
+        
       columns: 
         - name: effect
           title: 'Effect'
@@ -77,6 +85,13 @@ items:
         - sds
         - within
         - r
+        - mode
+        - peta_r
+        - peta
+        - effect_groups
+        - design_groups
+        - effect_type
+        - repeated_type
         
       columns: 
         - name: index
@@ -103,6 +118,13 @@ items:
         - sds
         - within
         - r
+        - mode
+        - peta_r
+        - peta
+        - effect_groups
+        - design_groups
+        - effect_type
+        - repeated_type
         
       columns:
         - name: es

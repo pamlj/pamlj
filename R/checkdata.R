@@ -485,7 +485,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 }
 
 
-.checkdata.factorial <- function(obj) {
+.checkdata.facmeans <- function(obj) {
   
       jinfo("PAMLj: Checkdata factorial")
 

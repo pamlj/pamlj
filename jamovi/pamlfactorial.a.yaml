@@ -17,6 +17,11 @@ options:
       description:
                 R: the data as a data frame
 
+    - name: .caller
+      type: String
+      default: factorial
+      hidden: true
+
     - name: aim
       title: Calculate 
       type:  List
@@ -32,7 +37,17 @@ options:
                 ui: |
                         The aim of the analysis: `N` (default) for sample size, `Power` to estimate power
 
+    - name: mode
+      title: "Input Mode"
+      type: List
+      options:
+            - name: facpeta
+              title: Effect Size
+            - name: facmeans
+              title: Expected Means
+      default: facpeta
 
+## mode factorial
     - name: means
       title: Means
       type: Variable
@@ -62,7 +77,7 @@ options:
         - factor
       default: ~
       description:
-                R: a vector of strings naming the fixed factors from `data`. Not needed
+                R: a vector of strings naming the  factors from `data`. Not needed
                         if `formula` is used.
 
     - name: within
@@ -70,8 +85,7 @@ options:
       type: Terms
       default: null
       description:
-                R: a vector of strings naming the repeated measures factors from `data`. Not needed
-                        if `formula` is used.
+                R: a vector of strings naming the repeated measures factors from `data`. 
 
 
     - name: r
@@ -83,6 +97,62 @@ options:
       description:
                 R: |
                         Expected correlation among repeated measures 
+###### peta mode
+
+    - name: peta
+      title: Partial-eta squared 
+      type:  Number
+      default: .2
+      min: .0
+      max: .99
+
+
+    - name: effect_type
+      type: List
+      title: Effect Type 
+      options:
+          - name: between
+            title: Between-subjects 
+          - name: within
+            title: Within-subjects 
+
+    - name: repeated_type
+      type: List
+      options:
+          - name: repeated
+            title: Effect is only within 
+          - name: mixed
+            title: Effect is within-between interaction 
+
+    - name: repeated_levels
+      title: Number of repeated levels 
+      type:  Number
+      default: 2
+
+    - name:  effect_groups
+      title: Number of groups for the effect
+      type:  Number
+      default: 2
+      min: 1
+
+    - name:  design_groups
+      title: Number of groups in the design 
+      type:  Number
+      default: 2
+      min: 1
+
+    - name: peta_r
+      title: Repeated Measure correlation 
+      type:  Number
+      default: .0
+      min: .0
+      max: .99
+
+
+
+
+
+### commons
 
     - name: power
       title: Minimal desired power 
@@ -214,13 +284,6 @@ options:
       title: "Show table"
       default: false
 
-    - name: .caller
-      type: String
-      default: factorial
-      hidden: true
-      description:
-                R: |
-                        Used for internal purposes 
 
 
     - name: gncp
