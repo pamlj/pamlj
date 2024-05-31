@@ -27,7 +27,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             plot_escurve = FALSE,
             plot_ncurve = FALSE,
             plot_log = FALSE,
-            covs = 1,
+            covs = 0,
             factors = 0,
             factors_list = list(
                 list(var="factor 1", levels=0)),
@@ -163,7 +163,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..covs <- jmvcore::OptionNumber$new(
                 "covs",
                 covs,
-                default=1,
+                default=0,
                 min=0)
             private$..factors <- jmvcore::OptionNumber$new(
                 "factors",
@@ -853,7 +853,7 @@ pamlglm <- function(
     plot_escurve = FALSE,
     plot_ncurve = FALSE,
     plot_log = FALSE,
-    covs = 1,
+    covs = 0,
     factors = 0,
     factors_list = list(
                 list(var="factor 1", levels=0)),

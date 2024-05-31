@@ -147,7 +147,7 @@ options:
     - name: covs
       title: Number of covariates
       type:  Number
-      default: 1
+      default: 0
       min: 0
     - name: factors
       title: Number of factors

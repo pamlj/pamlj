@@ -70,6 +70,47 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 }
 
 
+.powervector.factorial <- function(obj,data) {
+
+
+                if (is.something(data$es)) {
+                                     data$f2<-obj$info$toaes(data$es)
+                                     data$es<-NULL
+                }
+                else 
+                    data$f2 <- NULL
+                if (!is.something(data$n)) 
+                                     data$v<-NULL
+                else
+                    data[["v"]]<- data$n*data$edfw-(data$edfw*data$edfb)
+
+                 results<-lapply(1:nrow(data),function(i) {
+                   one<-data[i,]
+                   pamlj.glm(u=one$df_effect,
+                             v=one$v,
+                             f2=one$f2,
+                             power=one$power,
+                              sig.level=one$sig.level,
+                              df_model=one$df_model,
+                              gpower=obj$options$gncp,
+                              alternative=as.character(obj$info$alternative)
+                              )
+                    
+                    })
+                 results<-as.data.frame(do.call("rbind",results))
+                 for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
+                 results$es<-obj$info$fromaes(results$f2)
+                 odata<-data[, !names(data) %in% names(results)]
+                 results<-cbind(odata,results)
+                 results$df1 <- results$df_effect
+                 results$df2 <- ceiling(results$v)
+                 mark("pwfun")                
+                 mark(data)
+                 results$n   <- ((data$edfw*data$edfb)+results$df2)/data$edfw
+
+                return(results)
+}
+
 
 
 

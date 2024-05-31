@@ -508,7 +508,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       if (is.null(sds))     return()
       if (is.null(factors)) return()
 
-      exdata<-obj$analysis$data
+      exdata  <-obj$analysis$data
       within  <- unlist(obj$options$within)
       between <- setdiff(factors,within)
 
@@ -542,41 +542,50 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                             if (test) return("w")
                             else return("b")
                            }))
-                res$cells<-unlist(lapply(res$source, function(x) {
-                             terms<-stringr::str_split(x,":",simplify=T)
-                             terms<-trimws(terms)
-                             bets <-intersect(terms,between)
-                             val<-1
-                             for (f in bets) val<-val*(nlevels(exdata[[f]])-1)
-                             val
-                            }))
-                    #        recall that sumr$`Sum Sq`/sumr$Df # this is for all within
-                    #                    sumr$`Sum Sq`/length(means) # this is for all between
+            res$edfw<-0
+            res$edfb<-0
+            res$cell<-0
+            for (i in seq_len(nrow(res))) {
+             type<-res$type[i]
+             x<-res$source[i]
+             terms<-stringr::str_split(x,":",simplify=T)
+             terms<-trimws(terms)
+             wits <-intersect(terms,within)
+             val<-1
+             for (f in wits) val<-val*(nlevels(exdata[[f]])-1)
+             res$edfw[i]<-val
+             bets <-intersect(terms,between)
+             val<-1
+             for (f in bets) val<-val*(nlevels(exdata[[f]])-1)
+             res$cell[i]<-val
+             res$edfb[i]<-nlevbet
 
-                # here comes the magic. This computes the correct partial eta-square for within, between and mixed designs
-                
-                # here we compute the expected sums of squares
-                 res$ss<-0
-                 res$sigma2<-0
-                 for (i in seq_len(nrow(res))) {
-                           if (res$type[i]=="b") res$ss[i]<-res$`Sum Sq`[i]/nlevbet
-                           else                 res$ss[i]<-res$cells[i]*res$`Sum Sq`[i]/(nlevbet*res$Df[i])
-                  }
-                # now we compute the expected error(s)
-                 ## first we need to average sds in case there are more cells that needed
+            }
+            
+        ### this formulas are equivalent to standard computation of SS for mixed anova
+        ### they are slightly different in order to reflect the computation 
+        ### of SS in car::Anova() dividing everything by the error DF.
+        ### They lead to the correct partial eta-square anyway.
+
+        for (i in seq_len(nrow(res))) {
+          if (res$type[i]=="b") res$ss[i]<-res$`Sum Sq`[i]/nlevbet
+          else               res$ss[i]<-res$cell[i]*res$`Sum Sq`[i]/(nlevbet*res$Df[i])
+        }
                  form<-paste(sds,"~",paste(factors,collapse="*"))
                  aa<-stats::aov(as.formula(form),data=exdata)
                  msds<-as.data.frame(emmeans::emmeans(aa,specs=factors))
+
                  mse<-mean(msds$emmean^2)
                  for (i in 1:nrow(res)) {
                         if (res$type[i]=="w") {
-                               res$sigma2[i] <- res$Df[i]*nlevbet*mse*(1-obj$info$r)
+                               res$sigma2[i] <- mse*(1-obj$info$r)
+                               
                         } else {
                                res$sigma2[i] <- mse*(1+(nlevwit-1)*obj$info$r)
                         }
                   } 
+                 
                  res$es<-res$ss/(res$ss+res$sigma2)
-                 mark(res)
                  res$n=obj$options$n
                  res$sig.level=obj$options$sig.level
                  res$power=obj$options$power
@@ -586,7 +595,6 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                  obj$extradata<-res
                  obj$extradata[[obj$aim]]<-NULL
                  obj$extradata$id<-1:nrow(obj$extradata)
-                 class(obj)<-c(class(obj),"glm")
                  pwr<-powervector(obj,obj$extradata)
          ## we select the effect to focus on
                  if (obj$aim=="n") 
