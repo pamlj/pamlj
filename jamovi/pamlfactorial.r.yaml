@@ -35,7 +35,8 @@ items:
         - design_groups
         - effect_type
         - repeated_type
-        
+        - df_effect
+        - ncp_type
       columns: 
         - name: effect
           title: 'Effect'
@@ -56,9 +57,6 @@ items:
         - name: power
           title: 'Power'
           type: number
-        - name: df_model
-          title: 'df(model)'
-          type: integer
         - name: df1
           title: 'df'
           type: integer
@@ -70,36 +68,6 @@ items:
           type: number
 
 
-    - name:  effectsize
-      title: Computed Parameters
-      type: Table
-      clearWith:
-        - es
-        - power
-        - n
-        - sig.level
-        - aim
-        - alternative
-        - factors
-        - means
-        - sds
-        - within
-        - r
-        - mode
-        - peta_r
-        - peta
-        - effect_groups
-        - design_groups
-        - effect_type
-        - repeated_type
-        
-      columns: 
-        - name: index
-          title: 'Index'
-          type: text
-        - name: value
-          title: 'Value'
-          type: number
 
 
     - name:  powerbyes
@@ -121,10 +89,12 @@ items:
         - mode
         - peta_r
         - peta
+        - df_effect
         - effect_groups
         - design_groups
         - effect_type
         - repeated_type
+        - ncp_type
         
       columns:
         - name: es

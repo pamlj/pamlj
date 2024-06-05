@@ -54,7 +54,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                              power=one$power,
                               sig.level=one$sig.level,
                               df_model=one$df_model,
-                              gpower=obj$options$gncp,
+                              ncp_type=obj$options$ncp_type,
                               alternative=as.character(obj$info$alternative)
                               )
                     
@@ -66,13 +66,14 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                  results<-cbind(odata,results)
                  results$df1<-results$df_effect
                  results$df2<-ceiling(results$v)
+               
                 return(results)
 }
 
 
 .powervector.factorial <- function(obj,data) {
 
-
+                jinfo("PAMLj: Factorial power function")
                 if (is.something(data$es)) {
                                      data$f2<-obj$info$toaes(data$es)
                                      data$es<-NULL
@@ -82,17 +83,21 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                 if (!is.something(data$n)) 
                                      data$v<-NULL
                 else
-                    data[["v"]]<- data$n*data$edfw-(data$edfw*data$edfb)
+                    data[["v"]]<- data$edfw*(data$n-data$edfb-1)
+
 
                  results<-lapply(1:nrow(data),function(i) {
                    one<-data[i,]
+                   if (one$type=="w" && obj$options$ncp_type=="gpower") ncp<-"strict"
+                   else ncp<-obj$options$ncp_type
+
                    pamlj.glm(u=one$df_effect,
                              v=one$v,
                              f2=one$f2,
                              power=one$power,
                               sig.level=one$sig.level,
                               df_model=one$df_model,
-                              gpower=obj$options$gncp,
+                              ncp_type=ncp,
                               alternative=as.character(obj$info$alternative)
                               )
                     
@@ -104,10 +109,8 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                  results<-cbind(odata,results)
                  results$df1 <- results$df_effect
                  results$df2 <- ceiling(results$v)
-                 mark("pwfun")                
-                 mark(data)
-                 results$n   <- ((data$edfw*data$edfb)+results$df2)/data$edfw
-
+                 results$n   <- (results$df2/data$edfw)+data$edfb+1
+                 mark(results)
                 return(results)
 }
 

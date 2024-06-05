@@ -17,10 +17,9 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
             peta = 0.2,
             effect_type = NULL,
             repeated_type = NULL,
-            repeated_levels = 2,
+            df_effect = 1,
             effect_groups = 2,
             design_groups = 2,
-            peta_r = 0,
             power = 0.9,
             n = 20,
             sig.level = 0.05,
@@ -37,7 +36,7 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
             plot_z_lines = 0,
             plot_z_value = list(),
             plot_to_table = FALSE,
-            gncp = TRUE,
+            ncp_type = NULL,
             emeans = FALSE,
             esos = FALSE, ...) {
 
@@ -86,7 +85,7 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                 permitted=list(
                     "factor"),
                 default=NULL)
-            private$..within <- jmvcore::OptionTerms$new(
+            private$..within <- jmvcore::OptionVariables$new(
                 "within",
                 within,
                 default=NULL)
@@ -114,10 +113,10 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                 options=list(
                     "repeated",
                     "mixed"))
-            private$..repeated_levels <- jmvcore::OptionNumber$new(
-                "repeated_levels",
-                repeated_levels,
-                default=2)
+            private$..df_effect <- jmvcore::OptionNumber$new(
+                "df_effect",
+                df_effect,
+                default=1)
             private$..effect_groups <- jmvcore::OptionNumber$new(
                 "effect_groups",
                 effect_groups,
@@ -128,12 +127,6 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                 design_groups,
                 default=2,
                 min=1)
-            private$..peta_r <- jmvcore::OptionNumber$new(
-                "peta_r",
-                peta_r,
-                default=0,
-                min=0,
-                max=0.99)
             private$..power <- jmvcore::OptionNumber$new(
                 "power",
                 power,
@@ -219,10 +212,13 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                 "plot_to_table",
                 plot_to_table,
                 default=FALSE)
-            private$..gncp <- jmvcore::OptionBool$new(
-                "gncp",
-                gncp,
-                default=TRUE)
+            private$..ncp_type <- jmvcore::OptionList$new(
+                "ncp_type",
+                ncp_type,
+                options=list(
+                    "gpower",
+                    "liberal",
+                    "strict"))
             private$..emeans <- jmvcore::OptionBool$new(
                 "emeans",
                 emeans,
@@ -243,10 +239,9 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
             self$.addOption(private$..peta)
             self$.addOption(private$..effect_type)
             self$.addOption(private$..repeated_type)
-            self$.addOption(private$..repeated_levels)
+            self$.addOption(private$..df_effect)
             self$.addOption(private$..effect_groups)
             self$.addOption(private$..design_groups)
-            self$.addOption(private$..peta_r)
             self$.addOption(private$..power)
             self$.addOption(private$..n)
             self$.addOption(private$..sig.level)
@@ -263,7 +258,7 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
             self$.addOption(private$..plot_z_lines)
             self$.addOption(private$..plot_z_value)
             self$.addOption(private$..plot_to_table)
-            self$.addOption(private$..gncp)
+            self$.addOption(private$..ncp_type)
             self$.addOption(private$..emeans)
             self$.addOption(private$..esos)
         }),
@@ -279,10 +274,9 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
         peta = function() private$..peta$value,
         effect_type = function() private$..effect_type$value,
         repeated_type = function() private$..repeated_type$value,
-        repeated_levels = function() private$..repeated_levels$value,
+        df_effect = function() private$..df_effect$value,
         effect_groups = function() private$..effect_groups$value,
         design_groups = function() private$..design_groups$value,
-        peta_r = function() private$..peta_r$value,
         power = function() private$..power$value,
         n = function() private$..n$value,
         sig.level = function() private$..sig.level$value,
@@ -299,7 +293,7 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
         plot_z_lines = function() private$..plot_z_lines$value,
         plot_z_value = function() private$..plot_z_value$value,
         plot_to_table = function() private$..plot_to_table$value,
-        gncp = function() private$..gncp$value,
+        ncp_type = function() private$..ncp_type$value,
         emeans = function() private$..emeans$value,
         esos = function() private$..esos$value),
     private = list(
@@ -314,10 +308,9 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
         ..peta = NA,
         ..effect_type = NA,
         ..repeated_type = NA,
-        ..repeated_levels = NA,
+        ..df_effect = NA,
         ..effect_groups = NA,
         ..design_groups = NA,
-        ..peta_r = NA,
         ..power = NA,
         ..n = NA,
         ..sig.level = NA,
@@ -334,7 +327,7 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
         ..plot_z_lines = NA,
         ..plot_z_value = NA,
         ..plot_to_table = NA,
-        ..gncp = NA,
+        ..ncp_type = NA,
         ..emeans = NA,
         ..esos = NA)
 )
@@ -346,7 +339,6 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
         intro = function() private$.items[["intro"]],
         issues = function() private$.items[["issues"]],
         powertab = function() private$.items[["powertab"]],
-        effectsize = function() private$.items[["effectsize"]],
         powerbyes = function() private$.items[["powerbyes"]],
         means = function() private$.items[["means"]],
         powerContour = function() private$.items[["powerContour"]],
@@ -393,7 +385,9 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                     "effect_groups",
                     "design_groups",
                     "effect_type",
-                    "repeated_type"),
+                    "repeated_type",
+                    "df_effect",
+                    "ncp_type"),
                 columns=list(
                     list(
                         `name`="effect", 
@@ -421,10 +415,6 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                         `title`="Power", 
                         `type`="number"),
                     list(
-                        `name`="df_model", 
-                        `title`="df(model)", 
-                        `type`="integer"),
-                    list(
                         `name`="df1", 
                         `title`="df", 
                         `type`="integer"),
@@ -435,38 +425,6 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                     list(
                         `name`="sig.level", 
                         `title`="&alpha;", 
-                        `type`="number"))))
-            self$add(jmvcore::Table$new(
-                options=options,
-                name="effectsize",
-                title="Computed Parameters",
-                clearWith=list(
-                    "es",
-                    "power",
-                    "n",
-                    "sig.level",
-                    "aim",
-                    "alternative",
-                    "factors",
-                    "means",
-                    "sds",
-                    "within",
-                    "r",
-                    "mode",
-                    "peta_r",
-                    "peta",
-                    "effect_groups",
-                    "design_groups",
-                    "effect_type",
-                    "repeated_type"),
-                columns=list(
-                    list(
-                        `name`="index", 
-                        `title`="Index", 
-                        `type`="text"),
-                    list(
-                        `name`="value", 
-                        `title`="Value", 
                         `type`="number"))))
             self$add(jmvcore::Table$new(
                 options=options,
@@ -488,10 +446,12 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                     "mode",
                     "peta_r",
                     "peta",
+                    "df_effect",
                     "effect_groups",
                     "design_groups",
                     "effect_type",
-                    "repeated_type"),
+                    "repeated_type",
+                    "ncp_type"),
                 columns=list(
                     list(
                         `name`="es", 
@@ -631,10 +591,9 @@ pamlfactorialBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param peta .
 #' @param effect_type .
 #' @param repeated_type .
-#' @param repeated_levels .
+#' @param df_effect .
 #' @param effect_groups .
 #' @param design_groups .
-#' @param peta_r .
 #' @param power Minimal desired power
 #' @param n Sample size
 #' @param sig.level Type I error rate (significance cut-off or alpha)
@@ -651,7 +610,7 @@ pamlfactorialBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param plot_z_lines .
 #' @param plot_z_value .
 #' @param plot_to_table .
-#' @param gncp .
+#' @param ncp_type .
 #' @param emeans .
 #' @param esos .
 #' @return A results object containing:
@@ -659,7 +618,6 @@ pamlfactorialBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$issues} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
-#'   \code{results$effectsize} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powerbyes} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$means} \tab \tab \tab \tab \tab an array of predicted means tables \cr
 #'   \code{results$powerContour} \tab \tab \tab \tab \tab an image \cr
@@ -690,10 +648,9 @@ pamlfactorial <- function(
     peta = 0.2,
     effect_type,
     repeated_type,
-    repeated_levels = 2,
+    df_effect = 1,
     effect_groups = 2,
     design_groups = 2,
-    peta_r = 0,
     power = 0.9,
     n = 20,
     sig.level = 0.05,
@@ -710,7 +667,7 @@ pamlfactorial <- function(
     plot_z_lines = 0,
     plot_z_value = list(),
     plot_to_table = FALSE,
-    gncp = TRUE,
+    ncp_type,
     emeans = FALSE,
     esos = FALSE) {
 
@@ -720,15 +677,16 @@ pamlfactorial <- function(
     if ( ! missing(means)) means <- jmvcore::resolveQuo(jmvcore::enquo(means))
     if ( ! missing(sds)) sds <- jmvcore::resolveQuo(jmvcore::enquo(sds))
     if ( ! missing(factors)) factors <- jmvcore::resolveQuo(jmvcore::enquo(factors))
+    if ( ! missing(within)) within <- jmvcore::resolveQuo(jmvcore::enquo(within))
     if (missing(data))
         data <- jmvcore::marshalData(
             parent.frame(),
             `if`( ! missing(means), means, NULL),
             `if`( ! missing(sds), sds, NULL),
-            `if`( ! missing(factors), factors, NULL))
+            `if`( ! missing(factors), factors, NULL),
+            `if`( ! missing(within), within, NULL))
 
     for (v in factors) if (v %in% names(data)) data[[v]] <- as.factor(data[[v]])
-    if (inherits(within, "formula")) within <- jmvcore::decomposeFormula(within)
 
     options <- pamlfactorialOptions$new(
         .caller = .caller,
@@ -742,10 +700,9 @@ pamlfactorial <- function(
         peta = peta,
         effect_type = effect_type,
         repeated_type = repeated_type,
-        repeated_levels = repeated_levels,
+        df_effect = df_effect,
         effect_groups = effect_groups,
         design_groups = design_groups,
-        peta_r = peta_r,
         power = power,
         n = n,
         sig.level = sig.level,
@@ -762,7 +719,7 @@ pamlfactorial <- function(
         plot_z_lines = plot_z_lines,
         plot_z_value = plot_z_value,
         plot_to_table = plot_to_table,
-        gncp = gncp,
+        ncp_type = ncp_type,
         emeans = emeans,
         esos = esos)
 

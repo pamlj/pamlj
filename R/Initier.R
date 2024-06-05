@@ -38,7 +38,7 @@ Initer <- R6::R6Class(
           self$info$loges               <- function(value) FALSE
 
           ## set the class of self so the S3 methods may dispatch to the right functions
-          class(self)<-unique(c(self$caller,self$mode,class(self)))
+          class(self)<-unique(c(self$mode,self$caller,class(self)))
            
           jinfo("PAMLj: Initializing",self$caller,self$mode)
           ## checkdata update the data depending on the type of test we are running (via S3 dispatch)

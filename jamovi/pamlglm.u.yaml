@@ -337,7 +337,17 @@ children:
         style: inline
         children:
           - type: Label
-            label: Other Options
+            label: Non-Centrality Parameter (NCP)
             children:
-              - name: gncp
-                type: CheckBox
+                 - name: ncp_type_gpower
+                   type: RadioButton
+                   optionName: ncp_type
+                   optionPart: gpower
+                 - name: ncp_type_liberal
+                   type: RadioButton
+                   optionName: ncp_type
+                   optionPart: liberal
+                 - name: ncp_type_strict
+                   type: RadioButton
+                   optionName: ncp_type
+                   optionPart: strict

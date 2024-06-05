@@ -36,6 +36,12 @@ children:
                          label: Effect Information
                          children:
                           - type: LayoutBox
+                            name: df_box
+                            children:         
+                              - type: TextBox
+                                name: df_effect
+                                format: number
+                          - type: LayoutBox
                             name: repeated_type_box
                             style: list
                             children:
@@ -47,16 +53,13 @@ children:
                                 type: RadioButton
                                 optionName: repeated_type
                                 optionPart: mixed
-                              - type: TextBox
-                                name: repeated_levels
-                                format: number
-                          - type: LayoutBox
-                            name: effect_groups_box
-                            children:         
-                               - type: TextBox
-                                 name: effect_groups
-                                 format: number
-                         
+                              - type: LayoutBox
+                                name: effect_groups_box
+                                children:         
+                                       - type: TextBox
+                                         name: effect_groups
+                                         format: number
+
                        - type: Label
                          label: Design Information
                          children:
@@ -71,12 +74,6 @@ children:
                                 - type: TextBox
                                   name: design_groups
                                   format: number
-                                - type: LayoutBox
-                                  name: peta_r_box
-                                  children:
-                                     - type: TextBox
-                                       name: peta_r
-                                       format: number
 
 
       - type: Content
@@ -145,7 +142,7 @@ children:
                 isTarget: true
                 valueFilter: unique
                 template:
-                  type: TermLabel
+                  type: VariableLabel
       - type: LayoutBox
         margin: large
         children:
@@ -246,11 +243,26 @@ children:
     stretchFactor: 1
     children:
       - type: LayoutBox
+        style: inline
         children:
-          - type: CheckBox
-            name: gncp
-          - type: LayoutBox
-            style: list
+          - type: Label
+            label: Non-Centrality Parameter (NCP)
+            children:
+                 - name: ncp_type_gpower
+                   type: RadioButton
+                   optionName: ncp_type
+                   optionPart: gpower
+                 - name: ncp_type_liberal
+                   type: RadioButton
+                   optionName: ncp_type
+                   optionPart: liberal
+                 - name: ncp_type_strict
+                   type: RadioButton
+                   optionName: ncp_type
+                   optionPart: strict
+
+          - type: Label
+            label: Additional Info
             name: facmeans_options
             children:
                 - type: CheckBox

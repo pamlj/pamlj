@@ -41,7 +41,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             gpower = 0,
             f2 = 0,
             use = "none",
-            gncp = TRUE,
+            ncp_type = NULL,
             rx = NULL,
             plot_x = "none",
             plot_y = "none",
@@ -243,10 +243,13 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "gpower",
                     "f2"),
                 default="none")
-            private$..gncp <- jmvcore::OptionBool$new(
-                "gncp",
-                gncp,
-                default=TRUE)
+            private$..ncp_type <- jmvcore::OptionList$new(
+                "ncp_type",
+                ncp_type,
+                options=list(
+                    "gpower",
+                    "liberal",
+                    "strict"))
             private$..rx <- jmvcore::OptionVariables$new(
                 "rx",
                 rx,
@@ -347,7 +350,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..gpower)
             self$.addOption(private$..f2)
             self$.addOption(private$..use)
-            self$.addOption(private$..gncp)
+            self$.addOption(private$..ncp_type)
             self$.addOption(private$..rx)
             self$.addOption(private$..plot_x)
             self$.addOption(private$..plot_y)
@@ -394,7 +397,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         gpower = function() private$..gpower$value,
         f2 = function() private$..f2$value,
         use = function() private$..use$value,
-        gncp = function() private$..gncp$value,
+        ncp_type = function() private$..ncp_type$value,
         rx = function() private$..rx$value,
         plot_x = function() private$..plot_x$value,
         plot_y = function() private$..plot_y$value,
@@ -440,7 +443,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..gpower = NA,
         ..f2 = NA,
         ..use = NA,
-        ..gncp = NA,
+        ..ncp_type = NA,
         ..rx = NA,
         ..plot_x = NA,
         ..plot_y = NA,
@@ -508,7 +511,7 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "e_r2",
                     "v_r2",
                     "b_r2",
-                    "gncp",
+                    "ncp_type",
                     "rx",
                     "ry"),
                 columns=list(
@@ -564,10 +567,10 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "e_r2",
                     "v_r2",
                     "b_r2",
-                    "gncp",
+                    "ncp_type",
                     "rx",
                     "ry",
-                    "gncp"),
+                    "ncp_type"),
                 columns=list(
                     list(
                         `name`="index", 
@@ -601,10 +604,10 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "e_r2",
                     "v_r2",
                     "b_r2",
-                    "gncp",
+                    "ncp_type",
                     "rx",
                     "ry",
-                    "gncp"),
+                    "ncp_type"),
                 columns=list(
                     list(
                         `name`="es", 
@@ -641,7 +644,7 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "e_df_model",
                     "e_r2",
                     "v_r2",
-                    "gncp",
+                    "ncp_type",
                     "plot_log")))
             self$add(jmvcore::Image$new(
                 options=options,
@@ -666,7 +669,7 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "e_df_model",
                     "e_r2",
                     "v_r2",
-                    "gncp",
+                    "ncp_type",
                     "plot_log")))
             self$add(jmvcore::Image$new(
                 options=options,
@@ -691,7 +694,7 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "e_df_model",
                     "e_r2",
                     "v_r2",
-                    "gncp",
+                    "ncp_type",
                     "plot_log")))
             self$add(jmvcore::Image$new(
                 options=options,
@@ -796,7 +799,7 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param gpower .
 #' @param f2 .
 #' @param use .
-#' @param gncp .
+#' @param ncp_type .
 #' @param rx a vector of strings naming the columns from \code{data}
 #'   containing the correlations among independent variables
 #' @param plot_x .
@@ -867,7 +870,7 @@ pamlglm <- function(
     gpower = 0,
     f2 = 0,
     use = "none",
-    gncp = TRUE,
+    ncp_type,
     rx = NULL,
     plot_x = "none",
     plot_y = "none",
@@ -924,7 +927,7 @@ pamlglm <- function(
         gpower = gpower,
         f2 = f2,
         use = use,
-        gncp = gncp,
+        ncp_type = ncp_type,
         rx = rx,
         plot_x = plot_x,
         plot_y = plot_y,

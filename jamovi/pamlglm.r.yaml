@@ -36,7 +36,7 @@ items:
         - e_r2
         - v_r2
         - b_r2
-        - gncp
+        - ncp_type
         - rx
         - ry
       columns: 
@@ -85,10 +85,10 @@ items:
         - e_r2
         - v_r2
         - b_r2
-        - gncp
+        - ncp_type
         - rx
         - ry
-        - gncp
+        - ncp_type
         
       columns: 
         - name: index
@@ -122,10 +122,10 @@ items:
         - e_r2
         - v_r2
         - b_r2
-        - gncp
+        - ncp_type
         - rx
         - ry
-        - gncp
+        - ncp_type
         
       columns:
         - name: es
@@ -164,7 +164,7 @@ items:
         - e_df_model
         - e_r2
         - v_r2
-        - gncp
+        - ncp_type
         - plot_log
     - name: powerEscurve
       title: Power Curve by Effect Size
@@ -188,7 +188,7 @@ items:
         - e_df_model
         - e_r2
         - v_r2
-        - gncp
+        - ncp_type
         - plot_log
 
     - name: powerNcurve
@@ -213,7 +213,7 @@ items:
         - e_df_model
         - e_r2
         - v_r2
-        - gncp
+        - ncp_type
         - plot_log
 
     - name: powerCustom

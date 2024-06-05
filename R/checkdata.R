@@ -487,7 +487,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
 .checkdata.facmeans <- function(obj) {
   
-      jinfo("PAMLj: Checkdata factorial")
+      jinfo("PAMLj: Checkdata factorial facmeans")
 
       obj$ok <- FALSE
 
@@ -558,7 +558,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
              val<-1
              for (f in bets) val<-val*(nlevels(exdata[[f]])-1)
              res$cell[i]<-val
-             res$edfb[i]<-nlevbet
+             res$edfb[i]<-nlevbet-1
 
             }
             
@@ -616,6 +616,47 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
      
                  }         
 
+}
+
+
+.checkdata.facpeta <- function(obj) {
+  
+      jinfo("PAMLj: Checkdata factorial facpeta")
+      obj$info$letter      <- letter_peta2
+      obj$info$esmax       <- .98
+      obj$info$esmin       <- .01
+      obj$info$alternative <- "two.sided"
+      obj$info$toaes       <- function(value) value/(1-value) 
+      obj$info$fromaes     <- function(value) value/(1+value)  
+      obj$data<-data.frame(power=obj$options$power,
+                           sig.level=obj$options$sig.level,
+                           n=obj$options$n)
+      
+      obj$data$es<-obj$options$peta
+      design<-obj$options$effect_type
+      type<-obj$options$repeated_type
+
+      if (design=="within") {
+         obj$data$type<-"w"
+         obj$data$edfb <- obj$options$design_groups-1
+         #if (obj$data$edfb==0) obj$data$edfb<-1
+         obj$data$edfw <- obj$options$df_effect
+         obj$data$df_effect<-obj$data$edfw
+         obj$data$df_model<- obj$options$design_groups-1
+         obj$data$effect<-"Within"
+         
+      } else {
+         obj$data$type<-"b"
+         obj$data$edfb <- obj$options$design_groups-1
+         obj$data$edfw <- 1
+         obj$data$effect<-"Between"
+         obj$data$df_model<- obj$options$design_groups-1
+         obj$data$df_effect<- obj$options$df_effect
+
+      }
+   
+      obj$data[[obj$aim]]<-NULL
+    
 }
 
 

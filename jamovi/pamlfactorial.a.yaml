@@ -82,7 +82,7 @@ options:
 
     - name: within
       title: Within Factors
-      type: Terms
+      type: Variables
       default: null
       description:
                 R: a vector of strings naming the repeated measures factors from `data`. 
@@ -124,10 +124,10 @@ options:
           - name: mixed
             title: Effect is within-between interaction 
 
-    - name: repeated_levels
-      title: Number of repeated levels 
+    - name: df_effect
+      title: Effect degrees of freedom 
       type:  Number
-      default: 2
+      default: 1
 
     - name:  effect_groups
       title: Number of groups for the effect
@@ -141,12 +141,6 @@ options:
       default: 2
       min: 1
 
-    - name: peta_r
-      title: Repeated Measure correlation 
-      type:  Number
-      default: .0
-      min: .0
-      max: .99
 
 
 
@@ -286,10 +280,17 @@ options:
 
 
 
-    - name: gncp
-      type: Bool
-      title: "G*Power NCP"
-      default: true
+    - name: ncp_type
+      type: List
+      options:
+        - name: gpower
+          title: "Model-based"
+        - name: liberal
+          title: Liberal
+        - name: strict
+          title: Strict
+
+
     - name: emeans
       type: Bool
       title: "Expected Means"

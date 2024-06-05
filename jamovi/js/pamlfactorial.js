@@ -14,8 +14,8 @@ const events = {
     effect_type_changed: function(ui) {
          update_facpeta(ui);
          if (ui.effect_type.value()==="within") {
-            ui.design_groups.setValue(2);
-            ui.effect_groups.setValue(2);
+            ui.design_groups.setValue(1);
+            ui.effect_groups.setValue(1);
          }
     },
     repeated_type_changed: function(ui) {
@@ -41,6 +41,25 @@ const events = {
       if (val2<val1) ui.design_groups.setValue(val1);
     },
      design_groups_changed: function(ui) {
+    },
+     df_effect_changed: function(ui) {
+       
+      var val1=ui.design_groups.value();
+      if (val1<1) {
+        ui.design_groups.setValue(1);
+        return
+      }
+      var val2=ui.df_effect.value();
+      var val3=ui.effect_groups.value();
+      
+      if (ui.effect_type.value()=="between") {
+           if (val1<(val2+1)) ui.design_groups.setValue(val2+1);
+      } else {
+        if (ui.repeated_type.value()=="mixed") {
+                   if (val1<val3) ui.design_groups.setValue(val3);
+        } 
+      }
+
     },
 
     plot_x_changed: function(ui) {
@@ -90,9 +109,7 @@ const events = {
     },
     
     factors_changed: function(ui) {
-      
           updateRmSupplier(ui);
-          
     },
     
     rmSupplier_updated: function(ui) {
@@ -101,8 +118,8 @@ const events = {
     
     rmSupplier_changed: function(ui) {
 
-      let values = utils.itemsToValues(ui.rmSupplier.value());
-          utils.checkValue(ui.within, true, values, FormatDef.term);
+//      let values = utils.itemsToValues(ui.rmSupplier.value());
+//          utils.checkValue(ui.within, true, values, FormatDef.term);
 
         }
 
@@ -155,7 +172,6 @@ var update_facpeta = function(ui) {
       
       if (ui.effect_type.value() === "between") {
           ui.repeated_type_box.$el.hide();
-          ui.peta_r_box.$el.hide();
           ui.effect_groups_box.$el.show();
           if (ui.design_groups.value()<2) {
             ui.design_groups.setValue(ui.effect_groups.value());
@@ -163,7 +179,6 @@ var update_facpeta = function(ui) {
           
       } else {
           ui.repeated_type_box.$el.show();
-          ui.peta_r_box.$el.show();
           if (ui.repeated_type.value()==="repeated") {
                 ui.effect_groups_box.$el.hide();
           } else {

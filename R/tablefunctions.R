@@ -6,8 +6,14 @@ powertab <- function(obj, ...) UseMethod(".powertab")
 .powertab.default <- function(obj) return(obj$data)
 
 
+.powertab.facpeta <- function(obj) {
+
+   return(obj$data)
+   
+}
+
 .powertab.factorial <- function(obj) {
-  
+
    tab<-powervector(obj,obj$extradata)
    attr(tab,"titles")<-list(es=letter_peta2)
    return(tab)

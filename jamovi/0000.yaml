@@ -57,7 +57,14 @@ analyses:
     menuTitle: Factorial Designs
     description: |
       Something here
+datasets:
+  - name: factorial
+    path: factorial.csv
+    description: Factorial design means and sd
+    tags:
+      - Power analysis
+      - Factorial design
 usesNative: true
-minApp: 1.0.8
+minApp: 2.3.12
 
 ...
