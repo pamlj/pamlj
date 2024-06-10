@@ -8,7 +8,7 @@ Version 0.2.*
 </center>
 <br>
 
-Estimation power parameters (required sample size, posthoc power, minimal detectable effect size and required alpha) for  General Linear Models.
+Estimation power parameters (required sample size, expected power, minimal detectable effect size and required alpha) for  General Linear Models.
 
 
 * Correlation
