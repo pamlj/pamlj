@@ -102,6 +102,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                               )
                     
                     })
+  
                  results<-as.data.frame(do.call("rbind",results))
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
                  results$es<-obj$info$fromaes(results$f2)
@@ -109,8 +110,11 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                  results<-cbind(odata,results)
                  results$df1 <- results$df_effect
                  results$df2 <- ceiling(results$v)
-                 results$n   <- (results$df2/data$edfw)+data$edfb+1
-                 mark(results)
+                 results$n   <- round((results$df2/data$edfw)+data$edfb+1)
+                 n<-results$n
+                 k<- data$edfb+1
+                 n = n + k/2;
+                 results$nb = (n - (n%%k))/k;
                 return(results)
 }
 

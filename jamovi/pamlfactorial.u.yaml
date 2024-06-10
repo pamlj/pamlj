@@ -132,7 +132,7 @@ children:
         label: Factors
         persistentItems: false
         stretchFactor: 1
-        format: term
+        format: VariableLabel
         children:
           - type: TargetLayoutBox
             label: Repeated Measures (within)

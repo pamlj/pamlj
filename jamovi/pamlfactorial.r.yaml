@@ -16,6 +16,7 @@ items:
     - name:  powertab
       title: A Priori Power Analysis
       type: Table
+     
       clearWith:
         - es
         - power
@@ -38,11 +39,14 @@ items:
         - df_effect
         - ncp_type
       columns: 
-        - name: effect
+        - name: source
           title: 'Effect'
           type: text
         - name: n
           title: 'N'
+          type: integer
+        - name: nb
+          title: 'N-group'
           type: integer
         - name: ss
           title: 'SS'

@@ -8,6 +8,9 @@ powertab <- function(obj, ...) UseMethod(".powertab")
 
 .powertab.facpeta <- function(obj) {
 
+   if (any(obj$data$n!=obj$data$nb))
+                    warning("N per group (N-group) is adjusted to obtain a balanced design.")
+
    return(obj$data)
    
 }
@@ -16,6 +19,10 @@ powertab <- function(obj, ...) UseMethod(".powertab")
 
    tab<-powervector(obj,obj$extradata)
    attr(tab,"titles")<-list(es=letter_peta2)
+   mark(tab)
+   if (any(tab$n!=tab$nb))
+                    warning("N per group (N-group) is adjusted to obtain a balanced design.")
+
    return(tab)
 }
   

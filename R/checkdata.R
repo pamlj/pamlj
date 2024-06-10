@@ -509,6 +509,8 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       if (is.null(factors)) return()
 
       exdata  <-obj$analysis$data
+      if (nrow(stats::na.omit(exdata)) != nrow(obj$analysis$data))
+        stop("Dataset cannot contain missing values")
       within  <- unlist(obj$options$within)
       between <- setdiff(factors,within)
 
@@ -535,6 +537,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                 sumr<-summary(aa)[[1]]
                 res<-as.data.frame(sumr)
                 res$source<-trimws(rownames(res))
+                res<-res[res$source!="Residuals",]
                 res$type<-unlist(lapply(res$source, function(x) {
                             terms<-stringr::str_split(x,":",simplify=T)
                             terms<-trimws(terms)
@@ -559,7 +562,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
              for (f in bets) val<-val*(nlevels(exdata[[f]])-1)
              res$cell[i]<-val
              res$edfb[i]<-nlevbet-1
-
+ 
             }
             
         ### this formulas are equivalent to standard computation of SS for mixed anova
@@ -584,14 +587,13 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                                res$sigma2[i] <- mse*(1+(nlevwit-1)*obj$info$r)
                         }
                   } 
-                 
+
                  res$es<-res$ss/(res$ss+res$sigma2)
                  res$n=obj$options$n
                  res$sig.level=obj$options$sig.level
                  res$power=obj$options$power
-                 res$df_effect<-sumr$Df
+                 res$df_effect<-res$Df
                  res$df_model<- sum(res$df_effect)
-                 res$effect<-rownames(sumr)
                  obj$extradata<-res
                  obj$extradata[[obj$aim]]<-NULL
                  obj$extradata$id<-1:nrow(obj$extradata)
@@ -610,7 +612,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                  } else {
                   form<-as.formula(paste(means,"~",paste(factors,collapse="*")))
                 .names<-attr(terms(form),"term.labels")
-                 obj$data<-data.frame(effect=.names, 
+                 obj$data<-data.frame(source=.names, 
                               power=obj$options$power,
                               sig.level=obj$options$sig.level)
      
@@ -643,13 +645,13 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
          obj$data$edfw <- obj$options$df_effect
          obj$data$df_effect<-obj$data$edfw
          obj$data$df_model<- obj$options$design_groups-1
-         obj$data$effect<-"Within"
+         obj$data$source<-"Within"
          
       } else {
          obj$data$type<-"b"
          obj$data$edfb <- obj$options$design_groups-1
          obj$data$edfw <- 1
-         obj$data$effect<-"Between"
+         obj$data$source<-"Between"
          obj$data$df_model<- obj$options$design_groups-1
          obj$data$df_effect<- obj$options$df_effect
 

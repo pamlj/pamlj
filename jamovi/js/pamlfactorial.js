@@ -7,6 +7,7 @@ const events = {
          update_z_value(ui);
          console.log(ui.mode.value())
          update_facpeta(ui);
+         updateRmSupplier(ui);
     },
     mode_changed: function(ui) {
          update_facpeta(ui);
@@ -111,18 +112,42 @@ const events = {
     factors_changed: function(ui) {
           updateRmSupplier(ui);
     },
-    
+
     rmSupplier_updated: function(ui) {
-          updateRmSupplier(ui);
+      //    updateRmSupplier(ui);
     },
     
     rmSupplier_changed: function(ui) {
 
-//      let values = utils.itemsToValues(ui.rmSupplier.value());
-//          utils.checkValue(ui.within, true, values, FormatDef.term);
+      let values = utils.itemsToValues(ui.rmSupplier.value());
+          utils.checkValue(ui.within, true, values, FormatDef.term);
 
-        }
+      },
 
+    within_changed: function(ui)    {
+
+     console.log("within_changed");
+        let values = ui.within.value();
+        if (values.length>0) {
+          if (ui.ncp_type.value()=="gpower") {
+             ui.ncp_type.setValue("liberal"); 
+            }
+         }
+         else {
+           ui.ncp_type.setValue("gpower"); 
+       }
+     
+     var within_values=utils.clone(ui.within.value(),[]);
+     var ok_values=within_values.filter((v,i,a)=>a.indexOf(v)==i);
+      
+     if (within_values.length !== ok_values.length) {
+        ui.within.setValue(ok_values);
+     }
+
+    
+     
+    }
+  
 };
 
 module.exports = events;
@@ -194,3 +219,4 @@ var update_facpeta = function(ui) {
 
       }
 }
+

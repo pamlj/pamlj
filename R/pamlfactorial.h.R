@@ -390,12 +390,16 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                     "ncp_type"),
                 columns=list(
                     list(
-                        `name`="effect", 
+                        `name`="source", 
                         `title`="Effect", 
                         `type`="text"),
                     list(
                         `name`="n", 
                         `title`="N", 
+                        `type`="integer"),
+                    list(
+                        `name`="nb", 
+                        `title`="N-group", 
                         `type`="integer"),
                     list(
                         `name`="ss", 
