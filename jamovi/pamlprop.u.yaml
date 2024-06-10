@@ -77,7 +77,6 @@ children:
                     enable: (!aim:es)
                   - name: proppaired_n
                     type: TextBox
-                    label: N (Group 1 size)
                     format: number
                     enable: (!aim:n)
 

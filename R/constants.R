@@ -5,26 +5,37 @@ TRANS_WARNS<-list()
 TRANS_WARNS[[1]]<-list(original="end points not of opposite sign",new="Power parameters cannot be for the combination of input parameters")
 
 
-INFO<-list()
-INFO[["common"]]<-" <h1> Info </h1>
+common_init<-" <h1> Info </h1>
              <div>
              <p> Please select the aim of the analysis:</p>
              <ul>
              <li> <b> Calculate N</b> computes the required sample size given the <b> Target effect size</b> and <b> Minimum desire power</b>  </li>          
              <li> <b> Calculate Power</b> computes the achievable power given the <b> Target effect size</b> and <b> N (Sample size)</b>  </li>          
              <li> <b> Calculate Effect Size</b> computes the minimally-detectable effect size given the <b> N (Sample size)</b> and <b> Minimum desired power</b>  </li>          
-          
              </ul>
               <p> In all cases, you can set the required Type I error rate (significance cut-off)</b>
-
-
              </div>
              "
+INFO<-list()
+
+INFO[["correlation"]] <- common_init
+INFO[["glm"]]         <- common_init
+INFO[["ttest"]]       <- common_init
+INFO[["proportions"]] <- common_init
+
+INFO[["factorial"]]<-" <h1> Info </h1>
+             <div>
+             <p> Please select the aim of the analysis:</p>
+             <ul>
+             <li> <b> Calculate N</b> computes the required sample size given the <b> Target effect size</b> and <b> Minimum desire power</b>  </li>          
+             <li> <b> Calculate Power</b> computes the achievable power given the <b> Target effect size</b> and <b> N (Sample size)</b>  </li>          
+             </ul>
+              <p> In all cases, you can set the required Type I error rate (significance cut-off)</b>
+             </div>
+             "
+
 INFO[["peta"]]<-"
              <div>
-             <p> If the expected Partial eta-squared is computed from data, it is recomended to use an adjusted version, such as
-                 the <b>partial Omega-squared</b>, or the <b>Partial Epsilon-squared</b>. The <b> Option </b> panel may assist in their computation.
-              </p>
              <p> Set the <b> Model degrees of freedom</b>. 
               If the model degrees of freedom are not easy to compute, please use the 
              <b> Model definition </b> panel to help you out. <p>
@@ -103,9 +114,9 @@ INFO[["proppaired"]]<-"
                    " 
 
 
-INFO[["factorial"]]<-"
+INFO[["facmeans"]]<-"
              <div>
-             <p> Please insert at least one <b>factor</b> and the data column containing the groups means and the group standard deviations.
+             <p> Please list in the datasheet at least one <b>factor</b> and the data column containing the groups means and the group standard deviations.
                  If more than one factor is defined, the <b>means</b> and <b>standard deviations</b> should correspond to the means of the cells
                  resulting from the combinations of the factor levels.
               </p>
