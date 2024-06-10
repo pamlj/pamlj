@@ -23,6 +23,8 @@ Estimation power parameters (required sample size, posthoc power, minimal detect
 * F-test for factorial designs from cells means and sd (between, within and mixed)
 
 
+# Docs and help
+
 More informations can be found at [PAMLj page](https://pamlj.github.io/)
 
 # Install in jamovi
