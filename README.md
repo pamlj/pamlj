@@ -13,8 +13,8 @@ Estimation power parameters (required sample size, posthoc power, minimal detect
 
 * Correlation
 * Regression
-* T-Tests (independent, paired and one sample)
-* Proportions (independent, paired, one sample and equivalence tests)
+* T-Tests (independent, paired and one sample,  and equivalence tests)
+* Proportions (independent, paired, one sample)
 * ANOVA
 * Partial eta-squared based analysis
 * Eta-squared and $R^2$ based analysis
