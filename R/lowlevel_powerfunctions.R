@@ -1,8 +1,12 @@
 ## these are low level power functions, modified from various sources to fit the need of the module
+## they take one set of parameters and return the power parameters (input+estimates)
+## they should return a structure of class "paml_power" or ""power.htest" with one set of parameters
+## Basically, they are used for one estimate, usually by the powervector() functions that work for multiple estimates (runs))
 
-pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,sig.level=NULL,df_model=NULL,gpower=TRUE, alternative="two.sided") {
+
+pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,sig.level=NULL,df_model=NULL,ncp_type="gpower",  alternative="two.sided") {
   
-
+  
     if (alternative=="one.sided" ) {
          if ( is.something(sig.level) )
                sig.level <- sig.level * 2
@@ -13,11 +17,12 @@ pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,sig.level=NULL,df_model=N
          stop("df_model must be defined")
   
     ncp <-function(f2,u,v) {
-       if (gpower)
-          f2* (df_model + v+ 1)
-        else
-          f2* (u + v+ 1)
-       }
+      switch (ncp_type,
+        gpower  = {return(f2* (df_model + v+ 1))},
+        liberal = {return(f2*(u+v+1))},
+        strict  = {return(f2*v)}
+      )
+    }
 
 p.body <- quote({
         lambda <- ncp(f2 , u, v)
@@ -40,7 +45,7 @@ p.body <- quote({
     else stop("internal error in pamlj.glm")
     n <- df_model+ ceiling(v) + 1
     structure(list(u = u, v = ceiling(v), f2 = f2, sig.level = sig.level, 
-        power = power, n = n), class = "pamlj_power")
+        power = power, n = n, ncp=ncp(f2,u,v)), class = "pamlj_power")
 
 }
 ### These two functions are from jpower https://github.com/richarddmorey/jpower/blob/master/jpower/R/utils.R

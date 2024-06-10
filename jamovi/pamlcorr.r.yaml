@@ -35,7 +35,7 @@ items:
           title: 'Power'
           type: number
         - name: sig.level
-          title: '&alpha;'
+          title: α
           type: number
 
 
@@ -78,7 +78,7 @@ items:
       width:  400
       height: 350
       renderFun: .plot_escurve
-      visible: (plot_escurve & !aim:n)
+      visible: (plot_escurve)
 
     - name: powerNcurve
       title: Power Curve by N
@@ -86,7 +86,7 @@ items:
       width:  400
       height: 350
       renderFun: .plot_ncurve
-      visible: (plot_ncurve & !aim:es)
+      visible: (plot_ncurve)
 
     - name: powerCustom
       title: Power Parameters

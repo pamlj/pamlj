@@ -117,10 +117,10 @@ children:
                 enable: (!is_equi)
               - type: CheckBox
                 name: plot_escurve
-                enable: (!aim:n)
+                enable: (!is_equi)
               - type: CheckBox
                 name: plot_ncurve
-                enable: (!aim:es)
+                enable: (!is_equi)
               - type: CheckBox
                 name: plot_log
   - type: CollapseBox

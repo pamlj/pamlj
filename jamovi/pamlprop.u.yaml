@@ -77,7 +77,6 @@ children:
                     enable: (!aim:es)
                   - name: proppaired_n
                     type: TextBox
-                    label: N (Group 1 size)
                     format: number
                     enable: (!aim:n)
 
@@ -115,10 +114,8 @@ children:
                 name: plot_contour
               - type: CheckBox
                 name: plot_escurve
-                enable: (!aim:n)
               - type: CheckBox
                 name: plot_ncurve
-                enable: (!aim:es)
               - type: CheckBox
                 name: plot_log
                 

@@ -1,6 +1,6 @@
 ---
-name:  pamlglm
-title: GLM power analysis
+name:  pamlfactorial
+title: Factorial designs power analysis
 jrs:   "1.1"
 
 items:
@@ -12,37 +12,46 @@ items:
       title: Issues
       type: Html
       visible: false
-
+ 
     - name:  powertab
       title: A Priori Power Analysis
       type: Table
-      rows:  1
+     
       clearWith:
-        - mode
-        - b_es
-        - v_es
-        - e_es
+        - es
         - power
         - n
         - sig.level
         - aim
         - alternative
-        - b_df_model
-        - v_df_model
-        - e_df_model
-        - b_df_effect
-        - v_df_effect
-        - e_df_effect
-        - e_r2
-        - v_r2
-        - b_r2
+        - factors
+        - means
+        - sds
+        - within
+        - r
+        - mode
+        - peta_r
+        - peta
+        - effect_groups
+        - design_groups
+        - effect_type
+        - repeated_type
+        - df_effect
         - ncp_type
-        - rx
-        - ry
       columns: 
+        - name: source
+          title: 'Effect'
+          type: text
         - name: n
           title: 'N'
           type: integer
+        - name: nb
+          title: 'N-group'
+          type: integer
+        - name: ss
+          title: 'SS'
+          type: number
+          visible: (esos)
         - name: es
           title: 'Effect size'
           type: number
@@ -62,41 +71,7 @@ items:
           title: '&alpha;'
           type: number
 
-    - name:  effectsize
-      title: Computed Parameters
-      type: Table
-      visible: (mode:beta || mode:eta)
-      clearWith:
-        - mode
-        - b_es
-        - v_es
-        - e_es
-        - power
-        - n
-        - sig.level
-        - aim
-        - alternative
-        - b_df_model
-        - v_df_model
-        - e_df_model
-        - b_df_effect
-        - v_df_effect
-        - e_df_effect
-        - e_r2
-        - v_r2
-        - b_r2
-        - ncp_type
-        - rx
-        - ry
-        - ncp_type
-        
-      columns: 
-        - name: index
-          title: 'Index'
-          type: text
-        - name: value
-          title: 'Value'
-          type: number
+
 
 
     - name:  powerbyes
@@ -104,27 +79,25 @@ items:
       type: Table
       rows:  4
       clearWith:
-        - mode
-        - b_es
-        - v_es
-        - e_es
+        - es
         - power
         - n
         - sig.level
         - aim
         - alternative
-        - b_df_model
-        - v_df_model
-        - e_df_model
-        - b_df_effect
-        - v_df_effect
-        - e_df_effect
-        - e_r2
-        - v_r2
-        - b_r2
-        - ncp_type
-        - rx
-        - ry
+        - factors
+        - means
+        - sds
+        - within
+        - r
+        - mode
+        - peta_r
+        - peta
+        - df_effect
+        - effect_groups
+        - design_groups
+        - effect_type
+        - repeated_type
         - ncp_type
         
       columns:
@@ -140,6 +113,21 @@ items:
           title: 'Description'
           type: text
 
+    - name: means
+      type: Array
+      title: Expected Marginal Means
+      description: an array of predicted means tables
+      visible: (emeans)
+      template:
+        title:  Marginal Means - ___key___
+        type: Table
+        columns:
+        - name: emmean
+          title: 'Mean'
+          type: number
+        - name: sd
+          title: 'SD'
+          type: number
 
 
     - name: powerContour
@@ -149,47 +137,14 @@ items:
       height: 350
       renderFun: .plot_contour
       visible: (plot_contour)
-      clearWith:
-        - mode
-        - b_es
-        - v_es
-        - e_es
-        - power
-        - n
-        - sig.level
-        - aim
-        - alternative
-        - b_df_model
-        - v_df_model
-        - e_df_model
-        - e_r2
-        - v_r2
-        - ncp_type
-        - plot_log
+
     - name: powerEscurve
       title: Power Curve by Effect Size
       type: Image
       width:  400
       height: 350
       renderFun: .plot_escurve
-      visible: (plot_escurve)
-      clearWith:
-        - mode
-        - b_es
-        - v_es
-        - e_es
-        - power
-        - n
-        - sig.level
-        - aim
-        - alternative
-        - b_df_model
-        - v_df_model
-        - e_df_model
-        - e_r2
-        - v_r2
-        - ncp_type
-        - plot_log
+      visible: (plot_escurve & !aim:n)
 
     - name: powerNcurve
       title: Power Curve by N
@@ -197,24 +152,7 @@ items:
       width:  400
       height: 350
       renderFun: .plot_ncurve
-      visible: (plot_ncurve)
-      clearWith:
-        - mode
-        - b_es
-        - v_es
-        - e_es
-        - power
-        - n
-        - sig.level
-        - aim
-        - alternative
-        - b_df_model
-        - v_df_model
-        - e_df_model
-        - e_r2
-        - v_r2
-        - ncp_type
-        - plot_log
+      visible: (plot_ncurve & !aim:es)
 
     - name: powerCustom
       title: Power Parameters

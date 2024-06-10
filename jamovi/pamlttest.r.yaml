@@ -80,7 +80,7 @@ items:
       width:  400
       height: 350
       renderFun: .plot_escurve
-      visible: (plot_escurve & !aim:n)
+      visible: (plot_escurve & !is_equi)
 
 
     - name: powerNcurve
@@ -89,7 +89,7 @@ items:
       width:  400
       height: 350
       renderFun: .plot_ncurve
-      visible: (plot_ncurve & !aim:es)
+      visible: (plot_ncurve & !is_equi)
 
     - name: powerCustom
       title: Power Parameters

@@ -11,10 +11,6 @@ description:
            Something here
 
 options:
-    - name: .caller
-      type: String
-      default: correlation
-      hidden: true
 
     - name: aim
       title: Calculate 
@@ -27,26 +23,42 @@ options:
           title: Power
         - name: es
           title: Effect Size
+      description:
+                R: |
+                        The aim of the analysis: `n` (default) for sample size, `power` to estimate power, `es` for effect size (correlation)
+                ui: |
+                        The aim of the analysis: `N` (default) for sample size, `Power` to estimate power, `Effect Size` for effect size (correlation)
 
     - name: es
       title: Minimal-interesting effect size 
       type:  Number
       default: .5
+      description:
+                R: |
+                        The expected effect size, i.e. the expected correlation
 
     - name: power
       title: Minimal desired power 
       type:  Number
       default: .90
+      description:
+                R: |
+                        Minimal desired power 
 
     - name: n
       title: N 
       type:  Number
       default: 20
-
+      description:
+                R: |
+                        Sample size 
     - name: sig.level
       title: Alpha (Type I rate)  
       type:  Number
       default: .05
+      description:
+                R: |
+                        Type I error rate (significance cut-off or alpha) 
 
     - name: alternative
       title: Tails  
@@ -55,10 +67,8 @@ options:
       options:
         - name:  two.sided
           title: Two-tailed
-        - name:  less
-          title: Less
-        - name:  greater
-          title: Greater
+        - name:  one.sided
+          title: One-tailed
 
     - name: plot_contour
       title: Power contour plot
@@ -165,6 +175,14 @@ options:
       type: Bool
       title: "Show table"
       default: false
+
+    - name: .caller
+      type: String
+      default: correlation
+      hidden: true
+      description:
+                R: |
+                        Used for internal purposes 
 
 ...
 

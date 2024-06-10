@@ -21,7 +21,10 @@ const events = {
         if (mod == "ttestone") {
            ui.ttestone_es.setValue(0)
         }
-      
+      ui.plot_contour.setValue(false);
+      ui.plot_escurve.setValue(false);
+      ui.plot_ncurve.setValue(false);
+
       } else {
         
         if (mod == "ttestind") {

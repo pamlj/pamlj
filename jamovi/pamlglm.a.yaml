@@ -147,7 +147,7 @@ options:
     - name: covs
       title: Number of covariates
       type:  Number
-      default: 1
+      default: 0
       min: 0
     - name: factors
       title: Number of factors
@@ -250,10 +250,15 @@ options:
 
       default: none
 
-    - name: gncp
-      type: Bool
-      title: "G*Power NCP"
-      default: true
+    - name: ncp_type
+      type: List
+      options:
+        - name: gpower
+          title: "Model-based"
+        - name: liberal
+          title: Liberal
+        - name: strict
+          title: Strict
 
 
 
