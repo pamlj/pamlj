@@ -19,6 +19,11 @@ Estimation power parameters (required sample size, posthoc power, minimal detect
 * Partial eta-squared based analysis
 * Eta-squared and $R^2$ based analysis
 * Standardized coefficients based analysis
+* F-test for factorial designs from partial eta-squared (between, within and mixed)
+* F-test for factorial designs from cells means and sd (between, within and mixed)
+
+
+# Docs and help
 
 More informations can be found at [PAMLj page](https://pamlj.github.io/)
 
