@@ -7,6 +7,9 @@
 pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,sig.level=NULL,df_model=NULL,ncp_type="gpower",  alternative="two.sided") {
   
   
+    if (!is.null(v) && !is.null(power) && !is.null(f2) && !is.null(sig.level)) 
+        stop("too many parameters v=",v," power=",power," es=",f2," sig.level=",sig.level)
+  
     if (alternative=="one.sided" ) {
          if ( is.something(sig.level) )
                sig.level <- sig.level * 2
@@ -45,7 +48,7 @@ p.body <- quote({
     else stop("internal error in pamlj.glm")
     n <- df_model+ ceiling(v) + 1
     structure(list(u = u, v = ceiling(v), f2 = f2, sig.level = sig.level, 
-        power = power, n = n, ncp=ncp(f2,u,v)), class = "pamlj_power")
+        power = power, n = n, encp=ncp(f2,u,v)), class = "pamlj_power")
 
 }
 ### These two functions are from jpower https://github.com/richarddmorey/jpower/blob/master/jpower/R/utils.R

@@ -386,13 +386,12 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
 .checkdata.peta <- function(obj) {
 
-      obj$data<-data.frame(n = obj$options$n,
+      obj$data<-data.frame(n = as.numeric(obj$options$n),
                        es = as.numeric(obj$options$v_es),
                        power=obj$options$power,
                        df_model = obj$options$v_df_model,
                        df_effect = obj$options$v_df_effect,
                        sig.level = obj$options$sig.level)
-      obj$data[[obj$aim]]<-NULL
       obj$info$letter      <- letter_peta2
       obj$info$esmax       <-  .99
       obj$info$esmin       <- .01
@@ -417,7 +416,8 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                                                    They have been set equal. ")
     }
 
-        
+     obj$data[[obj$aim]]<-NULL
+  
 }
 
 .checkdata.eta <- function(obj) {
@@ -657,8 +657,9 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
       }
    
+      
       obj$data[[obj$aim]]<-NULL
-    
+      
 }
 
 

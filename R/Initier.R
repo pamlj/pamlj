@@ -88,7 +88,6 @@ Initer <- R6::R6Class(
       
       
       effects<-self$data$effect
-      mark(effects)
       tabsList<-list()
       for (e in effects) {
         .names<-stringr::str_split(e,":")[[1]]
