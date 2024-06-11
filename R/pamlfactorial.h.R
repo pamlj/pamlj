@@ -7,6 +7,7 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
     public = list(
         initialize = function(
             .caller = "factorial",
+            .interface = "jamovi",
             aim = "n",
             mode = "facpeta",
             means = NULL,
@@ -50,6 +51,11 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                 ".caller",
                 .caller,
                 default="factorial",
+                hidden=TRUE)
+            private$...interface <- jmvcore::OptionString$new(
+                ".interface",
+                .interface,
+                default="jamovi",
                 hidden=TRUE)
             private$..aim <- jmvcore::OptionList$new(
                 "aim",
@@ -229,6 +235,7 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                 default=FALSE)
 
             self$.addOption(private$...caller)
+            self$.addOption(private$...interface)
             self$.addOption(private$..aim)
             self$.addOption(private$..mode)
             self$.addOption(private$..means)
@@ -264,6 +271,7 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
         }),
     active = list(
         .caller = function() private$...caller$value,
+        .interface = function() private$...interface$value,
         aim = function() private$..aim$value,
         mode = function() private$..mode$value,
         means = function() private$..means$value,
@@ -298,6 +306,7 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
         esos = function() private$..esos$value),
     private = list(
         ...caller = NA,
+        ...interface = NA,
         ..aim = NA,
         ..mode = NA,
         ..means = NA,
@@ -580,6 +589,7 @@ pamlfactorialBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' 
 #' @param data the data as a data frame
 #' @param .caller .
+#' @param .interface .
 #' @param aim The aim of the analysis: \code{n} (default) for sample size,
 #'   \code{power} to estimate power
 #' @param mode .
@@ -642,6 +652,7 @@ pamlfactorialBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 pamlfactorial <- function(
     data,
     .caller = "factorial",
+    .interface = "jamovi",
     aim = "n",
     mode = "facpeta",
     means = NULL,
@@ -694,6 +705,7 @@ pamlfactorial <- function(
 
     options <- pamlfactorialOptions$new(
         .caller = .caller,
+        .interface = .interface,
         aim = aim,
         mode = mode,
         means = means,

@@ -1,7 +1,7 @@
 ---
 name: pamlfactorial
 title: Factorial Designs 
-menuGroup: Power
+menuGroup: jpower
 version: '0.0.1'
 jas: '1.2'
 export: true
@@ -20,6 +20,11 @@ options:
     - name: .caller
       type: String
       default: factorial
+      hidden: true
+
+    - name: .interface
+      type: String
+      default: jamovi
       hidden: true
 
     - name: aim

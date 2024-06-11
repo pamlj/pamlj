@@ -24,7 +24,7 @@ analyses:
     menuTitle: T-Test
     description: |
       Something here
-    menuGroup: Power
+    menuGroup: jpower
   - title: Correlation
     name: pamlcorr
     ns: pamlj
@@ -32,7 +32,7 @@ analyses:
     menuTitle: Correlation
     description: |
       Something here
-    menuGroup: Power
+    menuGroup: jpower
   - title: Propotions
     name: pamlprop
     ns: pamlj
@@ -40,7 +40,7 @@ analyses:
     menuTitle: Propotions
     description: |
       Something here
-    menuGroup: Power
+    menuGroup: jpower
   - title: General Linear Model
     name: pamlglm
     ns: pamlj
@@ -48,15 +48,15 @@ analyses:
     menuTitle: General Linear Model
     description: |
       Something here
-    menuGroup: Power
+    menuGroup: jpower
   - title: Factorial Designs
     name: pamlfactorial
     ns: pamlj
     menuSubgroup: Pamlj
-    menuGroup: Power
     menuTitle: Factorial Designs
     description: |
       Something here
+    menuGroup: jpower
 datasets:
   - name: factorial
     path: factorial.csv
