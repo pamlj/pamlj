@@ -48,6 +48,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
                  results<-lapply(1:nrow(data),function(i) {
                    one<-data[i,]
+                   mark(one,is.something(data$n),data$n)
                    pamlj.glm(u=one$df_effect,
                              v=one$v,
                              f2=one$f2,
