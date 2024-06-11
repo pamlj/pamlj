@@ -127,12 +127,11 @@ children:
     collapsed: true
     stretchFactor: 1
     children:
-      - type: Supplier
+      - type: VariableSupplier
         name: rmSupplier
         label: Factors
-        persistentItems: false
         stretchFactor: 1
-        format: VariableLabel
+        populate: manual
         children:
           - type: TargetLayoutBox
             label: Repeated Measures (within)
@@ -140,7 +139,6 @@ children:
               - type: ListBox
                 name: within
                 isTarget: true
-                valueFilter: unique
                 template:
                   type: VariableLabel
       - type: LayoutBox
