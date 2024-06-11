@@ -36,7 +36,7 @@ latest version here.
 
 * [macOS x64: pamlj-0.2.5.jmo](https://library.jamovi.org/macos/R4.3.2-x64/pamlj-0.2.5.jmo)
 
-* [windows x64: pamlj-0.5.4.jmo](https://library.jamovi.org/win64/R4.3.2-x64/pamlj-0.2.5.jmo)
+* [windows x64: pamlj-0.2.5.jmo](https://library.jamovi.org/win64/R4.3.2-x64/pamlj-0.2.5.jmo)
 
 * [linux x64: pamlj-0.2.5.jmo](https://library.jamovi.org/linux/R4.3.2-x64/pamlj-0.2.5.jmo)
 
