@@ -120,7 +120,7 @@ const events = {
     rmSupplier_changed: function(ui) {
 
       let values = utils.itemsToValues(ui.rmSupplier.value());
-          utils.checkValue(ui.within, true, values, FormatDef.term);
+          utils.checkValue(ui.within, true, values, FormatDef.variable);
 
       },
 
@@ -173,7 +173,7 @@ var update_z_value = function( ui ) {
 var updateRmSupplier= function(ui) {
   
         var factorsList = utils.clone(ui.factors.value(), []);
-        var varList=utils.valuesToItems(factorsList, FormatDef.term);
+        var varList=utils.valuesToItems(factorsList, FormatDef.variable);
         ui.rmSupplier.setValue(varList);
   
   
