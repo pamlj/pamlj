@@ -3,6 +3,9 @@ find_min_n <- function(obj, ...) UseMethod(".find_min_n")
 
 .find_min_n.default <- function(obj,data) {
   
+  
+  jinfo("Finding max n")
+
   data$es<- obj$info$esmax
   data$n <- NULL
   res<-try_hard(powervector(obj,data))
@@ -18,7 +21,7 @@ find_min_n <- function(obj, ...) UseMethod(".find_min_n")
 find_max_n <- function(obj, ...) UseMethod(".find_max_n")
 
 .find_max_n.default <- function(obj,data) {
-
+  jinfo("Finding max n")
   data$es<-ifelse(data$es*.95 > obj$info$esmin, data$es*.95, obj$info$esmin)
   data$power=.98
   data$n <- NULL

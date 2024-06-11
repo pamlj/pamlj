@@ -45,7 +45,7 @@ items:
         - name: n
           title: 'N'
           type: integer
-        - name: nb
+        - name: bn
           title: 'N-group'
           type: integer
         - name: ss

@@ -398,7 +398,7 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                         `title`="N", 
                         `type`="integer"),
                     list(
-                        `name`="nb", 
+                        `name`="bn", 
                         `title`="N-group", 
                         `type`="integer"),
                     list(

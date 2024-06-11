@@ -47,8 +47,8 @@ p.body <- quote({
             power, c(1e-10, 1 - 1e-10))$root
     else stop("internal error in pamlj.glm")
     n <- df_model+ ceiling(v) + 1
-    structure(list(u = u, v = ceiling(v), f2 = f2, sig.level = sig.level, 
-        power = power, n = n, encp=ncp(f2,u,v)), class = "pamlj_power")
+    c(u = u, v = ceiling(v), f2 = f2, sig.level = sig.level, 
+        power = power, n = n, encp=ncp(f2,u,v))
 
 }
 ### These two functions are from jpower https://github.com/richarddmorey/jpower/blob/master/jpower/R/utils.R
