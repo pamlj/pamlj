@@ -163,6 +163,7 @@ Plotter <- R6::R6Class(
       ## check min-max for N
 
       nmin<-  find_min_n(obj,data)
+      mark(nmin)
       nmax<-  find_max_n(obj,data)
 
       if (nmax< data$n) nmax<-data$n+10
