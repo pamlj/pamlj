@@ -33,6 +33,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
 .powervector.glm <- function(obj,data) {
 
+ 
                 if (is.something(data$es)) {
                                      data$f2<-obj$info$toaes(data$es)
                                      data$es<-NULL
@@ -105,7 +106,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                  results<-as.data.frame(do.call("rbind",results))
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
                  results$es<-obj$info$fromaes(results$f2)
-                 odata<-data[, !names(data) %in% names(results)]
+                 odata<-data[, !(names(data) %in% names(results))]
                  results<-cbind(odata,results)
                  results$df1 <- results$df_effect
                  results$df2 <- ceiling(results$v)
@@ -113,7 +114,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                  n<-results$n
                  k<- data$edfb+1
                  n = n + k/2;
-                 results$nb = (n - (n%%k))/k;
+                 results$bn = (n - (n%%k))/k;
                 return(results)
 }
 
