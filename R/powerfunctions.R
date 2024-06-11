@@ -102,7 +102,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                               )
                     
                     })
-  
+                 
                  results<-as.data.frame(do.call("rbind",results))
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
                  results$es<-obj$info$fromaes(results$f2)
