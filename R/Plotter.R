@@ -163,7 +163,6 @@ Plotter <- R6::R6Class(
       ## check min-max for N
 
       nmin<-  find_min_n(obj,data)
-      mark(nmin)
       nmax<-  find_max_n(obj,data)
 
       if (nmax< data$n) nmax<-data$n+10
@@ -370,6 +369,7 @@ Plotter <- R6::R6Class(
         data<-cbind(x,data)
         names(data)[1]<-what
         zlab<-NULL
+        mark(data,data$n)
 
         if (is.something(z_values)) {
           data[[self$options$plot_z]]<-NULL
@@ -377,7 +377,7 @@ Plotter <- R6::R6Class(
           names(data)[1]<-self$options$plot_z
         }
         data[[self$options$plot_y]]<-NULL
-       
+        
         tryobj<-try_hard(powervector(private$.operator,data))
         if (!isFALSE(tryobj$error)) {
             self$warning<-list(topic="plotnotes",message="The required plot cannot be produced. Please update the plot settings")          
