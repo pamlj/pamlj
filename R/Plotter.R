@@ -353,7 +353,8 @@ Plotter <- R6::R6Class(
      },
      .prepareCustom = function() {
       
-
+        obj  <- private$.operator
+        data <- private$.operator$data
         image<-private$.results$powerCustom
         if (is.null(image$state))
             return()
@@ -361,16 +362,38 @@ Plotter <- R6::R6Class(
 
         jinfo("PLOTTER: preparing custom plot")
 
-
-        data <- private$.operator$data
         what<-self$options$plot_x
         data[[what]]<-NULL
-        x<-pretty(c(self$options$plot_x_from,self$options$plot_x_to),n=20)
+        ### check in values make sense ###
+        xmin<-self$options$plot_x_from
+        xmax<-self$options$plot_x_to
+        ### here we check that the input makes sense, otherwise we adjust it
+        switch (what,
+                n =  {  
+                      if (xmin<find_min_n(obj,data)) xmin <- find_min_n(obj,data)
+                      if (xmax>find_max_n(obj,data)) max  <- find_max_n(obj,data)
+                },
+                power = {
+                        if (xmin<.2) xmin <- .20
+                        if (xmax>.99) xmax  <- .99
+                        },
+                es = {
+                        if (xmin< obj$info$esmin) xmin <- obj$info$esmin
+                        if (xmax> obj$info$esmax) xmax  <- obj$info$esmax
+                        },
+                alpha = {
+                        if (xmin< .0001) xmin <- 0.0001
+                        if (xmax> .5) xmax  <- .5
+                        }
+        )
+        x<-pretty(c(xmin,xmax),n=20)
+        x[1]<-xmin
+        x[length(x)]<-xmax
+        
         data<-cbind(x,data)
         names(data)[1]<-what
         zlab<-NULL
-        mark(data,data$n)
-
+  
         if (is.something(z_values)) {
           data[[self$options$plot_z]]<-NULL
           data<-merge(z_values,data)

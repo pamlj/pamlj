@@ -40,7 +40,7 @@ const fun = {
       ui.plot_lines_values.$el.show();
       
   
-}
+ }
 
   
 }

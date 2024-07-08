@@ -40,7 +40,7 @@ const events = {
 
      ui.plot_z_value.setValue([]);
      ui.plot_z_lines.setValue(1);
-     update_z_value(ui);
+     fun.update_z_value(ui);
     },
     
     plot_z_lines_changed: function(ui) {
