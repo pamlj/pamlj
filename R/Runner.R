@@ -13,7 +13,8 @@ Runner <- R6::R6Class("Runner",
                                  # it produces the basic estimation required for all tables and plots
                                  # it fills self$data with all power parameters
                                  checkdata(self)
-                               
+                                 commonchecks(self)
+
                                  jinfo("PAMLj: Runner: first estimation")
                                  if (!self$ok) return()
                                  resobj <- try_hard(powervector(self,self$data) )

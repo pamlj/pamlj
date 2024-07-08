@@ -16,9 +16,10 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$data[[obj$aim]]  <- NULL
       
       obj$info$letter      <- greek_vector["delta"]
-      obj$info$esmax       <- 2.5
+      obj$info$esmax       <- 9
       obj$info$esmin       <- .01
       obj$info$nmin             <- 6
+      
       if (obj$options$is_equi ) {
         if (abs(obj$options$equi_limit)>0) {
         obj$info$equi_limit <- obj$options$equi_limit
@@ -31,7 +32,6 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
           stop("Equivalence tests require the expected effect size to be smaller than the equivalence limit")
          if (obj$options$equi_limit==0) 
           stop("Equivalence tests require the equivalence limit to be larger than 0")
-
       }
 
 }
@@ -732,7 +732,14 @@ commonchecks <- function(obj) {
         stop("Power analysis requires Type I rate")
     }
   
-  
+    if (obj$data$es > obj$info$esmax) {
+                   message<-paste0("The effect size (",obj$info$letter,"=",obj$data$es,") is larger than the maximum effect size (",obj$info$letter,"=",obj$info$esmax,")",
+                                   "which guarantees power=.99 with the minumum sample size (N=",obj$info$nmin,").",
+                                   "the effect size has been set to ",obj$info$letter,"=",obj$info$esmax,".")
+                   obj$data$es<-obj$info$esmax
+                   obj$warning<-list(topic="issues",message=message,head="warning")
+          }
+
 }
 
 

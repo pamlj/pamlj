@@ -43,7 +43,7 @@ Initer <- R6::R6Class(
           jinfo("PAMLj: Initializing",self$caller,self$mode)
           ## checkdata update the data depending on the type of test we are running (via S3 dispatch)
           checkdata(self)
-          mark(self$caller,self$mode)
+          
           jmvobj$results$intro$setContent(paste(INFO[[self$caller]],INFO2[[self$mode]]))   
           
 
