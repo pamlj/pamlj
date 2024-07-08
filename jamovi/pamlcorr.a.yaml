@@ -162,7 +162,8 @@ options:
     - name: plot_z_lines
       type: Number
       title: "# lines"
-      default: 0
+      default: 1
+      min: 1
 
     - name: plot_z_value
       type: Array

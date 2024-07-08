@@ -3,7 +3,6 @@
 ## they should return a structure of class "paml_power" or ""power.htest" with one set of parameters
 ## Basically, they are used for one estimate, usually by the powervector() functions that work for multiple estimates (runs))
 
-
 pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,sig.level=NULL,df_model=NULL,ncp_type="gpower",  alternative="two.sided") {
   
   
@@ -51,7 +50,7 @@ p.body <- quote({
         power = power, n = n, encp=ncp(f2,u,v))
 
 }
-### These two functions are from jpower https://github.com/richarddmorey/jpower/blob/master/jpower/R/utils.R
+### These two functions are from jpower https://github.com/richarddmorey/jpower/blob/master/jpower/R/utils.R with some adjustment
 
 pamlj.ttestind<-function(n= NULL, n_ratio=NULL, n1 = NULL, n2 = NULL, d = NULL, sig.level = NULL, power = NULL, alternative = "two.sided") {
   

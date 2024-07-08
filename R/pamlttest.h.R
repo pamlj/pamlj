@@ -436,7 +436,7 @@ pamlttestBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             super$initialize(
                 package = "pamlj",
                 name = "pamlttest",
-                version = c(0,0,1),
+                version = c(0,2,0),
                 options = options,
                 results = pamlttestResults$new(options=options),
                 data = data,

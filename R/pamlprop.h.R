@@ -479,7 +479,7 @@ pamlpropBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 weightsSupport = 'na')
         }))
 
-#' Propotions
+#' Proportions
 #'
 #' Something here
 #' 

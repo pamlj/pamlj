@@ -22,7 +22,7 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             plot_z = "none",
             plot_x_from = 0,
             plot_x_to = 0,
-            plot_z_lines = 0,
+            plot_z_lines = 1,
             plot_z_value = list(),
             plot_to_table = FALSE,
             .caller = "correlation", ...) {
@@ -125,7 +125,8 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..plot_z_lines <- jmvcore::OptionNumber$new(
                 "plot_z_lines",
                 plot_z_lines,
-                default=0)
+                default=1,
+                min=1)
             private$..plot_z_value <- jmvcore::OptionArray$new(
                 "plot_z_value",
                 plot_z_value,
@@ -443,7 +444,7 @@ pamlcorr <- function(
     plot_z = "none",
     plot_x_from = 0,
     plot_x_to = 0,
-    plot_z_lines = 0,
+    plot_z_lines = 1,
     plot_z_value = list(),
     plot_to_table = FALSE,
     .caller = "correlation") {

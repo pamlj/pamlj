@@ -3,6 +3,8 @@
 ## powervector must accept a runner object and a data.frame. It must return a data.frame with nrow() equal to the input data.frame
 ## they are used across all table and plots to estimate parameters, so the input data.frame is not necessarely the 
 ## orginal input data of the user.
+## Differently to other software, these functions cannot fail. They should return a value (possibly Inf or 0) in any case.
+## For negative sample size, a lower bound of 4 is set as default
 
 powervector <- function(obj, ...) UseMethod(".powervector")
 
@@ -138,7 +140,10 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
                 results<-lapply(1:nrow(data),function(i) {
                      one<-as.list(data[i,.names])
-                     do.call(pamlj.ttestind,one)
+                     res<-try_hard(do.call(pamlj.ttestind,one))
+                     if (!isFALSE(res$error)) {
+                       mark(required_param(one))
+                     }
                     })
                  results<-as.data.frame(do.call("rbind",results))
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])

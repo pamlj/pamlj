@@ -2,7 +2,7 @@
 name: pamlttest
 title: T-Test
 menuGroup: jpower
-version: '0.0.1'
+version: '0.2.0'
 jas: '1.2'
 export: true
 completeWhenFilled: false
@@ -204,7 +204,7 @@ options:
 
     - name: plot_z_lines
       type: Number
-      title: "# lines"
+      title: "# of values"
       default: 0
 
     - name: plot_z_value

@@ -33,11 +33,11 @@ analyses:
     description: |
       Something here
     menuGroup: jpower
-  - title: Propotions
+  - title: Proportions
     name: pamlprop
     ns: pamlj
     menuSubgroup: Pamlj
-    menuTitle: Propotions
+    menuTitle: Proportions
     description: |
       Something here
     menuGroup: jpower

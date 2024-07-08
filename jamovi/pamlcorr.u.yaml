@@ -108,18 +108,22 @@ children:
                   - type: TextBox
                     name: plot_z_lines
                     format: number
-          - type: Label
-            label: Values for each line
-            name: plot_value_label
-            children:
-              - type: ListBox
-                name: plot_z_value
-                events:
-                  listItemAdded: ./pamlglm::onChange_value_added
-                  listItemRemoved: ./pamlglm::onChange_value_removed
-                showColumnHeaders: false
-                columns:
-                  - name: var
-                    label: Value
-                    template:
-                      type: TextBox
+                    enable: (!plot_z:none)
+          - type: LayoutBox
+            name: plot_lines_values
+            children: 
+             - type: Label
+               label: Values for each line
+               name: plot_value_label
+               children:
+                - type: ListBox
+                  name: plot_z_value
+                  events:
+                     listItemAdded: ./pamlglm::onChange_value_added
+                     listItemRemoved: ./pamlglm::onChange_value_removed
+                  showColumnHeaders: false
+                  columns:
+                    - name: var
+                      label: Value
+                      template:
+                        type: TextBox

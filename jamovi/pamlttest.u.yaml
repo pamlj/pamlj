@@ -164,7 +164,7 @@ children:
                     name: plot_x_to
                     format: number
           - type: Label
-            label: Plot Different lines by
+            label: Plot curves by
             children:
               - type: LayoutBox
                 style: inline
@@ -175,7 +175,7 @@ children:
                     name: plot_z_lines
                     format: number
           - type: Label
-            label: Values for each line
+            label: Values for each curve
             name: plot_value_label
             children:
               - type: ListBox

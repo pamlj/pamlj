@@ -63,12 +63,34 @@ const events = {
 
     },
 
+ 
     plot_x_changed: function(ui) {
       
-         ui.plot_x_from.setValue(0);
-         ui.plot_x_to.setValue(0);
+         var plotx = ui.plot_x.value();
+         
+         switch (plotx) {
+              case "n": 
+                   ui.plot_x_from.setValue(10);
+                   ui.plot_x_to.setValue(100);
+                   break;
+              case "power": 
+                   ui.plot_x_from.setValue(.50);
+                   ui.plot_x_to.setValue(.98);
+                   break;
+              case "es": 
+                   ui.plot_x_from.setValue(0.1);
+                   ui.plot_x_to.setValue(0.5);
+                   break;
+
+             default: 
+                   ui.plot_x_from.setValue(0);
+                   ui.plot_x_to.setValue(0);
+
+           }
+         
 
     },
+    
     plot_z_changed: function(ui) {
 
      ui.plot_z_value.setValue([]);
