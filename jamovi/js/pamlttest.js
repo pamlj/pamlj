@@ -1,3 +1,4 @@
+var fun=require('./functions');
 
 const events = {
   
@@ -42,41 +43,57 @@ const events = {
     
     plot_x_changed: function(ui) {
       
-         ui.plot_x_from.setValue(0);
-         ui.plot_x_to.setValue(0);
+        var plotx = ui.plot_x.value();
+         
+         switch (plotx) {
+              case "n": 
+                   ui.plot_x_from.setValue(10);
+                   ui.plot_x_to.setValue(100);
+                   break;
+              case "power": 
+                   ui.plot_x_from.setValue(.50);
+                   ui.plot_x_to.setValue(.98);
+                   break;
+              case "es": 
+                   ui.plot_x_from.setValue(0.05);
+                   ui.plot_x_to.setValue(0.90);
+                   break;
+              case "alpha": 
+                   ui.plot_x_from.setValue(0.001);
+                   ui.plot_x_to.setValue(0.10);
+                   break;
+
+             default: 
+                   ui.plot_x_from.setValue(0);
+                   ui.plot_x_to.setValue(0);
+
+           }
+         
 
     },
     plot_z_changed: function(ui) {
 
      ui.plot_z_value.setValue([]);
-     ui.plot_z_lines.setValue(0);
+     ui.plot_z_lines.setValue(1);
+     fun.update_z_value(ui);
     },
     
     plot_z_lines_changed: function(ui) {
-      
+
+     console.log("plot_z_lines changed")      
+     
+
       var n_lines=ui.plot_z_lines.value();
-      if (n_lines === 0) {
-          ui.plot_value_label.$el.hide();
+      if (n_lines < 1) {
+          ui.plot_z_lines.setValue(1);
           return
       }
-      
-     var values = ui.plot_z_value.value();
-     var n = ui.plot_z_lines.value();
-     var newvalues = [];
+      if (n_lines > 5) {
+          ui.plot_z_lines.setValue(5);
+          return
+      }
+      fun.update_z_value(ui);
 
-     for (let i = 0; i < n ; i++) {
-
-            var newval = Number(values[i]);  
-            console.log(newval, typeof newval)
-            if (isNaN(newval))
-                  newval = 0;
-            newvalues.push(newval);
-     } 
-
-      ui.plot_z_value.setValue(newvalues);
-      update_z_value(ui);
-      ui.plot_value_label.$el.show();
-      
     },
     
     onChange_value_added: function(ui) {

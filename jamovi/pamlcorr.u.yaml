@@ -113,7 +113,7 @@ children:
             name: plot_lines_values
             children: 
              - type: Label
-               label: Values for each line
+               label: Values for each curves
                name: plot_value_label
                children:
                 - type: ListBox

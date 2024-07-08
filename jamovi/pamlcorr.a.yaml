@@ -161,7 +161,7 @@ options:
 
     - name: plot_z_lines
       type: Number
-      title: "# lines"
+      title: "Number of curves"
       default: 1
       min: 1
 

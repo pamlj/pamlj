@@ -127,24 +127,32 @@ powervector <- function(obj, ...) UseMethod(".powervector")
   
                 if (is.something(data$es))
                     data$d <- obj$info$toaes(data$es)
+                
                 if (is.something(obj$info$equi_limit)) {
                     if (is.something(data$power)) data$power<-(1+data$power)/2
                      data$sig.level<- data$sig.level*2
                 }
-                 .names <- intersect(names(data),rlang::fn_fmls_names(pamlj.ttestind))
+                
                  data$alternative<-as.character(data$alternative)
+           
                 if (hasName(data,"n")) {
                   data$n1 <- data$n/(1+data$n_ratio)
                   data$n2 <- data$n1*data$n_ratio
+                } else {
+                    data$n1<-NULL
+                    data$n2<-NULL
                 }
-
+                .names <- intersect(names(data),rlang::fn_fmls_names(pamlj.ttestind))
                 results<-lapply(1:nrow(data),function(i) {
                      one<-as.list(data[i,.names])
                      res<-try_hard(do.call(pamlj.ttestind,one))
                      if (!isFALSE(res$error)) {
-                       mark(required_param(one))
+                       mark(res$error)
+                       return(NULL)
                      }
+                     return(res$obj)
                     })
+               
                  results<-as.data.frame(do.call("rbind",results))
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
                  odata<-data[, !names(data) %in% names(results)]

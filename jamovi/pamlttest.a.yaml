@@ -204,7 +204,7 @@ options:
 
     - name: plot_z_lines
       type: Number
-      title: "# of values"
+      title: "# of curves"
       default: 0
 
     - name: plot_z_value
