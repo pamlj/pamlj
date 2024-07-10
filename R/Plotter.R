@@ -126,12 +126,10 @@ Plotter <- R6::R6Class(
 
          if (state$ticks) {
                                       if (max(data$y)>9) dig=0
-                                      mark(data)
                                       g <- ggplot2::ggplot_build(p)
                                       b <- g$layout$panel_params[[1]]$x$breaks
                                       b <- b[!is.na(b)]
                                       tdata<-data[data$x %in% b,]
-                                      mark(b,tdata)
                                       p <- p + ggplot2::geom_label(data=tdata,ggplot2::aes(x=x,y=y,label=round(y,digits=dig)),
                                       position = .nudge, alpha=0,label.size = NA)
 
