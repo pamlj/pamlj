@@ -112,7 +112,7 @@ Dispatch <- R6::R6Class(
                                table<-private$.find_table(path)
                    
                               if (inherits(table,"Html")) {
-                                  obj$head<-"warning"
+                                  obj$head<-"error"
                                   table$setContent(private$.process_html(NULL,obj))
                               } else {
                                   table$setError(obj$message)
@@ -134,6 +134,7 @@ Dispatch <- R6::R6Class(
                                     switch (obj$head,
                                           "issue"     =  head <- "<h2 style='color:red;'> Warning </h2>",
                                           "warning"   =  head <- "<i style='color:red;'> Warning: </i>",
+                                          "error"   =  head <- "<b style='color:red;'> Error: </b>",
                                                          head <- obj$head
                                          )
                         } else head <-  "<i>Note:</i>"

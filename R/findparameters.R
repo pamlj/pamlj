@@ -23,7 +23,7 @@ find_max_n <- function(obj, ...) UseMethod(".find_max_n")
 .find_max_n.default <- function(obj,data) {
   jinfo("Finding max n")
   data$es<-ifelse(data$es*.95 > obj$info$esmin, data$es*.95, obj$info$esmin)
-  data$power=.98
+  data$power=.99
   data$n <- NULL
   res<-try_hard(powervector(obj,data))
   if (isFALSE(res$error)) 
@@ -48,3 +48,11 @@ find_max_es <- function(obj, ...) UseMethod(".find_max_es")
 return(es)
 }
 
+
+required_param<-function(data) {
+
+  whichnull<-setdiff(c("n","es","sig.level","power"), names(data))  
+  if (length(whichnull)>1 || length(whichnull)==0)
+         stop("PAMLj: only one parameters should be NULL")
+  whichnull
+}

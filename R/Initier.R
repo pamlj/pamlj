@@ -36,6 +36,7 @@ Initer <- R6::R6Class(
           self$info$toaes               <- function(value) value
           self$info$fromaes             <- function(value) value
           self$info$loges               <- function(value) FALSE
+          self$info$nmin                <- 6
 
           ## set the class of self so the S3 methods may dispatch to the right functions
           class(self)<-unique(c(self$mode,self$caller,class(self)))

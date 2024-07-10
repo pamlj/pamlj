@@ -46,19 +46,22 @@ Scaffold <- R6::R6Class("Scaffold",
                               
                             },
                             warning=function(alist) {
+                                
                                 if (is.null(private$.dispatcher))
                                     private$.create_dispatcher()
                               
                               lapply(alist$message, function(msg) {
                                 onelist<-alist
                                 onelist$message<-msg
-                                private$.dispatcher$warnings<-onelist
+                                if (!isFALSE(msg))
+                                     private$.dispatcher$warnings<-onelist
                               })
                             },
                             error=function(alist) {
                                 if (is.null(private$.dispatcher))
                                     private$.create_dispatcher()
-                                private$.dispatcher$errors<-alist
+                                if (!isFALSE(alist$message))
+                                    private$.dispatcher$errors<-alist
                             }
                             
                           ), #end of active

@@ -16,10 +16,9 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$data[[obj$aim]]  <- NULL
       
       obj$info$letter      <- greek_vector["delta"]
-      obj$info$esmax       <- 9
+      obj$info$esmax       <- 20
       obj$info$esmin       <- .01
-      obj$info$nmin             <- 6
-      
+
       if (obj$options$is_equi ) {
         if (abs(obj$options$equi_limit)>0) {
         obj$info$equi_limit <- obj$options$equi_limit
@@ -723,22 +722,51 @@ checkfailure <- function(obj, ...) UseMethod(".checkfailure")
 
 ### additional check for models
 
+
+
 commonchecks <- function(obj) {
   
     if (is.something(obj$data$sig.level ) ) {
-        if ( any(obj$data$sig.level < 0.00001) ||  any(obj$data$sig.level > .90))
-                   stop("Type I rate should be between .00001 and .90")
+        if ( any(obj$data$sig.level < 0.00001) ||  any(obj$data$sig.level > .90)) {
+                   obj$warning<-list(topic="issues",message=paste("Type I error rate should be between .00001 and .90"),head="error")
+                   obj$ok<-FALSE
+        }
     } else {
         stop("Power analysis requires Type I rate")
     }
   
-    if (obj$data$es > obj$info$esmax) {
-                   message<-paste0("The effect size (",obj$info$letter,"=",obj$data$es,") is larger than the maximum effect size (",obj$info$letter,"=",obj$info$esmax,")",
-                                   "which guarantees power=.99 with the minumum sample size (N=",obj$info$nmin,").",
-                                   "the effect size has been set to ",obj$info$letter,"=",obj$info$esmax,".")
-                   obj$data$es<-obj$info$esmax
+    if (is.something(obj$data$power ) ) {
+        if ( any(obj$data$power < 0.10) ||  any(obj$data$power > .99)) {
+                   obj$warning<-list(topic="issues",message=paste("Power should be between .10 and .99"),head="error")
+                   obj$ok<-FALSE
+        }
+        if ( any(obj$data$power < obj$data$sig.level) ) {
+                   obj$warning<-list(topic="issues",message=paste("Power should be larger than Type I error rate "),head="error")
+                   obj$ok<-FALSE
+        }
+
+    } 
+
+    if (is.something(obj$data$n ) ) {
+        if ( any(obj$data$n < obj$info$nmin )) {
+                   obj$warning<-list(topic="issues",message=paste("N (total sample size) should be larger than",obj$info$nmin),head="error")
+                   obj$ok<-FALSE
+          
+        }
+    } 
+
+
+    data<-obj$data
+    if (required_param(data) != "es") {
+    if (!utils::hasName(data,"n")) data$n<-obj$info$nmin
+    esmax<-round(find_max_es(obj,data), digits=3)
+    if (obj$data$es > esmax) {
+                   message<-paste0("The effect size (",obj$info$letter,"=",obj$data$es,") is larger than the maximum effect size (",obj$info$letter,"=",esmax,")",
+                                   " that guarantees power=.99 with sample size (N=",obj$data$n,").",
+                                   "This means that the input effect size guarantees a power>.99 for any sample size larger than ",obj$data$n,".")
                    obj$warning<-list(topic="issues",message=message,head="warning")
-          }
+    }
+    }
 
 }
 

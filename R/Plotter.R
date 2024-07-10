@@ -105,6 +105,7 @@ Plotter <- R6::R6Class(
 
          if (is.something(data$z)) {
            data$z<-factor(data$z)
+           data<-data[order(data$z),]
            threed<-TRUE
          }
 
@@ -112,7 +113,7 @@ Plotter <- R6::R6Class(
          ydif <- max(data$y)-min(data$y)
          xdif <- max(data$y)-min(data$y)
 
-         .nudge<-ggplot2::position_nudge(y = ydif/20)
+         .nudge<-ggplot2::position_nudge(y = ydif/18)
 
          if (threed) 
                     .aes <- ggplot2::aes(x=x,y=y,color=z)
@@ -122,12 +123,17 @@ Plotter <- R6::R6Class(
          p <- ggplot2::ggplot(data,.aes)
          p <- p + ggplot2::geom_line( linewidth=1.5)
          p <- p + ggplot2::geom_point(size=2, fill="white", shape=21)
-         if (is.something(state$tickdata)) {
+
+         if (state$ticks) {
                                       if (max(data$y)>9) dig=0
-                                      ticks<-unique(state$tickdata$x)
-                                      p <- p + ggplot2::geom_label(data=state$tickdata,ggplot2::aes(x=x,y=y,label=round(y,digits=dig)),
+                                      mark(data)
+                                      g <- ggplot2::ggplot_build(p)
+                                      b <- g$layout$panel_params[[1]]$x$breaks
+                                      b <- b[!is.na(b)]
+                                      tdata<-data[data$x %in% b,]
+                                      mark(b,tdata)
+                                      p <- p + ggplot2::geom_label(data=tdata,ggplot2::aes(x=x,y=y,label=round(y,digits=dig)),
                                       position = .nudge, alpha=0,label.size = NA)
-                                      p <- p + ggplot2::scale_x_continuous(breaks = ticks)
 
          }
          p <- p + ggplot2::xlab(state$xlab) + ggplot2::ylab(state$ylab) 
@@ -420,31 +426,10 @@ Plotter <- R6::R6Class(
         if (hasName(ydata,"z"))
             zlab<-nicify_param(self$options$plot_z,short=T)
 
-        tickdata<-NULL
-        if (self$option("plot_custom_labels")) {
-                   ux <- unique(ydata$x)
-                   ticks<-pretty(ux,n=5)
-                   if (ticks[1]< min(ux)) ticks[1]<-min(ux)
-                   if (ticks[length(ticks)] > max(ux)) ticks[1]<-max(ux)
-                   tdata<-data
-                   tdata[[self$options$plot_x]]<-ticks
-                   tryobj<-try_hard(powervector(private$.operator,tdata))
-                   if (isFALSE(tryobj$error)) {
-                       tickdata<-tryobj$obj
-                       tickdata$x<-tickdata[[self$options$plot_x]]
-                       tickdata$y<-tickdata[[self$options$plot_y]]
-                       if (self$options$plot_z!="none") {
-                           tickdata$z<-factor(tickdata[[self$options$plot_z]])
-                           
-                       }
-
-                   }
-                       
-        }
-
+  
         image$setVisible(TRUE)
         image$setState(list(data=ydata,
-                            tickdata=tickdata,
+                            ticks=self$option("plot_custom_labels"),
                             xlab=nicify_param(self$options$plot_x),
                             ylab=nicify_param(self$options$plot_y),
                             zlab=zlab))
