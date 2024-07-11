@@ -40,7 +40,12 @@ const events = {
       }     
         
     },
-    
+    ttestind_nratio_changed: function(ui) {
+      
+        var value = ui.ttestind_nratio.value();
+        if (value < 1) ui.ttestind_nratio.setValue(1);
+        
+    },
     plot_x_changed: function(ui) {
       
         var plotx = ui.plot_x.value();
