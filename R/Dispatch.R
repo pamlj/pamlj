@@ -129,19 +129,38 @@ Dispatch <- R6::R6Class(
                       .warnings=list(),
                       .errors=list(),
                       .process_html= function(content,obj) {
+                        
+                        style=""
+                        title=""
 
                         if (is.something(obj$head)) {
                                     switch (obj$head,
-                                          "issue"     =  head <- "<h2 style='color:red;'> Warning </h2>",
-                                          "warning"   =  head <- "<i style='color:red;'> Warning: </i>",
-                                          "error"   =  head <- "<b style='color:red;'> Error: </b>",
+                                          "info"     =  {
+                                                         head<-"<div class='icon info' style=' width:50px; height:50px'></div>"
+                                                         style<-" border-color: #3e6da9"
+                                                         },
+                                          "warning"   =  {
+                                                          head <- "<div class='icon warning-2' style=' width:50px; height:50px'></div>"
+                                                          style="border-left-color: red"
+                                                          title<-"<h2 style='color:red'> Warning</h2>"
+
+                                                         },
+                                          "error"   =    {
+                                                         head <- "<div class='icon error' style=' width:50px; height:50px'></div>"
+                                                         style="border-color: red"
+                                                         title<-"<h2 style='color:red'> Error</h2>"
+
+                                                         },
                                                          head <- obj$head
                                          )
-                        } else head <-  "<i>Note:</i>"
+                        } else {
+                                 head<-"<div><i Note:></i></div>"
+                        }
+
                         
                         test<-grep(obj$message,content,fixed=TRUE)
                         if (length(test) == 0)
-                                     content<-paste(content,"<div>",head,obj$message,"</div>")
+                                     content<-paste(content,"<div class='notice-box' style='",style, "'>",head,"<div class='content'>",title,obj$message,"</div></div>")
                               return(content)
                        },
                       .find_table=function(path) {

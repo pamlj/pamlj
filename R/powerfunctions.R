@@ -147,7 +147,32 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                      one<-as.list(data[i,.names])
                      res<-try_hard(do.call(pamlj.ttestind,one))
                      if (!isFALSE(res$error)) {
-                       mark(res$error)
+                       mark(one)
+                       .one   <- one
+                       .one$n <- obj$info$nmin
+                       .one$d <- NULL
+                       esmax<-find_max_es(obj,as.data.frame(.one))
+                       mark(esmax)
+                       if (one$d > esmax) {
+                         .one$n<-NULL
+                         .one$d<-esmax*1.001
+                         res<-do.call(pamlj.ttestind,.one)
+                         mark()
+                         res$d<-one$d
+                         return(res)
+                       }
+                       .one   <- one
+                       .one$d <- NULL
+                       esmin<-find_min_es(obj,as.data.frame(.one))
+                       if (one$d < esmin) {
+                         .one$n<-NULL
+                         .one$d<-esmin
+                         res<-do.call(pamlj.ttestind,.one)
+                         res$d<-one$d
+                         return(res)
+                       }
+                       
+
                        return(NULL)
                      }
                      return(res$obj)

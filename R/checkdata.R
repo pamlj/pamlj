@@ -662,6 +662,9 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 }
 
 
+
+
+
 checkfailure <- function(obj, ...) UseMethod(".checkfailure")
 
 .checkfailure.default <- function(obj,results) {
@@ -757,15 +760,23 @@ commonchecks <- function(obj) {
 
 
     data<-obj$data
-    if (required_param(data) != "es") {
-    if (!utils::hasName(data,"n")) data$n<-obj$info$nmin
-    esmax<-round(find_max_es(obj,data), digits=3)
-    if (obj$data$es > esmax) {
-                   message<-paste0("The effect size (",obj$info$letter,"=",obj$data$es,") is larger than the maximum effect size (",obj$info$letter,"=",esmax,")",
-                                   " that guarantees power=.99 with sample size (N=",obj$data$n,").",
-                                   "This means that the input effect size guarantees a power>.99 for any sample size larger than ",obj$data$n,".")
-                   obj$warning<-list(topic="issues",message=message,head="warning")
+    if (obj$aim == "n") {
+      data$n<-obj$info$nmin
+      esmax<-round(find_max_es(obj,data), digits=3)
+      if (data$es > esmax) {
+                   message<-paste0("The effect size (",obj$info$letter," = ",obj$data$es,") is larger than the maximum effect size (",obj$info$letter,"=",esmax,")",
+                                   " that guarantees power=",data$power," with sample size (N=",data$n,").",
+                                   "This means that any effect size larger than ", esmax ," guarantees a power > ",data$power," for any sample size equal or larger than ",data$n,".")
+                   obj$warning<-list(topic="issues",message=message,head="info")
+      }
+      esmin<-round(find_min_es(obj,data), digits=3)
+      if (data$es < esmin) {
+                   message<-paste0("The effect size (",obj$info$letter," = ",obj$data$es,") is smaller than the minimum effect size (",obj$info$letter,"=",esmin,")",
+                                   " that requires a sample size (N=",obj$info$nmax,") for power=",data$power,". ",
+                                   "This means that any effect size smaller than ", esmin ," needs a sample size larger than ",obj$info$nmax_spell," to guarantees a power = ",data$power,".")
+                   obj$warning<-list(topic="issues",message=message,head="info")
     }
+  
     }
 
 }

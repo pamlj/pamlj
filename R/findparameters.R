@@ -38,7 +38,6 @@ find_max_es <- function(obj, ...) UseMethod(".find_max_es")
 
 .find_max_es.default <- function(obj,data) {
 
-  data$power=.99
   data$es <- NULL
   res<-try_hard(powervector(obj,data))
   if (isFALSE(res$error)) 
@@ -48,6 +47,19 @@ find_max_es <- function(obj, ...) UseMethod(".find_max_es")
 return(es)
 }
 
+find_min_es <- function(obj, ...) UseMethod(".find_min_es")
+
+.find_min_es.default <- function(obj,data) {
+
+  data$es <- NULL
+  data$n  <- obj$info$nmax
+  res<-try_hard(powervector(obj,data))
+  if (isFALSE(res$error)) 
+    es<-res$obj$es
+  else
+    stop("there must be a min es")
+return(es)
+}
 
 required_param<-function(data) {
 

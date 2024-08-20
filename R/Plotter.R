@@ -378,12 +378,16 @@ Plotter <- R6::R6Class(
                       if (xmax>find_max_n(obj,data)) max  <- find_max_n(obj,data)
                 },
                 power = {
-                        if (xmin<.2) xmin <- .20
+                        if (xmin<.1) xmin <- .10
                         if (xmax>.99) xmax  <- .99
                         },
                 es = {
-                        if (xmin< obj$info$esmin) xmin <- obj$info$esmin
-                        if (xmax> obj$info$esmax) xmax  <- obj$info$esmax
+                #        esmin<-find_min_es(obj,data)
+                #        if (xmin< esmin) xmin <- esmin
+                        esmax<-find_max_es(obj,data)
+                        mark(esmax)
+
+              #          if (xmax> obj$info$esmax) xmax  <- obj$info$esmax
                         },
                 alpha = {
                         if (xmin< .0001) xmin <- 0.0001
