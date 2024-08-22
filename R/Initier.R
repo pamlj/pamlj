@@ -37,9 +37,12 @@ Initer <- R6::R6Class(
           self$info$fromaes             <- function(value) value
           self$info$loges               <- function(value) FALSE
           self$info$nmin                <- 4
-          self$info$nmax                <- 10^6
-          self$info$nmax_spell          <- "one million cases"      
-
+          self$info$nmax                <- 10^7
+          self$info$nmax_spell          <- "ten million cases"      
+          
+          ## info$plausibility=TRUE data are checked also for plausibility of boundaries. For certain analysis plausibility is check in different way info$plausibility=FALSE
+          self$info$plausibility        <- TRUE
+          
           ## set the class of self so the S3 methods may dispatch to the right functions
           class(self)<-unique(c(self$mode,self$caller,class(self)))
            

@@ -1,8 +1,10 @@
 ## here are functions that are always called but return different information
 ## depending to the analysis being carried out
 
+
 checkdata <- function(obj, ...) UseMethod(".checkdata")
 
+# DC
 .checkdata.ttestind <- function(obj) {
 
       obj$data<-data.frame(es=obj$options$ttestind_es)
@@ -20,6 +22,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$info$esmin       <- .01
 
       if (obj$options$is_equi ) {
+        obj$info$plausibility<-FALSE
         if (abs(obj$options$equi_limit)>0) {
         obj$info$equi_limit <- obj$options$equi_limit
         obj$info$toaes<- function(value) abs(value-obj$info$equi_limit)
@@ -34,6 +37,8 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       }
 
 }
+
+# DC
 
 .checkdata.ttestpaired <- function(obj) {
 
@@ -48,8 +53,9 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$info$letter      <- greek_vector["delta"]
       obj$info$esmax       <- 2.5
       obj$info$esmin       <- .01
-      obj$info$nmin             <- 6
+      obj$info$nmin        <- 3
       if (obj$options$is_equi ) {
+        obj$info$plausibility<-FALSE
         if (abs(obj$options$equi_limit)>0) {
         obj$info$equi_limit <- obj$options$equi_limit
         obj$info$toaes<- function(value) abs(value-obj$info$equi_limit)
@@ -67,6 +73,8 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       
       
 }
+
+# DC
 
 .checkdata.ttestone <- function(obj) {
 
@@ -81,8 +89,9 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$info$letter      <- greek_vector["delta"]
       obj$info$esmax       <- 2.5
       obj$info$esmin       <- .01
-      obj$info$nmin             <- 6
+      obj$info$nmin        <- 3
       if (obj$options$is_equi ) {
+        obj$info$plausibility<-FALSE
         if (abs(obj$options$equi_limit)>0) {
         obj$info$equi_limit <- obj$options$equi_limit
         obj$info$toaes<- function(value) abs(value-obj$info$equi_limit)
@@ -101,22 +110,25 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       
 }
 
-### correlation ####
+### correlation #### DC
 
 .checkdata.correlation <- function(obj) {
 
-      obj$data<-data.frame(es=obj$options$es)
-      obj$data$n           <- obj$data$n
+     if (obj$options$es < 0)
+                    obj$warning<-list(topic="issues",
+                                     message="Negative correlations have the same power parameters of positive correlations. The absolute value is considered here."
+                                     )
+      obj$data<-data.frame(es=abs(obj$options$es))
+      obj$data$n           <- obj$options$n
       obj$data$sig.level   <- obj$options$sig.level
       obj$data$power       <- obj$options$power
       obj$data$alternative <- obj$options$alternative
       obj$data[[obj$aim]]  <- NULL
       
       obj$info$letter      <- greek_vector["rho"]
-      obj$info$esmax       <-  .99
+      obj$info$esmax       <- .99
       obj$info$esmin       <- .01
-      obj$info$nmin        <- 6
-      
+      obj$info$nmin        <-  6
 
 
 }
@@ -668,17 +680,17 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 checkfailure <- function(obj, ...) UseMethod(".checkfailure")
 
 .checkfailure.default <- function(obj,results) {
- 
-  what <- required_param(obj$input)
+
+  what <- obj$aim
   nice <- nicify_param(what)
   test<-grep("values at end points not of opposite", results) 
   if (length(test) > 0) {
     message <- paste(nice, " cannot be computed for the combination of input parameters")
     switch (what,
-      n = message <- paste(message,"The require power may be too low for or the effect size too large")
+      n = message <- paste(message,"The require power may be too low for or the effect size not a reasonable value")
     )
-   obj$warning<-list(topic="issues",message=message,head="issue")
-  
+   obj$warning<-list(topic="issues",message=message,head="error")
+   obj$ok <- FALSE # no good to go further  
   }
   
 }
@@ -760,20 +772,20 @@ commonchecks <- function(obj) {
 
 
     data<-obj$data
-    if (obj$aim == "n") {
+    if (obj$aim == "n" && obj$info$plausibility) {
       data$n<-obj$info$nmin
       esmax<-round(find_max_es(obj,data), digits=3)
       if (data$es > esmax) {
                    message<-paste0("The effect size (",obj$info$letter," = ",obj$data$es,") is larger than the maximum effect size (",obj$info$letter,"=",esmax,")",
-                                   " that guarantees power=",data$power," with sample size (N=",data$n,").",
+                                   " that guarantees power=",data$power," with a sample of minimum size (N=",data$n,").",
                                    "This means that any effect size larger than ", esmax ," guarantees a power > ",data$power," for any sample size equal or larger than ",data$n,".")
                    obj$warning<-list(topic="issues",message=message,head="info")
       }
       esmin<-round(find_min_es(obj,data), digits=3)
       if (data$es < esmin) {
                    message<-paste0("The effect size (",obj$info$letter," = ",obj$data$es,") is smaller than the minimum effect size (",obj$info$letter,"=",esmin,")",
-                                   " that requires a sample size (N=",obj$info$nmax,") for power=",data$power,". ",
-                                   "This means that any effect size smaller than ", esmin ," needs a sample size larger than ",obj$info$nmax_spell," to guarantees a power = ",data$power,".")
+                                   " requiring a huge a sample size (N=",obj$info$nmax,") for power=",data$power,". ",
+                                   "This means that any effect size smaller than ", esmin ," needs a sample larger than ",obj$info$nmax_spell," to guarantees a power = ",data$power,".")
                    obj$warning<-list(topic="issues",message=message,head="info")
     }
   

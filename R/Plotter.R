@@ -22,7 +22,10 @@ Plotter <- R6::R6Class(
       },
       preparePlots=function(image, ggtheme, theme, ...) {
         
-            if (!private$.operator$ok) return()
+            if (!private$.operator$ok) {
+              private$.operator$warning<-list(topic="plotnotes",message="Plots cannot be produced",head="error")
+              return()
+            }
             private$.prepareContour()
             private$.prepareEscurve()
             private$.prepareNcurve()
@@ -171,7 +174,7 @@ Plotter <- R6::R6Class(
 
       if (nmax< data$n) nmax<-data$n+10
       if (nmax<(nmin*2)) nmax=(nmin*2)
-      
+
       point.x<-obj$data$n
       y <- seq(esmin,esmax,len=20)
       es <- y
@@ -202,6 +205,7 @@ Plotter <- R6::R6Class(
        ytickslabels<-niceround(FEY(yticks))
       .data <- cbind(n,obj$data)
       .data$es <- NULL
+      .data$power[.data$power<.0501]<- .0501
        yline=powervector(obj,.data)[["es"]]
 
        yline=FLY(yline)
