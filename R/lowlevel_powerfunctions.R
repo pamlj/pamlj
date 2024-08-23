@@ -143,7 +143,10 @@ pamlj.t2n.ratio = function(n_ratio = 1, d, sig.level, power, alternative){
 
 ### independent samples proportions ###
 
+#pwr::pwr.2p2n.test(n1 = 2, n2 = 8, sig.level=.05, power=.99)
+
 pamlj.propind<-function(n= NULL, n_ratio=NULL, n1 = NULL, n2 = NULL, h = NULL, sig.level = NULL, power = NULL, alternative = "two.sided") {
+  
   
     if(is.null(n)) 
        ret <- pamlj.p2n.ratio(n_ratio = n_ratio, h=h, sig.level=sig.level, power=power, alternative=alternative)
@@ -154,14 +157,21 @@ pamlj.propind<-function(n= NULL, n_ratio=NULL, n1 = NULL, n2 = NULL, h = NULL, s
 }
 
 
-pamlj.p2n.ratio<-function(n_ratio = n_ratio, h=h, sig.level=sig.level, power=power, alternative=alternative) {
+pamlj.p2n.ratio<-function(n_ratio, h, sig.level=NULL, power=NULL, alternative="two.sided") {
   
+
   fn<-function(n1) { 
      n2<-n1*n_ratio
      pp<-pwr::pwr.2p2n.test(n2 = n2, n1 = n1, h = h, sig.level = sig.level, alternative = alternative)
      return(log(pp$power) - log(power))
-   }
-   n1 = ceiling(uniroot(fn, c( 2, 1e+09))$root)
+  }
+  
+   ## min group n should be 2. If n_ratio is less than 1, the algorithm should start from a n1 that allows
+   ## n2 to at leat 2
+   start<-2
+   if (round(n_ratio*2) < 2)
+     start<-round(2/n_ratio)
+   n1 = ceiling(uniroot(fn, c( start, 1e+09))$root)
    n2 = n1*n_ratio
    ret = structure(list(n1 = n1, n2 = n2, h = h, sig.level = sig.level,
                            power = power, alternative = alternative),

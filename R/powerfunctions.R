@@ -147,17 +147,14 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                      one<-as.list(data[i,.names])
                      res<-try_hard(do.call(pamlj.ttestind,one))
                      if (!isFALSE(res$error)) {
-                       mark(one)
                        .one   <- one
                        .one$n <- obj$info$nmin
                        .one$d <- NULL
                        esmax<-find_max_es(obj,as.data.frame(.one))
-                       mark(esmax)
                        if (one$d > esmax) {
                          .one$n<-NULL
                          .one$d<-esmax*1.001
                          res<-do.call(pamlj.ttestind,.one)
-                         mark()
                          res$d<-one$d
                          return(res)
                        }
@@ -252,23 +249,43 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                 data$alternative<-as.character(data$alternative)
                 if (hasName(data,"n")) {
                   data$n1 <- data$n/(1+data$n_ratio)
+                  data$n1[data$n1<2]<-2
                   data$n2 <- data$n1*data$n_ratio
                 }
                 results<-lapply(1:nrow(data),function(i) {
                      one<-as.list(data[i,.names])
-                     do.call(pamlj.propind,one)
+                     oner<-try_hard(do.call(pamlj.propind,one))
+                     res<-oner$obj
+                     if (!isFALSE(oner$error)) {
+                       res<-one
+                       switch(obj$aim,
+                              n={if (one$h>2) {
+                                 if (round(one$n_ratio*2) < 2)
+                                       res$n1<-round(2/one$n_ratio)
+                                 else 
+                                       res$n1<-2
+                                res$n2<-res$n1*one$n_ratio
+                              }},
+                              es={
+                                mark("error in low function")
+                              }
+                              )
+                     }
+                     res
                     })
                  results<-as.data.frame(do.call("rbind",results))
+           
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
                  odata<- data[, !names(data) %in% names(results)]
                  results<-cbind(odata,results)
                  results$n  <- results$n1 + results$n2
-               
+                 results$method<-NULL
                  tp2 <-   (2 * asin(sqrt(results$p1))) - results$h 
                  results$p2 <- sin(tp2/2)^2
                  results$es <- obj$info$fromaes(results)
-                 results$es[tp2<0]<-NA                  
+                 results$es[tp2<0]<-obj$info$esmax                  
                  results$h  <- NULL
+                 
                 return(results)
 }
 

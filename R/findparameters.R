@@ -29,7 +29,7 @@ find_max_n <- function(obj, ...) UseMethod(".find_max_n")
   if (isFALSE(res$error)) 
     n<-ceiling(res$obj$n)
   else
-    stop("there must be a max n")
+    n<-obj$info$nmax
 return(n)
 }
 
@@ -38,18 +38,22 @@ find_max_es <- function(obj, ...) UseMethod(".find_max_es")
 
 .find_max_es.default <- function(obj,data) {
 
+  jinfo("Finding max es")
   data$es <- NULL
+#  data$n  <- obj$info$nmin
   res<-try_hard(powervector(obj,data))
   if (isFALSE(res$error)) 
     es<-res$obj$es
   else
-    stop("there must be a max es")
+    stop("there must be a esmax")
 return(es)
 }
 
 find_min_es <- function(obj, ...) UseMethod(".find_min_es")
 
 .find_min_es.default <- function(obj,data) {
+
+  jinfo("Finding min es")
 
   data$es <- NULL
   data$n  <- obj$info$nmax

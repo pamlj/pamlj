@@ -22,7 +22,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$info$esmin       <- .01
 
       if (obj$options$is_equi ) {
-        obj$info$plausibility<-FALSE
+        
         if (abs(obj$options$equi_limit)>0) {
         obj$info$equi_limit <- obj$options$equi_limit
         obj$info$toaes<- function(value) abs(value-obj$info$equi_limit)
@@ -55,7 +55,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$info$esmin       <- .01
       obj$info$nmin        <- 3
       if (obj$options$is_equi ) {
-        obj$info$plausibility<-FALSE
+
         if (abs(obj$options$equi_limit)>0) {
         obj$info$equi_limit <- obj$options$equi_limit
         obj$info$toaes<- function(value) abs(value-obj$info$equi_limit)
@@ -91,7 +91,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$info$esmin       <- .01
       obj$info$nmin        <- 3
       if (obj$options$is_equi ) {
-        obj$info$plausibility<-FALSE
+        
         if (abs(obj$options$equi_limit)>0) {
         obj$info$equi_limit <- obj$options$equi_limit
         obj$info$toaes<- function(value) abs(value-obj$info$equi_limit)
@@ -208,19 +208,8 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
              
 
       )
-    
-      obj$info$nmin  <- 6
+  
       
-      if (obj$data$p1<0.001) 
-           stop("Proportions cannot be less than 0.001")
-      if (obj$data$p1>=0.5) 
-           stop("P12 is the smallest discordant probability and must be less than 0.5 ")
-      
-      if (obj$data$p2<0.001) 
-           stop("Proportions cannot be less than 0.001")
-      if (obj$data$p2==obj$data$p1) 
-           stop("Proportions cannot be equal (null power)")
-
       obj$data[[obj$aim]]<-NULL
 }
 
@@ -229,10 +218,21 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
         obj$data$sig.level   <- obj$options$sig.level
         obj$data$alternative <- obj$options$alternative
-        obj$info$nmin <- 6
         
+        obj$info$nmin         <- 6
+        obj$info$esmin        <- .001
+
       if (!is.something(obj$data$p1)) 
            stop("P1  is required")
+      if (obj$data$p1>.999999) {
+              obj$warning<-list(topic="issues",
+                                message="P1 should be less than 1",
+                                head="error"
+                               )
+              obj$ok <- FALSE
+        
+      } 
+
 
       if (is.something(obj$data$p2)) {
           if (obj$data$p2 > obj$data$p1)  {
@@ -240,7 +240,8 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
               obj$data$p1 <- obj$data$p2
               obj$data$p2 <- p1
               obj$warning<-list(topic="issues",
-                                message="P1 is supposed to be larger than P2. Proportions are recomputed to yield equivalent results."
+                                message="P1 is supposed to be larger than P2. Proportions are recomputed to yield equivalent results.",
+                                head="warning"
                                )
           }
       }
@@ -249,7 +250,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
              odd = {
                    obj$data$es          <-(obj$data$p1/(1-obj$data$p1))/(obj$data$p2/(1-obj$data$p2))
                    obj$info$letter      <- "Odd"
-                   obj$info$esmax       <-  10
+                   obj$info$esmax       <-  10^5
                    obj$info$esmin       <-  1
                    obj$info$loges            <-  function(x) x > 10        
                    obj$info$toaes            <- function(data) {
@@ -265,7 +266,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                    obj$data$es          <- obj$data$p1-obj$data$p2
                    obj$info$letter      <- greek_vector["Delta"] 
                    obj$info$esmax       <-  obj$data$p1
-                   obj$info$esmin       <-  .01
+                   obj$info$esmin       <-  .0001
                    obj$info$toaes            <- function(data) {
                                                p2   <- data$p1-data$es
                                                pwr::ES.h(data$p1,p2)
@@ -277,7 +278,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
                    obj$data$es<- obj$data$p1/obj$data$p2
                    obj$info$letter      <- "RR" 
-                   obj$info$esmax       <-  10
+                   obj$info$esmax       <-  10^5
                    obj$info$esmin       <-  1
                    obj$info$loges            <-  function(x) x > 10        
                    
@@ -292,15 +293,31 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       )
     
       
-      if (is.something(obj$data$p1) && obj$data$p1<0.001) 
-           stop("Proportions cannot be less than 0.001")
-      if (is.something(obj$data$p2) && obj$data$p2<0.001) 
-           stop("Proportions cannot be less than 0.001")
-      if (is.something(obj$data$p2) && obj$data$p2==obj$data$p1) 
-           stop("Proportions cannot be equal (null power)")
+      if (is.something(obj$data$p1) && obj$data$p1<0.0001) {
+                    obj$warning<-list(topic="issues",
+                                message="Proportions should be larger than .0001.",
+                                head="error"
+                               )
+                    obj$ok <- FALSE
+  
+      }
+      if (is.something(obj$data$p2) && obj$data$p2<0.0001) {
+                    obj$warning<-list(topic="issues",
+                                message="Proportions should be larger than .001.",
+                                head="error"
+                               )
+                    obj$ok <- FALSE
+        
+      }
+        if (is.something(obj$data$p2) && obj$data$p2==obj$data$p1) {
+                    obj$warning<-list(topic="issues",
+                                message="Proportions cannot be equal (null power)",
+                                head="error"
+                               )
+                    obj$ok <- FALSE
+  
+        }
 
-      if (is.something(obj$data$p2) && obj$data$p2==obj$data$p1) 
-           stop("Proportions cannot be equal (null power)")
       obj$data[[obj$aim]]<-NULL
 
 }
@@ -489,9 +506,6 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
     } else {
         stop("GLM power analysis based on Eta-squared coefficient requires an expected R-squared for the model")
     }
-
-  
-
 
 }
 
@@ -687,7 +701,7 @@ checkfailure <- function(obj, ...) UseMethod(".checkfailure")
   if (length(test) > 0) {
     message <- paste(nice, " cannot be computed for the combination of input parameters")
     switch (what,
-      n = message <- paste(message,"The require power may be too low for or the effect size not a reasonable value")
+      n = message <- paste(message,"The require power may be too low for or the effect size is not a reasonable value")
     )
    obj$warning<-list(topic="issues",message=message,head="error")
    obj$ok <- FALSE # no good to go further  
@@ -769,21 +783,30 @@ commonchecks <- function(obj) {
           
         }
     } 
+  
+    morechecks(obj)
 
+}
 
+morechecks <- function(obj, ...) UseMethod(".morechecks")
+
+.morechecks.default<-function(obj) {
+    jinfo("PAMLj: more checks default")
+  
     data<-obj$data
-    if (obj$aim == "n" && obj$info$plausibility) {
-      data$n<-obj$info$nmin
-      esmax<-round(find_max_es(obj,data), digits=3)
+    if (obj$aim == "n") {
+      data$n <- obj$info$nmin
+      esmax  <- round(find_max_es(obj,data), digits=3)
+      es     <- round(data$es,digits=3) 
       if (data$es > esmax) {
-                   message<-paste0("The effect size (",obj$info$letter," = ",obj$data$es,") is larger than the maximum effect size (",obj$info$letter,"=",esmax,")",
+                   message<-paste0("The effect size (",obj$info$letter," = ", es,") is larger than the maximum effect size (",obj$info$letter,"=",esmax,")",
                                    " that guarantees power=",data$power," with a sample of minimum size (N=",data$n,").",
                                    "This means that any effect size larger than ", esmax ," guarantees a power > ",data$power," for any sample size equal or larger than ",data$n,".")
                    obj$warning<-list(topic="issues",message=message,head="info")
       }
       esmin<-round(find_min_es(obj,data), digits=3)
       if (data$es < esmin) {
-                   message<-paste0("The effect size (",obj$info$letter," = ",obj$data$es,") is smaller than the minimum effect size (",obj$info$letter,"=",esmin,")",
+                   message<-paste0("The effect size (",obj$info$letter," = ",es,") is smaller than the minimum effect size (",obj$info$letter,"=",esmin,")",
                                    " requiring a huge a sample size (N=",obj$info$nmax,") for power=",data$power,". ",
                                    "This means that any effect size smaller than ", esmin ," needs a sample larger than ",obj$info$nmax_spell," to guarantees a power = ",data$power,".")
                    obj$warning<-list(topic="issues",message=message,head="info")
@@ -794,3 +817,13 @@ commonchecks <- function(obj) {
 }
 
 
+.morechecks.propind<-function(obj) {
+  
+  jinfo("PAMLj: more checks for propind passed")
+  if (obj$aim == "n") {
+     if (obj$data$es > obj$info$esmax) {
+                   message<-paste0("The effect size (",obj$info$letter," = ",round(obj$data$es, digits=0),") is very large, so some plots cannot be produced or may be not accurate.")
+                   obj$warning<-list(topic="issues",message=message,head="warning")
+    }
+  }
+}

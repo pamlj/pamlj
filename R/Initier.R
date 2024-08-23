@@ -9,7 +9,8 @@ Initer <- R6::R6Class(
     dispatcher =  NULL,
     data       =  NULL, ## contains the focus power parameters (input and estimated). It must be one row
     extradata  =  NULL, ## contains (if needed) data required for more complex analysis (multiple effect size, additional coefficient, etc.)
-    info       =  NULL, ## contains all info regarding the specific analysis. It filled in checkdata and never changed within one analysis
+    info       =  list(), ## contains all info regarding the specific analysis. It filled in checkdata and never changed within one analysis
+    plots      =  list(), ## contains some specs for custumizing plots.
     aim        =  NULL, # the aim of the main analysis (n, power or es)
     caller     =  NULL, # which jamovi analysis is launched (correlation, glm, ttest etc)
     mode       =  NULL, # (if present) the mode within the analysis
@@ -40,8 +41,8 @@ Initer <- R6::R6Class(
           self$info$nmax                <- 10^7
           self$info$nmax_spell          <- "ten million cases"      
           
-          ## info$plausibility=TRUE data are checked also for plausibility of boundaries. For certain analysis plausibility is check in different way info$plausibility=FALSE
-          self$info$plausibility        <- TRUE
+          ### some specs for plots
+          self$plots$esrange<-3
           
           ## set the class of self so the S3 methods may dispatch to the right functions
           class(self)<-unique(c(self$mode,self$caller,class(self)))

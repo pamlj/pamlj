@@ -163,10 +163,16 @@ Plotter <- R6::R6Class(
       data <- private$.operator$data
       image<-private$.results$powerContour
       ## check the min-max for effect size
-      esmax <- obj$info$esmax
-      if (esmax < data$es) esmax<-data$es
-      esmin<-  obj$info$esmin
 
+#      esmax <- obj$info$esmax
+#      if (esmax < data$es) esmax<-data$es
+#      esmin<-  obj$info$esmin
+
+   
+      esmax <- data$es*obj$plots$esrange
+      if (esmax > obj$info$esmax) esmax<-obj$info$esmax
+      esmin <- data$es/obj$plots$esrange
+      if (esmin < obj$info$esmin) esmin<-obj$info$esmin
       ## check min-max for N
 
       nmin<-  find_min_n(obj,data)
