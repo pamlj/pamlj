@@ -143,7 +143,8 @@ pamlj.t2n.ratio = function(n_ratio = 1, d, sig.level, power, alternative){
 
 ### independent samples proportions ###
 
-#pwr::pwr.2p2n.test(n1 = 2, n2 = 8, sig.level=.05, power=.99)
+
+
 
 pamlj.propind<-function(n= NULL, n_ratio=NULL, n1 = NULL, n2 = NULL, h = NULL, sig.level = NULL, power = NULL, alternative = "two.sided") {
   
@@ -167,7 +168,7 @@ pamlj.p2n.ratio<-function(n_ratio, h, sig.level=NULL, power=NULL, alternative="t
   }
   
    ## min group n should be 2. If n_ratio is less than 1, the algorithm should start from a n1 that allows
-   ## n2 to at leat 2
+   ## n2 tobe at least 2
    start<-2
    if (round(n_ratio*2) < 2)
      start<-round(2/n_ratio)

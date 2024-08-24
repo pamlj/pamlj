@@ -4,7 +4,7 @@ find_min_n <- function(obj, ...) UseMethod(".find_min_n")
 .find_min_n.default <- function(obj,data) {
   
   
-  jinfo("Finding max n")
+  jinfo("Finding min n")
 
   data$es<- obj$info$esmax
   data$n <- NULL
@@ -13,14 +13,15 @@ find_min_n <- function(obj, ...) UseMethod(".find_min_n")
     n<-ceiling(res$obj$n)
   else
     n<-obj$info$nmin
-
-  return(n)
+   jinfo("...done")
+   return(n)
 }
 
 
 find_max_n <- function(obj, ...) UseMethod(".find_max_n")
 
 .find_max_n.default <- function(obj,data) {
+  
   jinfo("Finding max n")
   data$es<-ifelse(data$es*.95 > obj$info$esmin, data$es*.95, obj$info$esmin)
   data$power=.99
@@ -30,6 +31,8 @@ find_max_n <- function(obj, ...) UseMethod(".find_max_n")
     n<-ceiling(res$obj$n)
   else
     n<-obj$info$nmax
+  jinfo("...done")
+  
 return(n)
 }
 
@@ -45,7 +48,7 @@ find_max_es <- function(obj, ...) UseMethod(".find_max_es")
   if (isFALSE(res$error)) 
     es<-res$obj$es
   else
-    stop("there must be a esmax")
+    es<-obj$info$esmax
 return(es)
 }
 

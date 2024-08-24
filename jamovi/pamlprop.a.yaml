@@ -28,7 +28,7 @@ options:
         - name: es
           title: Effect Size
     - name: mode
-      title: "Two Sample"
+      title: "Design"
       type: List
       options:
             - name: propind

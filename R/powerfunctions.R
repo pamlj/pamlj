@@ -4,7 +4,7 @@
 ## they are used across all table and plots to estimate parameters, so the input data.frame is not necessarely the 
 ## orginal input data of the user.
 ## Differently to other software, these functions cannot fail. They should return a value (possibly Inf or 0) in any case.
-## For negative sample size, a lower bound of 4 is set as default
+## For this to happen, input data must be checked for plausibility elsewhere (see checkdata() in checkdata.R)
 
 powervector <- function(obj, ...) UseMethod(".powervector")
 
@@ -233,7 +233,9 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
 
 .powervector.propind <- function(obj,data) {
-                
+  
+                 aim <- required_param(data)
+
                 if (!is.null(data$es)) {
                   data$h<-obj$info$toaes(data)
                   data$es<-NULL
@@ -258,16 +260,17 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                      res<-oner$obj
                      if (!isFALSE(oner$error)) {
                        res<-one
-                       switch(obj$aim,
-                              n={if (one$h>2) {
-                                 if (round(one$n_ratio*2) < 2)
-                                       res$n1<-round(2/one$n_ratio)
+                       switch(aim,
+                              n={
+                                 if (round(one$n_ratio*obj$info$nmin) < 2)
+                                       res$n1<-round(obj$info$nmin/one$n_ratio)
                                  else 
-                                       res$n1<-2
+                                       res$n1<-obj$info$nmin/(1+one$n_ratio)
                                 res$n2<-res$n1*one$n_ratio
-                              }},
+                                res$aprox<-"nmin"
+                              },
                               es={
-                                mark("error in low function")
+                                mark("error in low function for es")
                               }
                               )
                      }
@@ -278,19 +281,30 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
                  odata<- data[, !names(data) %in% names(results)]
                  results<-cbind(odata,results)
+             
                  results$n  <- results$n1 + results$n2
                  results$method<-NULL
                  tp2 <-   (2 * asin(sqrt(results$p1))) - results$h 
                  results$p2 <- sin(tp2/2)^2
                  results$es <- obj$info$fromaes(results)
-                 results$es[tp2<0]<-obj$info$esmax                  
+                 
+                 results$es[tp2<0]<-obj$info$esmax           
+             #    results$aprox[results$n < obj$info$nmin]<-"nsmall"
+            #     results$n[results$n < obj$info$nmin] <- obj$info$nmin
+ 
+                 
                  results$h  <- NULL
                  
                 return(results)
 }
 
+
+
+
 .powervector.propone <- function(obj,data) {
                 
+                aim <- required_param(data)
+              
                 if (!is.null(data$es)) {
                   data$h<-obj$info$toaes(data)
                   data$es<-NULL
@@ -302,17 +316,44 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                  data$alternative<-as.character(data$alternative)
                  results<-lapply(1:nrow(data),function(i) {
                      one<-as.list(data[i,.names])
-                     do.call(pwr::pwr.p.test,one)
+                     oner<-try_hard(do.call(pwr::pwr.p.test,one))
+                     res<-oner$obj
+                     if (!isFALSE(oner$error)) {
+                       res<-one
+                       switch(aim,
+                              n={
+                                 mark("error in low function for n")
+                                 res$n<-obj$info$nmin
+                                 res$aprox="nmin"
+                               },
+                              es={
+                                mark("error in low function for es")
+                              },
+                              power={
+                                mark("error in low function for power")
+                              }
+
+                              )
+                     }
+                     res
+
                     })
                  results<-as.data.frame(do.call("rbind",results))
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
+                 .names<-c(names(data)[!names( data) %in% names(results)],names(results))
                  odata<- data[, !names( data) %in% names(results)]
                  results<-cbind(odata,results)
+                 names(results)<-.names
+
                  tp2 <-   (2 * asin(sqrt(results$p1))) - results$h 
                  results$p2 <- sin(tp2/2)^2
                  results$es <- obj$info$fromaes(results)
+                 results$es[tp2<0]<-obj$info$esmax           
+                 results$aprox[results$n < obj$info$nmin]<-"nsmall"
+                 results$n[results$n < obj$info$nmin] <- obj$info$nmin
+                
+                 
             
-                 results$es[tp2<0]<-NA                  
                  results$n1<-NA
                  results$n2<-NA
                  results$h  <- NULL
@@ -347,3 +388,4 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                  results$psi  <- NULL
                 return(results)
 }
+

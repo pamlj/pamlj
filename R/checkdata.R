@@ -128,7 +128,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$info$letter      <- greek_vector["rho"]
       obj$info$esmax       <- .99
       obj$info$esmin       <- .01
-      obj$info$nmin        <-  6
+      obj$info$nmin        <-  4
 
 
 }
@@ -817,13 +817,45 @@ morechecks <- function(obj, ...) UseMethod(".morechecks")
 }
 
 
-.morechecks.propind<-function(obj) {
+.morechecks.proportions<-function(obj) {
   
-  jinfo("PAMLj: more checks for propind passed")
-  if (obj$aim == "n") {
-     if (obj$data$es > obj$info$esmax) {
-                   message<-paste0("The effect size (",obj$info$letter," = ",round(obj$data$es, digits=0),") is very large, so some plots cannot be produced or may be not accurate.")
-                   obj$warning<-list(topic="issues",message=message,head="warning")
-    }
+  jinfo("PAMLj: more checks for proportions")
+ 
+  if (utils::hasName(obj$data,"aprox")) {
+    switch (obj$data$aprox,
+      nmin = {     message<-paste0("The effect size (",obj$info$letter," = ",es,") is too large to compute the required N. The minimum sample size is reported instead.",
+                                   "This means that a sample size of ",data$info$nmin," guarantees a power equal or larger than ", obj$data$power)
+                   obj$warning<-list(topic="issues",message=message,head="info")}
+    )
   }
 }
+
+
+postchecks <- function(obj, ...) UseMethod(".postchecks")
+
+.postchecks.default<-function(obj) {
+  
+  jinfo("PAMLj: post checks default")
+  if (utils::hasName(obj$data,"aprox")) {
+    switch (obj$data$aprox,
+      nsmall = {     message<-paste0("The effect size (",obj$info$letter," = ",round(obj$data$es,digits=3),") is so large that the computed required N is smaller than a practical sample size. The minimum sample size is reported instead.",
+                                   "This means that a sample size of ",obj$info$nmin," guarantees a power equal or larger than ", obj$data$power," for the input effect size.",
+                                   " Sensitivity analyses may be affected.")
+                   obj$warning<-list(topic="issues",message=message,head="warning")},
+      nmin = {   message<-paste0("The effect size (",obj$info$letter," = ",round(obj$data$es,digits=3),") is too large to compute the required N. The minimum sample size is reported instead.",
+                                   "This means that a sample size of ",obj$info$nmin," guarantees a power equal or larger than ", obj$data$power," for the input effect size.",
+                                   " Sensitivity analyses may be affected.")
+                   obj$warning<-list(topic="issues",message=message,head="warning")}
+   
+    )
+  }
+  
+  if (obj$data$power>.9999) {
+    
+                   message<-paste0("The analysis reports a power close to 1.  Sensitivity analyses may be affected.")
+                   obj$warning<-list(topic="issues",message=message,head="info")
+    
+  }
+
+}
+

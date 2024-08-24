@@ -26,7 +26,8 @@ Runner <- R6::R6Class("Runner",
                                  }
                                  # everything went well, so fill self$data
                                  self$data<-resobj$obj
-                                
+                                 postchecks(self)
+                                 
                               },
                               run_powertab = function() {
                                      if (!self$ok) return()

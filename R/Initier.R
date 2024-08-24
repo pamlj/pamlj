@@ -15,7 +15,7 @@ Initer <- R6::R6Class(
     caller     =  NULL, # which jamovi analysis is launched (correlation, glm, ttest etc)
     mode       =  NULL, # (if present) the mode within the analysis
     ok         =  TRUE,    # is data ok to go 
-    
+
     initialize=function(jmvobj) {
 
       super$initialize(jmvobj)
@@ -40,7 +40,8 @@ Initer <- R6::R6Class(
           self$info$nmin                <- 4
           self$info$nmax                <- 10^7
           self$info$nmax_spell          <- "ten million cases"      
-          
+
+
           ### some specs for plots
           self$plots$esrange<-3
           

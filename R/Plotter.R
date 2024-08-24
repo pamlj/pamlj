@@ -41,7 +41,7 @@ Plotter <- R6::R6Class(
 
         data<-image$state
         if (is.null(data)) return()
-        
+        res<-try_hard(
 
         filled.contour(data$x,data$y,data$z,color.palette =  paml_palette,
                key.title = {mtext("Power",3, .5)},
@@ -57,6 +57,7 @@ Plotter <- R6::R6Class(
                   segments(data$point.x,yor,data$point.x,data$point.y, lwd=2)
                   points(data$point.x,data$point.y,pch=21,bg="white",cex=1.5)
                })
+        )
 
       },
       plot_curve= function(image,ggtheme,theme) {
@@ -67,6 +68,8 @@ Plotter <- R6::R6Class(
 
          cols = paml_palette(10)
          state<-image$state
+         if (is.null(state)) 
+             return()
          data <- state$data
          range <- max(data$x)-min(data$x)
          plot(data$x,data$y,  ty='n', 
@@ -199,6 +202,7 @@ Plotter <- R6::R6Class(
          }
       }
 
+      
        x <- seq(FLX(nmin),FLX(nmax),len=20)
        n <- FEX(x)
        point.x<-FLX(obj$data$n)
@@ -222,6 +226,8 @@ Plotter <- R6::R6Class(
          powervector(obj,.data)[["power"]]
          })
        z<-do.call(cbind,out)
+    
+       #return()
       image$setState(list(x=x,y=y,z=z,
                           point.x=point.x,point.y=point.y,
                           n=data$n,power=data$power,yline=yline,
@@ -240,6 +246,8 @@ Plotter <- R6::R6Class(
       
       obj  <- private$.operator
       data <- private$.operator$data
+      mark(data)
+      
       image<-private$.results$powerNcurve
       ## check the min-max for effect size
       esmax <- obj$info$esmax
@@ -249,7 +257,7 @@ Plotter <- R6::R6Class(
       ## check min-max for N
       nmin<-  find_min_n(obj,data)
       nmax<-  find_max_n(obj,data)
-
+    
       if (nmax< data$n) nmax<-data$n+10
       if (nmax<(nmin*2)) nmax=(nmin*2)
 
@@ -296,8 +304,9 @@ Plotter <- R6::R6Class(
         data <- private$.operator$data
         image<-private$.results$powerEscurve
     ## check the min-max for effect size
+        mark(data)
       esmax <- find_max_es(obj,data)
- 
+
       if (esmax < data$es) esmax<-data$es
       esmin<-  obj$info$esmin
 
