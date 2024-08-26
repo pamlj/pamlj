@@ -311,7 +311,9 @@ Plotter <- R6::R6Class(
         data <- private$.operator$data
         image<-private$.results$powerEscurve
     ## check the min-max for effect size
-      esmax <- find_max_es(obj,data)
+      .data<-data
+      .data$power<-.99
+       esmax <- find_max_es(obj,.data)
 
       if (esmax < data$es) esmax<-data$es
       esmin<-  obj$info$esmin

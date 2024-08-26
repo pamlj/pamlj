@@ -785,7 +785,7 @@ commonchecks <- function(obj) {
 
     if (is.something(obj$data$n ) ) {
         if ( any(obj$data$n < obj$info$nmin )) {
-                   obj$stop(paste("N (total sample size) should be larger than",obj$info$nmin),head="error")
+                   obj$stop(paste("N (total sample size) should be larger than",obj$info$nmin))
         }
     } 
     if (is.something(obj$data$es ) ) {

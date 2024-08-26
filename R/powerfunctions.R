@@ -26,7 +26,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
                  odata<- data[, !names(data) %in% names(results)]
                  results<-cbind(odata,results)
-                 results$n  <- ceiling(results$n)
+                 results$n  <- round(results$n,digits=0)
                  results$es <- results$r
                  results$r  <- NULL
                  return(results)
@@ -302,10 +302,6 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                  results$es <- obj$info$fromaes(results)
                  
                  results$es[tp2<0]<-obj$info$esmax           
-             #    results$aprox[results$n < obj$info$nmin]<-"nsmall"
-            #     results$n[results$n < obj$info$nmin] <- obj$info$nmin
- 
-                 
                  results$h  <- NULL
                  
                 return(results)

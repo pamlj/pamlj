@@ -19,7 +19,9 @@ pamlcorrClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
      ### set up the R6 workhorse class
                 private$.runner          <-  Runner$new(self)
 
-      
+                 ### handle plotter #####
+                 private$.plotter<-Plotter$new(self,private$.runner)
+                 private$.plotter$initPlots()      
       ### info table ###
                  aSmartObj<-SmartTable$new(self$results$powertab,private$.runner)
                  ladd(private$.smartObjs)<-aSmartObj
@@ -31,9 +33,7 @@ pamlcorrClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                  for (tab in private$.smartObjs) {
                      tab$initTable()
                  }
-                 ### handle plotter #####
-                 private$.plotter<-Plotter$new(self,private$.runner)
-                 private$.plotter$initPlots()
+
       
         }, ## end of init
         .run = function() {

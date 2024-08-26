@@ -93,12 +93,11 @@ Runner <- R6::R6Class("Runner",
                                 
                               },
                               run_customtable = function() {
-     
+                           
                                      if (!self$ok) return()
                                      ## this is filled by plotter$prepateCustom
                                      ## here we simply pass it to the table
                                      state <- self$analysis$results$powerCustom$state
-                                   
                                      if (is.null(state))
                                          return()
                                      return(state$data)
