@@ -80,14 +80,14 @@ is.something <- function(x, ...) UseMethod(".is.something")
 is.there<-function(pattern,string) length(grep(pattern,string,fixed=T))>0
 
 #### This function run an expression and returns any warnings or errors without stopping the execution.
-try_hard<-function(exp,max_warn=5) {
+try_hard<-function(exp,max_warn=5, silent=FALSE) {
   
   .results<-list(error=FALSE,warning=list(),message=FALSE,obj=FALSE)
   
   .results$obj <- withCallingHandlers(
     tryCatch(exp, error=function(e) {
-      mark("SOURCE:")
-      mark(conditionCall(e))
+      if (!silent) mark("SOURCE:")
+      if (!silent) mark(conditionCall(e))
       .results$error<<-conditionMessage(e)
       NULL
     }), warning=function(w) {
@@ -105,7 +105,7 @@ try_hard<-function(exp,max_warn=5) {
     })
   
   
-  if (!isFALSE(.results$error)) {
+  if (!isFALSE(.results$error) && isFALSE(silent)) {
     mark("CALLER:")
     mark(rlang::enquo(exp))
     mark("ERROR:")

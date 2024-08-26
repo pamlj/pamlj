@@ -153,8 +153,7 @@ pamlpropOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "none",
                     "n",
                     "power",
-                    "es",
-                    "sig.level"))
+                    "es"))
             private$..plot_custom_labels <- jmvcore::OptionBool$new(
                 "plot_custom_labels",
                 plot_custom_labels,
@@ -388,7 +387,7 @@ pamlpropResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=options,
                 name="plotnotes",
                 title="Plot notes",
-                visible=TRUE))
+                visible=FALSE))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerContour",
@@ -425,7 +424,7 @@ pamlpropResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=options,
                 name="customnotes",
                 title="Plot notes",
-                visible=TRUE))
+                visible=FALSE))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="customtable",

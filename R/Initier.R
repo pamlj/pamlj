@@ -10,7 +10,7 @@ Initer <- R6::R6Class(
     data       =  NULL, ## contains the focus power parameters (input and estimated). It must be one row
     extradata  =  NULL, ## contains (if needed) data required for more complex analysis (multiple effect size, additional coefficient, etc.)
     info       =  list(), ## contains all info regarding the specific analysis. It filled in checkdata and never changed within one analysis
-    plots      =  list(), ## contains some specs for custumizing plots.
+    plots      =  list(), ## contains some specs for customizing plots.
     aim        =  NULL, # the aim of the main analysis (n, power or es)
     caller     =  NULL, # which jamovi analysis is launched (correlation, glm, ttest etc)
     mode       =  NULL, # (if present) the mode within the analysis
@@ -45,6 +45,7 @@ Initer <- R6::R6Class(
 
           ### some specs for plots
           self$plots$esrange<-3
+          self$plots$sensitivity<-TRUE
           
           ## set the class of self so the S3 methods may dispatch to the right functions
           class(self)<-unique(c(self$mode,self$caller,class(self)))

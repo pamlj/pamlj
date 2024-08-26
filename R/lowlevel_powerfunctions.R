@@ -2,6 +2,7 @@
 ## they take one set of parameters and return the power parameters (input+estimates)
 ## they should return a structure of class "paml_power" or ""power.htest" with one set of parameters
 ## Basically, they are used for one estimate, usually by the powervector() functions that work for multiple estimates (runs))
+## they must return a `method` field
 
 pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,sig.level=NULL,df_model=NULL,ncp_type="gpower",  alternative="two.sided") {
   
@@ -47,7 +48,7 @@ p.body <- quote({
     else stop("internal error in pamlj.glm")
     n <- df_model+ ceiling(v) + 1
     c(u = u, v = ceiling(v), f2 = f2, sig.level = sig.level, 
-        power = power, n = n, encp=ncp(f2,u,v))
+        power = power, n = n, encp=ncp(f2,u,v),method="pamlj")
 
 }
 ### These two functions are from jpower https://github.com/richarddmorey/jpower/blob/master/jpower/R/utils.R with some adjustment
@@ -95,9 +96,9 @@ pamlj.t2n.test = function(n1 = NULL, n2 = NULL, d = NULL, sig.level = NULL, powe
       }else{
         stop("Invalid alternative")
       }
-      METHOD <- c("t test power calculation")
+
       ret = structure(list(n1 = n1, n2 = n2, d = d, sig.level = sig.level,
-                           power = power, alternative = alternative, method = METHOD),
+                           power = power, alternative = alternative, method = "pamlj"),
                       class = "power.htest")
       return(ret)
     }else{
@@ -107,6 +108,7 @@ pamlj.t2n.test = function(n1 = NULL, n2 = NULL, d = NULL, sig.level = NULL, powe
     return(pwr::pwr.t2n.test(n1 = n1, n2 = n2, d = d, sig.level = sig.level, power = power, alternative = alternative))
   }
 }
+
 
 
 pamlj.t2n.ratio = function(n_ratio = 1, d, sig.level, power, alternative){
@@ -135,15 +137,13 @@ pamlj.t2n.ratio = function(n_ratio = 1, d, sig.level, power, alternative){
   n2 <- ceiling(n1*n_ratio)
   
   ret = structure(list(n1 = n1, n2 = n2, d = d, sig.level = sig.level,
-                           power = power, alternative = alternative),
+                           power = power, alternative = alternative, method="pamlj"),
                       class = "power.htest")
   ret
 
 }
 
 ### independent samples proportions ###
-
-
 
 
 pamlj.propind<-function(n= NULL, n_ratio=NULL, n1 = NULL, n2 = NULL, h = NULL, sig.level = NULL, power = NULL, alternative = "two.sided") {
@@ -153,7 +153,8 @@ pamlj.propind<-function(n= NULL, n_ratio=NULL, n1 = NULL, n2 = NULL, h = NULL, s
        ret <- pamlj.p2n.ratio(n_ratio = n_ratio, h=h, sig.level=sig.level, power=power, alternative=alternative)
     else
        ret <- pwr::pwr.2p2n.test(n1 = n1, n2 = n2, h=h, sig.level=sig.level, power=power, alternative=alternative)
-      
+    
+    ret$method<-"pamlj"
     return(ret)  
 }
 
@@ -175,7 +176,7 @@ pamlj.p2n.ratio<-function(n_ratio, h, sig.level=NULL, power=NULL, alternative="t
    n1 = ceiling(uniroot(fn, c( start, 1e+09))$root)
    n2 = n1*n_ratio
    ret = structure(list(n1 = n1, n2 = n2, h = h, sig.level = sig.level,
-                           power = power, alternative = alternative),
+                           power = power, alternative = alternative, method="pamlj"),
                            class = "power.htest")
   ret
 
@@ -238,5 +239,5 @@ pamlj.prop.paired <- function (n = NULL, p1 = NULL, psi = NULL, sig.level = 0.05
             power, c(1e-10, 1 - 1e-10))$root
     else stop("internal error", domain = NA)
     structure(list(n = n, p1 = p1, psi = psi, sig.level = sig.level, 
-        power = power, alternative = alternative), class = "power.htest")
+        power = power, alternative = alternative,method="pamlj"), class = "power.htest")
 }

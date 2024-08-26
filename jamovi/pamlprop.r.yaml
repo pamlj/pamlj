@@ -66,8 +66,8 @@ items:
     - name: plotnotes
       title: Plot notes
       type: Html
-      visible: true
-
+      visible: false
+      
     - name: powerContour
       title: Power Contour
       type: Image
@@ -105,7 +105,7 @@ items:
     - name: customnotes
       title: Plot notes
       type: Html
-      visible: true
+      visible: false
 
     - name:  customtable
       title: Power Analysis parameters

@@ -19,7 +19,8 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       
       obj$info$letter      <- greek_vector["delta"]
       obj$info$esmax       <- 20
-      obj$info$esmin       <- .01
+      obj$info$esmin       <- 0.001
+
 
       if (obj$options$is_equi ) {
         
@@ -127,7 +128,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       
       obj$info$letter      <- greek_vector["rho"]
       obj$info$esmax       <- .99
-      obj$info$esmin       <- .01
+      obj$info$esmin       <- .001
       obj$info$nmin        <-  4
 
 
@@ -136,6 +137,8 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 ### proportions ###
 .checkdata.propind <- function(obj) {
 
+      obj$info$nmin         <- 4
+  
       obj$data<-data.frame(power=obj$options$power)
       obj$data$n1          <- obj$options$propind_n
       obj$data$n_ratio     <- obj$options$propind_nratio
@@ -152,6 +155,8 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
 .checkdata.propone <- function(obj) {
 
+      obj$info$nmin         <- 4
+
       obj$data<-data.frame(power=obj$options$power)
       obj$data$n          <- obj$options$propone_n
       obj$data$p1          <- obj$options$propone_p1
@@ -161,6 +166,8 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 }
 
 .checkdata.proppaired <- function(obj) {
+
+      obj$info$nmin         <- 8
 
       obj$data<-data.frame(power=obj$options$power)
       obj$data$n           <- obj$options$proppaired_n
@@ -205,12 +212,15 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                    obj$info$fromaes            <- function(data)  (data$psi)
                                               
              }
-             
-
       )
-  
-      
+    
+      if (obj$aim != "es") {
+        if ( (obj$data$p1+obj$data$p2) > 1 ) {
+          obj$stop("The sum of discordand proportion (P21+P12)  should be less than 1.")
+        }
+      }
       obj$data[[obj$aim]]<-NULL
+      
 }
 
 
@@ -219,7 +229,6 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
         obj$data$sig.level   <- obj$options$sig.level
         obj$data$alternative <- obj$options$alternative
         
-        obj$info$nmin         <- 6
         obj$info$esmin        <- .001
 
       if (!is.something(obj$data$p1)) 
@@ -439,16 +448,16 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
     if (is.something(obj$data$df_model)) {
                 if (obj$data$df_model < 1)
-                           stop("Model degrees of freedom cannot be less than 1")
+                           obj$stop("Model degrees of freedom cannot be less than 1")
     } else {
-        stop("GLM power analysis based on eta-squared requires the expected degrees of freedom of the model")
+        obj$stop("GLM power analysis based on eta-squared requires the expected degrees of freedom of the model")
     }
   
   
     if ( obj$data$df_model < obj$data$df_effect ) {
            obj$data$df_model <- obj$data$df_effect
-           obj$warning<-list(topic="powertab",message="Model degrees of freedom cannot be less than the effect degrees of freedom. 
-                                                   They have been set equal. ")
+           obj$warning<-list(topic="issues",message="Model degrees of freedom cannot be less than the effect degrees of freedom. 
+                                                   They have been set equal. ", head="info")
     }
 
      obj$data[[obj$aim]]<-NULL
@@ -768,17 +777,15 @@ commonchecks <- function(obj) {
                    obj$ok<-FALSE
         }
     } else {
-        stop("Power analysis requires Type I rate")
+        obj$stop("Power analysis requires Type I rate")
     }
   
     if (is.something(obj$data$power ) ) {
         if ( any(obj$data$power < 0.10) ||  any(obj$data$power > .99)) {
-                   obj$warning<-list(topic="issues",message=paste("Power should be between .10 and .99"),head="error")
-                   obj$ok<-FALSE
+                   obj$stop("Power should be between .10 and .99")
         }
         if ( any(obj$data$power < obj$data$sig.level) ) {
-                   obj$warning<-list(topic="issues",message=paste("Power should be larger than Type I error rate "),head="error")
-                   obj$ok<-FALSE
+                   obj$stop("Power should be larger than Type I error rate ")
         }
 
     } 
@@ -788,62 +795,24 @@ commonchecks <- function(obj) {
                    obj$stop(paste("N (total sample size) should be larger than",obj$info$nmin))
         }
     } 
-    if (is.something(obj$data$es ) ) {
-        if ( any(obj$data$es < obj$info$esmin )) {
-                   obj$stop(paste0("The effect size ",obj$info$letter," should be larger than",obj$info$esmin))
+    if (is.something(obj$data$es) && !obj$option("is_equi") ) {
+        .data<-obj$data
+        .data$n<-obj$info$nmax
+        esmin<-find_min_es(obj,.data)
+        if ( any(obj$data$es < esmin )) {
+                   message<-paste0("The effect size (",obj$info$letter," = ", obj$data$es,") is smaller than the effect size (",obj$info$letter," = ", round(esmin,digits=6),")",
+                                   " that requires around ",obj$info$nmax_spell," cases (N=",obj$info$nmax,")  to obtain a power of ",obj$data$power,".",
+                                   " Results are shown for ",obj$info$letter," = ", round(esmin,digits=6),". Sensitivity analysis (plots) cannot be produced.")
+                   obj$warning<-list(topic="issues",message=message,head="warning")
+                   obj$data$es<-esmin
+                   obj$plots$sensitivity<-FALSE
+                   
         }
+      
     } 
   
- 
-
-}
-
-morechecks <- function(obj, ...) UseMethod(".morechecks")
-
-.morechecks.default<-function(obj) {
-    jinfo("PAMLj: more checks default")
   
-    data<-obj$data
-    
-    if (obj$aim == "n") {
-      data$n <- obj$info$nmin
-      esmax  <- round(find_max_es(obj,data), digits=3)
-      es     <- round(data$es,digits=3) 
-      if (data$es > esmax) {
-                   message<-paste0("The effect size (",obj$info$letter," = ", es,") is larger than the maximum effect size (",obj$info$letter,"=",esmax,")",
-                                   " that guarantees power=",data$power," with a sample of minimum size (N=",data$n,").",
-                                   "This means that any effect size larger than ", esmax ," guarantees a power > ",data$power," for any sample size equal or larger than ",data$n,".")
-                   obj$warning<-list(topic="issues",message=message,head="info")
-      }
-      esmin<-round(find_min_es(obj,data), digits=3)
-      
-      ### equivalence tests do not check for ES too small
-      if (obj$options$is_equi)
-          return()
-         
-      if (data$es < esmin) {
-                   message<-paste0("The effect size (",obj$info$letter," = ",es,") is smaller than the minimum effect size (",obj$info$letter,"=",esmin,")",
-                                   " requiring a huge a sample size (N=",obj$info$nmax,") for power=",data$power,". ",
-                                   "This means that any effect size smaller than ", esmin ," needs a sample larger than ",obj$info$nmax_spell," to guarantees a power = ",data$power,".")
-                   obj$warning<-list(topic="issues",message=message,head="info")
-    }
-  
-    }
 
-}
-
-
-.morechecks.proportions<-function(obj) {
-  
-  jinfo("PAMLj: more checks for proportions")
- 
-  if (utils::hasName(obj$data,"aprox")) {
-    switch (obj$data$aprox,
-      nmin = {     message<-paste0("The effect size (",obj$info$letter," = ",es,") is too large to compute the required N. The minimum sample size is reported instead.",
-                                   "This means that a sample size of ",data$info$nmin," guarantees a power equal or larger than ", obj$data$power)
-                   obj$warning<-list(topic="issues",message=message,head="info")}
-    )
-  }
 }
 
 
@@ -851,19 +820,30 @@ postchecks <- function(obj, ...) UseMethod(".postchecks")
 
 .postchecks.default<-function(obj) {
   
-  morechecks(obj)
   jinfo("PAMLj: post checks default")
-  if (utils::hasName(obj$data,"aprox")) {
-    switch (obj$data$aprox,
-      nsmall = {     message<-paste0("The effect size (",obj$info$letter," = ",round(obj$data$es,digits=3),") is so large that the computed required N is smaller than a practical sample size. The minimum sample size is reported instead.",
-                                   "This means that a sample size of ",obj$info$nmin," guarantees a power equal or larger than ", obj$data$power," for the input effect size.")
-                   obj$warning<-list(topic="issues",message=message,head="warning")},
-      nmin = {   message<-paste0("The effect size (",obj$info$letter," = ",round(obj$data$es,digits=3),") is too large to compute the required N. The minimum sample size is reported instead.",
-                                   "This means that a sample size of ",obj$info$nmin," guarantees a power equal or larger than ", obj$data$power," for the input effect size.")
-                   obj$warning<-list(topic="issues",message=message,head="warning")}
-   
+    data<-obj$data
+
+    switch (data$method,
+      nmin = {   
+              data$n <- obj$info$nmin
+              esmax  <- round(find_max_es(obj,data), digits=5)
+              es     <- round(data$es,digits=5) 
+              message<-paste0("The effect size (",obj$info$letter," = ", es,") is larger than the maximum effect size (",obj$info$letter,"=",esmax,")",
+                                   " that guarantees power=",data$power," with a sample of minimum size (N=",data$n,").",
+                                   "This means that any effect size larger than ", esmax ," guarantees a power > ",data$power," for any sample size equal or larger than ",data$n,".")
+              obj$warning<-list(topic="issues",message=message,head="info")
+              }
+  
     )
-  }
+
+   #  if (obj$data$es < obj$info$esmin) {
+   #  
+   #                 message<-paste0("The effect size (",obj$info$letter," = ", es,") is too small than the effect size (",obj$info$letter," = ", esmin,")",
+   #                                 " That requires more than ",self$info$nmax_spell," cases (N=",self$info$nmax,")  to obtain a power of ",obj$data$power,".")
+   #                 obj$warning<-list(topic="plotnotes",message=message,head="info")
+   #  
+   # }
+  
   
   if (obj$data$power>.9999) {
     

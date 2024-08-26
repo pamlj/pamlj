@@ -8,10 +8,11 @@
 
 powervector <- function(obj, ...) UseMethod(".powervector")
 
+#do.call(rbind,list(pwr::pwr.r.test(n=10,r=.5)))
 
 .powervector.correlation <- function(obj,data) {
 
-
+                 aim<-required_param(data)
                  names(data)[names(data)=="es"]<-"r"
                 .names <- intersect(names(data),rlang::fn_fmls_names(pwr::pwr.r.test))
                  data$alternative<-ifelse(data$alternative=="two.sided","two.sided","greater")
@@ -19,7 +20,18 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
                 results<-lapply(1:nrow(data),function(i) {
                      one      <-as.list(data[i,.names])
-                     do.call(pwr::pwr.r.test,one)
+                     tryobj<-try_hard(do.call(pwr::pwr.r.test,one), silent=TRUE)
+                     out<-tryobj$obj
+                     if (!isFALSE(tryobj$error)) {
+                       
+                     switch(aim,
+                            n = {
+                               n<-obj$info$nmin
+                               out<-list(n=n,r=one$r,sig.level=one$sig.level,power=one$power,alternative=one$alternative,method="nmin")
+                               }
+                            )
+                     }
+                     out
                     })
                  results<-as.data.frame(do.call("rbind",results))
            
@@ -50,7 +62,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
                  results<-lapply(1:nrow(data),function(i) {
                    one<-data[i,]
-                   res<-try_hard(pamlj.glm(u=one$df_effect,
+                   tryobj<-try_hard(pamlj.glm(u=one$df_effect,
                              v=one$v,
                              f2=one$f2,
                              power=one$power,
@@ -59,15 +71,13 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                               ncp_type=obj$options$ncp_type,
                               alternative=as.character(obj$info$alternative)
                               ))
-                   out<-res$obj
-                  
-                   if (!isFALSE(res$error)) {
-                     out<-one
+                   out<-tryobj$obj
+                   if (!isFALSE(tryobj$error)) {
+                     out<-NULL
                      switch(aim,
                             n = {
                                n<-obj$info$nmin
-                              
-                               out<-data.frame(u=one$df_effect,v=n- out$df_model -1,f2=one$f2,power=one$power,n=n,encp=0)
+                               out<-data.frame(u=one$df_effect,v=n- out$df_model -1,f2=one$f2,sig.level=one$sig.level,power=one$power,n=n,encp=0,method="nmin")
                                }
                             )
                    }
@@ -135,9 +145,12 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
 
 
+#do.call(rbind,list(pamlj.ttestind(n_ratio=1,d=1,power=.90,sig.level=.05)))
 
 .powervector.ttestind <- function(obj,data) {
   
+                aim<-required_param(data)
+                
                 if (is.something(data$es))
                     data$d <- obj$info$toaes(data$es)
                 
@@ -158,36 +171,22 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                 .names <- intersect(names(data),rlang::fn_fmls_names(pamlj.ttestind))
                 results<-lapply(1:nrow(data),function(i) {
                      one<-as.list(data[i,.names])
-                     res<-try_hard(do.call(pamlj.ttestind,one))
-                     if (!isFALSE(res$error)) {
-                       .one   <- one
-                       .one$n <- obj$info$nmin
-                       .one$d <- NULL
-                       esmax<-find_max_es(obj,as.data.frame(.one))
-                       if (one$d > esmax) {
-                         .one$n<-NULL
-                         .one$d<-esmax*1.001
-                         res<-do.call(pamlj.ttestind,.one)
-                         res$d<-one$d
-                         return(res)
-                       }
-                       .one   <- one
-                       .one$d <- NULL
-                       esmin<-find_min_es(obj,as.data.frame(.one))
-                       if (one$d < esmin) {
-                         .one$n<-NULL
-                         .one$d<-esmin
-                         res<-do.call(pamlj.ttestind,.one)
-                         res$d<-one$d
-                         return(res)
-                       }
-                       
-
-                       return(NULL)
+                     tryobj<-try_hard(do.call(pamlj.ttestind,one),silent=TRUE)
+                     out<-tryobj$obj
+                     if (!isFALSE(tryobj$error)) {
+                 
+                        switch(aim,
+                                n = {
+                                     n<-obj$info$nmin
+                                     n1<-ceiling(n/(1+data$n_ratio))
+                                     n2<-n1*one$n_ratio
+                                     out<-data.frame(n1=n1,n2=n2,d=one$d,sig.level=one$sig.level,power=one$power,alternative=one$alternative,method="nmin")
+                               }
+                             )
                      }
-                     return(res$obj)
+                    out
                     })
-               
+             
                  results<-as.data.frame(do.call("rbind",results))
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
                  odata<-data[, !names(data) %in% names(results)]
@@ -204,8 +203,11 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                 return(results)
 }
 
+#do.call(rbind,list(pwr::pwr.t.test(n=10,d=1)))
+
 .powervector.ttestpaired <- function(obj,data) {
                 
+                aim<-required_param(data)
                 if (is.something(data$es))
                      data$d <- obj$info$toaes(data$es)
                 if (is.something(obj$info$equi_limit)) {
@@ -215,12 +217,25 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                 .names <- intersect(names(data),rlang::fn_fmls_names(pwr::pwr.t.test))
                  data$alternative<-as.character(data$alternative)
                 results<-lapply(1:nrow(data),function(i) {
-                     one      <-as.list(data[i,.names])
+                     one<-as.list(data[i,.names])
                      one$type <-as.character(one$type)
-                     do.call(pwr::pwr.t.test,one)
-                    })
+                     tryobj<-try_hard(do.call(pwr::pwr.t.test,one),silent=TRUE)
+                     out<-tryobj$obj
+                     if (!isFALSE(tryobj$error)) {
+                 
+                        switch(aim,
+                                n = {
+                                     n<-obj$info$nmin
+                                     out<-data.frame(n=n,d=one$d,sig.level=one$sig.level,power=one$power,alternative=one$alternative,method="nmin")
+                                     mark("nmin exec")
+                               }
+                             )
+                     }
+                    out
+                    })                
                  results<-as.data.frame(do.call("rbind",results))
                  results$note<-NULL
+              
 
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
 
@@ -245,6 +260,8 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 }
 
 
+#a<-pamlj.propind(n_ratio=1,h=1,sig.level=.05,power=.90)
+#do.call(rbind,list(a))
 .powervector.propind <- function(obj,data) {
   
                  aim <- required_param(data)
@@ -262,6 +279,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                 } 
                .names <- intersect(names(data),rlang::fn_fmls_names(pamlj.propind))
                 data$alternative<-as.character(data$alternative)
+                
                 if (hasName(data,"n")) {
                   data$n1 <- data$n/(1+data$n_ratio)
                   data$n1[data$n1<2]<-2
@@ -269,18 +287,16 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                 }
                 results<-lapply(1:nrow(data),function(i) {
                      one<-as.list(data[i,.names])
-                     oner<-try_hard(do.call(pamlj.propind,one))
-                     res<-oner$obj
-                     if (!isFALSE(oner$error)) {
-                       res<-one
+                     tryobj<-try_hard(do.call(pamlj.propind,one),silent=TRUE)
+                     res<-tryobj$obj
+                     if (!isFALSE(tryobj$error)) {
                        switch(aim,
                               n={
                                  if (round(one$n_ratio*obj$info$nmin) < 2)
-                                       res$n1<-round(obj$info$nmin/one$n_ratio)
+                                       n1<-round(obj$info$nmin/one$n_ratio)
                                  else 
-                                       res$n1<-obj$info$nmin/(1+one$n_ratio)
-                                res$n2<-res$n1*one$n_ratio
-                                res$aprox<-"nmin"
+                                       n1<-obj$info$nmin/(1+one$n_ratio)
+                                res<-list(n1=n1,n2=n1*one$n_ratio,h=one$h,sig.level=one$sig.level,power=one$power,alternative=one$alternative,method="nmin")
                               },
                               es={
                                 mark("error in low function for es")
@@ -290,13 +306,11 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                      res
                     })
                  results<-as.data.frame(do.call("rbind",results))
-           
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
                  odata<- data[, !names(data) %in% names(results)]
                  results<-cbind(odata,results)
              
                  results$n  <- results$n1 + results$n2
-                 results$method<-NULL
                  tp2 <-   (2 * asin(sqrt(results$p1))) - results$h 
                  results$p2 <- sin(tp2/2)^2
                  results$es <- obj$info$fromaes(results)
@@ -309,6 +323,8 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
 
 
+#a<-pwr::pwr.p.test(h=1,n=10,sig.level=.05,power=NULL)
+#do.call(rbind,list(a))
 
 .powervector.propone <- function(obj,data) {
                 
@@ -325,15 +341,13 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                  data$alternative<-as.character(data$alternative)
                  results<-lapply(1:nrow(data),function(i) {
                      one<-as.list(data[i,.names])
-                     oner<-try_hard(do.call(pwr::pwr.p.test,one))
-                     res<-oner$obj
-                     if (!isFALSE(oner$error)) {
+                     tryobj<-try_hard(do.call(pwr::pwr.p.test,one))
+                     out<-tryobj$obj
+                     if (!isFALSE(tryobj$error)) {
                        res<-one
                        switch(aim,
                               n={
-                                 mark("error in low function for n")
-                                 res$n<-obj$info$nmin
-                                 res$aprox="nmin"
+                                out<-list(h=one$h,n=obj$info$nmin,sig.level=one$sig.level,power=one$power,alternative=one$alternative,method="nmin")
                                },
                               es={
                                 mark("error in low function for es")
@@ -344,7 +358,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
                               )
                      }
-                     res
+                     out
 
                     })
                  results<-as.data.frame(do.call("rbind",results))
@@ -369,9 +383,16 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                 return(results)
 }
 
+
+# a<-pamlj.prop.paired(p1=.001,n=6,power=.60,sig.level=.05)
+# do.call(rbind,list(a))
+# a<-pamlj.prop.paired(p1=.001,psi=732,power=.60,sig.level=.05)
+# do.call(rbind,list(a))
+
 .powervector.proppaired <- function(obj,data) {
   
-  
+                aim <- required_param(data)
+    
                 if (!is.null(data$es)) {
                   data$psi<-obj$info$toaes(data)
                   data$es<-NULL
@@ -383,13 +404,33 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
                 results<-lapply(1:nrow(data),function(i) {
                      one<-as.list(data[i,.names])
-                     r<-do.call(pamlj.prop.paired,one)
-                     r
+                     tryobj<-try_hard(do.call(pamlj.prop.paired,one), silent=TRUE)
+                     out<-tryobj$obj
+                     if (!isFALSE(tryobj$error)) {
+                       res<-one
+                       switch(aim,
+                              n={
+                                  mark("applying nmin to proppaired")
+                                out<-list(n=obj$info$nmin,p1=one$p1,psi=one$psi,sig.level=one$sig.level,power=one$power,alternative=one$alternative,method="nmin")
+                               },
+                              es={
+                                mark("error in low function for es")
+                              },
+                              power={
+                                mark("error in low function for power")
+                              }
+
+                              )
+                     }
+                     out
                     })
                  results<-as.data.frame(do.call("rbind",results))
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
+                .names<-c(names(data)[!names( data) %in% names(results)],names(results))
                  odata<- data[, !names( data) %in% names(results)]
                  results<-cbind(odata,results)
+                 names(results)<-.names
+
                  results$p2 <- results$p1*results$psi
                  results$es <- obj$info$fromaes(results)
                  results$n1<-NA

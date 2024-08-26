@@ -179,8 +179,7 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                     "none",
                     "n",
                     "power",
-                    "es",
-                    "alpha"))
+                    "es"))
             private$..plot_custom_labels <- jmvcore::OptionBool$new(
                 "plot_custom_labels",
                 plot_custom_labels,
@@ -354,8 +353,8 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
         powerContour = function() private$.items[["powerContour"]],
         powerEscurve = function() private$.items[["powerEscurve"]],
         powerNcurve = function() private$.items[["powerNcurve"]],
-        customnotes = function() private$.items[["customnotes"]],
         powerCustom = function() private$.items[["powerCustom"]],
+        customnotes = function() private$.items[["customnotes"]],
         customtable = function() private$.items[["customtable"]]),
     private = list(),
     public=list(
@@ -525,11 +524,6 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                 height=350,
                 renderFun=".plot_ncurve",
                 visible="(plot_ncurve & !aim:es)"))
-            self$add(jmvcore::Html$new(
-                options=options,
-                name="customnotes",
-                title="Plot notes",
-                visible=FALSE))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerCustom",
@@ -537,6 +531,11 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                 width=450,
                 height=350,
                 renderFun=".plot_custom",
+                visible=FALSE))
+            self$add(jmvcore::Html$new(
+                options=options,
+                name="customnotes",
+                title="Plot notes",
                 visible=FALSE))
             self$add(jmvcore::Table$new(
                 options=options,
@@ -644,8 +643,8 @@ pamlfactorialBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$powerContour} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerEscurve} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerNcurve} \tab \tab \tab \tab \tab an image \cr
-#'   \code{results$customnotes} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powerCustom} \tab \tab \tab \tab \tab an image \cr
+#'   \code{results$customnotes} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$customtable} \tab \tab \tab \tab \tab a table \cr
 #' }
 #'
