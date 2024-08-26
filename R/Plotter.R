@@ -47,6 +47,7 @@ Plotter <- R6::R6Class(
                key.title = {mtext("Power",3, .5)},
                ylab =paste("Hypothetical effect size (",data$letter,")", sep = ""),
                xlab="Sample Size (N)",
+              # title(ylab="X values" ,mgp=c(3,1,0)),
                plot.axes={
                   axis(1, at=data$ticks, labels=data$tickslabels)
                   axis(2, at=data$yticks, labels=data$ytickslabels)
@@ -56,8 +57,15 @@ Plotter <- R6::R6Class(
                   segments(xor,data$point.y,data$point.x,data$point.y, lwd=2)
                   segments(data$point.x,yor,data$point.x,data$point.y, lwd=2)
                   points(data$point.x,data$point.y,pch=21,bg="white",cex=1.5)
-               })
+                 
+               }
+            
+           )
         )
+       if (!isFALSE(res$error)) {
+                   message<-paste0("Countour plot cannot be produced for the combination of parameters given in input.")
+                   private$.operator$warning<-list(topic="plotnotes",message=message,head="error")
+       }
 
       },
       plot_curve= function(image,ggtheme,theme) {
@@ -246,8 +254,7 @@ Plotter <- R6::R6Class(
       
       obj  <- private$.operator
       data <- private$.operator$data
-      mark(data)
-      
+
       image<-private$.results$powerNcurve
       ## check the min-max for effect size
       esmax <- obj$info$esmax
@@ -304,7 +311,6 @@ Plotter <- R6::R6Class(
         data <- private$.operator$data
         image<-private$.results$powerEscurve
     ## check the min-max for effect size
-        mark(data)
       esmax <- find_max_es(obj,data)
 
       if (esmax < data$es) esmax<-data$es
@@ -353,17 +359,17 @@ Plotter <- R6::R6Class(
         }
 
         if (self$options$plot_x==self$options$plot_y) {
-          self$warning<-list(topic="plotnotes",message="Please define different parameters for the X and Y axis")          
+          self$warning<-list(topic="customnotes",message="Please define different parameters for the X and Y axis")          
           return()
         }
 
         if (self$options$plot_x_from==self$options$plot_x_to) {
-            self$warning<-list(topic="plotnotes",message="Please set a suitable range for custom plot X-axis values")          
+            self$warning<-list(topic="customnotes",message="Please set a suitable range for custom plot X-axis values")          
             return()
       }
 
         if (self$options$plot_x_from>self$options$plot_x_to) {
-            self$warning<-list(topic="plotnotes",message="Please set a suitable range for custom plot X-axis values")          
+            self$warning<-list(topic="customnotes",message="Please set a suitable range for custom plot X-axis values")          
             return()
         }
          jinfo("PLOTTER: init  custom plot")
@@ -404,7 +410,6 @@ Plotter <- R6::R6Class(
                 #        esmin<-find_min_es(obj,data)
                 #        if (xmin< esmin) xmin <- esmin
                         esmax<-find_max_es(obj,data)
-                        mark(esmax)
 
               #          if (xmax> obj$info$esmax) xmax  <- obj$info$esmax
                         },
@@ -430,13 +435,13 @@ Plotter <- R6::R6Class(
         
         tryobj<-try_hard(powervector(private$.operator,data))
         if (!isFALSE(tryobj$error)) {
-            self$warning<-list(topic="plotnotes",message="The required plot cannot be produced. Please update the plot settings")          
+            self$warning<-list(topic="customnotes",message="The required plot cannot be produced. Please update the plot settings", head="error")          
             return()
         } else 
            ydata<-tryobj$obj
 
         if (any(is.nan(ydata[[self$options$plot_y]]))) {
-            self$warning<-list(topic="plotnotes",message="The required plot cannot be produced. Please update the plot settings")          
+            self$warning<-list(topic="customnotes",message="The required plot cannot be produced. Please update the plot settings", head="error")          
             return()
         }
 
@@ -463,12 +468,12 @@ Plotter <- R6::R6Class(
               return()
            
             if (self$options$plot_z %in% c(self$options$plot_x,self$options$plot_y)) {
-                self$warning<-list(topic="plotnotes",message="Multiple lines cannot be plotted for the parameters in Y or X axis.")          
+                self$warning<-list(topic="customnotes",message="Multiple lines cannot be plotted for the parameters in Y or X axis.")          
                 return()
             }
            
             if (self$options$plot_z_lines == 0) {
-                self$warning<-list(topic="plotnotes",message="Please set the required number of lines")          
+                self$warning<-list(topic="customnotes",message="Please set the required number of lines")          
                 return()
             } 
           

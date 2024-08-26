@@ -2,13 +2,9 @@ var fun=require('./functions');
 
 const events = {
   
-    update: function(ui) {
-         console.log("Updating analysis");
-         fun.update_z_value(ui);
-    },
     plot_x_changed: function(ui) {
       
-         var plotx = ui.plot_x.value();
+        var plotx = ui.plot_x.value();
          
          switch (plotx) {
               case "n": 
@@ -20,8 +16,12 @@ const events = {
                    ui.plot_x_to.setValue(.98);
                    break;
               case "es": 
-                   ui.plot_x_from.setValue(0.1);
-                   ui.plot_x_to.setValue(0.5);
+                   ui.plot_x_from.setValue(0.05);
+                   ui.plot_x_to.setValue(0.90);
+                   break;
+              case "alpha": 
+                   ui.plot_x_from.setValue(0.001);
+                   ui.plot_x_to.setValue(0.10);
                    break;
 
              default: 
@@ -33,14 +33,15 @@ const events = {
 
     },
     plot_z_changed: function(ui) {
-      
+
      ui.plot_z_value.setValue([]);
      ui.plot_z_lines.setValue(1);
      fun.update_z_value(ui);
+     
     },
     
     plot_z_lines_changed: function(ui) {
-      
+
      console.log("plot_z_lines changed")      
      
 
@@ -54,7 +55,7 @@ const events = {
           return
       }
       fun.update_z_value(ui);
-      
+
     },
     
     onChange_value_added: function(ui) {
@@ -68,4 +69,10 @@ const events = {
 };
 
 module.exports = events;
+
+
+
+
+
+
 

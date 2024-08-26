@@ -40,6 +40,7 @@ Initer <- R6::R6Class(
           self$info$nmin                <- 4
           self$info$nmax                <- 10^7
           self$info$nmax_spell          <- "ten million cases"      
+          self$info$nsave               <- 10      
 
 
           ### some specs for plots

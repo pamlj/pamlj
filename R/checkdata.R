@@ -340,7 +340,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$info$esmin       <- .01
       obj$info$loges            <-  function(x) x < .3
       obj$info$alternative <- obj$options$alternative
-      obj$info$nmin             <- obj$data$df_model+10
+      obj$info$nmin             <- obj$data$df_model+2
       obj$info$logy             <- TRUE
       obj$info$r2          <- as.numeric(obj$options$b_r2)
       
@@ -350,10 +350,16 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
 
        if (is.something(obj$data$es)) {
-               if (abs(obj$data$es)<.001)
-                     stop("Beta coefficient absolute value cannot be less than .001")
-               if (abs(obj$data$es)>.99)
-                          stop("Beta coefficient absolute value cannot be more than .99")
+               if (abs(obj$data$es)<.001) {
+                    obj$stop("Beta coefficient absolute value cannot be less than .001")
+                    return()
+               }
+               
+               if (abs(obj$data$es)>.99) {
+                    obj$stop("Beta coefficient absolute value cannot be larger than .99")
+                 return()
+               }
+               
         }
       
       
@@ -376,12 +382,13 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                  rtarget<-data[2:rows,obj$options$rx[1]]
                  rcovs<-data[2:rows,obj$options$rx[2:ncol(data)]]
                  bobj<-try_hard(chol2inv(as.matrix(rcovs))  %*% as.numeric(rtarget))
-                 if (!isFALSE(bobj$error))
-                         stop("The correlation matrix cannot be used to compute the power. Please check the correlations.")
+                 if (!isFALSE(bobj$error)) {
+                    obj$stop("The correlation matrix cannot be used to compute the power. Please check the correlations")
+                 }
                  else
                          beta <- bobj$obj
                  r2 <- sum(beta*rtarget)
-                 if (r2 > 1 || r2 < 0) stop("The correlation matrix yields impossible values for the R-squared. Please check the correlations.")
+                 if (r2 > 1 || r2 < 0) obj$stop("The correlation matrix yields impossible values for the R-squared. Please check the correlations.")
                  obj$info$ri2<-r2
             }  
       }
@@ -422,10 +429,10 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                        sig.level = obj$options$sig.level)
       obj$info$letter      <- letter_peta2
       obj$info$esmax       <-  .99
-      obj$info$esmin       <- .01
+      obj$info$esmin       <- .001
       obj$info$loges            <-  function(x) x < .3
       obj$info$alternative <- obj$options$alternative
-      obj$info$nmin             <- obj$data$df_model+10
+      obj$info$nmin             <- obj$data$df_model+2
       obj$info$logy             <- TRUE
       obj$info$toaes            <- function(value) value/(1-value)
       obj$info$fromaes          <- function(value) value/(1+value)  
@@ -459,10 +466,10 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$data[[obj$aim]]<-NULL
       obj$info$letter      <- letter_eta2
       obj$info$esmax       <-  .99
-      obj$info$esmin       <- .01
+      obj$info$esmin       <- .001
       obj$info$loges            <-  function(x) x < .3
       obj$info$alternative <- obj$options$alternative
-      obj$info$nmin             <- obj$data$df_model+10
+      obj$info$nmin             <- obj$data$df_model+2
       obj$info$logy             <- TRUE
       obj$info$r2               <- obj$options$e_r2
 
@@ -518,7 +525,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
       obj$info$letter      <- letter_peta2
       obj$info$esmax       <- .98
-      obj$info$esmin       <- .01
+      obj$info$esmin       <- .001
       obj$info$alternative <- "two.sided"
       obj$info$r           <- obj$options$r 
       obj$info$toaes       <- function(value) value/(1-value) 
@@ -650,8 +657,8 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
   
       jinfo("PAMLj: Checkdata factorial facpeta")
       obj$info$letter      <- letter_peta2
-      obj$info$esmax       <- .98
-      obj$info$esmin       <- .01
+      obj$info$esmax       <- .99
+      obj$info$esmin       <- .001
       obj$info$alternative <- "two.sided"
       obj$info$toaes       <- function(value) value/(1-value) 
       obj$info$fromaes     <- function(value) value/(1+value)  
@@ -778,13 +785,16 @@ commonchecks <- function(obj) {
 
     if (is.something(obj$data$n ) ) {
         if ( any(obj$data$n < obj$info$nmin )) {
-                   obj$warning<-list(topic="issues",message=paste("N (total sample size) should be larger than",obj$info$nmin),head="error")
-                   obj$ok<-FALSE
-          
+                   obj$stop(paste("N (total sample size) should be larger than",obj$info$nmin),head="error")
+        }
+    } 
+    if (is.something(obj$data$es ) ) {
+        if ( any(obj$data$es < obj$info$esmin )) {
+                   obj$stop(paste0("The effect size ",obj$info$letter," should be larger than",obj$info$esmin))
         }
     } 
   
-    morechecks(obj)
+ 
 
 }
 
@@ -835,16 +845,15 @@ postchecks <- function(obj, ...) UseMethod(".postchecks")
 
 .postchecks.default<-function(obj) {
   
+  morechecks(obj)
   jinfo("PAMLj: post checks default")
   if (utils::hasName(obj$data,"aprox")) {
     switch (obj$data$aprox,
       nsmall = {     message<-paste0("The effect size (",obj$info$letter," = ",round(obj$data$es,digits=3),") is so large that the computed required N is smaller than a practical sample size. The minimum sample size is reported instead.",
-                                   "This means that a sample size of ",obj$info$nmin," guarantees a power equal or larger than ", obj$data$power," for the input effect size.",
-                                   " Sensitivity analyses may be affected.")
+                                   "This means that a sample size of ",obj$info$nmin," guarantees a power equal or larger than ", obj$data$power," for the input effect size.")
                    obj$warning<-list(topic="issues",message=message,head="warning")},
       nmin = {   message<-paste0("The effect size (",obj$info$letter," = ",round(obj$data$es,digits=3),") is too large to compute the required N. The minimum sample size is reported instead.",
-                                   "This means that a sample size of ",obj$info$nmin," guarantees a power equal or larger than ", obj$data$power," for the input effect size.",
-                                   " Sensitivity analyses may be affected.")
+                                   "This means that a sample size of ",obj$info$nmin," guarantees a power equal or larger than ", obj$data$power," for the input effect size.")
                    obj$warning<-list(topic="issues",message=message,head="warning")}
    
     )
@@ -852,10 +861,17 @@ postchecks <- function(obj, ...) UseMethod(".postchecks")
   
   if (obj$data$power>.9999) {
     
-                   message<-paste0("The analysis reports a power close to 1.  Sensitivity analyses may be affected.")
-                   obj$warning<-list(topic="issues",message=message,head="info")
+                   message<-paste0("The analysis reports a power close to 1.  Sensitivity analyses may be not accurate.")
+                   obj$warning<-list(topic="plotnotes",message=message,head="warning")
     
   }
+  if (obj$data$n < obj$info$nsave) {
+    
+                   message<-paste0("The analysis yields a very small sample size.  Sensitivity analyses may be not accurate.")
+                   obj$warning<-list(topic="plotnotes",message=message,head="warning")
+    
+  }
+
 
 }
 

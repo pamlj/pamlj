@@ -33,6 +33,16 @@ Scaffold <- R6::R6Class("Scaffold",
                                 return(self$options[[val]])
                               else
                                 return(NULL)
+                            },
+                            
+                            stop=function(msg) {
+                            
+                              if (exists("ERROR_TABLE")) {
+                                 self$warning<-list(topic=ERROR_TABLE,message=msg,head="error")
+                                 self$ok <- FALSE
+                              } else
+                                 stop(msg)
+                              
                             }
                           ), ## end of public
                           active=list(

@@ -129,6 +129,11 @@ items:
           title: 'SD'
           type: number
 
+    - name: plotnotes
+      title: Plot notes
+      type: Html
+      visible: false
+
 
     - name: powerContour
       title: Power Contour
@@ -154,6 +159,11 @@ items:
       renderFun: .plot_ncurve
       visible: (plot_ncurve & !aim:es)
 
+    - name: customnotes
+      title: Plot notes
+      type: Html
+      visible: false
+
     - name: powerCustom
       title: Power Parameters
       type: Image
@@ -162,10 +172,6 @@ items:
       renderFun: .plot_custom
       visible: false
       
-    - name: plotnotes
-      title: Plot notes
-      type: Html
-      visible: false
 
     - name:  customtable
       title: Power Analysis parameters

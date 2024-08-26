@@ -12,10 +12,14 @@ Runner <- R6::R6Class("Runner",
                                  # this is run before any table or plot is filled.
                                  # it produces the basic estimation required for all tables and plots
                                  # it fills self$data with all power parameters
+                                 jinfo("PAMLj: Runner: checking data")
+
                                  checkdata(self)
                                  commonchecks(self)
-                                 jinfo("PAMLj: Runner: first estimation")
+                             
                                  if (!self$ok) return()
+                                 jinfo("PAMLj: Runner: first estimation")
+
                                  resobj <- try_hard(powervector(self,self$data) )
                                  if (!isFALSE(resobj$warning))
                                      warning(resobj$warning)
@@ -52,7 +56,7 @@ Runner <- R6::R6Class("Runner",
                                      return(tab)
                                },
                               run_means = function() {
-                          
+                                  if (!self$ok) return()
                                   exdata<-self$analysis$data
                                   factors <- self$options$factors
                                   means   <- self$options$means
@@ -94,6 +98,7 @@ Runner <- R6::R6Class("Runner",
                                      ## this is filled by plotter$prepateCustom
                                      ## here we simply pass it to the table
                                      state <- self$analysis$results$powerCustom$state
+                                   
                                      if (is.null(state))
                                          return()
                                      return(state$data)

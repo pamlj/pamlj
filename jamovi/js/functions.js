@@ -2,7 +2,7 @@ const fun = {
   
   update_z_value: function( ui ) {
   
-      
+      console.log("fun.update_z_value")
       if (ui.plot_z.value() === "none") {
          ui.plot_lines_values.$el.hide();
          return

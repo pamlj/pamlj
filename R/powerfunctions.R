@@ -35,7 +35,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
 .powervector.glm <- function(obj,data) {
 
- 
+                aim<-required_param(data)
                 if (is.something(data$es)) {
                                      data$f2<-obj$info$toaes(data$es)
                                      data$es<-NULL
@@ -50,7 +50,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
                  results<-lapply(1:nrow(data),function(i) {
                    one<-data[i,]
-                   pamlj.glm(u=one$df_effect,
+                   res<-try_hard(pamlj.glm(u=one$df_effect,
                              v=one$v,
                              f2=one$f2,
                              power=one$power,
@@ -58,16 +58,29 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                               df_model=one$df_model,
                               ncp_type=obj$options$ncp_type,
                               alternative=as.character(obj$info$alternative)
-                              )
-                    
+                              ))
+                   out<-res$obj
+                  
+                   if (!isFALSE(res$error)) {
+                     out<-one
+                     switch(aim,
+                            n = {
+                               n<-obj$info$nmin
+                              
+                               out<-data.frame(u=one$df_effect,v=n- out$df_model -1,f2=one$f2,power=one$power,n=n,encp=0)
+                               }
+                            )
+                   }
+                    out
                     })
                  results<-as.data.frame(do.call("rbind",results))
+             
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
                  results$es<-obj$info$fromaes(results$f2)
                  odata<-data[, !names(data) %in% names(results)]
                  results<-cbind(odata,results)
-                 results$df1<-results$df_effect
-                 results$df2<-ceiling(results$v)
+                 results$df1 <-results$df_effect
+                 results$df2 <-ceiling(results$v)
                
                 return(results)
 }

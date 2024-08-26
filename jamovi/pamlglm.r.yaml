@@ -141,6 +141,10 @@ items:
           type: text
 
 
+    - name: plotnotes
+      title: Plot notes
+      type: Html
+      visible: false
 
     - name: powerContour
       title: Power Contour
@@ -216,6 +220,11 @@ items:
         - ncp_type
         - plot_log
 
+    - name: customnotes
+      title: Plot notes
+      type: Html
+      visible: false
+      
     - name: powerCustom
       title: Power Parameters
       type: Image
@@ -224,10 +233,6 @@ items:
       renderFun: .plot_custom
       visible: false
       
-    - name: plotnotes
-      title: Plot notes
-      type: Html
-      visible: false
 
     - name:  customtable
       title: Power Analysis parameters
