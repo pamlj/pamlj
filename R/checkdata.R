@@ -31,9 +31,9 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
         obj$info$esmax       <-  obj$data$equi_limit-.0001
         }
         if (obj$options$equi_limit<obj$data$es) 
-          stop("Equivalence tests require the expected effect size to be smaller than the equivalence limit")
+          obj$stop("Equivalence tests require the expected effect size to be smaller than the equivalence limit")
          if (obj$options$equi_limit==0) 
-          stop("Equivalence tests require the equivalence limit to be larger than 0")
+          obj$stop("Equivalence tests require the equivalence limit to be larger than 0")
       }
 
 }
@@ -64,9 +64,9 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
         obj$info$esmax       <-  obj$data$equi_limit-.0001
         }
         if (obj$options$equi_limit<obj$data$es) 
-          stop("Equivalence tests require the expected effect size to be smaller than the equivalence limit")
+          obj$stop("Equivalence tests require the expected effect size to be smaller than the equivalence limit")
          if (obj$options$equi_limit==0) 
-          stop("Equivalence tests require the equivalence limit to be larger than 0")
+          obj$stop("Equivalence tests require the equivalence limit to be larger than 0")
 
       }
 
@@ -100,9 +100,9 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
         obj$info$esmax       <-  obj$data$equi_limit-.0001
         }
         if (obj$options$equi_limit<obj$data$es) 
-          stop("Equivalence tests require the expected effect size to be smaller than the equivalence limit")
+          obj$stop("Equivalence tests require the expected effect size to be smaller than the equivalence limit")
          if (obj$options$equi_limit==0) 
-          stop("Equivalence tests require the equivalence limit to be larger than 0")
+          obj$stop("Equivalence tests require the equivalence limit to be larger than 0")
 
       }
 
@@ -804,6 +804,7 @@ morechecks <- function(obj, ...) UseMethod(".morechecks")
     jinfo("PAMLj: more checks default")
   
     data<-obj$data
+    
     if (obj$aim == "n") {
       data$n <- obj$info$nmin
       esmax  <- round(find_max_es(obj,data), digits=3)
@@ -815,6 +816,11 @@ morechecks <- function(obj, ...) UseMethod(".morechecks")
                    obj$warning<-list(topic="issues",message=message,head="info")
       }
       esmin<-round(find_min_es(obj,data), digits=3)
+      
+      ### equivalence tests do not check for ES too small
+      if (obj$options$is_equi)
+          return()
+         
       if (data$es < esmin) {
                    message<-paste0("The effect size (",obj$info$letter," = ",es,") is smaller than the minimum effect size (",obj$info$letter,"=",esmin,")",
                                    " requiring a huge a sample size (N=",obj$info$nmax,") for power=",data$power,". ",
