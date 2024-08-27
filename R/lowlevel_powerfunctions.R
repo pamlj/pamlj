@@ -26,29 +26,40 @@ pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,sig.level=NULL,df_model=N
         strict  = {return(f2*v)}
       )
     }
-
 p.body <- quote({
         lambda <- ncp(f2 , u, v)
-        pf(qf(sig.level, u, v, lower.tail = FALSE), u, v, lambda, lower.tail = FALSE)
+        pow<-pf(qf(sig.level, u, v, lower.tail = FALSE), u, v, lambda, lower.tail = FALSE)
+        log(pow) - log(power)
     })
     if (is.null(power)) 
         power <- eval(p.body)
     else if (is.null(u)) 
-        u <- uniroot(function(u) eval(p.body) - power, c(1 + 
+        u <- uniroot(function(u) eval(p.body) , c(1 + 
             1e-10, 100))$root
     else if (is.null(v)) 
-        v <- uniroot(function(v) eval(p.body) - power, c(1 + 
+        v <- uniroot(function(v) eval(p.body) , c(1 + 
             1e-10, 1e+09))$root
-    else if (is.null(f2)) 
-        f2 <- uniroot(function(f2) eval(p.body) - power, c(1e-07, 
-            1e+07))$root
+    else if (is.null(f2)) { 
+        res <- uniroot(function(f2) eval(p.body), c(1e-10, 1e+10))
+        
+        if (abs(res$f.root) > 0.001)  {
+          ### this means that the required es is too small for uniroot (less than 1e-03). We go brute force (slow but correct)
+          f.body <- function(f2) eval(p.body)
+          int<-seq(1e-07,1e-03,length.out=1e+04)
+          p<-abs(sapply(int,f.body))
+          f2<-as.numeric(int[which.min(p)])
+          mark(paste("es ",f2," found by brute force. Approximation ",min(p)))
+
+        } else {
+          f2<-res$root
+        }
+    }
     else if (is.null(sig.level)) 
-        sig.level <- uniroot(function(sig.level) eval(p.body) - 
-            power, c(1e-10, 1 - 1e-10))$root
+        sig.level <- uniroot(function(sig.level) eval(p.body), c(1e-10, 1 - 1e-10))$root
     else stop("internal error in pamlj.glm")
     n <- df_model+ ceiling(v) + 1
-    c(u = u, v = ceiling(v), f2 = f2, sig.level = sig.level, 
-        power = power, n = n, encp=ncp(f2,u,v),method="pamlj")
+    return(list(u = u, v = ceiling(v), f2 = f2, sig.level = sig.level, 
+        power = power, n = n, encp=ncp(f2,u,v), method="pamlj"))
 
 }
 ### These two functions are from jpower https://github.com/richarddmorey/jpower/blob/master/jpower/R/utils.R with some adjustment

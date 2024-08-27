@@ -346,11 +346,11 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$data[[obj$aim]]<-NULL
       obj$info$letter      <- greek_vector["beta"]
       obj$info$esmax       <-  .99
-      obj$info$esmin       <- .01
-      obj$info$loges            <-  function(x) x < .3
+      obj$info$esmin       <- .001
+      obj$info$loges       <-  function(x) x < .3
       obj$info$alternative <- obj$options$alternative
-      obj$info$nmin             <- obj$data$df_model+2
-      obj$info$logy             <- TRUE
+      obj$info$nmin        <- obj$data$df_model+2
+      obj$info$logy        <- TRUE
       obj$info$r2          <- as.numeric(obj$options$b_r2)
       
       obj$info$ri2         <- 0
@@ -359,13 +359,9 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
 
        if (is.something(obj$data$es)) {
-               if (abs(obj$data$es)<.001) {
-                    obj$stop("Beta coefficient absolute value cannot be less than .001")
-                    return()
-               }
-               
-               if (abs(obj$data$es)>.99) {
-                    obj$stop("Beta coefficient absolute value cannot be larger than .99")
+        
+               if (abs(obj$data$es) > obj$info$esmax) {
+                    obj$stop("Beta coefficient absolute value cannot be larger than " %+% obj$info$esmax)
                  return()
                }
                
@@ -406,7 +402,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                  if (obj$data$df_model < 1)
                            stop("Model degrees of freedom cannot be less than 1")
                  if (obj$data$df_model == 1 && is.something(obj$data$es)) {
-                           obj$warning<-list(topic="powertab",message=paste("When df=1 the R-square is the square of the beta coefficient."))
+                           obj$warning<-list(topic="powertab",message="When df=1 the R-square is the square of the beta coefficient.")
                            obj$info$r2<-obj$data$es^2
                 }
       } else {
@@ -415,14 +411,14 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       if (is.something(obj$info$r2 ) ) {
 
           if (abs(obj$info$r2)>.99)
-                     stop("The R-squared cannot be more than .99")
+                     obj$stop("The R-squared cannot be more than .99")
         
           if (is.something(obj$data$es))
              if ( obj$info$r2+.0001 < obj$data$es^2  )
-                    stop("R-squared cannot be less than the square of the beta coefficient")
+                    obj$stop("R-squared cannot be less than the square of the beta coefficient")
    
         } else {
-                stop("GLM power analysis based on beta coefficients requires an expected R-squared for the model")
+                obj$stop("GLM power analysis based on beta coefficients requires an expected R-squared for the model")
        }
   
 
@@ -444,7 +440,18 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$info$nmin             <- obj$data$df_model+2
       obj$info$logy             <- TRUE
       obj$info$toaes            <- function(value) value/(1-value)
-      obj$info$fromaes          <- function(value) value/(1+value)  
+      obj$info$fromaes          <- function(value) value/(1+value)
+      
+      
+  
+    if (is.something(obj$data$es)) {
+        
+               if (abs(obj$data$es) > obj$info$esmax) {
+                    obj$stop("Partial eta-squared coefficient cannot be larger than " %+% obj$info$esmax)
+                 return()
+               }
+               
+        }    
 
     if (is.something(obj$data$df_model)) {
                 if (obj$data$df_model < 1)
@@ -487,8 +494,8 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
   
   if (is.something(obj$data$es)) {
-     if (abs(obj$data$es)<.001)
-         stop("Eta-squared value cannot be less than .001")
+     if (abs(obj$data$es)<0)
+         stop("Eta-squared value cannot be less than 0.")
      if (abs(obj$data$es)>.99)
          stop("Eta-squared value cannot be more than .99")
   }
@@ -773,8 +780,9 @@ commonchecks <- function(obj) {
   
     if (is.something(obj$data$sig.level ) ) {
         if ( any(obj$data$sig.level < 0.00001) ||  any(obj$data$sig.level > .90)) {
-                   obj$warning<-list(topic="issues",message=paste("Type I error rate should be between .00001 and .90"),head="error")
-                   obj$ok<-FALSE
+                   obj$stop("Type I error rate should be between .00001 and .90")
+                   return()
+
         }
     } else {
         obj$stop("Power analysis requires Type I rate")
@@ -783,6 +791,7 @@ commonchecks <- function(obj) {
     if (is.something(obj$data$power ) ) {
         if ( any(obj$data$power < 0.10) ||  any(obj$data$power > .99)) {
                    obj$stop("Power should be between .10 and .99")
+                   
         }
         if ( any(obj$data$power < obj$data$sig.level) ) {
                    obj$stop("Power should be larger than Type I error rate ")
@@ -799,10 +808,14 @@ commonchecks <- function(obj) {
         .data<-obj$data
         .data$n<-obj$info$nmax
         esmin<-find_min_es(obj,.data)
+        fesmin<-format(esmin, digits=4)
+
+     
+
         if ( any(obj$data$es < esmin )) {
-                   message<-paste0("The effect size (",obj$info$letter," = ", obj$data$es,") is smaller than the effect size (",obj$info$letter," = ", round(esmin,digits=6),")",
+                   message<-paste0("The effect size (",obj$info$letter," = ", obj$data$es,") is smaller than the effect size (",obj$info$letter," = ", fesmin,")",
                                    " that requires around ",obj$info$nmax_spell," cases (N=",obj$info$nmax,")  to obtain a power of ",obj$data$power,".",
-                                   " Results are shown for ",obj$info$letter," = ", round(esmin,digits=6),". Sensitivity analysis (plots) cannot be produced.")
+                                   " Results are shown for ",obj$info$letter," = ",esmin,". Sensitivity analysis (plots) cannot be produced.")
                    obj$warning<-list(topic="issues",message=message,head="warning")
                    obj$data$es<-esmin
                    obj$plots$sensitivity<-FALSE

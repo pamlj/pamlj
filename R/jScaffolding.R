@@ -35,11 +35,15 @@ Scaffold <- R6::R6Class("Scaffold",
                                 return(NULL)
                             },
                             
-                            stop=function(msg) {
+                            stop=function(msg, return=TRUE) {
                             
                               if (exists("ERROR_TABLE")) {
                                  self$warning<-list(topic=ERROR_TABLE,message=msg,head="error")
                                  self$ok <- FALSE
+                                 if (return) {
+                                       call <- rlang::expr(return()) 
+                                       rlang::eval_bare(call, env = parent.frame())
+                                 }
                               } else
                                  stop(msg)
                               

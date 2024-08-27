@@ -252,6 +252,12 @@ ebind_square<-function(...) {
   return(do.call(rbind,tabs))
   
 }
+### syntax functions
+
+`%+%`<-function(a,b) {
+  paste0(a,b)
+}
+
 
 `ladd<-`<-function(x,value) {
   x[[length(x)+1]]<-value

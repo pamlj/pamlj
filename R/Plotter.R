@@ -23,10 +23,11 @@ Plotter <- R6::R6Class(
       preparePlots=function(image, ggtheme, theme, ...) {
         
             if (!private$.operator$ok || !private$.operator$plots$sensitivity) {
-              private$.operator$warning<-list(topic="plotnotes",message="Plots cannot be produced",head="error")
               private$.results$powerContour$setVisible(FALSE)
               private$.results$powerEscurve$setVisible(FALSE)
               private$.results$powerNcurve$setVisible(FALSE)
+              if (any(self$option("plot_contour"),self$option("plot_escurve"),self$option("plot_ncurve")))
+                       private$.operator$warning<-list(topic="plotnotes",message="Plots cannot be produced.",head="error")
               return()
             }
             private$.prepareContour()
@@ -37,8 +38,6 @@ Plotter <- R6::R6Class(
       },
       plot_contour = function(image,ggthem,them) {
 
-        if (!private$.operator$ok || !private$.operator$plots$sensitivity) return()
-        
         if (!self$option("plot_contour"))
             return()
 
@@ -75,8 +74,7 @@ Plotter <- R6::R6Class(
       },
       plot_curve= function(image,ggtheme,theme) {
          
-        if (!private$.operator$ok || !private$.operator$plots$sensitivity) return()
-        
+
         if (!self$option("plot_ncurve") && !self$option("plot_escurve"))
                 return()
 
@@ -110,6 +108,7 @@ Plotter <- R6::R6Class(
          points(state$point.x,state$point.y,pch=21,bg="white",cex=1.5)
          mtext(state$text, adj = 1)
        },
+
       plot_custom= function(image,ggtheme,theme) {
          
         if (!private$.operator$ok || !private$.operator$plots$sensitivity) return()

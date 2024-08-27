@@ -45,9 +45,11 @@ powervector <- function(obj, ...) UseMethod(".powervector")
   
 }
 
+
 .powervector.glm <- function(obj,data) {
 
                 aim<-required_param(data)
+                
                 if (is.something(data$es)) {
                                      data$f2<-obj$info$toaes(data$es)
                                      data$es<-NULL
@@ -70,22 +72,28 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                               df_model=one$df_model,
                               ncp_type=obj$options$ncp_type,
                               alternative=as.character(obj$info$alternative)
-                              ))
+                              ), silent=F)
                    out<-tryobj$obj
+                 
                    if (!isFALSE(tryobj$error)) {
                      out<-NULL
                      switch(aim,
                             n = {
+                               ## if it fails, it means that the required N is smaller than 0, so we report the minimum N
                                n<-obj$info$nmin
-                               out<-data.frame(u=one$df_effect,v=n- out$df_model -1,f2=one$f2,sig.level=one$sig.level,power=one$power,n=n,encp=0,method="nmin")
+                               v <- n- one$df_model -1
+                               out<-list(u=one$df_effect,v=v,f2=one$f2,sig.level=one$sig.level,power=one$power,n=n,encp=0,method="nmin")
                                }
+                            
                             )
                    }
                     out
                     })
                  results<-as.data.frame(do.call("rbind",results))
              
-                 for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
+                 for (i in seq_len(ncol(results)))  results[[i]]<-unlist(results[[i]])
+
+           
                  results$es<-obj$info$fromaes(results$f2)
                  odata<-data[, !names(data) %in% names(results)]
                  results<-cbind(odata,results)
@@ -227,7 +235,6 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                                 n = {
                                      n<-obj$info$nmin
                                      out<-data.frame(n=n,d=one$d,sig.level=one$sig.level,power=one$power,alternative=one$alternative,method="nmin")
-                                     mark("nmin exec")
                                }
                              )
                      }
@@ -410,7 +417,6 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                        res<-one
                        switch(aim,
                               n={
-                                  mark("applying nmin to proppaired")
                                 out<-list(n=obj$info$nmin,p1=one$p1,psi=one$psi,sig.level=one$sig.level,power=one$power,alternative=one$alternative,method="nmin")
                                },
                               es={
