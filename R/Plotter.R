@@ -43,24 +43,29 @@ Plotter <- R6::R6Class(
 
         data<-image$state
         if (is.null(data)) return()
-        res<-try_hard(
+    #    par(mgp = c(4, 1, 0))
+        off<-ifelse(min(data$y)<1e-04,5,4)
+        par(mar = c(5, off+1, 4, 1) )
 
+        res<-try_hard(
+       
         filled.contour(data$x,data$y,data$z,color.palette =  paml_palette,
                key.title = {mtext("Power",3, .5)},
-               ylab =paste("Hypothetical effect size (",data$letter,")", sep = ""),
+               ylab ="",
                xlab="Sample Size (N)",
-              # title(ylab="X values" ,mgp=c(3,1,0)),
                plot.axes={
                   axis(1, at=data$ticks, labels=data$tickslabels)
                   axis(2, at=data$yticks, labels=data$ytickslabels)
+                  title(ylab = paste("Hypothetical effect size (",data$letter,")", sep = ""), mgp = c(off, 1, 0))
                   yor<-par()$usr[3]
                   xor<-par()$usr[1]
                   lines(data$x, data$yline, type = "l", lty = 1, lwd=2)
                   segments(xor,data$point.y,data$point.x,data$point.y, lwd=2)
                   segments(data$point.x,yor,data$point.x,data$point.y, lwd=2)
                   points(data$point.x,data$point.y,pch=21,bg="white",cex=1.5)
-                 
+                 # mtext(paste("Hypothetical effect size (",data$letter,")", sep = ""), side = 2, line = 3) 
                }
+    
             
            )
         )
@@ -107,6 +112,7 @@ Plotter <- R6::R6Class(
          segments(state$point.x,yor,state$point.x,state$point.y, lwd=2)
          points(state$point.x,state$point.y,pch=21,bg="white",cex=1.5)
          mtext(state$text, adj = 1)
+         
        },
 
       plot_custom= function(image,ggtheme,theme) {
@@ -186,14 +192,8 @@ Plotter <- R6::R6Class(
 
    
    
-      
       ## check min-max for N
 
-      nmin<-  find_min_n(obj,data)
-      nmax<-  find_max_n(obj,data)
-
-      if (nmax< data$n) nmax<-data$n+10
-      if (nmax<(nmin*2)) nmax=(nmin*2)
 
       ## determine the effect size min and max
       
@@ -201,16 +201,20 @@ Plotter <- R6::R6Class(
       if (esmax > obj$info$esmax) esmax<-obj$info$esmax
       esmin <- data$es/obj$plots$esrange
       if (esmin < obj$info$esmin) esmin<-obj$info$esmin
-      
-      
-      # .data<-data
-      # .data$power<-.99
-      #  esmax <- find_max_es(obj,.data)
-      # if (esmax < data$es) esmax<-data$es
-      # .data$power<-.10
-      # .data$n<-nmax
-      # esmin<-find_min_es(obj,.data)
+      .data<-data
+      .data$es<-esmin
+      .data$n<-NULL
+      nmax<-powervector(obj,.data)$n
+      .data$es<-esmax
+      .data$n<-NULL
+      nmin<-powervector(obj,.data)$n
 
+       if (nmin> data$n) {
+          nmin<-  find_min_n(obj,.data)
+          nmax<-  find_max_n(obj,data)
+      }
+      if (nmax< data$n) nmax<-round(data$n*1.5,digits=0)
+      if (nmax<(nmin*2)) nmax=(nmin*2)
       
       point.x<-obj$data$n
       y <- seq(esmin,esmax,len=20)
@@ -240,12 +244,12 @@ Plotter <- R6::R6Class(
        es <- FEY(y)
        point.y <- FLY(data$es)
        yticks <- seq(FLY(esmin),FLY(esmax),len=6)
-       ytickslabels<-niceround(FEY(yticks))
+       ytickslabels<-format(FEY(yticks),digits=3)
+       ytickslabels<-sub("^0+", "", ytickslabels)
       .data <- cbind(n,obj$data)
       .data$es <- NULL
       .data$power[.data$power<.0501]<- .0501
        yline=powervector(obj,.data)[["es"]]
-
        yline=FLY(yline)
       .data <- cbind(n,obj$data)
       .data$power<-NULL
@@ -254,7 +258,7 @@ Plotter <- R6::R6Class(
          powervector(obj,.data)[["power"]]
          })
        z<-do.call(cbind,out)
-    
+
        #return()
       image$setState(list(x=x,y=y,z=z,
                           point.x=point.x,point.y=point.y,

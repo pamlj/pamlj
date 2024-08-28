@@ -25,6 +25,7 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             plot_z_lines = 1,
             plot_z_value = list(),
             plot_to_table = FALSE,
+            .interface = "jamovi",
             .caller = "correlation", ...) {
 
             super$initialize(
@@ -137,6 +138,11 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "plot_to_table",
                 plot_to_table,
                 default=FALSE)
+            private$...interface <- jmvcore::OptionString$new(
+                ".interface",
+                .interface,
+                default="jamovi",
+                hidden=TRUE)
             private$...caller <- jmvcore::OptionString$new(
                 ".caller",
                 .caller,
@@ -162,6 +168,7 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..plot_z_lines)
             self$.addOption(private$..plot_z_value)
             self$.addOption(private$..plot_to_table)
+            self$.addOption(private$...interface)
             self$.addOption(private$...caller)
         }),
     active = list(
@@ -184,6 +191,7 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         plot_z_lines = function() private$..plot_z_lines$value,
         plot_z_value = function() private$..plot_z_value$value,
         plot_to_table = function() private$..plot_to_table$value,
+        .interface = function() private$...interface$value,
         .caller = function() private$...caller$value),
     private = list(
         ..aim = NA,
@@ -205,6 +213,7 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..plot_z_lines = NA,
         ..plot_z_value = NA,
         ..plot_to_table = NA,
+        ...interface = NA,
         ...caller = NA)
 )
 
@@ -302,7 +311,7 @@ pamlcorrResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=options,
                 name="powerContour",
                 title="Power Contour",
-                width=400,
+                width=500,
                 height=350,
                 renderFun=".plot_contour",
                 visible="(plot_contour)"))
@@ -410,6 +419,7 @@ pamlcorrBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param plot_z_lines .
 #' @param plot_z_value .
 #' @param plot_to_table .
+#' @param .interface Used for internal purposes
 #' @param .caller Used for internal purposes
 #' @return A results object containing:
 #' \tabular{llllll}{
@@ -453,6 +463,7 @@ pamlcorr <- function(
     plot_z_lines = 1,
     plot_z_value = list(),
     plot_to_table = FALSE,
+    .interface = "jamovi",
     .caller = "correlation") {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
@@ -479,6 +490,7 @@ pamlcorr <- function(
         plot_z_lines = plot_z_lines,
         plot_z_value = plot_z_value,
         plot_to_table = plot_to_table,
+        .interface = .interface,
         .caller = .caller)
 
     analysis <- pamlcorrClass$new(

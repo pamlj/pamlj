@@ -149,7 +149,7 @@ items:
     - name: powerContour
       title: Power Contour
       type: Image
-      width:  400
+      width:  500
       height: 350
       renderFun: .plot_contour
       visible: (plot_contour)

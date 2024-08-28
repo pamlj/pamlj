@@ -2,8 +2,9 @@ Scaffold <- R6::R6Class("Scaffold",
                           cloneable=FALSE,
                           class=FALSE,
                           public=list(
-                            analysis=NULL,  
-                            options=NULL,
+                            analysis =NULL,  
+                            options  =NULL,
+                            ok       =TRUE,    # can be used to halt the process without calling stop() 
                             initialize=function(object) {
                                  
                               self$analysis<-object
@@ -37,7 +38,9 @@ Scaffold <- R6::R6Class("Scaffold",
                             
                             stop=function(msg, return=TRUE) {
                             
-                              if (exists("ERROR_TABLE")) {
+                                if (self$option(".interface","R")) stop(msg,call.=FALSE)
+                                    
+                                if (exists("ERROR_TABLE")) {
                                  self$warning<-list(topic=ERROR_TABLE,message=msg,head="error")
                                  self$ok <- FALSE
                                  if (return) {
@@ -45,7 +48,7 @@ Scaffold <- R6::R6Class("Scaffold",
                                        rlang::eval_bare(call, env = parent.frame())
                                  }
                               } else
-                                 stop(msg)
+                                 stop(msg,call.=FALSE)
                               
                             }
                           ), ## end of public

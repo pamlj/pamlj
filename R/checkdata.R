@@ -52,7 +52,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$data[[obj$aim]]  <- NULL
       
       obj$info$letter      <- greek_vector["delta"]
-      obj$info$esmax       <- 2.5
+      obj$info$esmax       <-  10
       obj$info$esmin       <- .01
       obj$info$nmin        <- 3
       if (obj$options$is_equi ) {
@@ -117,18 +117,18 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
      if (obj$options$es < 0)
                     obj$warning<-list(topic="issues",
-                                     message="Negative correlations have the same power parameters of positive correlations. The absolute value is considered here."
-                                     )
+                                     message="Negative correlations have the same power parameters of positive correlations. The absolute value is considered here.",
+                                     head="info")
+                                     
       obj$data<-data.frame(es=abs(obj$options$es))
       obj$data$n           <- obj$options$n
       obj$data$sig.level   <- obj$options$sig.level
       obj$data$power       <- obj$options$power
       obj$data$alternative <- obj$options$alternative
       obj$data[[obj$aim]]  <- NULL
-      
       obj$info$letter      <- greek_vector["rho"]
-      obj$info$esmax       <- .99
-      obj$info$esmin       <- .001
+      obj$info$esmax       <- .99999
+      obj$info$esmin       <-  1e-07
       obj$info$nmin        <-  4
 
 
@@ -345,7 +345,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                        sig.level = obj$options$sig.level)
       obj$data[[obj$aim]]<-NULL
       obj$info$letter      <- greek_vector["beta"]
-      obj$info$esmax       <-  .99
+      obj$info$esmax       <-  .999999
       obj$info$esmin       <- .001
       obj$info$loges       <-  function(x) x < .3
       obj$info$alternative <- obj$options$alternative
@@ -433,8 +433,9 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                        df_effect = obj$options$v_df_effect,
                        sig.level = obj$options$sig.level)
       obj$info$letter      <- letter_peta2
-      obj$info$esmax       <-  .99
-      obj$info$esmin       <- .001
+      obj$info$esmax       <-  .999999
+      obj$info$esmin       <- 1e-08
+      obj$info$eslbound    <- 0
       obj$info$loges            <-  function(x) x < .3
       obj$info$alternative <- obj$options$alternative
       obj$info$nmin             <- obj$data$df_model+2
@@ -446,11 +447,10 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
   
     if (is.something(obj$data$es)) {
         
-               if (abs(obj$data$es) > obj$info$esmax) {
+               if (obj$data$es > obj$info$esmax) {
                     obj$stop("Partial eta-squared coefficient cannot be larger than " %+% obj$info$esmax)
                  return()
                }
-               
         }    
 
     if (is.something(obj$data$df_model)) {
@@ -481,8 +481,9 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                        sig.level = obj$options$sig.level)
       obj$data[[obj$aim]]<-NULL
       obj$info$letter      <- letter_eta2
-      obj$info$esmax       <-  .99
+      obj$info$esmax       <-  .999999
       obj$info$esmin       <- .001
+      obj$info$eslbound    <- 0
       obj$info$loges            <-  function(x) x < .3
       obj$info$alternative <- obj$options$alternative
       obj$info$nmin             <- obj$data$df_model+2
@@ -540,8 +541,9 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$ok <- FALSE
 
       obj$info$letter      <- letter_peta2
-      obj$info$esmax       <- .98
+      obj$info$esmax       <- .999999
       obj$info$esmin       <- .001
+      obj$info$eslbound    <- 0
       obj$info$alternative <- "two.sided"
       obj$info$r           <- obj$options$r 
       obj$info$toaes       <- function(value) value/(1-value) 
@@ -673,8 +675,9 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
   
       jinfo("PAMLj: Checkdata factorial facpeta")
       obj$info$letter      <- letter_peta2
-      obj$info$esmax       <- .99
+      obj$info$esmax       <- .999999
       obj$info$esmin       <- .001
+      obj$info$eslbound    <- 0
       obj$info$alternative <- "two.sided"
       obj$info$toaes       <- function(value) value/(1-value) 
       obj$info$fromaes     <- function(value) value/(1+value)  
@@ -804,6 +807,13 @@ commonchecks <- function(obj) {
                    obj$stop(paste("N (total sample size) should be larger than",obj$info$nmin))
         }
     } 
+  
+    if (is.something(obj$info$eslbound) && is.something(obj$data$es))
+         if (obj$info$eslbound > obj$data$es) obj$stop("The effect size " %+% obj$info$letter %+% " cannot be smaller than " %+% obj$info$eslbound)
+
+    if (is.something(obj$info$esmax) && is.something(obj$data$es))
+         if (obj$info$esmax < obj$data$es) obj$stop("The effect size " %+% obj$info$letter %+% " cannot be larger than " %+% obj$info$esmax)
+
     if (is.something(obj$data$es) && !obj$option("is_equi") ) {
         .data<-obj$data
         .data$n<-obj$info$nmax
@@ -813,9 +823,12 @@ commonchecks <- function(obj) {
      
 
         if ( any(obj$data$es < esmin )) {
-                   message<-paste0("The effect size (",obj$info$letter," = ", obj$data$es,") is smaller than the effect size (",obj$info$letter," = ", fesmin,")",
-                                   " that requires around ",obj$info$nmax_spell," cases (N=",obj$info$nmax,")  to obtain a power of ",obj$data$power,".",
-                                   " Results are shown for ",obj$info$letter," = ",esmin,". Sensitivity analysis (plots) cannot be produced.")
+                   message<-       "The effect size (" %+% obj$info$letter %+% " = " %+% obj$data$es %+% ") is smaller than the effect size (" %+%
+                                    obj$info$letter %+% " = " %+% fesmin %+% ")" %+%
+                                   " that requires around " %+% obj$info$nmax_spell %+% " cases (N=" %+% obj$info$nmax %+% ")  to obtain a power of " %+%
+                                    obj$data$power %+% ". Results are shown for " %+% obj$info$letter %+% " = " %+% esmin %+%"." %+%
+                                    "Sensitivity analysis (plots) cannot be produced." %+% 
+                                    "<a href='http://www.google.it' target='_blank'> More info here </a>"
                    obj$warning<-list(topic="issues",message=message,head="warning")
                    obj$data$es<-esmin
                    obj$plots$sensitivity<-FALSE
@@ -823,7 +836,6 @@ commonchecks <- function(obj) {
         }
       
     } 
-  
   
 
 }
@@ -841,10 +853,19 @@ postchecks <- function(obj, ...) UseMethod(".postchecks")
               data$n <- obj$info$nmin
               esmax  <- round(find_max_es(obj,data), digits=5)
               es     <- round(data$es,digits=5) 
-              message<-paste0("The effect size (",obj$info$letter," = ", es,") is larger than the maximum effect size (",obj$info$letter,"=",esmax,")",
-                                   " that guarantees power=",data$power," with a sample of minimum size (N=",data$n,").",
-                                   "This means that any effect size larger than ", esmax ," guarantees a power > ",data$power," for any sample size equal or larger than ",data$n,".")
+              message<-    "The effect size ("%+% obj$info$letter %+% " = " %+%  es %+% ") is larger than the maximum effect size (" %+% obj$info$letter %+% "=" %+% esmax %+% ")" %+%
+                                   " that guarantees power=" %+% data$power %+% " with a sample of minimum size (N=" %+% data$n %+% ")." %+%
+                                   "This means that any effect size larger than "%+% esmax %+% " guarantees a power > " %+% data$power %+% 
+                                   " for any sample size equal or larger than " %+% data$n %+% "." %+%
+                                   "<a href='http://www.google.it' target='_blank'> More info here </a>"
               obj$warning<-list(topic="issues",message=message,head="info")
+              },
+      brute = {   
+              es     <- format(data$es,digits=5) 
+              message<-"The effect size (" %+% obj$info$letter %+% " = " %+%  es %+% ") is very small. An approximate method is used to compute the effect size. " %+%
+                        "Sensitivity analysis (and plots) cannot be computed." 
+              obj$warning<-list(topic="issues",message=message,head="warning")
+              obj$plots$sensitivity<-FALSE
               }
   
     )

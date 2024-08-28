@@ -11,10 +11,13 @@ Dispatch <- R6::R6Class(
             class=TRUE, 
             cloneable=FALSE, ## should improve performance https://r6.r-lib.org/articles/Performance.html ###
             public=list(
+                        interface="jamovi",
                         tables=NULL,
                         initialize=function(results) { 
                           
                                   self$tables<-results
+                                  if (utils::hasName(results$options,".interface"))
+                                           self$interface<-results$options$.interface
                            
                         },
                         print=function() {
@@ -67,10 +70,15 @@ Dispatch <- R6::R6Class(
                                 if (exists("fromb64")) obj$message<-fromb64(obj$message)
                                 
                                 if (inherits(table,"Html")) {
-                                  content<-private$.process_html(table$content,obj)
-                                  content<-table$setContent(content)
-                                  table$setVisible(TRUE)
-                                  return()
+                                  if (self$interface=="R") {
+                                       warning(obj$message,call. = FALSE) 
+                                       return()
+                                  } else {
+                                       content<-private$.process_html(table$content,obj)
+                                       content<-table$setContent(content)
+                                       table$setVisible(TRUE)
+                                       return()
+                                  }
                                 }
                                 init<-(hasName(obj,"initOnly") && obj[["initOnly"]]) 
                                 

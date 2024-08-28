@@ -14,7 +14,7 @@ Initer <- R6::R6Class(
     aim        =  NULL, # the aim of the main analysis (n, power or es)
     caller     =  NULL, # which jamovi analysis is launched (correlation, glm, ttest etc)
     mode       =  NULL, # (if present) the mode within the analysis
-    ok         =  TRUE,    # is data ok to go 
+
 
     initialize=function(jmvobj) {
 
@@ -49,12 +49,14 @@ Initer <- R6::R6Class(
           
           ## set the class of self so the S3 methods may dispatch to the right functions
           class(self)<-unique(c(self$mode,self$caller,class(self)))
-           
           jinfo("PAMLj: Initializing",self$caller,self$mode)
           ## checkdata update the data depending on the type of test we are running (via S3 dispatch)
           checkdata(self)
-          
-          jmvobj$results$intro$setContent(paste(INFO[[self$caller]],INFO2[[self$mode]]))   
+          if (self$options$.interface=="jamovi")
+                  jmvobj$results$intro$setContent(paste(INFO[[self$caller]],INFO2[[self$mode]]))   
+          else
+                  jmvobj$results$intro$setVisible(FALSE) 
+            
           
 
 

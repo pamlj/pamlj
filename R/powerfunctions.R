@@ -13,6 +13,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 .powervector.correlation <- function(obj,data) {
 
                  aim<-required_param(data)
+                 
                  names(data)[names(data)=="es"]<-"r"
                 .names <- intersect(names(data),rlang::fn_fmls_names(pwr::pwr.r.test))
                  data$alternative<-ifelse(data$alternative=="two.sided","two.sided","greater")
@@ -26,15 +27,24 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                        
                      switch(aim,
                             n = {
-                               n<-obj$info$nmin
-                               out<-list(n=n,r=one$r,sig.level=one$sig.level,power=one$power,alternative=one$alternative,method="nmin")
-                               }
+                                   n<-obj$info$nmin
+                                   out<-list(n=n,r=one$r,sig.level=one$sig.level,power=one$power,alternative=one$alternative,method="nmin")
+                               },
+                            power={ 
+                                   out<-list(n=one$n,r=one$r,sig.level=one$sig.level,power=NA,alternative=one$alternative,method="error")
+                                  },
+                            es={ 
+                                   out<-list(n=one$n,r=NA,sig.level=one$sig.level,power=one$power,alternative=one$alternative,method="error")
+                                  }
+                            
                             )
                      }
                      out
                     })
+                          
+
                  results<-as.data.frame(do.call("rbind",results))
-           
+                 if (nrow(results)>3) results<- na.omit(results)
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
                  odata<- data[, !names(data) %in% names(results)]
                  results<-cbind(odata,results)
@@ -49,7 +59,6 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 .powervector.glm <- function(obj,data) {
 
                 aim<-required_param(data)
-                
                 if (is.something(data$es)) {
                                      data$f2<-obj$info$toaes(data$es)
                                      data$es<-NULL
@@ -72,7 +81,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                               df_model=one$df_model,
                               ncp_type=obj$options$ncp_type,
                               alternative=as.character(obj$info$alternative)
-                              ), silent=F)
+                              ), silent=T)
                    out<-tryobj$obj
                  
                    if (!isFALSE(tryobj$error)) {
@@ -90,10 +99,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                     out
                     })
                  results<-as.data.frame(do.call("rbind",results))
-             
                  for (i in seq_len(ncol(results)))  results[[i]]<-unlist(results[[i]])
-
-           
                  results$es<-obj$info$fromaes(results$f2)
                  odata<-data[, !names(data) %in% names(results)]
                  results<-cbind(odata,results)

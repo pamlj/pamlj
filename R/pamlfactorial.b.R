@@ -14,6 +14,7 @@ pamlfactorialClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class
 
                 jinfo(paste("MODULE:  PAMLfactorial #### phase init  ####"))
                 private$.time<-Sys.time()
+                class(private$.results) <- c('pamlj', class(private$.results)) ## this is useful in R interface
 
 
      ### set up the R6 workhorse class

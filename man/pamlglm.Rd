@@ -27,7 +27,7 @@ pamlglm(
   plot_escurve = FALSE,
   plot_ncurve = FALSE,
   plot_log = FALSE,
-  covs = 1,
+  covs = 0,
   factors = 0,
   factors_list = list(list(var = "factor 1", levels = 0)),
   covs_order,
@@ -40,7 +40,7 @@ pamlglm(
   gpower = 0,
   f2 = 0,
   use = "none",
-  gncp = TRUE,
+  ncp_type,
   rx = NULL,
   plot_x = "none",
   plot_y = "none",
@@ -124,7 +124,7 @@ pamlglm(
 
 \item{use}{.}
 
-\item{gncp}{.}
+\item{ncp_type}{.}
 
 \item{rx}{a vector of strings naming the columns from \code{data}
 containing the correlations among independent variables}
@@ -155,11 +155,12 @@ A results object containing:
   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
   \code{results$effectsize} \tab \tab \tab \tab \tab a table \cr
   \code{results$powerbyes} \tab \tab \tab \tab \tab a table \cr
+  \code{results$plotnotes} \tab \tab \tab \tab \tab a html \cr
   \code{results$powerContour} \tab \tab \tab \tab \tab an image \cr
   \code{results$powerEscurve} \tab \tab \tab \tab \tab an image \cr
   \code{results$powerNcurve} \tab \tab \tab \tab \tab an image \cr
+  \code{results$customnotes} \tab \tab \tab \tab \tab a html \cr
   \code{results$powerCustom} \tab \tab \tab \tab \tab an image \cr
-  \code{results$plotnotes} \tab \tab \tab \tab \tab a html \cr
   \code{results$customtable} \tab \tab \tab \tab \tab a table \cr
 }
 
