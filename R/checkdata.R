@@ -180,18 +180,17 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       if (obj$aim == "es") obj$data$p2<-1
 
       if (!is.something(obj$data$p1)) 
-           stop("P21  is required")
+           obj$stop("P21  is required")
 
       if (obj$data$p1 >= obj$data$p2)
-           stop("P21  should be smaller than P12")
+           obj$stop("P21  should be smaller than P12")
 
       switch(obj$options$es_type,
              dif = {
                    obj$data$es          <- obj$data$p2-obj$data$p1
-               
                    obj$info$letter      <- greek_vector["Delta"] 
                    obj$info$esmax       <-  .5-obj$data$p1
-                   obj$info$esmin       <-  .01
+                   obj$info$esmin       <-  1e-04
                    obj$info$toaes       <- function(data) {
                                                p2   <- data$es+data$p1
                                                p2 / data$p1
@@ -203,7 +202,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                    obj$data$es          <-(obj$data$p2/obj$data$p1)
                    obj$info$letter      <- "Odd"
                    obj$info$esmax       <-  (1-obj$data$p1)/obj$data$p1
-                   obj$info$esmin       <-  1.01
+                   obj$info$esmin       <-  1.0002
                    obj$info$loges            <-  function(x) x > 10
                    obj$info$toaes            <- function(data) {
                                                p1 <- data$p2/data$es
@@ -218,6 +217,10 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
         if ( (obj$data$p1+obj$data$p2) > 1 ) {
           obj$stop("The sum of discordand proportion (P21+P12)  should be less than 1.")
         }
+        if ( obj$data$es < obj$info$esmin ) {
+          obj$stop("Proportions are almost identical. Power parameters cannot be computed.")
+        }
+        
       }
       obj$data[[obj$aim]]<-NULL
       
@@ -414,7 +417,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                      obj$stop("The R-squared cannot be more than .99")
         
           if (is.something(obj$data$es))
-             if ( obj$info$r2+.0001 < obj$data$es^2  )
+             if ( obj$info$r2 < obj$data$es^2  )
                     obj$stop("R-squared cannot be less than the square of the beta coefficient")
    
         } else {
@@ -524,11 +527,12 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
     if (is.something(obj$info$r2 ) ) {
         if ( is.something(obj$data$es) && obj$info$r2+.0001 < obj$data$es  )
-                   stop("R-squared cannot be less than the Eta coefficient")
-        if (abs(obj$info$r2)>.99)
-                   stop("The R-squared cannot be more than .99")
+                   obj$stop("R-squared cannot be less than the eta coefficient")
+      
+        if (abs(obj$info$r2)>.99999)
+                   obj$stop("The R-squared cannot be more than .99999")
     } else {
-        stop("GLM power analysis based on Eta-squared coefficient requires an expected R-squared for the model")
+        obj$stop("GLM power analysis based on Eta-squared coefficient requires an expected R-squared for the model")
     }
 
 }
@@ -781,6 +785,8 @@ checkfailure <- function(obj, ...) UseMethod(".checkfailure")
 
 commonchecks <- function(obj) {
   
+    if (!obj$ok) return()
+  
     if (is.something(obj$data$sig.level ) ) {
         if ( any(obj$data$sig.level < 0.00001) ||  any(obj$data$sig.level > .90)) {
                    obj$stop("Type I error rate should be between .00001 and .90")
@@ -818,8 +824,9 @@ commonchecks <- function(obj) {
         .data<-obj$data
         .data$n<-obj$info$nmax
         esmin<-find_min_es(obj,.data)
-        fesmin<-format(esmin, digits=4)
-        es<-format(obj$data$es,digits=4)
+        mark("minin es set",esmin)
+        fesmin<-format(esmin, digits=5)
+        es<-format(obj$data$es,digits=5)
 
      
 
@@ -827,7 +834,7 @@ commonchecks <- function(obj) {
                    message<-       "The effect size (" %+% obj$info$letter %+% " = " %+% es %+% ") is smaller than the effect size (" %+%
                                     obj$info$letter %+% " = " %+% fesmin %+% ")" %+%
                                    " that requires around " %+% obj$info$nmax_spell %+% " cases (N=" %+% obj$info$nmax %+% ")  to obtain a power of " %+%
-                                    obj$data$power %+% ". Results are shown for " %+% obj$info$letter %+% " = " %+% esmin %+%"." %+%
+                                    obj$data$power %+% ". Results are shown for " %+% obj$info$letter %+% " = " %+% esmin %+%". " %+%
                                     "Sensitivity analysis (plots) cannot be produced." %+% 
                                     "<a href='https://pamlj.github.io/details_failure.html' target='_blank'> More info here </a>"
                    obj$warning<-list(topic="issues",message=message,head="warning")
@@ -867,9 +874,24 @@ postchecks <- function(obj, ...) UseMethod(".postchecks")
                         "Sensitivity analysis (and plots) cannot be computed." 
               obj$warning<-list(topic="issues",message=message,head="warning")
               obj$plots$sensitivity<-FALSE
+      },
+      eserror = {   
+
+              message<-"The required effect size (" %+% obj$info$letter %+% ") cannot be computed. It's value is likely larger than a feasable effect size." %+%
+                        "Sensitivity analysis (and plots) cannot be computed." 
+              obj$warning<-list(topic="issues",message=message,head="warning")
+              obj$ok<-FALSE
               }
-  
-    )
+    ) # end of switch
+    
+      if ( any(obj$data$n < obj$info$nmin )) {
+
+              message<-"The sample size  (N=" %+% round(obj$data$n, digits=0) %+% ") is too small. It's value is likely not feasable in actual research. " %+%
+                        "Sensitivity analysis (and plots) may be biased." 
+              obj$warning<-list(topic="issues",message=message,head="warning")
+
+        }
+
 
    #  if (obj$data$es < obj$info$esmin) {
    #  

@@ -63,5 +63,16 @@ niceround<-function(x) {
 }
 
 
+link_help <- function(obj, ...) UseMethod(".link_help")
+
+.link_help.default<-function(obj) {
+  text<-NULL
+  link<-LINKS[[obj$mode]]
+  if (is.something(link)) {
+    text<-"<p style='display: flex; align-items: center;'> <span style='font-size: 1.3em; display:inline-block; text-align: center;width:16px; height:16px; border: 3px solid green; border-radius: 50%;padding:3px; padding-bottom:3px; margin-right:8px'>" %+% 
+          "<b>\U2139</b></span><span> Help can be found <a href='" %+% link %+% "' target='_blank'> Pamlj web manual.</a> <span></p>"
+  }
+  return(text)
+}
 
 

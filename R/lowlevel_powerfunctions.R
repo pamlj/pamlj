@@ -238,14 +238,15 @@ pamlj.prop.paired <- function (n = NULL, p1 = NULL, psi = NULL, sig.level = 0.05
     }
     else if (is.null(n)) {
         n <- uniroot(function(n) eval(p.body) - power, c(ceiling(log(sig.level)/log(0.5)), 
-            1e+07))$root
+            1e+10))$root
     }
     else if (is.null(p1)) 
         p1 <- uniroot(function(p1) eval(p.body) - power, 
             c(1e-10, 1/(1 + psi) - 1e-10))$root
-    else if (is.null(psi)) 
-        psi <- uniroot(function(psi) eval(p.body) - power, c(1 + 
-            1e-10, 1/p1 - 1 - 1e-10))$root
+    else if (is.null(psi)) {
+        psi <- uniroot(function(psi) eval(p.body) - power, c(1 +1e-10, 1/p1 - 1 - 1e-10))
+        psi<-psi$root
+    }
     else if (is.null(sig.level)) 
         sig.level <- uniroot(function(sig.level) eval(p.body) - 
             power, c(1e-10, 1 - 1e-10))$root

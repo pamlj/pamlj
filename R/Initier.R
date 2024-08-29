@@ -53,7 +53,7 @@ Initer <- R6::R6Class(
           ## checkdata update the data depending on the type of test we are running (via S3 dispatch)
           checkdata(self)
           if (self$options$.interface=="jamovi")
-                  jmvobj$results$intro$setContent(paste(INFO[[self$caller]],INFO2[[self$mode]]))   
+                  jmvobj$results$intro$setContent(paste(INFO[[self$caller]],INFO2[[self$mode]], link_help(self)))   
           else
                   jmvobj$results$intro$setVisible(FALSE) 
             

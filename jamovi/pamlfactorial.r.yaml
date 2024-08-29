@@ -16,6 +16,8 @@ items:
     - name:  powertab
       title: A Priori Power Analysis
       type: Table
+      refs:
+         - pamlj
      
       clearWith:
         - es

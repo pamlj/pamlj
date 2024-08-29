@@ -205,17 +205,16 @@ Plotter <- R6::R6Class(
       .data$es<-esmin
       .data$n<-NULL
       nmax<-powervector(obj,.data)$n
-      .data$es<-esmax
+      .data$es<-esmax*1.1
       .data$n<-NULL
       nmin<-powervector(obj,.data)$n
 
-       if (nmin> data$n) {
+       if (nmin > data$n) {
           nmin<-  find_min_n(obj,.data)
           nmax<-  find_max_n(obj,data)
       }
       if (nmax< data$n) nmax<-round(data$n*1.5,digits=0)
       if (nmax<(nmin*2)) nmax=(nmin*2)
-      
       point.x<-obj$data$n
       y <- seq(esmin,esmax,len=20)
       es <- y
@@ -286,11 +285,25 @@ Plotter <- R6::R6Class(
       esmin<-  obj$info$esmin
 
       ## check min-max for N
-      nmin<-  find_min_n(obj,data)
-      nmax<-  find_max_n(obj,data)
-    
-      if (nmax< data$n) nmax<-data$n+10
+      esmax <- data$es*obj$plots$esrange
+      if (esmax > obj$info$esmax) esmax<-obj$info$esmax
+      esmin <- data$es/obj$plots$esrange
+      if (esmin < obj$info$esmin) esmin<-obj$info$esmin
+      .data<-data
+      .data$es<-esmin
+      .data$n<-NULL
+      nmax<-powervector(obj,.data)$n
+      .data$es<-esmax*1.1
+      .data$n<-NULL
+      nmin<-powervector(obj,.data)$n
+
+       if (nmin > data$n) {
+          nmin<-  find_min_n(obj,.data)
+          nmax<-  find_max_n(obj,data)
+      }
+      if (nmax< data$n) nmax<-round(data$n*1.5,digits=0)
       if (nmax<(nmin*2)) nmax=(nmin*2)
+
 
         FLX<-identity
         FEX<-identity

@@ -16,7 +16,6 @@ Runner <- R6::R6Class("Runner",
 
                                  checkdata(self)
                                  commonchecks(self)
-                             
                                  if (!self$ok) return()
                                  jinfo("PAMLj: Runner: first estimation")
 

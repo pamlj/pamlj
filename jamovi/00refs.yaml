@@ -6,4 +6,10 @@ refs:
       title: "pwr: Basic Functions for Power Analysis"
       url: https://CRAN.R-project.org/package=pwr
 
+   pamlj:
+      type: 'software'
+      author: Marcello Gallucci
+      year: 2024
+      title: "pamlj: Power analysis in jamovi"
+      url: https://pamlj.github.io/
 

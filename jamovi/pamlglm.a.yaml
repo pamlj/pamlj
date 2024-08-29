@@ -16,10 +16,6 @@ options:
       description:
                 R: the data as a data frame
 
-    - name: .caller
-      type: String
-      default: glm
-      hidden: true
 
     - name: aim
       title: Calculate 
@@ -358,6 +354,17 @@ options:
       type: Bool
       title: "Show table"
       default: false
+      
+      
+    - name: .caller
+      type: String
+      default: glm
+      hidden: true
+
+    - name: .interface
+      type: String
+      default: jamovi
+      hidden: true
 
 ...
 

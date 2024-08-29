@@ -414,22 +414,29 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                  data$method<-"normal"
                 .names <- intersect(names(data),rlang::fn_fmls_names(pamlj.prop.paired))
                  data$alternative<-as.character(data$alternative)
-
+mark(data)
                 results<-lapply(1:nrow(data),function(i) {
                      one<-as.list(data[i,.names])
                      tryobj<-try_hard(do.call(pamlj.prop.paired,one), silent=TRUE)
                      out<-tryobj$obj
                      if (!isFALSE(tryobj$error)) {
+                       mark(tryobj$error)
                        res<-one
                        switch(aim,
                               n={
+                               mark("error in low function for n")
+                          
                                 out<-list(n=obj$info$nmin,p1=one$p1,psi=one$psi,sig.level=one$sig.level,power=one$power,alternative=one$alternative,method="nmin")
                                },
                               es={
                                 mark("error in low function for es")
+                                  out<-list(n=one$n,p1=one$p1,psi=NA,sig.level=one$sig.level,power=one$power,alternative=one$alternative,method="eserror")
+
                               },
                               power={
                                 mark("error in low function for power")
+                                out<-list(n=one$n,p1=one$p1,psi=one$psi,sig.level=one$sig.level,power=NA,alternative=one$alternative,method="error")
+
                               }
 
                               )
@@ -448,6 +455,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                  results$n1<-NA
                  results$n2<-NA
                  results$psi  <- NULL
+                 mark(results)
                 return(results)
 }
 

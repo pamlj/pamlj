@@ -7,4 +7,10 @@
         `author`="Stephane Champely", 
         `year`=2020, 
         `title`="pwr: Basic Functions for Power Analysis", 
-        `url`="https://CRAN.R-project.org/package=pwr"))
+        `url`="https://CRAN.R-project.org/package=pwr"), 
+    `pamlj`=list(
+        `type`="software", 
+        `author`="Marcello Gallucci", 
+        `year`=2024, 
+        `title`="pamlj: Power analysis in jamovi", 
+        `url`="https://pamlj.github.io/"))

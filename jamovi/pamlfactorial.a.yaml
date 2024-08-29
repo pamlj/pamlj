@@ -303,7 +303,7 @@ options:
                         Used for internal purposes 
     - name: .caller
       type: String
-      default: proportions
+      default: factorial
       hidden: true
 
 ...

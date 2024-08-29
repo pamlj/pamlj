@@ -39,7 +39,7 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
             emeans = FALSE,
             esos = FALSE,
             .interface = "jamovi",
-            .caller = "proportions", ...) {
+            .caller = "factorial", ...) {
 
             super$initialize(
                 package="pamlj",
@@ -230,7 +230,7 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
             private$...caller <- jmvcore::OptionString$new(
                 ".caller",
                 .caller,
-                default="proportions",
+                default="factorial",
                 hidden=TRUE)
 
             self$.addOption(private$..aim)
@@ -376,6 +376,8 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                 options=options,
                 name="powertab",
                 title="A Priori Power Analysis",
+                refs=list(
+                    "pamlj"),
                 clearWith=list(
                     "es",
                     "power",
@@ -690,7 +692,7 @@ pamlfactorial <- function(
     emeans = FALSE,
     esos = FALSE,
     .interface = "jamovi",
-    .caller = "proportions") {
+    .caller = "factorial") {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
         stop("pamlfactorial requires jmvcore to be installed (restart may be required)")
