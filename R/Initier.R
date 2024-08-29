@@ -9,12 +9,13 @@ Initer <- R6::R6Class(
     dispatcher =  NULL,
     data       =  NULL, ## contains the focus power parameters (input and estimated). It must be one row
     extradata  =  NULL, ## contains (if needed) data required for more complex analysis (multiple effect size, additional coefficient, etc.)
-    info       =  NULL, ## contains all info regarding the specific analysis. It filled in checkdata and never changed within one analysis
+    info       =  list(), ## contains all info regarding the specific analysis. It filled in checkdata and never changed within one analysis
+    plots      =  list(), ## contains some specs for customizing plots.
     aim        =  NULL, # the aim of the main analysis (n, power or es)
     caller     =  NULL, # which jamovi analysis is launched (correlation, glm, ttest etc)
     mode       =  NULL, # (if present) the mode within the analysis
-    ok         =  TRUE,    # is data ok to go 
-    
+
+
     initialize=function(jmvobj) {
 
       super$initialize(jmvobj)
@@ -36,15 +37,26 @@ Initer <- R6::R6Class(
           self$info$toaes               <- function(value) value
           self$info$fromaes             <- function(value) value
           self$info$loges               <- function(value) FALSE
+          self$info$nmin                <- 4
+          self$info$nmax                <- 10^7
+          self$info$nmax_spell          <- "ten million cases"      
+          self$info$nsave               <- 10      
 
+
+          ### some specs for plots
+          self$plots$esrange<-3
+          self$plots$sensitivity<-TRUE
+          
           ## set the class of self so the S3 methods may dispatch to the right functions
           class(self)<-unique(c(self$mode,self$caller,class(self)))
-           
           jinfo("PAMLj: Initializing",self$caller,self$mode)
           ## checkdata update the data depending on the type of test we are running (via S3 dispatch)
           checkdata(self)
-          mark(self$caller,self$mode)
-          jmvobj$results$intro$setContent(paste(INFO[[self$caller]],INFO2[[self$mode]]))   
+          if (self$options$.interface=="jamovi")
+                  jmvobj$results$intro$setContent(paste(INFO[[self$caller]],INFO2[[self$mode]], link_help(self)))   
+          else
+                  jmvobj$results$intro$setVisible(FALSE) 
+            
           
 
 
@@ -87,19 +99,17 @@ Initer <- R6::R6Class(
   
     init_means = function() {
       
-      
-      effects<-self$data$effect
-      tabsList<-list()
+      effects<-self$info$terms
+
+      tab<-list()
       for (e in effects) {
         .names<-stringr::str_split(e,":")[[1]]
         atab<-rep(NA,length(.names))
         names(atab)<-.names
-        ladd(tabsList)<-list(atab)
+        ladd(tab)<-list(atab)
       }
-        attr(tabsList,"keys")<-effects
-        tabsList
-
-
+        attr(tab,"keys")<-effects
+        return(tab)
     }
 
       

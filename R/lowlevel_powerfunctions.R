@@ -2,7 +2,7 @@
 ## they take one set of parameters and return the power parameters (input+estimates)
 ## they should return a structure of class "paml_power" or ""power.htest" with one set of parameters
 ## Basically, they are used for one estimate, usually by the powervector() functions that work for multiple estimates (runs))
-
+## they must return a `method` field
 
 pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,sig.level=NULL,df_model=NULL,ncp_type="gpower",  alternative="two.sided") {
   
@@ -19,6 +19,8 @@ pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,sig.level=NULL,df_model=N
     if (is.null(df_model))
          stop("df_model must be defined")
   
+    method<-"pamlj"
+    
     ncp <-function(f2,u,v) {
       switch (ncp_type,
         gpower  = {return(f2* (df_model + v+ 1))},
@@ -26,32 +28,42 @@ pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,sig.level=NULL,df_model=N
         strict  = {return(f2*v)}
       )
     }
-
 p.body <- quote({
         lambda <- ncp(f2 , u, v)
-        pf(qf(sig.level, u, v, lower.tail = FALSE), u, v, lambda, lower.tail = FALSE)
+        pow<-pf(qf(sig.level, u, v, lower.tail = FALSE), u, v, lambda, lower.tail = FALSE)
+        pow 
     })
     if (is.null(power)) 
         power <- eval(p.body)
     else if (is.null(u)) 
-        u <- uniroot(function(u) eval(p.body) - power, c(1 + 
+        u <- uniroot(function(u) eval(p.body) - power , c(1 + 
             1e-10, 100))$root
     else if (is.null(v)) 
         v <- uniroot(function(v) eval(p.body) - power, c(1 + 
             1e-10, 1e+09))$root
-    else if (is.null(f2)) 
-        f2 <- uniroot(function(f2) eval(p.body) - power, c(1e-07, 
-            1e+07))$root
+    else if (is.null(f2)) { 
+        res <- uniroot(function(f2) log(eval(p.body)) - log(power), c(1e-10, 1e+10))
+        if (abs(res$f.root) > 0.01)  {
+          ### this means that the required es is too small for uniroot (less than 1e-03). We go brute force (slow but correct)
+          f.body <- function(f2) eval(p.body)
+          int<-seq(1e-07,1e-03,length.out=1e+04)
+          p<-abs(power - sapply(int,f.body))
+          f2<-as.numeric(int[which.min(p)])
+          print(paste("es ",f2," found by brute force. Approximation ",min(p)))
+          method="brute"
+        } else {
+          f2<-res$root
+        }
+    }
     else if (is.null(sig.level)) 
-        sig.level <- uniroot(function(sig.level) eval(p.body) - 
-            power, c(1e-10, 1 - 1e-10))$root
+        sig.level <- uniroot(function(sig.level) eval(p.body) - power, c(1e-10, 1 - 1e-10))$root
     else stop("internal error in pamlj.glm")
     n <- df_model+ ceiling(v) + 1
-    c(u = u, v = ceiling(v), f2 = f2, sig.level = sig.level, 
-        power = power, n = n, encp=ncp(f2,u,v))
+    return(list(u = u, v = ceiling(v), f2 = f2, sig.level = sig.level, 
+        power = power, n = n, encp=ncp(f2,u,v), method=method))
 
 }
-### These two functions are from jpower https://github.com/richarddmorey/jpower/blob/master/jpower/R/utils.R
+### These two functions are from jpower https://github.com/richarddmorey/jpower/blob/master/jpower/R/utils.R with some adjustment
 
 pamlj.ttestind<-function(n= NULL, n_ratio=NULL, n1 = NULL, n2 = NULL, d = NULL, sig.level = NULL, power = NULL, alternative = "two.sided") {
   
@@ -96,9 +108,9 @@ pamlj.t2n.test = function(n1 = NULL, n2 = NULL, d = NULL, sig.level = NULL, powe
       }else{
         stop("Invalid alternative")
       }
-      METHOD <- c("t test power calculation")
+
       ret = structure(list(n1 = n1, n2 = n2, d = d, sig.level = sig.level,
-                           power = power, alternative = alternative, method = METHOD),
+                           power = power, alternative = alternative, method = "pamlj"),
                       class = "power.htest")
       return(ret)
     }else{
@@ -108,6 +120,7 @@ pamlj.t2n.test = function(n1 = NULL, n2 = NULL, d = NULL, sig.level = NULL, powe
     return(pwr::pwr.t2n.test(n1 = n1, n2 = n2, d = d, sig.level = sig.level, power = power, alternative = alternative))
   }
 }
+
 
 
 pamlj.t2n.ratio = function(n_ratio = 1, d, sig.level, power, alternative){
@@ -136,7 +149,7 @@ pamlj.t2n.ratio = function(n_ratio = 1, d, sig.level, power, alternative){
   n2 <- ceiling(n1*n_ratio)
   
   ret = structure(list(n1 = n1, n2 = n2, d = d, sig.level = sig.level,
-                           power = power, alternative = alternative),
+                           power = power, alternative = alternative, method="pamlj"),
                       class = "power.htest")
   ret
 
@@ -144,28 +157,38 @@ pamlj.t2n.ratio = function(n_ratio = 1, d, sig.level, power, alternative){
 
 ### independent samples proportions ###
 
+
 pamlj.propind<-function(n= NULL, n_ratio=NULL, n1 = NULL, n2 = NULL, h = NULL, sig.level = NULL, power = NULL, alternative = "two.sided") {
+  
   
     if(is.null(n)) 
        ret <- pamlj.p2n.ratio(n_ratio = n_ratio, h=h, sig.level=sig.level, power=power, alternative=alternative)
     else
        ret <- pwr::pwr.2p2n.test(n1 = n1, n2 = n2, h=h, sig.level=sig.level, power=power, alternative=alternative)
-      
+    
+    ret$method<-"pamlj"
     return(ret)  
 }
 
 
-pamlj.p2n.ratio<-function(n_ratio = n_ratio, h=h, sig.level=sig.level, power=power, alternative=alternative) {
+pamlj.p2n.ratio<-function(n_ratio, h, sig.level=NULL, power=NULL, alternative="two.sided") {
   
+
   fn<-function(n1) { 
      n2<-n1*n_ratio
      pp<-pwr::pwr.2p2n.test(n2 = n2, n1 = n1, h = h, sig.level = sig.level, alternative = alternative)
      return(log(pp$power) - log(power))
-   }
-   n1 = ceiling(uniroot(fn, c( 2, 1e+09))$root)
+  }
+  
+   ## min group n should be 2. If n_ratio is less than 1, the algorithm should start from a n1 that allows
+   ## n2 tobe at least 2
+   start<-2
+   if (round(n_ratio*2) < 2)
+     start<-round(2/n_ratio)
+   n1 = ceiling(uniroot(fn, c( start, 1e+09))$root)
    n2 = n1*n_ratio
    ret = structure(list(n1 = n1, n2 = n2, h = h, sig.level = sig.level,
-                           power = power, alternative = alternative),
+                           power = power, alternative = alternative, method="pamlj"),
                            class = "power.htest")
   ret
 
@@ -215,18 +238,19 @@ pamlj.prop.paired <- function (n = NULL, p1 = NULL, psi = NULL, sig.level = 0.05
     }
     else if (is.null(n)) {
         n <- uniroot(function(n) eval(p.body) - power, c(ceiling(log(sig.level)/log(0.5)), 
-            1e+07))$root
+            1e+10))$root
     }
     else if (is.null(p1)) 
         p1 <- uniroot(function(p1) eval(p.body) - power, 
             c(1e-10, 1/(1 + psi) - 1e-10))$root
-    else if (is.null(psi)) 
-        psi <- uniroot(function(psi) eval(p.body) - power, c(1 + 
-            1e-10, 1/p1 - 1 - 1e-10))$root
+    else if (is.null(psi)) {
+        psi <- uniroot(function(psi) eval(p.body) - power, c(1 +1e-10, 1/p1 - 1 - 1e-10))
+        psi<-psi$root
+    }
     else if (is.null(sig.level)) 
         sig.level <- uniroot(function(sig.level) eval(p.body) - 
             power, c(1e-10, 1 - 1e-10))$root
     else stop("internal error", domain = NA)
     structure(list(n = n, p1 = p1, psi = psi, sig.level = sig.level, 
-        power = power, alternative = alternative), class = "power.htest")
+        power = power, alternative = alternative,method="pamlj"), class = "power.htest")
 }

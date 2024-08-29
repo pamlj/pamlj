@@ -22,9 +22,10 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             plot_z = "none",
             plot_x_from = 0,
             plot_x_to = 0,
-            plot_z_lines = 0,
+            plot_z_lines = 1,
             plot_z_value = list(),
             plot_to_table = FALSE,
+            .interface = "jamovi",
             .caller = "correlation", ...) {
 
             super$initialize(
@@ -98,8 +99,7 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "none",
                     "n",
                     "power",
-                    "es",
-                    "alpha"))
+                    "es"))
             private$..plot_custom_labels <- jmvcore::OptionBool$new(
                 "plot_custom_labels",
                 plot_custom_labels,
@@ -125,7 +125,8 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..plot_z_lines <- jmvcore::OptionNumber$new(
                 "plot_z_lines",
                 plot_z_lines,
-                default=0)
+                default=1,
+                min=1)
             private$..plot_z_value <- jmvcore::OptionArray$new(
                 "plot_z_value",
                 plot_z_value,
@@ -137,6 +138,11 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "plot_to_table",
                 plot_to_table,
                 default=FALSE)
+            private$...interface <- jmvcore::OptionString$new(
+                ".interface",
+                .interface,
+                default="jamovi",
+                hidden=TRUE)
             private$...caller <- jmvcore::OptionString$new(
                 ".caller",
                 .caller,
@@ -162,6 +168,7 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..plot_z_lines)
             self$.addOption(private$..plot_z_value)
             self$.addOption(private$..plot_to_table)
+            self$.addOption(private$...interface)
             self$.addOption(private$...caller)
         }),
     active = list(
@@ -184,6 +191,7 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         plot_z_lines = function() private$..plot_z_lines$value,
         plot_z_value = function() private$..plot_z_value$value,
         plot_to_table = function() private$..plot_to_table$value,
+        .interface = function() private$...interface$value,
         .caller = function() private$...caller$value),
     private = list(
         ..aim = NA,
@@ -205,6 +213,7 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..plot_z_lines = NA,
         ..plot_z_value = NA,
         ..plot_to_table = NA,
+        ...interface = NA,
         ...caller = NA)
 )
 
@@ -216,11 +225,12 @@ pamlcorrResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         issues = function() private$.items[["issues"]],
         powertab = function() private$.items[["powertab"]],
         powerbyes = function() private$.items[["powerbyes"]],
+        plotnotes = function() private$.items[["plotnotes"]],
         powerContour = function() private$.items[["powerContour"]],
         powerEscurve = function() private$.items[["powerEscurve"]],
         powerNcurve = function() private$.items[["powerNcurve"]],
         powerCustom = function() private$.items[["powerCustom"]],
-        plotnotes = function() private$.items[["plotnotes"]],
+        customnotes = function() private$.items[["customnotes"]],
         customtable = function() private$.items[["customtable"]]),
     private = list(),
     public=list(
@@ -243,6 +253,8 @@ pamlcorrResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 name="powertab",
                 title="A Priori Power Analysis",
                 rows=1,
+                refs=list(
+                    "pamlj"),
                 clearWith=list(
                     "es",
                     "power",
@@ -292,11 +304,16 @@ pamlcorrResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `name`="desc", 
                         `title`="Description", 
                         `type`="text"))))
+            self$add(jmvcore::Html$new(
+                options=options,
+                name="plotnotes",
+                title="Plot notes",
+                visible=FALSE))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerContour",
                 title="Power Contour",
-                width=400,
+                width=500,
                 height=350,
                 renderFun=".plot_contour",
                 visible="(plot_contour)"))
@@ -326,7 +343,7 @@ pamlcorrResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 visible=FALSE))
             self$add(jmvcore::Html$new(
                 options=options,
-                name="plotnotes",
+                name="customnotes",
                 title="Plot notes",
                 visible=FALSE))
             self$add(jmvcore::Table$new(
@@ -404,6 +421,7 @@ pamlcorrBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param plot_z_lines .
 #' @param plot_z_value .
 #' @param plot_to_table .
+#' @param .interface Used for internal purposes
 #' @param .caller Used for internal purposes
 #' @return A results object containing:
 #' \tabular{llllll}{
@@ -411,11 +429,12 @@ pamlcorrBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$issues} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powerbyes} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$plotnotes} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powerContour} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerEscurve} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerNcurve} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerCustom} \tab \tab \tab \tab \tab an image \cr
-#'   \code{results$plotnotes} \tab \tab \tab \tab \tab a html \cr
+#'   \code{results$customnotes} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$customtable} \tab \tab \tab \tab \tab a table \cr
 #' }
 #'
@@ -443,9 +462,10 @@ pamlcorr <- function(
     plot_z = "none",
     plot_x_from = 0,
     plot_x_to = 0,
-    plot_z_lines = 0,
+    plot_z_lines = 1,
     plot_z_value = list(),
     plot_to_table = FALSE,
+    .interface = "jamovi",
     .caller = "correlation") {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
@@ -472,6 +492,7 @@ pamlcorr <- function(
         plot_z_lines = plot_z_lines,
         plot_z_value = plot_z_value,
         plot_to_table = plot_to_table,
+        .interface = .interface,
         .caller = .caller)
 
     analysis <- pamlcorrClass$new(

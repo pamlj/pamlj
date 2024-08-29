@@ -17,15 +17,6 @@ options:
       description:
                 R: the data as a data frame
 
-    - name: .caller
-      type: String
-      default: factorial
-      hidden: true
-
-    - name: .interface
-      type: String
-      default: jamovi
-      hidden: true
 
     - name: aim
       title: Calculate 
@@ -102,6 +93,8 @@ options:
       description:
                 R: |
                         Expected correlation among repeated measures 
+
+
 ###### peta mode
 
     - name: peta
@@ -230,8 +223,6 @@ options:
           title: Power
         - name: es
           title: Effect size
-        - name: alpha
-          title: "Type I error"
 
     - name: plot_custom_labels
       type: Bool
@@ -300,10 +291,23 @@ options:
       type: Bool
       title: "Expected Means"
       default: false
+      
     - name: esos
       type: Bool
       title: "Expected SS"
       default: false
+
+    - name: .interface
+      type: String
+      default: jamovi
+      hidden: true
+      description:
+                R: |
+                        Used for internal purposes 
+    - name: .caller
+      type: String
+      default: factorial
+      hidden: true
 
 ...
 

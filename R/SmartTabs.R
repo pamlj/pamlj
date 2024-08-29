@@ -273,7 +273,7 @@ SmartTable <- R6::R6Class("SmartTable",
                             
                           ), #end of active
                           private=list(
-                            .error=NULL,
+                            .error=FALSE,
                             .estimator=NULL,
                             .init_source=NULL,
                             .run_source=NULL,
@@ -294,7 +294,7 @@ SmartTable <- R6::R6Class("SmartTable",
 
                               ### check how to retrieve the data
                               if (inherits(fun,"character") ) {
-                                
+
                                 if (!(fun %in% names(private$.estimator)))
                                     return(NULL)
                                 
@@ -302,7 +302,8 @@ SmartTable <- R6::R6Class("SmartTable",
                                 rtable<-output$obj
                                 error<-output$error
                                 warning<-output$warning
-                                
+#                               private$.debug_msg(rtable)
+
                                 if (!isFALSE(error)) {
                                   dispatch<-Dispatch$new(self)
                                   private$.debug_msg("ERROR",fun,error)
@@ -310,7 +311,7 @@ SmartTable <- R6::R6Class("SmartTable",
                                   error<-dispatch$translate(error)
                                   self$table$setError(error)
                                   private$.error<-TRUE
-                                   return()
+                                  return()
                                 }
                                 if (!isFALSE(warning)) {
                                     dispatch<-Dispatch$new(self)

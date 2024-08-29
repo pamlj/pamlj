@@ -21,7 +21,7 @@ powertab <- function(obj, ...) UseMethod(".powertab")
    attr(tab,"titles")<-list(es=letter_peta2)
    if (any(tab$n!=tab$nb))
                     warning("N per group (N-group) is adjusted to obtain a balanced design.")
-
+   warning("Model df=",tab$df_model[1])
    return(tab)
 }
   
@@ -36,7 +36,10 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
             suppressWarnings(dd<-as.data.frame(cbind(power,data)))
             dd$es<-NULL
             res<-powervector(obj,dd)
-            probs_es<-round(res$es,digits=3)
+            probs_es<-format(res$es,digits=3)
+            check<-which(is.na(res$es))
+            if (length(check)>0) warning("Some effect size cannot be computed given the input parameters.")
+
             esList <-list(list(es=paste('0 <', obj$info$letter, greek_vector["leq"],probs_es[1])),
                           list(es=paste(probs_es[1],'<', obj$info$letter, greek_vector["leq"],probs_es[2])),
                           list(es=paste(probs_es[2],'<', obj$info$letter, greek_vector["leq"],probs_es[3])),
@@ -65,7 +68,10 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
                else
                    return(NA)
            })
-            probs_es<-round(probs_es,digits=3)
+            check<-which(is.na(probs_es))
+            if (length(check)>0) warning("Some effect size cannot be computed given the input parameters.")
+            
+            probs_es<-format(probs_es,digits=3)
             esList <-list(list(es=paste(obj$info$letter, ">",probs_es[1])),
                           list(es=paste(probs_es[1],greek_vector["geq"], obj$info$letter, ">",probs_es[2])),
                           list(es=paste(probs_es[2],greek_vector["geq"], obj$info$letter, ">",probs_es[3])),

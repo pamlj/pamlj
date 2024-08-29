@@ -17,7 +17,10 @@ items:
       title: A Priori Power Analysis
       type: Table
       rows:  1
-      refs: pwr
+      refs:
+         - pamlj
+         - pwr
+      
       columns: 
         - name: n
           title: 'N'
@@ -63,11 +66,15 @@ items:
           type: text
 
 
-
+    - name: plotnotes
+      title: Plot notes
+      type: Html
+      visible: false
+      
     - name: powerContour
       title: Power Contour
       type: Image
-      width:  400
+      width:  500
       height: 350
       renderFun: .plot_contour
       visible: (plot_contour)
@@ -98,10 +105,10 @@ items:
       renderFun: .plot_custom
       visible: false
       
-    - name: plotnotes
+    - name: customnotes
       title: Plot notes
       type: Html
-      visible: true
+      visible: false
 
     - name:  customtable
       title: Power Analysis parameters

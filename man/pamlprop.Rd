@@ -2,7 +2,7 @@
 % Please edit documentation in R/pamlprop.h.R
 \name{pamlprop}
 \alias{pamlprop}
-\title{Propotions}
+\title{Proportions}
 \usage{
 pamlprop(
   .caller = "proportions",
@@ -105,11 +105,12 @@ A results object containing:
   \code{results$issues} \tab \tab \tab \tab \tab a html \cr
   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
   \code{results$powerbyes} \tab \tab \tab \tab \tab a table \cr
+  \code{results$plotnotes} \tab \tab \tab \tab \tab a html \cr
   \code{results$powerContour} \tab \tab \tab \tab \tab an image \cr
   \code{results$powerEscurve} \tab \tab \tab \tab \tab an image \cr
   \code{results$powerNcurve} \tab \tab \tab \tab \tab an image \cr
   \code{results$powerCustom} \tab \tab \tab \tab \tab an image \cr
-  \code{results$plotnotes} \tab \tab \tab \tab \tab a html \cr
+  \code{results$customnotes} \tab \tab \tab \tab \tab a html \cr
   \code{results$customtable} \tab \tab \tab \tab \tab a table \cr
 }
 

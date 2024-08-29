@@ -153,6 +153,8 @@ children:
                 children:
                   - type: ComboBox
                     name: plot_x
+                    events:
+                      change: ./common::plot_x_changed
                   - type: TextBox
                     name: plot_x_from
                     format: number
@@ -160,31 +162,40 @@ children:
                     name: plot_x_to
                     format: number
           - type: Label
-            label: Plot Different lines by
+            label: Plot Different Curves by
             children:
               - type: LayoutBox
                 style: inline
                 children:
                   - type: ComboBox
                     name: plot_z
+                    events:
+                      change: ./common::plot_z_changed
                   - type: TextBox
                     name: plot_z_lines
                     format: number
-          - type: Label
-            label: Values for each line
-            name: plot_value_label
-            children:
-              - type: ListBox
-                name: plot_z_value
-                events:
-                  listItemAdded: ./pamlprop::onChange_value_added
-                  listItemRemoved: ./pamlprop::onChange_value_removed
-                showColumnHeaders: false
-                columns:
-                  - name: var
-                    label: Value
-                    template:
-                      type: TextBox
+                    enable: (!plot_z:none)
+                    events:
+                      change: ./common::plot_z_lines_changed
+                    
+          - type: LayoutBox
+            name: plot_lines_values
+            children: 
+             - type: Label
+               label: Values for each curves
+               name: plot_value_label
+               children:
+                - type: ListBox
+                  name: plot_z_value
+                  events:
+                     listItemAdded: ./common::onChange_value_added
+                     listItemRemoved: ./common::onChange_value_removed
+                  showColumnHeaders: false
+                  columns:
+                    - name: var
+                      label: Value
+                      template:
+                        type: TextBox
 
   - type: CollapseBox
     label: Options

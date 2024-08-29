@@ -22,7 +22,14 @@ Plotter <- R6::R6Class(
       },
       preparePlots=function(image, ggtheme, theme, ...) {
         
-            if (!private$.operator$ok) return()
+            if (!private$.operator$ok || !private$.operator$plots$sensitivity) {
+              private$.results$powerContour$setVisible(FALSE)
+              private$.results$powerEscurve$setVisible(FALSE)
+              private$.results$powerNcurve$setVisible(FALSE)
+              if (any(self$option("plot_contour"),self$option("plot_escurve"),self$option("plot_ncurve")))
+                       private$.operator$warning<-list(topic="plotnotes",message="Plots cannot be produced.",head="error")
+              return()
+            }
             private$.prepareContour()
             private$.prepareEscurve()
             private$.prepareNcurve()
@@ -31,39 +38,55 @@ Plotter <- R6::R6Class(
       },
       plot_contour = function(image,ggthem,them) {
 
-        if (!private$.operator$ok) return()
-        
         if (!self$option("plot_contour"))
             return()
 
         data<-image$state
         if (is.null(data)) return()
-        
+    #    par(mgp = c(4, 1, 0))
+        off<-ifelse(min(data$y)<1e-04,5,4)
+        par(mar = c(5, off+1, 4, 1) )
 
+        res<-try_hard(
+       
         filled.contour(data$x,data$y,data$z,color.palette =  paml_palette,
                key.title = {mtext("Power",3, .5)},
-               ylab =paste("Hypothetical effect size (",data$letter,")", sep = ""),
+               ylab ="",
                xlab="Sample Size (N)",
                plot.axes={
                   axis(1, at=data$ticks, labels=data$tickslabels)
                   axis(2, at=data$yticks, labels=data$ytickslabels)
+                  title(ylab = paste("Hypothetical effect size (",data$letter,")", sep = ""), mgp = c(off, 1, 0))
                   yor<-par()$usr[3]
                   xor<-par()$usr[1]
                   lines(data$x, data$yline, type = "l", lty = 1, lwd=2)
                   segments(xor,data$point.y,data$point.x,data$point.y, lwd=2)
                   segments(data$point.x,yor,data$point.x,data$point.y, lwd=2)
                   points(data$point.x,data$point.y,pch=21,bg="white",cex=1.5)
-               })
+                 # mtext(paste("Hypothetical effect size (",data$letter,")", sep = ""), side = 2, line = 3) 
+               }
+    
+            
+           )
+        )
+       if (!isFALSE(res$error)) {
+                   message<-paste0("Countour plot cannot be produced for the combination of parameters given in input.")
+                   private$.operator$warning<-list(topic="plotnotes",message=message,head="error")
+                   private$.results$powerContour$setVisible(FALSE)
+
+       }
 
       },
       plot_curve= function(image,ggtheme,theme) {
          
-        if (!private$.operator$ok) return()
+
         if (!self$option("plot_ncurve") && !self$option("plot_escurve"))
                 return()
 
          cols = paml_palette(10)
          state<-image$state
+         if (is.null(state)) 
+             return()
          data <- state$data
          range <- max(data$x)-min(data$x)
          plot(data$x,data$y,  ty='n', 
@@ -89,10 +112,12 @@ Plotter <- R6::R6Class(
          segments(state$point.x,yor,state$point.x,state$point.y, lwd=2)
          points(state$point.x,state$point.y,pch=21,bg="white",cex=1.5)
          mtext(state$text, adj = 1)
+         
        },
+
       plot_custom= function(image,ggtheme,theme) {
          
-        if (!private$.operator$ok) return()
+        if (!private$.operator$ok || !private$.operator$plots$sensitivity) return()
 
         if (!is.something(image$state)) return()
         
@@ -105,6 +130,7 @@ Plotter <- R6::R6Class(
 
          if (is.something(data$z)) {
            data$z<-factor(data$z)
+           data<-data[order(data$z),]
            threed<-TRUE
          }
 
@@ -112,7 +138,7 @@ Plotter <- R6::R6Class(
          ydif <- max(data$y)-min(data$y)
          xdif <- max(data$y)-min(data$y)
 
-         .nudge<-ggplot2::position_nudge(y = ydif/20)
+         .nudge<-ggplot2::position_nudge(y = ydif/18)
 
          if (threed) 
                     .aes <- ggplot2::aes(x=x,y=y,color=z)
@@ -122,12 +148,15 @@ Plotter <- R6::R6Class(
          p <- ggplot2::ggplot(data,.aes)
          p <- p + ggplot2::geom_line( linewidth=1.5)
          p <- p + ggplot2::geom_point(size=2, fill="white", shape=21)
-         if (is.something(state$tickdata)) {
+
+         if (state$ticks) {
                                       if (max(data$y)>9) dig=0
-                                      ticks<-unique(state$tickdata$x)
-                                      p <- p + ggplot2::geom_label(data=state$tickdata,ggplot2::aes(x=x,y=y,label=round(y,digits=dig)),
+                                      g <- ggplot2::ggplot_build(p)
+                                      b <- g$layout$panel_params[[1]]$x$breaks
+                                      b <- b[!is.na(b)]
+                                      tdata<-data[data$x %in% b,]
+                                      p <- p + ggplot2::geom_label(data=tdata,ggplot2::aes(x=x,y=y,label=round(y,digits=dig)),
                                       position = .nudge, alpha=0,label.size = NA)
-                                      p <- p + ggplot2::scale_x_continuous(breaks = ticks)
 
          }
          p <- p + ggplot2::xlab(state$xlab) + ggplot2::ylab(state$ylab) 
@@ -156,18 +185,36 @@ Plotter <- R6::R6Class(
       data <- private$.operator$data
       image<-private$.results$powerContour
       ## check the min-max for effect size
-      esmax <- obj$info$esmax
-      if (esmax < data$es) esmax<-data$es
-      esmin<-  obj$info$esmin
 
+#      esmax <- obj$info$esmax
+#      if (esmax < data$es) esmax<-data$es
+#      esmin<-  obj$info$esmin
+
+   
+   
       ## check min-max for N
 
-      nmin<-  find_min_n(obj,data)
-      nmax<-  find_max_n(obj,data)
 
-      if (nmax< data$n) nmax<-data$n+10
-      if (nmax<(nmin*2)) nmax=(nmin*2)
+      ## determine the effect size min and max
       
+      esmax <- data$es*obj$plots$esrange
+      if (esmax > obj$info$esmax) esmax<-obj$info$esmax
+      esmin <- data$es/obj$plots$esrange
+      if (esmin < obj$info$esmin) esmin<-obj$info$esmin
+      .data<-data
+      .data$es<-esmin
+      .data$n<-NULL
+      nmax<-powervector(obj,.data)$n
+      .data$es<-esmax*1.1
+      .data$n<-NULL
+      nmin<-powervector(obj,.data)$n
+
+       if (nmin > data$n) {
+          nmin<-  find_min_n(obj,.data)
+          nmax<-  find_max_n(obj,data)
+      }
+      if (nmax< data$n) nmax<-round(data$n*1.5,digits=0)
+      if (nmax<(nmin*2)) nmax=(nmin*2)
       point.x<-obj$data$n
       y <- seq(esmin,esmax,len=20)
       es <- y
@@ -186,6 +233,7 @@ Plotter <- R6::R6Class(
          }
       }
 
+      
        x <- seq(FLX(nmin),FLX(nmax),len=20)
        n <- FEX(x)
        point.x<-FLX(obj$data$n)
@@ -195,11 +243,12 @@ Plotter <- R6::R6Class(
        es <- FEY(y)
        point.y <- FLY(data$es)
        yticks <- seq(FLY(esmin),FLY(esmax),len=6)
-       ytickslabels<-niceround(FEY(yticks))
+       ytickslabels<-format(FEY(yticks),digits=3)
+       ytickslabels<-sub("^0+", "", ytickslabels)
       .data <- cbind(n,obj$data)
       .data$es <- NULL
+      .data$power[.data$power<.0501]<- .0501
        yline=powervector(obj,.data)[["es"]]
-
        yline=FLY(yline)
       .data <- cbind(n,obj$data)
       .data$power<-NULL
@@ -208,6 +257,8 @@ Plotter <- R6::R6Class(
          powervector(obj,.data)[["power"]]
          })
        z<-do.call(cbind,out)
+
+       #return()
       image$setState(list(x=x,y=y,z=z,
                           point.x=point.x,point.y=point.y,
                           n=data$n,power=data$power,yline=yline,
@@ -226,6 +277,7 @@ Plotter <- R6::R6Class(
       
       obj  <- private$.operator
       data <- private$.operator$data
+
       image<-private$.results$powerNcurve
       ## check the min-max for effect size
       esmax <- obj$info$esmax
@@ -233,11 +285,25 @@ Plotter <- R6::R6Class(
       esmin<-  obj$info$esmin
 
       ## check min-max for N
-      nmin<-  find_min_n(obj,data)
-      nmax<-  find_max_n(obj,data)
+      esmax <- data$es*obj$plots$esrange
+      if (esmax > obj$info$esmax) esmax<-obj$info$esmax
+      esmin <- data$es/obj$plots$esrange
+      if (esmin < obj$info$esmin) esmin<-obj$info$esmin
+      .data<-data
+      .data$es<-esmin
+      .data$n<-NULL
+      nmax<-powervector(obj,.data)$n
+      .data$es<-esmax*1.1
+      .data$n<-NULL
+      nmin<-powervector(obj,.data)$n
 
-      if (nmax< data$n) nmax<-data$n+10
+       if (nmin > data$n) {
+          nmin<-  find_min_n(obj,.data)
+          nmax<-  find_max_n(obj,data)
+      }
+      if (nmax< data$n) nmax<-round(data$n*1.5,digits=0)
       if (nmax<(nmin*2)) nmax=(nmin*2)
+
 
         FLX<-identity
         FEX<-identity
@@ -282,8 +348,10 @@ Plotter <- R6::R6Class(
         data <- private$.operator$data
         image<-private$.results$powerEscurve
     ## check the min-max for effect size
-      esmax <- find_max_es(obj,data)
- 
+      .data<-data
+      .data$power<-.99
+       esmax <- find_max_es(obj,.data)
+
       if (esmax < data$es) esmax<-data$es
       esmin<-  obj$info$esmin
 
@@ -330,17 +398,17 @@ Plotter <- R6::R6Class(
         }
 
         if (self$options$plot_x==self$options$plot_y) {
-          self$warning<-list(topic="plotnotes",message="Please define different parameters for the X and Y axis")          
+          self$warning<-list(topic="customnotes",message="Please define different parameters for the X and Y axis")          
           return()
         }
 
         if (self$options$plot_x_from==self$options$plot_x_to) {
-            self$warning<-list(topic="plotnotes",message="Please set a suitable range for custom plot X-axis values")          
+            self$warning<-list(topic="customnotes",message="Please set a suitable range for custom plot X-axis values")          
             return()
       }
 
         if (self$options$plot_x_from>self$options$plot_x_to) {
-            self$warning<-list(topic="plotnotes",message="Please set a suitable range for custom plot X-axis values")          
+            self$warning<-list(topic="customnotes",message="Please set a suitable range for custom plot X-axis values")          
             return()
         }
          jinfo("PLOTTER: init  custom plot")
@@ -353,7 +421,8 @@ Plotter <- R6::R6Class(
      },
      .prepareCustom = function() {
       
-
+        obj  <- private$.operator
+        data <- private$.operator$data
         image<-private$.results$powerCustom
         if (is.null(image$state))
             return()
@@ -361,16 +430,60 @@ Plotter <- R6::R6Class(
 
         jinfo("PLOTTER: preparing custom plot")
 
-
-        data <- private$.operator$data
         what<-self$options$plot_x
         data[[what]]<-NULL
-        x<-pretty(c(self$options$plot_x_from,self$options$plot_x_to),n=20)
+        ### check in values make sense ###
+        xmin<-self$options$plot_x_from
+        xmax<-self$options$plot_x_to
+        ### here we check that the input makes sense, otherwise we adjust it
+        switch (what,
+                n =  {  
+                      if (xmin<find_min_n(obj,data)) xmin <- find_min_n(obj,data)
+                      if (xmax>find_max_n(obj,data)) max  <- find_max_n(obj,data)
+                },
+                power = {
+
+                        if (xmin<.1) { 
+                                      xmin <-.10
+                                      self$warning<-list(topic="customnotes",message="Minimum power is set to .10", head="info")          
+                                      }
+                        if (xmax>.99) { 
+                                      xmax  <- .99
+                                      self$warning<-list(topic="customnotes",message="Max power is set to .99", head="info")          
+                                      }
+                        },
+                es = {
+
+                         esmax<-obj$info$esmax
+                         esmin<-obj$info$esmin
+                        if (xmin < esmin) {
+                                           xmin <-esmin
+                                           self$warning<-list(topic="customnotes",message=paste("Minimum effect size is set to ",obj$info$letter,"=",esmin), head="info")          
+                        }
+                        
+                        if (xmax > esmax) {
+                                           xmax <-esmax
+                                           self$warning<-list(topic="customnotes",message=paste("Max effect size is set to ",obj$info$letter,"=",esmax), head="info")          
+                                          }
+
+                        },
+                alpha = {
+                        if (xmin< .0001) xmin <- 0.0001
+                        if (xmax> .5) { 
+                                       xmax  <- .5 
+                                       self$warning<-list(topic="customnotes",message="Type I error max is set to .50", head="info")          
+                                      }
+                        }
+        )
+        x<-pretty(c(xmin,xmax),n=20)
+      
+        x[1]<-xmin
+        x[length(x)]<-xmax
+        
         data<-cbind(x,data)
         names(data)[1]<-what
         zlab<-NULL
-        mark(data,data$n)
-
+  
         if (is.something(z_values)) {
           data[[self$options$plot_z]]<-NULL
           data<-merge(z_values,data)
@@ -379,49 +492,27 @@ Plotter <- R6::R6Class(
         data[[self$options$plot_y]]<-NULL
         
         tryobj<-try_hard(powervector(private$.operator,data))
+
         if (!isFALSE(tryobj$error)) {
-            self$warning<-list(topic="plotnotes",message="The required plot cannot be produced. Please update the plot settings")          
+            self$warning<-list(topic="customnotes",message="The required plot cannot be produced (generic). Please update the plot settings", head="error")          
             return()
         } else 
            ydata<-tryobj$obj
 
         if (any(is.nan(ydata[[self$options$plot_y]]))) {
-            self$warning<-list(topic="plotnotes",message="The required plot cannot be produced. Please update the plot settings")          
+            self$warning<-list(topic="customnotes",message="The required plot cannot be produced (NaN produced). Please update the plot settings", head="error")          
             return()
         }
-
         names(ydata)[names(ydata)==self$options$plot_x]<-"x"
         names(ydata)[names(ydata)==self$options$plot_y]<-"y"
         names(ydata)[names(ydata)==self$options$plot_z]<-"z"
-
         if (hasName(ydata,"z"))
             zlab<-nicify_param(self$options$plot_z,short=T)
 
-        tickdata<-NULL
-        if (self$option("plot_custom_labels")) {
-                   ux <- unique(ydata$x)
-                   ticks<-pretty(ux,n=5)
-                   if (ticks[1]< min(ux)) ticks[1]<-min(ux)
-                   if (ticks[length(ticks)] > max(ux)) ticks[1]<-max(ux)
-                   tdata<-data
-                   tdata[[self$options$plot_x]]<-ticks
-                   tryobj<-try_hard(powervector(private$.operator,tdata))
-                   if (isFALSE(tryobj$error)) {
-                       tickdata<-tryobj$obj
-                       tickdata$x<-tickdata[[self$options$plot_x]]
-                       tickdata$y<-tickdata[[self$options$plot_y]]
-                       if (self$options$plot_z!="none") {
-                           tickdata$z<-factor(tickdata[[self$options$plot_z]])
-                           
-                       }
-
-                   }
-                       
-        }
-
+  
         image$setVisible(TRUE)
         image$setState(list(data=ydata,
-                            tickdata=tickdata,
+                            ticks=self$option("plot_custom_labels"),
                             xlab=nicify_param(self$options$plot_x),
                             ylab=nicify_param(self$options$plot_y),
                             zlab=zlab))
@@ -434,12 +525,12 @@ Plotter <- R6::R6Class(
               return()
            
             if (self$options$plot_z %in% c(self$options$plot_x,self$options$plot_y)) {
-                self$warning<-list(topic="plotnotes",message="Multiple lines cannot be plotted for the parameters in Y or X axis.")          
+                self$warning<-list(topic="customnotes",message="Multiple lines cannot be plotted for the parameters in Y or X axis.")          
                 return()
             }
            
             if (self$options$plot_z_lines == 0) {
-                self$warning<-list(topic="plotnotes",message="Please set the required number of lines")          
+                self$warning<-list(topic="customnotes",message="Please set the required number of lines")          
                 return()
             } 
           

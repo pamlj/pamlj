@@ -16,6 +16,8 @@ items:
     - name:  powertab
       title: A Priori Power Analysis
       type: Table
+      refs:
+         - pamlj
      
       clearWith:
         - es
@@ -70,7 +72,6 @@ items:
         - name: sig.level
           title: '&alpha;'
           type: number
-
 
 
 
@@ -130,10 +131,16 @@ items:
           type: number
 
 
+    - name: plotnotes
+      title: Plot notes
+      type: Html
+      visible: false
+
+
     - name: powerContour
       title: Power Contour
       type: Image
-      width:  400
+      width:  500
       height: 350
       renderFun: .plot_contour
       visible: (plot_contour)
@@ -154,6 +161,7 @@ items:
       renderFun: .plot_ncurve
       visible: (plot_ncurve & !aim:es)
 
+
     - name: powerCustom
       title: Power Parameters
       type: Image
@@ -162,7 +170,7 @@ items:
       renderFun: .plot_custom
       visible: false
       
-    - name: plotnotes
+    - name: customnotes
       title: Plot notes
       type: Html
       visible: false

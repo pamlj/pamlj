@@ -63,12 +63,17 @@ items:
           title: 'Description'
           type: text
 
+    - name: plotnotes
+      title: Plot notes
+      type: Html
+      visible: false
+
 
 
     - name: powerContour
       title: Power Contour
       type: Image
-      width:  400
+      width:  500
       height: 350
       renderFun: .plot_contour
       visible: (plot_contour & !is_equi)
@@ -91,6 +96,8 @@ items:
       renderFun: .plot_ncurve
       visible: (plot_ncurve & !is_equi)
 
+
+
     - name: powerCustom
       title: Power Parameters
       type: Image
@@ -98,12 +105,12 @@ items:
       height: 350
       renderFun: .plot_custom
       visible: false
-      
-    - name: plotnotes
+
+    - name: customnotes
       title: Plot notes
       type: Html
       visible: false
-
+      
     - name:  customtable
       title: Power Analysis parameters
       type: Table

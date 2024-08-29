@@ -12,8 +12,13 @@ Runner <- R6::R6Class("Runner",
                                  # this is run before any table or plot is filled.
                                  # it produces the basic estimation required for all tables and plots
                                  # it fills self$data with all power parameters
+                                 jinfo("PAMLj: Runner: checking data")
+
                                  checkdata(self)
+                                 commonchecks(self)
                                  if (!self$ok) return()
+                                 jinfo("PAMLj: Runner: first estimation")
+
                                  resobj <- try_hard(powervector(self,self$data) )
                                  if (!isFALSE(resobj$warning))
                                      warning(resobj$warning)
@@ -24,10 +29,12 @@ Runner <- R6::R6Class("Runner",
                                  }
                                  # everything went well, so fill self$data
                                  self$data<-resobj$obj
-                                
+                                 postchecks(self)
+                                 
                               },
                               run_powertab = function() {
                                      if (!self$ok) return()
+                                     jinfo("PAMLj: Runner: powertab")
                                      tab<-powertab(self)
                                      return(tab)
                                      
@@ -41,12 +48,15 @@ Runner <- R6::R6Class("Runner",
 
                               run_powerbyes = function() {
                                      if (!self$ok) return()
+                                     jinfo("PAMLj: Runner: powerbyes")
+                                
                                      tab <- powerbyes(self)
                                      warning("Estimated for N=",round(self$data$n))
                                      return(tab)
                                },
                               run_means = function() {
-                          
+                                
+                                  if (!self$ok) return()
                                   exdata<-self$analysis$data
                                   factors <- self$options$factors
                                   means   <- self$options$means
@@ -65,7 +75,7 @@ Runner <- R6::R6Class("Runner",
                                   form2<-paste(sds,"~",paste(factors,collapse="*"))
                                   model2<-lm(form2,exdata)
 
-                                  effects<-self$extradata$effect
+                                  effects<-self$info$terms
                                   suppressWarnings({
                                   tabs<-lapply(effects,function(e) {
                                     form<-as.formula(paste("~",e))
@@ -83,7 +93,7 @@ Runner <- R6::R6Class("Runner",
                                 
                               },
                               run_customtable = function() {
-     
+                           
                                      if (!self$ok) return()
                                      ## this is filled by plotter$prepateCustom
                                      ## here we simply pass it to the table

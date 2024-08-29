@@ -1,6 +1,6 @@
 ---
 name: pamlprop
-title: Propotions
+title: Proportions
 menuGroup: jpower
 version: '0.0.1'
 jas: '1.2'
@@ -11,10 +11,6 @@ description:
            Something here
 
 options:
-    - name: .caller
-      type: String
-      default: proportions
-      hidden: true
 
     - name: aim
       title: Calculate 
@@ -28,7 +24,7 @@ options:
         - name: es
           title: Effect Size
     - name: mode
-      title: "Two Sample"
+      title: "Design"
       type: List
       options:
             - name: propind
@@ -167,8 +163,6 @@ options:
           title: Power
         - name: es
           title: Effect size
-        - name: sig.level
-          title: "Type I error"
 
     - name: plot_custom_labels
       type: Bool
@@ -232,6 +226,18 @@ options:
           title: Difference
         - name:  rr
           title: Relative Risk
+
+    - name: .interface
+      type: String
+      default: jamovi
+      hidden: true
+      description:
+                R: |
+                        Used for internal purposes 
+    - name: .caller
+      type: String
+      default: proportions
+      hidden: true
 
 ...
 

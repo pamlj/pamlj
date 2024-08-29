@@ -1,3 +1,4 @@
+var fun=require('./functions');
 
 const events = {
   
@@ -6,7 +7,7 @@ const events = {
          console.log("Updating analysis");
          update_structure(ui);
          update_model(ui);
-         update_z_value(ui);
+         fun.update_z_value(ui);
     },
     mode_changed: function(ui) {
         console.log("mode has changed in " + ui.mode.value());
@@ -43,54 +44,7 @@ const events = {
       }
        update_convert(ui);
 
-    },
-
-    plot_x_changed: function(ui) {
-      
-         ui.plot_x_from.setValue(0);
-         ui.plot_x_to.setValue(0);
-
-    },
-    plot_z_changed: function(ui) {
-
-     ui.plot_z_value.setValue([]);
-     ui.plot_z_lines.setValue(0);
-    },
-    
-    plot_z_lines_changed: function(ui) {
-      
-      var n_lines=ui.plot_z_lines.value();
-      if (n_lines === 0) {
-          ui.plot_value_label.$el.hide();
-          return
-      }
-      
-     var values = ui.plot_z_value.value();
-     var n = ui.plot_z_lines.value();
-     var newvalues = [];
-
-     for (let i = 0; i < n ; i++) {
-
-            var newval = Number(values[i]);  
-            console.log(newval, typeof newval)
-            if (isNaN(newval))
-                  newval = 0;
-            newvalues.push(newval);
-     } 
-
-      ui.plot_z_value.setValue(newvalues);
-      update_z_value(ui);
-      ui.plot_value_label.$el.show();
-      
-    },
-    
-    onChange_value_added: function(ui) {
-      
-    },
-    onChange_value_removed: function(ui) {
-      
     }
-
 
 
 
