@@ -94,10 +94,6 @@ options:
                 R: |
                         Expected correlation among repeated measures 
 
--       name: emmeans
-        title: Estimated Marginal Means
-        type: Terms
-
 
 ###### peta mode
 

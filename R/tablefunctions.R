@@ -21,7 +21,7 @@ powertab <- function(obj, ...) UseMethod(".powertab")
    attr(tab,"titles")<-list(es=letter_peta2)
    if (any(tab$n!=tab$nb))
                     warning("N per group (N-group) is adjusted to obtain a balanced design.")
-
+   warning("Model df=",tab$df_model[1])
    return(tab)
 }
   
