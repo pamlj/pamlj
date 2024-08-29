@@ -17,15 +17,6 @@ options:
       description:
                 R: the data as a data frame
 
-    - name: .caller
-      type: String
-      default: factorial
-      hidden: true
-
-    - name: .interface
-      type: String
-      default: jamovi
-      hidden: true
 
     - name: aim
       title: Calculate 
@@ -302,6 +293,18 @@ options:
       type: Bool
       title: "Expected SS"
       default: false
+
+    - name: .interface
+      type: String
+      default: jamovi
+      hidden: true
+      description:
+                R: |
+                        Used for internal purposes 
+    - name: .caller
+      type: String
+      default: proportions
+      hidden: true
 
 ...
 

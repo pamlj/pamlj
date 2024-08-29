@@ -819,16 +819,17 @@ commonchecks <- function(obj) {
         .data$n<-obj$info$nmax
         esmin<-find_min_es(obj,.data)
         fesmin<-format(esmin, digits=4)
+        es<-format(obj$data$es,digits=4)
 
      
 
         if ( any(obj$data$es < esmin )) {
-                   message<-       "The effect size (" %+% obj$info$letter %+% " = " %+% obj$data$es %+% ") is smaller than the effect size (" %+%
+                   message<-       "The effect size (" %+% obj$info$letter %+% " = " %+% es %+% ") is smaller than the effect size (" %+%
                                     obj$info$letter %+% " = " %+% fesmin %+% ")" %+%
                                    " that requires around " %+% obj$info$nmax_spell %+% " cases (N=" %+% obj$info$nmax %+% ")  to obtain a power of " %+%
                                     obj$data$power %+% ". Results are shown for " %+% obj$info$letter %+% " = " %+% esmin %+%"." %+%
                                     "Sensitivity analysis (plots) cannot be produced." %+% 
-                                    "<a href='http://www.google.it' target='_blank'> More info here </a>"
+                                    "<a href='https://pamlj.github.io/details_failure.html' target='_blank'> More info here </a>"
                    obj$warning<-list(topic="issues",message=message,head="warning")
                    obj$data$es<-esmin
                    obj$plots$sensitivity<-FALSE
@@ -857,7 +858,7 @@ postchecks <- function(obj, ...) UseMethod(".postchecks")
                                    " that guarantees power=" %+% data$power %+% " with a sample of minimum size (N=" %+% data$n %+% ")." %+%
                                    "This means that any effect size larger than "%+% esmax %+% " guarantees a power > " %+% data$power %+% 
                                    " for any sample size equal or larger than " %+% data$n %+% "." %+%
-                                   "<a href='http://www.google.it' target='_blank'> More info here </a>"
+                                   "<a href='https://pamlj.github.io/details_failure.html' target='_blank'> More info here </a>"
               obj$warning<-list(topic="issues",message=message,head="info")
               },
       brute = {   

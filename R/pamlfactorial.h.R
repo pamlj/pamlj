@@ -6,8 +6,6 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
     inherit = jmvcore::Options,
     public = list(
         initialize = function(
-            .caller = "factorial",
-            .interface = "jamovi",
             aim = "n",
             mode = "facpeta",
             means = NULL,
@@ -39,7 +37,9 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
             plot_to_table = FALSE,
             ncp_type = NULL,
             emeans = FALSE,
-            esos = FALSE, ...) {
+            esos = FALSE,
+            .interface = "jamovi",
+            .caller = "proportions", ...) {
 
             super$initialize(
                 package="pamlj",
@@ -47,16 +47,6 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                 requiresData=TRUE,
                 ...)
 
-            private$...caller <- jmvcore::OptionString$new(
-                ".caller",
-                .caller,
-                default="factorial",
-                hidden=TRUE)
-            private$...interface <- jmvcore::OptionString$new(
-                ".interface",
-                .interface,
-                default="jamovi",
-                hidden=TRUE)
             private$..aim <- jmvcore::OptionList$new(
                 "aim",
                 aim,
@@ -232,9 +222,17 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                 "esos",
                 esos,
                 default=FALSE)
+            private$...interface <- jmvcore::OptionString$new(
+                ".interface",
+                .interface,
+                default="jamovi",
+                hidden=TRUE)
+            private$...caller <- jmvcore::OptionString$new(
+                ".caller",
+                .caller,
+                default="proportions",
+                hidden=TRUE)
 
-            self$.addOption(private$...caller)
-            self$.addOption(private$...interface)
             self$.addOption(private$..aim)
             self$.addOption(private$..mode)
             self$.addOption(private$..means)
@@ -267,10 +265,10 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
             self$.addOption(private$..ncp_type)
             self$.addOption(private$..emeans)
             self$.addOption(private$..esos)
+            self$.addOption(private$...interface)
+            self$.addOption(private$...caller)
         }),
     active = list(
-        .caller = function() private$...caller$value,
-        .interface = function() private$...interface$value,
         aim = function() private$..aim$value,
         mode = function() private$..mode$value,
         means = function() private$..means$value,
@@ -302,10 +300,10 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
         plot_to_table = function() private$..plot_to_table$value,
         ncp_type = function() private$..ncp_type$value,
         emeans = function() private$..emeans$value,
-        esos = function() private$..esos$value),
+        esos = function() private$..esos$value,
+        .interface = function() private$...interface$value,
+        .caller = function() private$...caller$value),
     private = list(
-        ...caller = NA,
-        ...interface = NA,
         ..aim = NA,
         ..mode = NA,
         ..means = NA,
@@ -337,7 +335,9 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
         ..plot_to_table = NA,
         ..ncp_type = NA,
         ..emeans = NA,
-        ..esos = NA)
+        ..esos = NA,
+        ...interface = NA,
+        ...caller = NA)
 )
 
 pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
@@ -593,8 +593,6 @@ pamlfactorialBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' Something here
 #' 
 #' @param data the data as a data frame
-#' @param .caller .
-#' @param .interface .
 #' @param aim The aim of the analysis: \code{n} (default) for sample size,
 #'   \code{power} to estimate power
 #' @param mode .
@@ -632,6 +630,8 @@ pamlfactorialBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param ncp_type .
 #' @param emeans .
 #' @param esos .
+#' @param .interface Used for internal purposes
+#' @param .caller .
 #' @return A results object containing:
 #' \tabular{llllll}{
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
@@ -657,8 +657,6 @@ pamlfactorialBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @export
 pamlfactorial <- function(
     data,
-    .caller = "factorial",
-    .interface = "jamovi",
     aim = "n",
     mode = "facpeta",
     means = NULL,
@@ -690,7 +688,9 @@ pamlfactorial <- function(
     plot_to_table = FALSE,
     ncp_type,
     emeans = FALSE,
-    esos = FALSE) {
+    esos = FALSE,
+    .interface = "jamovi",
+    .caller = "proportions") {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
         stop("pamlfactorial requires jmvcore to be installed (restart may be required)")
@@ -710,8 +710,6 @@ pamlfactorial <- function(
     for (v in factors) if (v %in% names(data)) data[[v]] <- as.factor(data[[v]])
 
     options <- pamlfactorialOptions$new(
-        .caller = .caller,
-        .interface = .interface,
         aim = aim,
         mode = mode,
         means = means,
@@ -743,7 +741,9 @@ pamlfactorial <- function(
         plot_to_table = plot_to_table,
         ncp_type = ncp_type,
         emeans = emeans,
-        esos = esos)
+        esos = esos,
+        .interface = .interface,
+        .caller = .caller)
 
     analysis <- pamlfactorialClass$new(
         options = options,

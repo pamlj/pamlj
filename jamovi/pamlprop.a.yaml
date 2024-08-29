@@ -11,10 +11,6 @@ description:
            Something here
 
 options:
-    - name: .caller
-      type: String
-      default: proportions
-      hidden: true
 
     - name: aim
       title: Calculate 
@@ -230,6 +226,18 @@ options:
           title: Difference
         - name:  rr
           title: Relative Risk
+
+    - name: .interface
+      type: String
+      default: jamovi
+      hidden: true
+      description:
+                R: |
+                        Used for internal purposes 
+    - name: .caller
+      type: String
+      default: proportions
+      hidden: true
 
 ...
 

@@ -6,7 +6,6 @@ pamlpropOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     inherit = jmvcore::Options,
     public = list(
         initialize = function(
-            .caller = "proportions",
             aim = "n",
             mode = "propind",
             propind_p1 = 0.6,
@@ -35,7 +34,9 @@ pamlpropOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             plot_z_lines = 0,
             plot_z_value = list(),
             plot_to_table = FALSE,
-            es_type = "odd", ...) {
+            es_type = "odd",
+            .interface = "jamovi",
+            .caller = "proportions", ...) {
 
             super$initialize(
                 package="pamlj",
@@ -43,11 +44,6 @@ pamlpropOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 requiresData=FALSE,
                 ...)
 
-            private$...caller <- jmvcore::OptionString$new(
-                ".caller",
-                .caller,
-                default="proportions",
-                hidden=TRUE)
             private$..aim <- jmvcore::OptionList$new(
                 "aim",
                 aim,
@@ -199,8 +195,17 @@ pamlpropOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "odd",
                     "dif",
                     "rr"))
+            private$...interface <- jmvcore::OptionString$new(
+                ".interface",
+                .interface,
+                default="jamovi",
+                hidden=TRUE)
+            private$...caller <- jmvcore::OptionString$new(
+                ".caller",
+                .caller,
+                default="proportions",
+                hidden=TRUE)
 
-            self$.addOption(private$...caller)
             self$.addOption(private$..aim)
             self$.addOption(private$..mode)
             self$.addOption(private$..propind_p1)
@@ -230,9 +235,10 @@ pamlpropOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..plot_z_value)
             self$.addOption(private$..plot_to_table)
             self$.addOption(private$..es_type)
+            self$.addOption(private$...interface)
+            self$.addOption(private$...caller)
         }),
     active = list(
-        .caller = function() private$...caller$value,
         aim = function() private$..aim$value,
         mode = function() private$..mode$value,
         propind_p1 = function() private$..propind_p1$value,
@@ -261,9 +267,10 @@ pamlpropOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         plot_z_lines = function() private$..plot_z_lines$value,
         plot_z_value = function() private$..plot_z_value$value,
         plot_to_table = function() private$..plot_to_table$value,
-        es_type = function() private$..es_type$value),
+        es_type = function() private$..es_type$value,
+        .interface = function() private$...interface$value,
+        .caller = function() private$...caller$value),
     private = list(
-        ...caller = NA,
         ..aim = NA,
         ..mode = NA,
         ..propind_p1 = NA,
@@ -292,7 +299,9 @@ pamlpropOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..plot_z_lines = NA,
         ..plot_z_value = NA,
         ..plot_to_table = NA,
-        ..es_type = NA)
+        ..es_type = NA,
+        ...interface = NA,
+        ...caller = NA)
 )
 
 pamlpropResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
@@ -488,7 +497,6 @@ pamlpropBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'
 #' Something here
 #' 
-#' @param .caller .
 #' @param aim .
 #' @param mode .
 #' @param propind_p1 .
@@ -518,6 +526,8 @@ pamlpropBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param plot_z_value .
 #' @param plot_to_table .
 #' @param es_type .
+#' @param .interface Used for internal purposes
+#' @param .caller .
 #' @return A results object containing:
 #' \tabular{llllll}{
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
@@ -541,7 +551,6 @@ pamlpropBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'
 #' @export
 pamlprop <- function(
-    .caller = "proportions",
     aim = "n",
     mode = "propind",
     propind_p1 = 0.6,
@@ -570,14 +579,15 @@ pamlprop <- function(
     plot_z_lines = 0,
     plot_z_value = list(),
     plot_to_table = FALSE,
-    es_type = "odd") {
+    es_type = "odd",
+    .interface = "jamovi",
+    .caller = "proportions") {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
         stop("pamlprop requires jmvcore to be installed (restart may be required)")
 
 
     options <- pamlpropOptions$new(
-        .caller = .caller,
         aim = aim,
         mode = mode,
         propind_p1 = propind_p1,
@@ -606,7 +616,9 @@ pamlprop <- function(
         plot_z_lines = plot_z_lines,
         plot_z_value = plot_z_value,
         plot_to_table = plot_to_table,
-        es_type = es_type)
+        es_type = es_type,
+        .interface = .interface,
+        .caller = .caller)
 
     analysis <- pamlpropClass$new(
         options = options,
