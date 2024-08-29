@@ -555,6 +555,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       means   <- obj$options$means
       sds     <- obj$options$sds
       factors <- obj$options$factors
+      ## derive terms
       obj$data<-data.frame(power=obj$options$power,
                            sig.level=obj$options$sig.level)
       
@@ -563,13 +564,21 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       if (is.null(factors)) return()
 
       exdata  <-obj$analysis$data
+      
+      form<-paste("means~",paste(factors,collapse="*"))
+      obj$info$terms<-attr(terms(as.formula(form)),"term.labels")
+
+      
       if (nrow(stats::na.omit(exdata)) != nrow(obj$analysis$data))
-        stop("Dataset cannot contain missing values")
+        obj$stop("Dataset cannot contain missing values")
+      
+      obj$extradata<-exdata
+      
       within  <- unlist(obj$options$within)
       between <- setdiff(factors,within)
 
       if (!is.something(within))       obj$info$r <- 0 
-        
+         
       if (nrow(exdata) > 0) {
                 nlevbet<-1
                 nlevwit<-1
@@ -658,6 +667,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                  else
                      w<-which.min(pwr$es)
                  w<-w[1]
+                 obj$warning<-list(topic="powerbyes",message="Sensitivity analysis is done on the smallest effect (" %+% obj$info$terms[w] %+% ")")
                  obj$data <- subset( obj$extradata, obj$extradata$id==w)
                  obj$data[[obj$aim]]<-NULL
                  obj$info$nmin <- obj$data$df_model + 10  
@@ -670,7 +680,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                               power=obj$options$power,
                               sig.level=obj$options$sig.level)
      
-                 }         
+                 }     
 
 }
 
@@ -824,7 +834,6 @@ commonchecks <- function(obj) {
         .data<-obj$data
         .data$n<-obj$info$nmax
         esmin<-find_min_es(obj,.data)
-        mark("minin es set",esmin)
         fesmin<-format(esmin, digits=5)
         es<-format(obj$data$es,digits=5)
 

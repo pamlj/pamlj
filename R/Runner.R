@@ -55,6 +55,7 @@ Runner <- R6::R6Class("Runner",
                                      return(tab)
                                },
                               run_means = function() {
+                                
                                   if (!self$ok) return()
                                   exdata<-self$analysis$data
                                   factors <- self$options$factors
@@ -74,7 +75,7 @@ Runner <- R6::R6Class("Runner",
                                   form2<-paste(sds,"~",paste(factors,collapse="*"))
                                   model2<-lm(form2,exdata)
 
-                                  effects<-self$extradata$effect
+                                  effects<-self$info$terms
                                   suppressWarnings({
                                   tabs<-lapply(effects,function(e) {
                                     form<-as.formula(paste("~",e))

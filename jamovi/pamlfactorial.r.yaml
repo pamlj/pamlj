@@ -75,7 +75,6 @@ items:
 
 
 
-
     - name:  powerbyes
       title: Power by Effect Size
       type: Table
@@ -130,6 +129,7 @@ items:
         - name: sd
           title: 'SD'
           type: number
+
 
     - name: plotnotes
       title: Plot notes

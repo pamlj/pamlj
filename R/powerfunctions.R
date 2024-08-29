@@ -414,13 +414,11 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                  data$method<-"normal"
                 .names <- intersect(names(data),rlang::fn_fmls_names(pamlj.prop.paired))
                  data$alternative<-as.character(data$alternative)
-mark(data)
                 results<-lapply(1:nrow(data),function(i) {
                      one<-as.list(data[i,.names])
                      tryobj<-try_hard(do.call(pamlj.prop.paired,one), silent=TRUE)
                      out<-tryobj$obj
                      if (!isFALSE(tryobj$error)) {
-                       mark(tryobj$error)
                        res<-one
                        switch(aim,
                               n={
@@ -455,7 +453,6 @@ mark(data)
                  results$n1<-NA
                  results$n2<-NA
                  results$psi  <- NULL
-                 mark(results)
                 return(results)
 }
 

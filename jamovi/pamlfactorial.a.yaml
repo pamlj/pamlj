@@ -93,6 +93,12 @@ options:
       description:
                 R: |
                         Expected correlation among repeated measures 
+
+-       name: emmeans
+        title: Estimated Marginal Means
+        type: Terms
+
+
 ###### peta mode
 
     - name: peta
@@ -289,6 +295,7 @@ options:
       type: Bool
       title: "Expected Means"
       default: false
+      
     - name: esos
       type: Bool
       title: "Expected SS"

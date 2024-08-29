@@ -99,19 +99,17 @@ Initer <- R6::R6Class(
   
     init_means = function() {
       
-      
-      effects<-self$data$effect
-      tabsList<-list()
+      effects<-self$info$terms
+
+      tab<-list()
       for (e in effects) {
         .names<-stringr::str_split(e,":")[[1]]
         atab<-rep(NA,length(.names))
         names(atab)<-.names
-        ladd(tabsList)<-list(atab)
+        ladd(tab)<-list(atab)
       }
-        attr(tabsList,"keys")<-effects
-        tabsList
-
-
+        attr(tab,"keys")<-effects
+        return(tab)
     }
 
       
