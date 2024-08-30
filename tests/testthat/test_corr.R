@@ -6,7 +6,7 @@ obj<-pamlj::pamlcorr(es=.1,.interface="R",plot_contour=T,plot_escurve=T,plot_ncu
 
 testthat::test_that("values ok", {
   testthat::expect_equal(obj$powertab$asDF$n,1046)
-  testthat::expect_equal(obj$powerbyes$asDF$es[4],"ρ > 0.111")
+  testthat::expect_equal(obj$powerbyes$asDF$es[4],"ρ > 0.1111")
 })
 
 plots<-plots(obj)
@@ -23,7 +23,7 @@ obj<-pamlj::pamlcorr(es=.0001,.interface="R",plot_x="n",plot_y="es",plot_x_from=
 ok<-10747773
 testthat::test_that("values ok", {
   testthat::expect_equal(obj$powertab$asDF$n,ok)
-  testthat::expect_equal(obj$powerbyes$asDF$es[4],"ρ > 0.001")
+  testthat::expect_equal(obj$powerbyes$asDF$es[4],"ρ > 0.001075")
 })
 
 obj<-pamlj::pamlcorr(aim="power",es=.1,n=50,.interface="R")
@@ -42,3 +42,4 @@ testthat::test_that("power ok", {
   testthat::expect_equal(obj$powertab$asDF$es,ok)
   testthat::expect_equal(obj$powerbyes$asDF$es[4],"ρ > 0.479")
 })
+

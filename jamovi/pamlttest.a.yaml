@@ -11,10 +11,6 @@ description:
            Something here
 
 options:
-    - name: .caller
-      type: String
-      default: ttest
-      hidden: true
 
     - name: aim
       title: Calculate 
@@ -150,8 +146,6 @@ options:
           title: Power
         - name: es
           title: Effect size
-        - name: sig.level
-          title: "Type I error"
 
     - name: plot_y
       type: List
@@ -218,6 +212,15 @@ options:
       title: "Show table"
       default: false
 
+    - name: .caller
+      type: String
+      default: ttest
+      hidden: true
+
+    - name: .interface
+      type: String
+      default: jamovi
+      hidden: true
 
 ...
 

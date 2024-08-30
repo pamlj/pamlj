@@ -159,8 +159,7 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                     "none",
                     "n",
                     "power",
-                    "es",
-                    "alpha"))
+                    "es"))
             private$..plot_y <- jmvcore::OptionList$new(
                 "plot_y",
                 plot_y,
@@ -183,7 +182,7 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                     "n",
                     "power",
                     "es",
-                    "alpha"))
+                    "sig.level"))
             private$..plot_x_from <- jmvcore::OptionNumber$new(
                 "plot_x_from",
                 plot_x_from,
@@ -517,7 +516,7 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                 width=400,
                 height=350,
                 renderFun=".plot_escurve",
-                visible="(plot_escurve & !aim:n)"))
+                visible="(plot_escurve)"))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerNcurve",
@@ -525,7 +524,7 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                 width=400,
                 height=350,
                 renderFun=".plot_ncurve",
-                visible="(plot_ncurve & !aim:es)"))
+                visible="(plot_ncurve)"))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerCustom",

@@ -222,10 +222,6 @@ items:
         - ncp_type
         - plot_log
 
-    - name: customnotes
-      title: Plot notes
-      type: Html
-      visible: false
       
     - name: powerCustom
       title: Power Parameters
@@ -235,6 +231,10 @@ items:
       renderFun: .plot_custom
       visible: false
       
+    - name: customnotes
+      title: Plot notes
+      type: Html
+      visible: false
 
     - name:  customtable
       title: Power Analysis parameters

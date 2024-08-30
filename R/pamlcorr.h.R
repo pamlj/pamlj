@@ -89,8 +89,7 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "none",
                     "n",
                     "power",
-                    "es",
-                    "alpha"))
+                    "es"))
             private$..plot_y <- jmvcore::OptionList$new(
                 "plot_y",
                 plot_y,
@@ -113,7 +112,7 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "n",
                     "power",
                     "es",
-                    "alpha"))
+                    "sig.level"))
             private$..plot_x_from <- jmvcore::OptionNumber$new(
                 "plot_x_from",
                 plot_x_from,

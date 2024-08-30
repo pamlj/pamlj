@@ -46,8 +46,11 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                  results<-as.data.frame(do.call("rbind",results))
                  if (nrow(results)>3) results<- na.omit(results)
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
-                 odata<- data[, !names(data) %in% names(results)]
+                 
+                .names<-c(names(data)[!names( data) %in% names(results)],names(results))
+                 odata<- data[, !names( data) %in% names(results)]
                  results<-cbind(odata,results)
+                 names(results)<-.names
                  results$n  <- round(results$n,digits=0)
                  results$es <- results$r
                  results$r  <- NULL

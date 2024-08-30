@@ -19,7 +19,10 @@ Initer <- R6::R6Class(
     initialize=function(jmvobj) {
 
       super$initialize(jmvobj)
+      ### we want to clean the html message objects
       jmvobj$results$issues$setContent(" ")
+      jmvobj$results$plotnotes$setContent(" ")
+      jmvobj$results$customnotes$setContent(" ")
 
           self$aim                 <- jmvobj$options$aim
           self$caller              <- jmvobj$options$.caller
