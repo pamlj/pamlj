@@ -42,7 +42,7 @@ nicify_param<- function(what,short=FALSE) {
        n  = "N",
        es = "ES",
        power= "Power",
-       alpha = "Alpha"
+       sig.level = "Alpha"
       )
     return(name)
   }  
@@ -50,7 +50,7 @@ nicify_param<- function(what,short=FALSE) {
     n  = "Sample size (N)",
     es = "Effect size",
     power= "Power",
-    alpha = "Required critical alpha"
+    sig.level = "Type I error rate (alpha)"
   )
 }
 

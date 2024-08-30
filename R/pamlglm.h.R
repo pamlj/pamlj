@@ -263,7 +263,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "n",
                     "power",
                     "es",
-                    "alpha"))
+                    "sig.level"))
             private$..plot_y <- jmvcore::OptionList$new(
                 "plot_y",
                 plot_y,
@@ -286,7 +286,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "n",
                     "power",
                     "es",
-                    "alpha"))
+                    "sig.level"))
             private$..plot_x_from <- jmvcore::OptionNumber$new(
                 "plot_x_from",
                 plot_x_from,
@@ -477,8 +477,8 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         powerContour = function() private$.items[["powerContour"]],
         powerEscurve = function() private$.items[["powerEscurve"]],
         powerNcurve = function() private$.items[["powerNcurve"]],
-        customnotes = function() private$.items[["customnotes"]],
         powerCustom = function() private$.items[["powerCustom"]],
+        customnotes = function() private$.items[["customnotes"]],
         customtable = function() private$.items[["customtable"]]),
     private = list(),
     public=list(
@@ -712,11 +712,6 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "v_r2",
                     "ncp_type",
                     "plot_log")))
-            self$add(jmvcore::Html$new(
-                options=options,
-                name="customnotes",
-                title="Plot notes",
-                visible=FALSE))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerCustom",
@@ -724,6 +719,11 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 width=450,
                 height=350,
                 renderFun=".plot_custom",
+                visible=FALSE))
+            self$add(jmvcore::Html$new(
+                options=options,
+                name="customnotes",
+                title="Plot notes",
                 visible=FALSE))
             self$add(jmvcore::Table$new(
                 options=options,
@@ -839,8 +839,8 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$powerContour} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerEscurve} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerNcurve} \tab \tab \tab \tab \tab an image \cr
-#'   \code{results$customnotes} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powerCustom} \tab \tab \tab \tab \tab an image \cr
+#'   \code{results$customnotes} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$customtable} \tab \tab \tab \tab \tab a table \cr
 #' }
 #'

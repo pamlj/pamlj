@@ -159,8 +159,7 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                     "none",
                     "n",
                     "power",
-                    "es",
-                    "alpha"))
+                    "es"))
             private$..plot_y <- jmvcore::OptionList$new(
                 "plot_y",
                 plot_y,
@@ -183,7 +182,7 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                     "n",
                     "power",
                     "es",
-                    "alpha"))
+                    "sig.level"))
             private$..plot_x_from <- jmvcore::OptionNumber$new(
                 "plot_x_from",
                 plot_x_from,

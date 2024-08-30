@@ -6,7 +6,6 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     inherit = jmvcore::Options,
     public = list(
         initialize = function(
-            .caller = "ttest",
             aim = "n",
             mode = "ttestind",
             ttestind_es = 0.5,
@@ -33,7 +32,9 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             plot_x_to = 0,
             plot_z_lines = 0,
             plot_z_value = list(),
-            plot_to_table = FALSE, ...) {
+            plot_to_table = FALSE,
+            .caller = "ttest",
+            .interface = "jamovi", ...) {
 
             super$initialize(
                 package="pamlj",
@@ -41,11 +42,6 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 requiresData=FALSE,
                 ...)
 
-            private$...caller <- jmvcore::OptionString$new(
-                ".caller",
-                .caller,
-                default="ttest",
-                hidden=TRUE)
             private$..aim <- jmvcore::OptionList$new(
                 "aim",
                 aim,
@@ -137,8 +133,7 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "none",
                     "n",
                     "power",
-                    "es",
-                    "sig.level"))
+                    "es"))
             private$..plot_y <- jmvcore::OptionList$new(
                 "plot_y",
                 plot_y,
@@ -185,8 +180,17 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "plot_to_table",
                 plot_to_table,
                 default=FALSE)
+            private$...caller <- jmvcore::OptionString$new(
+                ".caller",
+                .caller,
+                default="ttest",
+                hidden=TRUE)
+            private$...interface <- jmvcore::OptionString$new(
+                ".interface",
+                .interface,
+                default="jamovi",
+                hidden=TRUE)
 
-            self$.addOption(private$...caller)
             self$.addOption(private$..aim)
             self$.addOption(private$..mode)
             self$.addOption(private$..ttestind_es)
@@ -214,9 +218,10 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..plot_z_lines)
             self$.addOption(private$..plot_z_value)
             self$.addOption(private$..plot_to_table)
+            self$.addOption(private$...caller)
+            self$.addOption(private$...interface)
         }),
     active = list(
-        .caller = function() private$...caller$value,
         aim = function() private$..aim$value,
         mode = function() private$..mode$value,
         ttestind_es = function() private$..ttestind_es$value,
@@ -243,9 +248,10 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         plot_x_to = function() private$..plot_x_to$value,
         plot_z_lines = function() private$..plot_z_lines$value,
         plot_z_value = function() private$..plot_z_value$value,
-        plot_to_table = function() private$..plot_to_table$value),
+        plot_to_table = function() private$..plot_to_table$value,
+        .caller = function() private$...caller$value,
+        .interface = function() private$...interface$value),
     private = list(
-        ...caller = NA,
         ..aim = NA,
         ..mode = NA,
         ..ttestind_es = NA,
@@ -272,7 +278,9 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..plot_x_to = NA,
         ..plot_z_lines = NA,
         ..plot_z_value = NA,
-        ..plot_to_table = NA)
+        ..plot_to_table = NA,
+        ...caller = NA,
+        ...interface = NA)
 )
 
 pamlttestResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
@@ -458,7 +466,6 @@ pamlttestBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'
 #' Something here
 #' 
-#' @param .caller .
 #' @param aim .
 #' @param mode .
 #' @param ttestind_es .
@@ -486,6 +493,8 @@ pamlttestBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param plot_z_lines .
 #' @param plot_z_value .
 #' @param plot_to_table .
+#' @param .caller .
+#' @param .interface .
 #' @return A results object containing:
 #' \tabular{llllll}{
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
@@ -509,7 +518,6 @@ pamlttestBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'
 #' @export
 pamlttest <- function(
-    .caller = "ttest",
     aim = "n",
     mode = "ttestind",
     ttestind_es = 0.5,
@@ -536,14 +544,15 @@ pamlttest <- function(
     plot_x_to = 0,
     plot_z_lines = 0,
     plot_z_value = list(),
-    plot_to_table = FALSE) {
+    plot_to_table = FALSE,
+    .caller = "ttest",
+    .interface = "jamovi") {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
         stop("pamlttest requires jmvcore to be installed (restart may be required)")
 
 
     options <- pamlttestOptions$new(
-        .caller = .caller,
         aim = aim,
         mode = mode,
         ttestind_es = ttestind_es,
@@ -570,7 +579,9 @@ pamlttest <- function(
         plot_x_to = plot_x_to,
         plot_z_lines = plot_z_lines,
         plot_z_value = plot_z_value,
-        plot_to_table = plot_to_table)
+        plot_to_table = plot_to_table,
+        .caller = .caller,
+        .interface = .interface)
 
     analysis <- pamlttestClass$new(
         options = options,

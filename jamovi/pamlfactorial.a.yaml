@@ -207,8 +207,6 @@ options:
           title: Power
         - name: es
           title: Effect size
-        - name: alpha
-          title: "Type I error"
 
     - name: plot_y
       type: List
@@ -242,7 +240,7 @@ options:
           title: Power
         - name: es
           title: Effect size
-        - name: alpha
+        - name: sig.level
           title: "Type I error"
 
 

@@ -139,8 +139,7 @@ pamlpropOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "none",
                     "n",
                     "power",
-                    "es",
-                    "sig.level"))
+                    "es"))
             private$..plot_y <- jmvcore::OptionList$new(
                 "plot_y",
                 plot_y,
