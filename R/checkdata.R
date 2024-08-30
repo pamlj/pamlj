@@ -667,7 +667,8 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                  else
                      w<-which.min(pwr$es)
                  w<-w[1]
-                 obj$warning<-list(topic="powerbyes",message="Sensitivity analysis is done on the smallest effect (" %+% obj$info$terms[w] %+% ")")
+                 if (length(obj$info$terms)>1)
+                       obj$warning<-list(topic="powerbyes",message="Sensitivity analysis is done on the smallest effect (" %+% obj$info$terms[w] %+% ")")
                  obj$data <- subset( obj$extradata, obj$extradata$id==w)
                  obj$data[[obj$aim]]<-NULL
                  obj$info$nmin <- obj$data$df_model + 10  

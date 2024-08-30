@@ -534,17 +534,92 @@ Plotter <- R6::R6Class(
                 return()
             } 
           
-            z_values <- unlist(lapply(self$options$plot_z_value, function(x) if (as.numeric(x) > 0) as.numeric(x)))
+            z_values <- unlist(lapply(self$options$plot_z_value, function(x) try_hard(if (as.numeric(x) > 0) as.numeric(x))$obj))
+            
+            # if (!isFALSE(tryobj$error)) {
+            #     self$warning<-list(topic="customnotes",message=paste("Values for",nicify_param(self$options$plot_z)," are not correct."), head="error")
+            #     return()
+            # }
+            # z_values<-tryobj$obj
             
             if (is.null(z_values)) {
-                self$warning<-list(topic="plotnotes",message=paste("Please set a value of",nicify_param(self$options$plot_z)," for each line."))          
+                self$warning<-list(topic="customnotes",message=paste("Please set a valid value of",nicify_param(self$options$plot_z)," for each line."))          
                 return()
              }
                
             if (length(z_values) != self$options$plot_z_lines) {
-                self$warning<-list(topic="plotnotes",
-                                   message=paste("Please set a value of",nicify_param(self$options$plot_z)," for each line. Only",length(z_values)," curve(s) are displayed."))          
+                self$warning<-list(topic="customnotes",
+                                   message=paste("Please set a valid value of",nicify_param(self$options$plot_z)," for each line. Only",length(z_values)," curve(s) are displayed."))          
             }
+
+        what<-self$options$plot_z
+        ### check in values make sense ###
+        ### here we check that the input makes sense, otherwise we adjust it
+        switch (what,
+                n =  {  
+                      xmin<-find_min_n(obj,data)
+                      w<-(z_values < xmin)
+                      if (any(w)) {
+                       self$warning<-list(topic="customnotes",
+                                   message="Value" %+% z_values[w]," is two small to estimates the required power parameters", head="warning")          
+                                   z_values<-z_values[!w]
+                      }
+                      xmax<-find_max_n(obj,data)
+                      w<-which(z_values < xmin)
+                      if (any(w)>0) {
+                       self$warning<-list(topic="customnotes",
+                                  message="Value" %+% paste(z_values[w],collapse=", ")," is two large to estimates the required power parameters", head="warning")          
+                                  z_values<-z_values[!w]
+                      }
+  
+                },
+                power = {
+                        w<-(z_values < .1)
+                        mark(z_values,w)
+                        
+                        if (any(w)) { 
+                                      self$warning<-list(topic="customnotes",message="Value " %+% paste(z_values[w],collapse=", ")  %+% "  smaller than the minimum estimable power", head="warning")          
+                                      z_values<-z_values[!w]
+
+                                      }
+                        w<-(z_values > .99)
+                        if (any(w)) { 
+                                      self$warning<-list(topic="customnotes",message="Value " %+% paste(z_values[w],collapse=", ") %+% "  larger than the maximum estimable power", head="warning")          
+                                      z_values<-z_values[!w]
+                                      }
+                        },
+                es = {
+
+                         esmax<-obj$info$esmax
+                         esmin<-obj$info$esmin
+                         w<-(z_values > esmax)
+                        if (any(w)>0) { 
+                                      self$warning<-list(topic="customnotes",message="Value " %+% z_values[[w]] %+% "  larger than the maximum estimable effect size.", head="warning")          
+                                      z_values<-z_values[!w]
+
+                                      }
+                         w<-(z_values < esmin)
+                         if (any(w)) { 
+                                      self$warning<-list(topic="customnotes",message="Value " %+% z_values[[w]] %+% "  smaller than the minimum estimable effect size.", head="warning")          
+                                      z_values<-z_values[!w]
+                                      }
+
+
+                        },
+                alpha = {
+                         w<-(z_values < .0001)
+                         if (any(w)) { 
+                                      self$warning<-list(topic="customnotes",message="Value " %+% z_values[[w]] %+% "  smaller than the minimum Type I error rate (.0001).", head="warning")          
+                                      z-values<-z_values[!w]
+                                      }
+                         w<-(z_values > .50)
+                         if (any(w)) { 
+                                      self$warning<-list(topic="customnotes",message="Value " %+% z_values[[w]] %+% "  larger than the maximum Type I error rate (.50).", head="warning")          
+                                      z_values<-z_values[!w]
+                                      }
+
+                        }
+        )
             
             return(z_values)
     

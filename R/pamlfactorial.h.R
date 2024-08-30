@@ -517,7 +517,7 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                 width=400,
                 height=350,
                 renderFun=".plot_escurve",
-                visible="(plot_escurve & !aim:n)"))
+                visible="(plot_escurve)"))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerNcurve",
@@ -525,7 +525,7 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                 width=400,
                 height=350,
                 renderFun=".plot_ncurve",
-                visible="(plot_ncurve & !aim:es)"))
+                visible="(plot_ncurve)"))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerCustom",
