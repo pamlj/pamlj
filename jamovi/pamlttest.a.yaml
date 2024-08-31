@@ -1,7 +1,7 @@
 ---
 name: pamlttest
 title: T-Test
-menuGroup: jpower
+menuGroup: Power
 version: '0.2.0'
 jas: '1.2'
 export: true

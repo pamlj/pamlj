@@ -1,7 +1,7 @@
 ---
 title: Power for linear models
 name: pamlj
-version: 0.2.6
+version: 0.2.7
 jms: '1.0'
 authors:
   - Marcello Gallucci
@@ -24,7 +24,7 @@ analyses:
     menuTitle: T-Test
     description: |
       Something here
-    menuGroup: jpower
+    menuGroup: Power
   - title: Correlation
     name: pamlcorr
     ns: pamlj
@@ -32,7 +32,7 @@ analyses:
     menuTitle: Correlation
     description: |
       Something here
-    menuGroup: jpower
+    menuGroup: Power
   - title: Proportions
     name: pamlprop
     ns: pamlj
@@ -40,7 +40,7 @@ analyses:
     menuTitle: Proportions
     description: |
       Something here
-    menuGroup: jpower
+    menuGroup: Power
   - title: General Linear Model
     name: pamlglm
     ns: pamlj
@@ -48,7 +48,7 @@ analyses:
     menuTitle: General Linear Model
     description: |
       Something here
-    menuGroup: jpower
+    menuGroup: Power
   - title: Factorial Designs
     name: pamlfactorial
     ns: pamlj
@@ -56,7 +56,7 @@ analyses:
     menuTitle: Factorial Designs
     description: |
       Something here
-    menuGroup: jpower
+    menuGroup: Power
 datasets:
   - name: factorial
     path: factorial.csv

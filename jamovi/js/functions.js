@@ -40,6 +40,23 @@ const fun = {
       ui.plot_lines_values.$el.show();
       
   
+ },
+ 
+ update_r2: function( ui ) {
+   
+   if (ui.b_r2 != undefined ) {
+     if (ui.b_df_model.value() > 1)
+       ui.b_r2.setEnabled(true);
+     else
+       ui.b_r2.setEnabled(false);
+   }
+   if (ui.e_r2 != undefined ) {
+     if (ui.e_df_model.value() > 1)
+       ui.e_r2.setEnabled(true);
+     else
+       ui.e_r2.setEnabled(false);
+   }
+   
  }
 
   

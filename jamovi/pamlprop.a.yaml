@@ -1,7 +1,7 @@
 ---
 name: pamlprop
 title: Proportions
-menuGroup: jpower
+menuGroup: Power
 version: '0.0.1'
 jas: '1.2'
 export: true
