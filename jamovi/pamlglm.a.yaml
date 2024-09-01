@@ -1,6 +1,6 @@
 ---
 name: pamlglm
-title: General Linear Model
+title: General Linear Model power analysis
 menuGroup: Power
 version: '0.0.1'
 jas: '1.2'

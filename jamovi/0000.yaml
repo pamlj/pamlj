@@ -42,11 +42,11 @@ analyses:
     description: |
       Something here
     menuGroup: Power
-  - title: General Linear Model
+  - title: General Linear Model power analysis
     name: pamlglm
     ns: pamlj
     menuSubgroup: Pamlj
-    menuTitle: General Linear Model
+    menuTitle: General Linear Model power analysis
     description: |
       Something here
     menuGroup: Power
