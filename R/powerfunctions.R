@@ -103,12 +103,13 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                     })
                  results<-as.data.frame(do.call("rbind",results))
                  for (i in seq_len(ncol(results)))  results[[i]]<-unlist(results[[i]])
-                 results$es<-obj$info$fromaes(results$f2)
                  odata<-data[, !names(data) %in% names(results)]
                  results<-cbind(odata,results)
+                 if (any(results$df_model==1)) obj$info$r2<-results$f2/(1+results$f2)
+                 results$es<-obj$info$fromaes(results$f2)
+                 
                  results$df1 <-results$df_effect
                  results$df2 <-ceiling(results$v)
-               
                 return(results)
 }
 

@@ -20,6 +20,11 @@ const events = {
       console.log("b_df_model update");
       fun.update_r2(ui);
     },
+    e_df_model_changed: function(ui){
+      console.log("e_df_model update");
+      fun.update_r2(ui);
+    },
+    
     onChange_factors: function(ui) {
       
          update_model(ui);

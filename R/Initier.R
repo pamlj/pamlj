@@ -23,6 +23,8 @@ Initer <- R6::R6Class(
       jmvobj$results$issues$setContent(" ")
       jmvobj$results$plotnotes$setContent(" ")
       jmvobj$results$customnotes$setContent(" ")
+      if ("extrainfo" %in% names(jmvobj$results))
+               jmvobj$results$extrainfo$setContent(" ")
 
           self$aim                 <- jmvobj$options$aim
           self$caller              <- jmvobj$options$.caller
@@ -55,12 +57,12 @@ Initer <- R6::R6Class(
           jinfo("PAMLj: Initializing",self$caller,self$mode)
           ## checkdata update the data depending on the type of test we are running (via S3 dispatch)
           checkdata(self)
-          if (self$options$.interface=="jamovi")
+          if (self$options$.interface=="jamovi") {
                   jmvobj$results$intro$setContent(paste(INFO[[self$caller]],INFO2[[self$mode]], link_help(self)))   
+          }
           else
                   jmvobj$results$intro$setVisible(FALSE) 
-            
-          
+          ## some commands produce extra text information, passed here  
 
 
   }, # here initialize ends

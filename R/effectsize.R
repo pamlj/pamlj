@@ -1,5 +1,6 @@
 
 effectsize_init <- function(obj, ...) UseMethod(".effectsize_init")
+
 effectsize_run <- function(obj, ...) UseMethod(".effectsize_run")
 
 .effectsize_init.default <- function(obj) {
