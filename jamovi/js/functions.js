@@ -38,6 +38,7 @@ const fun = {
       ui.plot_z_value.$el.children().width("70px");
       ui.plot_z_value.$el.css("display","contents");
       ui.plot_lines_values.$el.show();
+      ui.plot_value_label.$el.show();
       
   
  },
