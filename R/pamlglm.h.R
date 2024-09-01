@@ -790,7 +790,7 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 weightsSupport = 'auto')
         }))
 
-#' General Linear Model
+#' General Linear Model power analysis
 #'
 #' Something here
 #' 
