@@ -493,10 +493,16 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$info$logy             <- TRUE
       obj$info$r2               <- obj$options$e_r2
 
-      obj$info$toaes            <- function(value) value/(1-obj$info$r2)
-      obj$info$fromaes          <- function(value) value*(1-obj$info$r2) 
+      obj$info$toaes            <- function(value) {
+                                                    peta <- value/(1-obj$info$r2+value)
+                                                    peta/(1-peta)
+                                                    }
+      obj$info$fromaes          <- function(value)  {
+                                                      peta<-value/(1+value)
+                                                      peta*(1-obj$info$r2)/(1-peta)
+                                                    }
 
-  
+
   if (is.something(obj$data$es)) {
      if (abs(obj$data$es)<0)
          stop("Eta-squared value cannot be less than 0.")
@@ -518,10 +524,10 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                                                    They have been set equal. ")
     }
       
-    if ( obj$data$df_model == 1 &&  obj$data$es != obj$info$r2) {
+    if ( obj$data$df_model == 1 && is.something(obj$data$es)) {
            obj$info$r2 <- obj$data$es
-           obj$warning<-list(topic="powertab",message="With a model of 1 degree of freedom the R-squared must be equal to the Eta-squared. 
-                                                   The R-squared has been set equal to Eta-squared. ")
+    #       obj$warning<-list(topic="powertab",message="With a model of 1 degree of freedom the R-squared must be equal to the Eta-squared. 
+    #                                               The R-squared has been set equal to Eta-squared. ")
     }
   
 

@@ -1,4 +1,4 @@
-title: GLM power analysis
+title: 'Power: General Linear Model'
 name: pamlglm
 jus: '3.0'
 stage: 0
@@ -365,3 +365,8 @@ children:
                    type: RadioButton
                    optionName: ncp_type
                    optionPart: strict
+          - type: Label
+            label: Output
+            children:
+                 - name: explain
+                   type: CheckBox

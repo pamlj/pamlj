@@ -1,6 +1,6 @@
 ---
 name:  pamlglm
-title: GLM power analysis
+title: 'Power: General Linear Model'
 jrs:   "1.1"
 
 items:
@@ -8,6 +8,11 @@ items:
     - name: intro
       title: Introduction
       type: Html
+    - name: extrainfo
+      title: Extra Info
+      type: Html
+      visible: false
+
     - name: issues
       title: Issues
       type: Html

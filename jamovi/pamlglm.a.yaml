@@ -355,6 +355,10 @@ options:
       title: "Show table"
       default: false
       
+    - name: explain
+      type: Bool
+      title: "Exploratory text"
+      default: false
       
     - name: .caller
       type: String
