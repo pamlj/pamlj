@@ -148,13 +148,13 @@ Dispatch <- R6::R6Class(
                                                          style<-" border-color: #3e6da9"
                                                          },
                                           "warning"   =  {
-                                                          head <- "<div class='icon warning-2' style=' width:50px; height:50px'></div>"
+                                                          head <- "<div class='icon warning-2' style=' min-width:20px; min-height:50px'></div>"
                                                           style="border-left-color: red"
                                                           title<-"<h2 style='color:red'> Warning</h2>"
 
                                                          },
                                           "error"   =    {
-                                                         head <- "<div class='icon error' style=' width:50px; height:50px'></div>"
+                                                         head <- "<div class='icon error' style=' min-width:20px; min-height:20px'></div>"
                                                          style="border-color: red"
                                                          title<-"<h2 style='color:red'> Error</h2>"
 
