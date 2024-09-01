@@ -8,13 +8,18 @@ const events = {
          update_structure(ui);
          update_model(ui);
          fun.update_z_value(ui);
+         fun.update_r2(ui);
     },
     mode_changed: function(ui) {
         console.log("mode has changed in " + ui.mode.value());
         update_structure(ui);
+        fun.update_r2(ui);
 
     },
-      
+    b_df_model_changed: function(ui){
+      console.log("b_df_model update");
+      fun.update_r2(ui);
+    },
     onChange_factors: function(ui) {
       
          update_model(ui);

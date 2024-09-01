@@ -1,7 +1,7 @@
 ---
 title: Power for linear models
 name: pamlj
-version: 0.2.6
+version: 0.2.7
 jms: '1.0'
 authors:
   - Marcello Gallucci
@@ -9,11 +9,12 @@ maintainer: Marcello Gallucci <mcfanda@gmail.com>
 date: 2024-1-1
 type: R
 description: >-
-  A suite for power analysis for linear models. At the moment, it allows for
+  (beta) A suite for power analysis for linear models. At the moment, it allows for
   power analysis of Pearson correlation, the general linear model
   (t-test/Correlation/Anova/Regression/ANCOVA) and other statistical tests.  For
-  the GLM can be based on standardized coefficients (regression) or proportion
-  of partial variance effect siz (Eta-squared, Omega-Squared, Epsilon-Squared).
+  the GLM can be based on standardized coefficients (regression), proportion
+  of partial variance effect sizes (Eta-squared, Omega-Squared, Epsilon-Squared),
+  or means and standard deviations.
   It provides estimation of required sample size, power and minimally-detectable
   effect size, plus plots for sensitivity analysis.
 analyses:
@@ -24,7 +25,7 @@ analyses:
     menuTitle: T-Test
     description: |
       Something here
-    menuGroup: jpower
+    menuGroup: Power
   - title: Correlation
     name: pamlcorr
     ns: pamlj
@@ -32,7 +33,7 @@ analyses:
     menuTitle: Correlation
     description: |
       Something here
-    menuGroup: jpower
+    menuGroup: Power
   - title: Proportions
     name: pamlprop
     ns: pamlj
@@ -40,7 +41,7 @@ analyses:
     menuTitle: Proportions
     description: |
       Something here
-    menuGroup: jpower
+    menuGroup: Power
   - title: General Linear Model
     name: pamlglm
     ns: pamlj
@@ -48,7 +49,7 @@ analyses:
     menuTitle: General Linear Model
     description: |
       Something here
-    menuGroup: jpower
+    menuGroup: Power
   - title: Factorial Designs
     name: pamlfactorial
     ns: pamlj
@@ -56,7 +57,7 @@ analyses:
     menuTitle: Factorial Designs
     description: |
       Something here
-    menuGroup: jpower
+    menuGroup: Power
 datasets:
   - name: factorial
     path: factorial.csv

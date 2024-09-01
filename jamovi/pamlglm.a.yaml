@@ -1,7 +1,7 @@
 ---
 name: pamlglm
 title: General Linear Model
-menuGroup: jpower
+menuGroup: Power
 version: '0.0.1'
 jas: '1.2'
 export: true
