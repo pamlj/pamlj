@@ -9,11 +9,12 @@ maintainer: Marcello Gallucci <mcfanda@gmail.com>
 date: 2024-1-1
 type: R
 description: >-
-  A suite for power analysis for linear models. At the moment, it allows for
+  (beta) A suite for power analysis for linear models. At the moment, it allows for
   power analysis of Pearson correlation, the general linear model
   (t-test/Correlation/Anova/Regression/ANCOVA) and other statistical tests.  For
-  the GLM can be based on standardized coefficients (regression) or proportion
-  of partial variance effect siz (Eta-squared, Omega-Squared, Epsilon-Squared).
+  the GLM can be based on standardized coefficients (regression), proportion
+  of partial variance effect sizes (Eta-squared, Omega-Squared, Epsilon-Squared),
+  or means and standard deviations.
   It provides estimation of required sample size, power and minimally-detectable
   effect size, plus plots for sensitivity analysis.
 analyses:
