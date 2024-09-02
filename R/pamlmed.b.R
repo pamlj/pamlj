@@ -1,9 +1,9 @@
 
 # This file is a generated template, your changes will not be overwritten
 
-pamlcorrClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
-    "pamlcorrClass",
-    inherit = pamlcorrBase,
+pamlmedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
+    "pamlmedClass",
+    inherit = pamlmedBase,
     private = list(
         .time = NULL,
         .ready= FALSE,
@@ -27,13 +27,13 @@ pamlcorrClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                  aSmartObj<-SmartTable$new(self$results$powertab,private$.runner)
                  ladd(private$.smartObjs)<-aSmartObj
 
-                 aSmartObj<-SmartTable$new(self$results$powerbyes,private$.runner)
+                 aSmartObj<-SmartTable$new(self$results$powerbyn,private$.runner)
                  ladd(private$.smartObjs)<-aSmartObj
-
+          
                  aSmartObj<-SmartTable$new(self$results$customtable,private$.runner)
                  aSmartObj$hideOn<-list("z"=NA)
                  ladd(private$.smartObjs)<-aSmartObj
-
+                 
                  ### init all ####
                  for (tab in private$.smartObjs) {
                      tab$initTable()

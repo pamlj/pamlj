@@ -1,6 +1,6 @@
 ---
-name:  pamlcorr
-title: Correlation power analysis
+name:  pamlmed
+title: Mediation power analysis
 jrs:   "1.1"
 
 items:
@@ -20,7 +20,8 @@ items:
       refs: 
          - pamlj
       clearWith:
-        - es
+        - a
+        - b
         - power
         - n
         - sig.level
@@ -30,6 +31,13 @@ items:
         - name: n
           title: 'N'
           type: integer
+        - name: a
+          title: 'X->M (a)'
+          type: number
+        - name: b
+          title: 'M->Y (b)'
+          type: number
+
         - name: es
           title: 'Effect size'
           type: number
@@ -41,12 +49,13 @@ items:
           type: number
 
 
-    - name:  powerbyes
-      title: Power by Effect Size
+    - name:  powerbyn
+      title: Power by Sample size
       type: Table
       rows:  4
       clearWith:
-        - es
+        - a
+        - b
         - power
         - n
         - sig.level
@@ -54,9 +63,9 @@ items:
         - alternative
         
       columns:
-        - name: es
-          title: 'True effect size'
-          type: number
+        - name: n
+          title: 'Sample size'
+          type: integer
 
         - name: power
           title: 'Power to detect'
@@ -71,22 +80,6 @@ items:
       title: Plot notes
       type: Html
       visible: false
-
-    - name: powerContour
-      title: Power Contour
-      type: Image
-      width:  500
-      height: 350
-      renderFun: .plot_contour
-      visible: (plot_contour)
-
-    - name: powerEscurve
-      title: Power Curve by Effect Size
-      type: Image
-      width:  400
-      height: 350
-      renderFun: .plot_escurve
-      visible: (plot_escurve)
 
     - name: powerNcurve
       title: Power Curve by N
@@ -124,3 +117,6 @@ items:
           title: "Z"
           type: number
           visible: false
+        - name: es
+          title: ME
+          type: Number

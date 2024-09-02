@@ -736,6 +736,37 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
 
 
+### mediation #### 
+
+.checkdata.mediation <- function(obj) {
+  
+
+      if (abs(obj$options$b) > .99)
+                 obj$stop("Standardized coefficient (b) cannot be larger than .99")
+      if (is.something(obj$options$a) && abs(obj$options$a) > .99)
+                 obj$stop("Standardized coefficient (a) cannot be larger than .99")
+
+      if (abs(obj$options$b) < 1e-03)
+                 obj$stop("Standardized coefficient (b) cannot be smaller than .001")
+      if (is.something(obj$options$a) && abs(obj$options$a) < 1e-03)
+                 obj$stop("Standardized coefficient (a) cannot be larger than " %+% 1e-03)
+  
+      obj$data<-data.frame(b=obj$options$b)
+      obj$data$a<-obj$options$a
+      if (is.something(obj$data$a)) obj$data$es<-obj$data$a*obj$data$b
+      obj$data$n           <- obj$options$n
+      obj$data$sig.level   <- obj$options$sig.level
+      obj$data$power       <- obj$options$power
+      obj$data$alternative <- obj$options$alternative
+      obj$data[[obj$aim]]  <- NULL
+      obj$info$letter      <- "ME"
+      obj$info$esmax       <- .99
+      obj$info$esmin       <-  1e-07
+      obj$info$nmin        <-  10
+
+      jinfo("Checking data for mediation done")
+}
+
 
 
 checkfailure <- function(obj, ...) UseMethod(".checkfailure")

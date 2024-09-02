@@ -254,3 +254,113 @@ pamlj.prop.paired <- function (n = NULL, p1 = NULL, psi = NULL, sig.level = 0.05
     structure(list(n = round(n,digits=0), p1 = p1, psi = psi, sig.level = sig.level, 
         power = power, alternative = alternative,method="pamlj"), class = "power.htest")
 }
+
+
+### mediation ####
+
+pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,r2a=0,r2b=0,power=NULL,sig.level=.05, alternative="two.sided",test="sobel") {
+  
+  aim<-c("n","power","es")[sapply(list(n,power,a),is.null)]
+  if (length(aim) != 1) stop("Only one parameter must be null in pamlj.mediation")
+  
+  ### helping functions
+  .sefun <- function(n, beta, r2x, r2y=0) sqrt((1 / n) * (1 - r2x) /  (1 - r2y))
+
+   switch(test, {
+     
+     sobel={se.formula<-function(a,se.a,b,se.b) sqrt(a^2 * se.b^2  + b^2 * se.a^2)}
+     
+   })
+    .power.fun <- function(ncp,alternative) {
+      switch (alternative,
+          two.sided = {power <- 1 - pnorm(qnorm(sig.level / 2, mean = 0, sd = 1, lower.tail = FALSE), sd = 1, mean = abs(ncp)) +
+                 pnorm(-qnorm(sig.level / 2, mean = 0, sd = 1, lower.tail = FALSE), sd = 1, mean = abs(ncp))
+              },
+             one.sided = {
+                power <- 1 - pnorm(qnorm(alpha, mean = 0, sd = 1, lower.tail = FALSE), sd = 1, mean = abs(ncp))
+              }
+        )
+    power
+    }
+
+     # comments and warnings variables
+     attribs<-list()
+     method<-"pamlj"
+     
+     ##  checks some values
+     if (r2a==0) r2a<-a^2
+     if (r2b==0) r2b<-b^2
+     
+     ### working functions
+     p.body <- quote({
+                se.a <- .sefun(n,a,r2a)
+                se.b <- .sefun(n,b,r2b,r2y=r2a)
+                se<-se.formula(a, se.b , b, se.a)
+                ncp <- (a * b) / se
+                .power.fun(ncp,alternative) })
+     p.es <- quote({
+                se.a <- .sefun(n,a,a^2)
+                se.b <- .sefun(n,b,b^2,r2y=a^2)
+                se<-se.formula(a, se.b , b, se.a)
+                ncp <- (a * b) / se
+                pwr<-.power.fun(ncp,alternative) 
+                pwr
+                })
+                
+
+     switch(aim, 
+            power={
+                   power<-eval(p.body)
+                  },
+            n    ={
+                   n<-try(uniroot(function(n) eval(p.body) - power, interval = c(10, 1e10))$root,silent=T)
+                   # if it fails, n should be too small or to large. we test for too small
+                   if ("try-error" %in% class(n)) {
+                      .n<-10
+                      se.a <- .sefun(.n,a,r2a)
+                      se.b <- .sefun(.n,b,r2b,r2y=r2a)
+                      se<-se.formula(a, se.b , b, se.a)
+                      ncp <- (a * b) / se
+                      res<-.power.fun(ncp,alternative)
+                      ## if power with 10 is larger than power, we set the minumum n=10
+                      if (res>power) {
+                        method="nmin"
+                        n<-10
+                      } else {
+                        ## otherwise, we test for too large
+                      .n<-1e+07
+                      se.a <- .sefun(.n,a,r2a)
+                      se.b <- .sefun(.n,b,r2b,r2y=r2a)
+                      se<-se.formula(a, se.b , b, se.a)
+                      ncp <- (a * b) / se
+                      res<-.power.fun(ncp,alternative)
+                      # is with n=1e+07 we do not reach the required power, we yield and say that n>1e+07
+                      if (res<power) {
+                        method="nmax"
+                        n<-1e+07
+                      }
+                      }
+                   }
+                  },
+            es   ={
+                   if (r2a > 0 || r2b > 0) attribs$warning<-"Estimation of the effect size assumes three variables in model. R-squared are ignored"
+                   ## first we test what is the max power we can reach given b
+                   x<-seq(0,1,by=.001)
+                   pow<-(sapply(x,function(a) eval(p.es)))
+                   .max<-max(pow)
+                   ## if we can go above power, we solve for a
+                   if (.max > power) {
+                          a<-uniroot(function(a) eval(p.es) - power, interval = c(.00001,x[which.max(pow)] ))$root
+                   }
+                   else {
+                          ## otherwiae, we yield the effect size (a) that gives the maximum power
+                          a<-x[which.max(pow)]
+                          method<-"brute"
+                          attribs$power<-.max
+                   }
+                  }
+      )
+      results<-(list(n = round(n,digits=0), a = a, b=b , es= a*b, sig.level = sig.level,  power = power, method=method))
+      attributes(results)<-c(attributes(results),attribs)
+      return(results)
+}

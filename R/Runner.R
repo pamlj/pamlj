@@ -56,6 +56,15 @@ Runner <- R6::R6Class("Runner",
                                      warning("Estimated for N=",round(self$data$n))
                                      return(tab)
                                },
+                              run_powerbyn = function() {
+                                     if (!self$ok) return()
+                                     jinfo("PAMLj: Runner: powerbyn")
+                                
+                                     tab <- powerbyn(self)
+                                     warning("Estimated for ES=",format(self$data$es,digits=5))
+                                     return(tab)
+                               },
+                              
                               run_means = function() {
                                 
                                   if (!self$ok) return()

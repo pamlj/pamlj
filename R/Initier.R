@@ -88,6 +88,14 @@ Initer <- R6::R6Class(
                 )
     },      
 
+    init_powerbyn= function() {
+      
+      list(list(power='\u226450%',desc='Likely miss'),
+           list(power='50% \u2013 80%',desc='Good chance of missing'),
+           list(power='80% \u2013 95%',desc='Probably detect'),
+           list(power='\u226595%',desc='Almost surely detect')
+                )
+    },      
 
       init_customtable= function() {
       

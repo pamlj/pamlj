@@ -84,6 +84,33 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
 }
 
 
+
+powerbyn <- function(x, ...) UseMethod(".powerbyn")
+
+.powerbyn.default <- function(obj) {
+
+            power = c(.5, .8, .95)
+            data<-obj$data
+            dd<-do.call(rbind,lapply(power, function(x) {
+                                 data$power<-x
+                                 return(data)}))
+            dd$n<-NULL    
+            results<-powervector(obj,dd)
+            results$n<-round(results$n,digits=0)
+#            check<-which(is.na(res$es))
+#            if (length(check)>0) warning("Some effect size cannot be computed given the input parameters.")
+
+            esList <-list(
+                          list(n=results$n[1]),
+                          list(n=results$n[1] %+% "-" %+% results$n[2]),
+                          list(n=results$n[2] %+% "-" %+% results$n[3]),
+                          list(n=results$n[3])
+                      )
+            return(esList)
+            
+}
+
+
 extrainfo <- function(obj, ...) UseMethod(".extrainfo")
 
 .extrainfo.default <-function(obj) return()

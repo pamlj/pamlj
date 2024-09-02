@@ -1,0 +1,182 @@
+---
+name: pamlmed
+title: Mediation 
+menuGroup: Power
+version: '0.0.1'
+jas: '1.2'
+export: true
+completeWhenFilled: false
+description:
+    main: |
+           Something here
+
+options:
+
+
+
+    - name: aim
+      title: Calculate 
+      type:  List
+      default: n
+      options:
+        - name:  n
+          title: N
+        - name: power
+          title: Power
+        - name: es
+          title: Effect Size
+      description:
+                R: |
+                        The aim of the analysis: `n` (default) for sample size, `power` to estimate power, `es` for effect size (correlation)
+                ui: |
+                        The aim of the analysis: `N` (default) for sample size, `Power` to estimate power, `Effect Size` for effect size (correlation)
+
+    - name: a
+      title: X to Mediator effect (a) 
+      type:  Number
+      default: .3
+      description:
+                R: |
+                        The expected standardized effect of the independent variable on the mediator
+    - name: b
+      title: Mediator to Y effect (b) 
+      type:  Number
+      default: .3
+      description:
+                R: |
+                        The expected standardized effect of the independent variable on the mediator
+
+    - name: power
+      title: Minimal desired power 
+      type:  Number
+      default: .90
+      description:
+                R: |
+                        Minimal desired power 
+
+    - name: n
+      title: N 
+      type:  Number
+      default: 20
+      description:
+                R: |
+                        Sample size 
+    - name: sig.level
+      title: Alpha (Type I rate)  
+      type:  Number
+      default: .05
+      description:
+                R: |
+                        Type I error rate (significance cut-off or alpha) 
+
+    - name: alternative
+      title: Tails  
+      type:  List
+      default: two.sided
+      options:
+        - name:  two.sided
+          title: Two-tailed
+        - name:  one.sided
+          title: One-tailed
+
+    - name: plot_ncurve
+      title: Power curve by N
+      type: Bool
+      default: false
+
+    - name: plot_log
+      title: Log Scale (when needed)
+      type: Bool
+      default: false
+
+### custom plots 
+
+
+
+    - name: plot_x
+      type: List
+      title: "X-axis values"
+      default: none
+      options:
+        - name: none
+          title: "----"
+        - name: n
+          title: N
+        - name: power
+          title: Power
+
+    - name: plot_y
+      type: List
+      title: "Y-axis values"
+      default: none
+      options:
+        - name: none
+          title: "-----"
+        - name: n
+          title: N
+        - name: power
+          title: Power
+
+    - name: plot_custom_labels
+      type: Bool
+      title: "Show values"
+      default: false
+
+    - name: plot_z
+      default: none
+      type: List
+      title: "Parameter"
+      options:
+        - name: none
+          title: "-----"
+        - name: sig.level
+          title: "Type I error"
+
+    - name: plot_x_from
+      type: Number
+      title: "From"
+      default: 0
+    - name: plot_x_to
+      type: Number
+      title: "To"
+      default: 0
+
+
+    - name: plot_z_lines
+      type: Number
+      title: "Number of curves"
+      default: 1
+      min: 1
+
+    - name: plot_z_value
+      type: Array
+   #   hidden: true
+      default: []
+      template:
+          type: String
+
+    - name: plot_to_table
+      type: Bool
+      title: "Show table"
+      default: false
+
+
+    - name: .interface
+      type: String
+      default: jamovi
+      hidden: true
+      description:
+                R: |
+                        Used for internal purposes 
+
+    - name: .caller
+      type: String
+      default: mediation
+      hidden: true
+      description:
+                R: |
+                        Used for internal purposes 
+
+
+...
+
