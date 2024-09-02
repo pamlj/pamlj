@@ -60,11 +60,11 @@ options:
 #### this is for mode propone
 
     - name: propone_p1
-      title: "Expected Proportion 1 (P1)"
+      title: "Expected Proportion  (P1)"
       type:  Number
       default: .6
     - name: propone_p2
-      title: "Expected Proportion 1 (P2)"
+      title: "Hypothesized value (P2)"
       type:  Number
       default: .5
 
@@ -224,6 +224,17 @@ options:
           title: Difference
         - name:  rr
           title: Relative Risk
+
+    - name: explain
+      type: Bool
+      title: "Exploratory text"
+      default: false
+      description: 
+                R: |
+                        add an additional description of the analysis carried out
+                ui: |
+                        Add an additional description of the analysis carried out
+
 
     - name: .interface
       type: String

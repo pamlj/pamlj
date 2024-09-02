@@ -35,6 +35,7 @@ pamlpropOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             plot_z_value = list(),
             plot_to_table = FALSE,
             es_type = "odd",
+            explain = FALSE,
             .interface = "jamovi",
             .caller = "proportions", ...) {
 
@@ -194,6 +195,10 @@ pamlpropOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "odd",
                     "dif",
                     "rr"))
+            private$..explain <- jmvcore::OptionBool$new(
+                "explain",
+                explain,
+                default=FALSE)
             private$...interface <- jmvcore::OptionString$new(
                 ".interface",
                 .interface,
@@ -234,6 +239,7 @@ pamlpropOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..plot_z_value)
             self$.addOption(private$..plot_to_table)
             self$.addOption(private$..es_type)
+            self$.addOption(private$..explain)
             self$.addOption(private$...interface)
             self$.addOption(private$...caller)
         }),
@@ -267,6 +273,7 @@ pamlpropOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         plot_z_value = function() private$..plot_z_value$value,
         plot_to_table = function() private$..plot_to_table$value,
         es_type = function() private$..es_type$value,
+        explain = function() private$..explain$value,
         .interface = function() private$...interface$value,
         .caller = function() private$...caller$value),
     private = list(
@@ -299,6 +306,7 @@ pamlpropOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..plot_z_value = NA,
         ..plot_to_table = NA,
         ..es_type = NA,
+        ..explain = NA,
         ...interface = NA,
         ...caller = NA)
 )
@@ -309,6 +317,7 @@ pamlpropResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     active = list(
         intro = function() private$.items[["intro"]],
         issues = function() private$.items[["issues"]],
+        extrainfo = function() private$.items[["extrainfo"]],
         powertab = function() private$.items[["powertab"]],
         powerbyes = function() private$.items[["powerbyes"]],
         plotnotes = function() private$.items[["plotnotes"]],
@@ -333,6 +342,11 @@ pamlpropResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=options,
                 name="issues",
                 title="Issues",
+                visible=FALSE))
+            self$add(jmvcore::Html$new(
+                options=options,
+                name="extrainfo",
+                title="Extra Info",
                 visible=FALSE))
             self$add(jmvcore::Table$new(
                 options=options,
@@ -527,12 +541,14 @@ pamlpropBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param plot_z_value .
 #' @param plot_to_table .
 #' @param es_type .
+#' @param explain add an additional description of the analysis carried out
 #' @param .interface Used for internal purposes
 #' @param .caller .
 #' @return A results object containing:
 #' \tabular{llllll}{
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$issues} \tab \tab \tab \tab \tab a html \cr
+#'   \code{results$extrainfo} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powerbyes} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$plotnotes} \tab \tab \tab \tab \tab a html \cr
@@ -581,6 +597,7 @@ pamlprop <- function(
     plot_z_value = list(),
     plot_to_table = FALSE,
     es_type = "odd",
+    explain = FALSE,
     .interface = "jamovi",
     .caller = "proportions") {
 
@@ -618,6 +635,7 @@ pamlprop <- function(
         plot_z_value = plot_z_value,
         plot_to_table = plot_to_table,
         es_type = es_type,
+        explain = explain,
         .interface = .interface,
         .caller = .caller)
 

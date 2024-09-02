@@ -251,6 +251,6 @@ pamlj.prop.paired <- function (n = NULL, p1 = NULL, psi = NULL, sig.level = 0.05
         sig.level <- uniroot(function(sig.level) eval(p.body) - 
             power, c(1e-10, 1 - 1e-10))$root
     else stop("internal error", domain = NA)
-    structure(list(n = n, p1 = p1, psi = psi, sig.level = sig.level, 
+    structure(list(n = round(n,digits=0), p1 = p1, psi = psi, sig.level = sig.level, 
         power = power, alternative = alternative,method="pamlj"), class = "power.htest")
 }
