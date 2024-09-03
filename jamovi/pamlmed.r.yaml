@@ -59,6 +59,27 @@ items:
           title: α
           type: number
 
+    - name:  effectsize
+      title: Computed Parameters
+      type: Table
+      clearWith:
+        - a
+        - b
+        - c
+        - power
+        - n
+        - sig.level
+        - aim
+        - alternative
+
+      columns: 
+        - name: index
+          title: 'Index'
+          type: text
+        - name: value
+          title: 'Value'
+          type: number
+
 
     - name:  powerbyn
       title: Power by Sample size

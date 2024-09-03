@@ -381,7 +381,7 @@ pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2b=0,power=NULL
                    }
                   }
       )
-      results<-(list(n = round(n,digits=0), a = a, b=b , es= a*b, cprime=cprime, sig.level = sig.level,  power = power, method=method))
+      results<-(list(n = round(n,digits=0), a = a, b=b , es= a*b, cprime=cprime,  r2a=r2a,r2b=r2b, sig.level = sig.level,  power = power, method=method))
       attributes(results)<-c(attributes(results),attribs)
       return(results)
 }
@@ -468,7 +468,7 @@ pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2b=0,power=N
                    }
                   }
       )
-      results<-(list(n = round(n,digits=0), a = a, b=b , es= a*b, cprime=cprime, sig.level = sig.level,  power = power, method=method))
+      results<-(list(n = round(n,digits=0), a = a, b=b , es= a*b, cprime=cprime, r2a=r2a,r2b=r2b, sig.level = sig.level,  power = power, method=method))
       attributes(results)<-c(attributes(results),attribs)
       return(results)
 }

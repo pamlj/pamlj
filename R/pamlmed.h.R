@@ -247,6 +247,7 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         extrainfo = function() private$.items[["extrainfo"]],
         issues = function() private$.items[["issues"]],
         powertab = function() private$.items[["powertab"]],
+        effectsize = function() private$.items[["effectsize"]],
         powerbyn = function() private$.items[["powerbyn"]],
         plotnotes = function() private$.items[["plotnotes"]],
         powerNcurve = function() private$.items[["powerNcurve"]],
@@ -319,6 +320,28 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     list(
                         `name`="sig.level", 
                         `title`="\u03B1", 
+                        `type`="number"))))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="effectsize",
+                title="Computed Parameters",
+                clearWith=list(
+                    "a",
+                    "b",
+                    "c",
+                    "power",
+                    "n",
+                    "sig.level",
+                    "aim",
+                    "alternative"),
+                columns=list(
+                    list(
+                        `name`="index", 
+                        `title`="Index", 
+                        `type`="text"),
+                    list(
+                        `name`="value", 
+                        `title`="Value", 
                         `type`="number"))))
             self$add(jmvcore::Table$new(
                 options=options,
@@ -458,6 +481,7 @@ pamlmedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$extrainfo} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$issues} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$effectsize} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powerbyn} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$plotnotes} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powerNcurve} \tab \tab \tab \tab \tab an image \cr

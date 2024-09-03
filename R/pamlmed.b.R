@@ -27,6 +27,9 @@ pamlmedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                  aSmartObj<-SmartTable$new(self$results$powertab,private$.runner)
                  ladd(private$.smartObjs)<-aSmartObj
 
+                 aSmartObj<-SmartTable$new(self$results$effectsize,private$.runner)
+                 ladd(private$.smartObjs)<-aSmartObj
+                 
                  aSmartObj<-SmartTable$new(self$results$powerbyn,private$.runner)
                  ladd(private$.smartObjs)<-aSmartObj
           

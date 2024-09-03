@@ -71,3 +71,25 @@ effectsize_run <- function(obj, ...) UseMethod(".effectsize_run")
    .effectsize_init.factorial(obj)
   
 }
+
+
+.effectsize_init.mediation <- function(obj) {
+
+    return(list(
+               list(index="ME"),
+               list(index=letter_r2 %+% " predicting M"),
+               list(index=letter_r2 %+% " predicting Y")
+                 ))
+}
+
+.effectsize_run.mediation <- function(obj) {
+
+   tab <- list()
+   ladd(tab)<-list(value=obj$data$es)
+   ladd(tab)<-list(value=obj$data$r2a)
+   ladd(tab)<-list(value=obj$data$r2b)
+   
+   return(tab)
+  
+}
+
