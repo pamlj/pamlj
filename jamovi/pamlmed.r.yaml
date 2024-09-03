@@ -8,6 +8,12 @@ items:
     - name: intro
       title: Introduction
       type: Html
+
+    - name: extrainfo
+      title: Extra Info
+      type: Html
+      visible: false
+
     - name: issues
       title: Issues
       type: Html
@@ -22,11 +28,13 @@ items:
       clearWith:
         - a
         - b
+        - cprime
         - power
         - n
         - sig.level
         - aim
         - alternative
+        - test
       columns: 
         - name: n
           title: 'N'
@@ -36,6 +44,9 @@ items:
           type: number
         - name: b
           title: 'M->Y (b)'
+          type: number
+        - name: cprime
+          title: 'X->Y (c)'
           type: number
 
         - name: es
@@ -53,15 +64,17 @@ items:
       title: Power by Sample size
       type: Table
       rows:  4
+      visible: (table_pwbyn)
       clearWith:
         - a
         - b
+        - cprime
         - power
         - n
         - sig.level
         - aim
         - alternative
-        
+        - test
       columns:
         - name: n
           title: 'Sample size'

@@ -54,13 +54,6 @@ nicify_param<- function(what,short=FALSE) {
   )
 }
 
-niceround<-function(x) {
-  x<-round(x,3)
-  a<-round(x,1)
-  w<- abs(x-a) < .001
-  x[w]<-round(x[w],1)
-  x
-}
 
 
 link_help <- function(obj, ...) UseMethod(".link_help")

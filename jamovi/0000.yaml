@@ -61,6 +61,7 @@ analyses:
   - title: Mediation
     name: pamlmed
     ns: pamlj
+    menuSubgroup: Pamlj
     menuGroup: Power
     menuTitle: Mediation
     description: |

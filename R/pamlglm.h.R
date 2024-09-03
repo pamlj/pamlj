@@ -477,8 +477,8 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     inherit = jmvcore::Group,
     active = list(
         intro = function() private$.items[["intro"]],
-        issues = function() private$.items[["issues"]],
         extrainfo = function() private$.items[["extrainfo"]],
+        issues = function() private$.items[["issues"]],
         powertab = function() private$.items[["powertab"]],
         effectsize = function() private$.items[["effectsize"]],
         powerbyes = function() private$.items[["powerbyes"]],
@@ -502,13 +502,13 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 title="Introduction"))
             self$add(jmvcore::Html$new(
                 options=options,
-                name="issues",
-                title="Issues",
+                name="extrainfo",
+                title="Extra Info",
                 visible=FALSE))
             self$add(jmvcore::Html$new(
                 options=options,
-                name="extrainfo",
-                title="Extra Info",
+                name="issues",
+                title="Issues",
                 visible=FALSE))
             self$add(jmvcore::Table$new(
                 options=options,
@@ -846,8 +846,8 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @return A results object containing:
 #' \tabular{llllll}{
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
-#'   \code{results$issues} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$extrainfo} \tab \tab \tab \tab \tab a html \cr
+#'   \code{results$issues} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$effectsize} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powerbyes} \tab \tab \tab \tab \tab a table \cr

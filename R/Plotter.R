@@ -283,7 +283,6 @@ Plotter <- R6::R6Class(
       
       obj  <- private$.operator
       data <- private$.operator$data
-
       image<-private$.results$powerNcurve
       ## check the min-max for effect size
       esmax <- obj$info$esmax

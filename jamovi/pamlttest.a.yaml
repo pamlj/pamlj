@@ -214,7 +214,7 @@ options:
 
     - name: explain
       type: Bool
-      title: "Exploratory text"
+      title: "Explanatory text"
       default: false
 
     - name: .caller

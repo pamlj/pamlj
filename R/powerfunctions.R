@@ -467,12 +467,15 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
                  aim<-required_param(data)
                  if (aim=="es") data$a<-NULL
-                .names <- intersect(names(data),rlang::fn_fmls_names(pamlj.mediation))
+                
 
+                .names <- intersect(names(data),rlang::fn_fmls_names(pamlj.mediation))
                 
                 results<-lapply(1:nrow(data),function(i) {
                      one      <-as.list(data[i,.names])
-                     tryobj<-try_hard(do.call(pamlj.mediation,one), silent=F)
+                     if (one$test=="mc") fun<-pamlj.mediation.mc
+                     else fun<-pamlj.mediation
+                     tryobj<-try_hard(do.call(fun,one), silent=F)
                      out<-tryobj$obj
                      if (!isFALSE(tryobj$error)) {
                      switch(aim,

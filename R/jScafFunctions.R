@@ -252,25 +252,6 @@ ebind_square<-function(...) {
   return(do.call(rbind,tabs))
   
 }
-### syntax functions
-
-`%+%`<-function(a,b) {
-  paste0(a,b)
-}
-
-
-`ladd<-`<-function(x,value) {
-  x[[length(x)+1]]<-value
-  return(x)
-}
-
-`padd<-` <- function(x, value) {
-  x <- c(0, x)
-  x[[1]] <- value
-  x
-}
-
-###########
 
 
 sourcifyOption<- function(x,...) UseMethod(".sourcifyOption")
@@ -356,3 +337,27 @@ clean_lol<-function(alist) {
   }
   il
 }
+
+### syntax functions
+
+`%+%`<-function(a,b) {
+  paste0(a,b)
+}
+
+
+`ladd<-`<-function(x,value) {
+  x[[length(x)+1]]<-value
+  return(x)
+}
+
+`padd<-` <- function(x, value) {
+  x <- c(0, x)
+  x[[1]] <- value
+  x
+}
+
+###########
+
+### formatting and stuff ###
+
+format5<-function(x) format(x,digits=5)

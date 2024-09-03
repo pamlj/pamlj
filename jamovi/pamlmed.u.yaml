@@ -22,6 +22,9 @@ children:
           - name: b
             type: TextBox
             format: number
+          - type: TextBox
+            name: cprime
+            format: number
           - name: power
             type: TextBox
             label: Minimum desired power
@@ -39,6 +42,29 @@ children:
             enable: (!aim:alpha)
           - type: ComboBox
             name: alternative
+      - type: LayoutBox
+        style: inline
+        children:
+          - type: Label
+            label: Test
+            children:
+              - type: RadioButton
+                name: test_sobel
+                optionName: test
+                optionPart: sobel
+              - type: RadioButton
+                name: test_mc
+                optionName: test
+                optionPart: mc
+              - type: RadioButton
+                name: test_joint
+                optionName: test
+                optionPart: joint
+          - type: Label
+            label: Options
+            children:
+              - type: CheckBox
+                name: explain
   - type: CollapseBox
     label: Sensitivity Analysis
     name: panel_sensitivity
@@ -46,6 +72,7 @@ children:
     stretchFactor: 1
     children:
       - type: LayoutBox
+        style: inline
         children:
           - type: Label
             label: Plots
@@ -54,6 +81,12 @@ children:
                 name: plot_ncurve
               - name: plot_log
                 type: CheckBox
+          - type: Label
+            label: Tables
+            children:
+              - type: CheckBox
+                name: table_pwbyn
+
   - type: CollapseBox
     label: Power Parameters plot
     name: panel_customplot
