@@ -96,6 +96,7 @@ items:
         - aim
         - alternative
         - test
+        - table_pwbyn
       columns:
         - name: n
           title: 'Sample size'

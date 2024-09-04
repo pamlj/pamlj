@@ -333,8 +333,10 @@ pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2b=0,power=NULL
      method<-"pamlj"
      
      ##  checks some values
-     if (r2a==0) r2a<-a^2
-     if (r2b==0) r2b<-b^2+cprime^2+2*a*b*cprime
+     if (is.something(a)) {
+                if (r2a==0) r2a<-a^2
+                if (r2b==0) r2b<-b^2+cprime^2+2*a*b*cprime
+     }
 
 
      switch(aim, 
@@ -379,8 +381,13 @@ pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2b=0,power=NULL
                           power  <- .max
                           attribs$power<-.max
                    }
+                   
+                  r2a<-a^2
+                  r2b<-b^2+cprime^2+2*a*b*cprime
+
                   }
       )
+      
       results<-(list(n = round(n,digits=0), a = a, b=b , es= a*b, cprime=cprime,  r2a=r2a,r2b=r2b, sig.level = sig.level,  power = power, method=method))
       attributes(results)<-c(attributes(results),attribs)
       return(results)
@@ -425,12 +432,13 @@ pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2b=0,power=N
      method<-"pamlj"
      
      ##  checks some values
-     if (r2a==0) r2a<-a^2
-     if (r2b==0) r2b<-b^2+cprime^2+2*a*b*cprime
+     if (is.something(a)) {
+                if (r2a==0) r2a<-a^2
+                if (r2b==0) r2b<-b^2+cprime^2+2*a*b*cprime
+     }
      R=1000
      L=2500
                 
-     mark(aim)
      switch(aim, 
             power={
                    power<-eval(p.body)
@@ -446,26 +454,19 @@ pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2b=0,power=N
                    }
                    ll<-n_par*.90
                    ul<-n_par*1.10
-                   mark("running uniroot on sims",n_par,ll,ul)
                    n<-try(uniroot(function(n) eval(p.body) - power, interval = c(ll, ul))$root,silent=F)
                   },
             es   ={
-                  return()
-                   ## first we test what is the max power we can reach given b
-                   x<-seq(0,1,by=.001)
-                   pow<-(sapply(x,function(a) eval(p.es)))
-                   .max<-max(pow)
-                   ## if we can go above power, we solve for a
-                   if (.max > power) {
-                          a<-uniroot(function(a) eval(p.es) - power, interval = c(.00001,x[which.max(pow)] ))$root
-                   }
-                   else {
-                          ## otherwise, we yield the effect size (a) that gives the maximum power
-                          a<-x[which.max(pow)]
-                          method <-"powmax"
-                          power  <- .max
-                          attribs$power<-.max
-                   }
+                   ### first we obtain a reasonable estimation of es
+                   check<-pamlj.mediation(n=n,a=NULL,b=b,cprime=cprime,r2a=r2a,r2b=r2b,power=power,sig.level=sig.level, alternative=alternative,test="joint")
+                   ## if powmax method is returned, we cannot do better so we stop
+                   if (check$method %in% c("powmax")) return(check)
+                   # now we try 
+                   ll <- check$power*.95
+                   ul <- check$power*1.05
+                   a<-uniroot(function(a) eval(p.es) - power, interval = c(ll,ul))$root
+                   r2a<-a^2
+                   r2b<-b^2+cprime^2+2*a*b*cprime
                   }
       )
       results<-(list(n = round(n,digits=0), a = a, b=b , es= a*b, cprime=cprime, r2a=r2a,r2b=r2b, sig.level = sig.level,  power = power, method=method))

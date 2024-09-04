@@ -97,8 +97,6 @@ powerbyn <- function(x, ...) UseMethod(".powerbyn")
             dd$n<-NULL    
             results<-powervector(obj,dd)
             results$n<-round(results$n,digits=0)
-#            check<-which(is.na(res$es))
-#            if (length(check)>0) warning("Some effect size cannot be computed given the input parameters.")
 
             esList <-list(
                           list(n=results$n[1]),

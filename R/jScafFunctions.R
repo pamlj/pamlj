@@ -1,5 +1,5 @@
-j_DEBUG <- F
-j_INFO  <- F
+j_DEBUG <- T
+j_INFO  <- T
 t_INFO  <- F
 
 
@@ -333,6 +333,12 @@ clean_lol<-function(alist) {
   x <- c(0, x)
   x[[1]] <- value
   x
+}
+
+
+
+is.joption <- function(obj, option) {
+  (option %in% obj$names)
 }
 
 ###########

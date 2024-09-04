@@ -358,7 +358,8 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "sig.level",
                     "aim",
                     "alternative",
-                    "test"),
+                    "test",
+                    "table_pwbyn"),
                 columns=list(
                     list(
                         `name`="n", 
