@@ -1,7 +1,7 @@
 # PAMLj power analysis for linear models in jamovi
 
 
-Version 0.3.*
+Version 0.4.*
 
 <center>
 <img width="300" src="https://pamlj.github.io/commons/pics/ui.png" class="img-responsive" alt="">
