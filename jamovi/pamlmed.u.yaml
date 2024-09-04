@@ -65,6 +65,9 @@ children:
             children:
               - type: CheckBox
                 name: explain
+              - type: CheckBox
+                name: diagram
+                
   - type: CollapseBox
     label: Sensitivity Analysis
     name: panel_sensitivity
@@ -86,7 +89,6 @@ children:
             children:
               - type: CheckBox
                 name: table_pwbyn
-
   - type: CollapseBox
     label: Power Parameters plot
     name: panel_customplot

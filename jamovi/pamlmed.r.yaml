@@ -19,6 +19,18 @@ items:
       type: Html
       visible: false
  
+    - name: diagram
+      title: ""
+      type: Image
+      width:  400
+      height: 350
+      renderFun: .plot_diagram
+      visible: (diagram)
+      clearWith:
+           - a
+           - b
+           - c
+           - aim
     - name:  powertab
       title: A Priori Power Analysis
       type: Table
@@ -66,6 +78,7 @@ items:
         - a
         - b
         - c
+        - cprime
         - power
         - n
         - sig.level

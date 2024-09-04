@@ -28,6 +28,7 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             plot_z_value = list(),
             plot_to_table = FALSE,
             explain = FALSE,
+            diagram = FALSE,
             .interface = "jamovi",
             .caller = "mediation", ...) {
 
@@ -151,6 +152,10 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "explain",
                 explain,
                 default=FALSE)
+            private$..diagram <- jmvcore::OptionBool$new(
+                "diagram",
+                diagram,
+                default=FALSE)
             private$...interface <- jmvcore::OptionString$new(
                 ".interface",
                 .interface,
@@ -184,6 +189,7 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..plot_z_value)
             self$.addOption(private$..plot_to_table)
             self$.addOption(private$..explain)
+            self$.addOption(private$..diagram)
             self$.addOption(private$...interface)
             self$.addOption(private$...caller)
         }),
@@ -210,6 +216,7 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         plot_z_value = function() private$..plot_z_value$value,
         plot_to_table = function() private$..plot_to_table$value,
         explain = function() private$..explain$value,
+        diagram = function() private$..diagram$value,
         .interface = function() private$...interface$value,
         .caller = function() private$...caller$value),
     private = list(
@@ -235,6 +242,7 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..plot_z_value = NA,
         ..plot_to_table = NA,
         ..explain = NA,
+        ..diagram = NA,
         ...interface = NA,
         ...caller = NA)
 )
@@ -246,6 +254,7 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         intro = function() private$.items[["intro"]],
         extrainfo = function() private$.items[["extrainfo"]],
         issues = function() private$.items[["issues"]],
+        diagram = function() private$.items[["diagram"]],
         powertab = function() private$.items[["powertab"]],
         effectsize = function() private$.items[["effectsize"]],
         powerbyn = function() private$.items[["powerbyn"]],
@@ -275,6 +284,19 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 name="issues",
                 title="Issues",
                 visible=FALSE))
+            self$add(jmvcore::Image$new(
+                options=options,
+                name="diagram",
+                title="",
+                width=400,
+                height=350,
+                renderFun=".plot_diagram",
+                visible="(diagram)",
+                clearWith=list(
+                    "a",
+                    "b",
+                    "c",
+                    "aim")))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="powertab",
@@ -329,6 +351,7 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "a",
                     "b",
                     "c",
+                    "cprime",
                     "power",
                     "n",
                     "sig.level",
@@ -474,6 +497,7 @@ pamlmedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param plot_z_value .
 #' @param plot_to_table .
 #' @param explain .
+#' @param diagram .
 #' @param .interface Used for internal purposes
 #' @param .caller Used for internal purposes
 #' @return A results object containing:
@@ -481,6 +505,7 @@ pamlmedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$extrainfo} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$issues} \tab \tab \tab \tab \tab a html \cr
+#'   \code{results$diagram} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$effectsize} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powerbyn} \tab \tab \tab \tab \tab a table \cr
@@ -521,6 +546,7 @@ pamlmed <- function(
     plot_z_value = list(),
     plot_to_table = FALSE,
     explain = FALSE,
+    diagram = FALSE,
     .interface = "jamovi",
     .caller = "mediation") {
 
@@ -551,6 +577,7 @@ pamlmed <- function(
         plot_z_value = plot_z_value,
         plot_to_table = plot_to_table,
         explain = explain,
+        diagram = diagram,
         .interface = .interface,
         .caller = .caller)
 

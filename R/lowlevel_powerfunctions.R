@@ -334,8 +334,8 @@ pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2b=0,power=NULL
      
      ##  checks some values
      if (is.something(a)) {
-                if (r2a==0) r2a<-a^2
-                if (r2b==0) r2b<-b^2+cprime^2+2*a*b*cprime
+          r2a<-a^2
+          r2b<-b^2+cprime^2+2*a*b*cprime
      }
 
 

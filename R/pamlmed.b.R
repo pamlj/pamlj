@@ -75,7 +75,35 @@ pamlmedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
         .plot_custom=function(image, ggtheme, theme, ...) {
 
           private$.plotter$plot_custom(image,ggtheme,theme)
+       },
+         .plot_diagram=function(image, ggtheme, theme, ...) {
+           
+             if (is.null(image$state)) return()
+           
+             coord<-matrix(c(1,2,1,2,3,3),ncol=2,nrow=3)
+
+             p<-matrix(NA,nrow=2,ncol=3)
+             p[2,1]<-1
+             p[1,2]<-2
+             p[2,3]<-3
+
+             mark(image$state)
+             pl<-qgraph::qgraph(coord,
+                    edge.color        = "gray",
+                    edge.width        = 3, 
+                    edge.labels       = image$state$edges,
+                    edge.label.cex    = 2.5,
+                    edge.label.color  = "black",
+                
+                    shape             = "rectangle",
+                    vsize             = 18,
+                    vsize2            = 12,
+                    labels            = c("X","M","Y"),
+                    layout            = p
+               )
+             plot(pl)
        }
+
 
 
      

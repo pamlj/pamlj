@@ -191,6 +191,11 @@ options:
       title: "Explanatory text"
       default: false
 
+    - name: diagram
+      type: Bool
+      title: "Path diagram"
+      default: false
+
     - name: .interface
       type: String
       default: jamovi

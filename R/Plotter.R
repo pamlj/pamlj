@@ -38,6 +38,7 @@ Plotter <- R6::R6Class(
             private$.prepareEscurve()
             private$.prepareNcurve()
             private$.prepareCustom()
+            private$.prepare_diagram()
     
       },
       plot_contour = function(image,ggthem,them) {
@@ -632,6 +633,20 @@ Plotter <- R6::R6Class(
             
             return(z_values)
     
+    },
+    .prepare_diagram=function() {
+      
+              if (!self$option("diagram")) return()
+              obj  <- private$.operator
+              data <- private$.operator$data
+              image<-private$.results$diagram
+              
+              state<-list()
+              state$edges<-paste(c("a","b","c"),c(format(data$a,digits=3),format(data$b,digits=3),format(data$c,digits=3)),sep="=")
+              image$setState(state)
+
+      
+      
     }
 
   ) # end of private
