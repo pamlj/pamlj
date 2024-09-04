@@ -21,7 +21,7 @@ Estimation power parameters (required sample size, expected power, minimal detec
 * Standardized coefficients based analysis
 * F-test for factorial designs from partial eta-squared (between, within and mixed)
 * F-test for factorial designs from cells means and sd (between, within and mixed)
-
+* Medition with sobel, joint significance and monte carlo tests
 
 # Docs and help
 
