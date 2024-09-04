@@ -38,12 +38,15 @@ INFO[["mediation"]]<-" <h1> Info </h1>
              <div>
              <p> Please select the aim of the analysis:</p>
              <ul>
-             <li> <b> Calculate N</b> computes the required sample size given the <b> a = X to Mediation</b> and <b> Mediation to Y</b> standardized coefficients and <b> Minimum desire power</b>  </li>          
-             <li> <b> Calculate Power</b> computes the achievable power given the <b> b= X to Mediation</b> and <b> Mediation to Y</b> standardized coefficients and the <b> N (Sample size)</b>  </li>          
+             <li> <b> Calculate N</b> computes the required sample size given the <b> a = X to Mediation</b> and <b> Mediator to Y</b> standardized coefficients and <b> Minimum desire power</b>  </li>          
+             <li> <b> Calculate Power</b> computes the achievable power given the <b> b= X to Mediation</b> and <b> Mediator to Y</b> standardized coefficients and the <b> N (Sample size)</b>  </li>          
              <li> <b> Calculate Effect Size</b> computes the minimum <b> a </b> required to achieve the required power given the <b> b </b> coefficient and <b> N (Sample size)</b>  </li>          
 
              </ul>
-              <p> The effect size <b> ME </b> is the completely standardized effect size and it is equal to <b> a * b </b>.</p>
+              <p> The coefficients <b> X to Mediatior effect (a)</b> and <b> Mediatior to Y effect (c)</b> are the standardized coefficients (beta).
+               The effect size <b> ME </b> is the completely standardized effect size and it is equal to <b> a * b </b>.
+               <b> X to Y effect (c') </b> is the standardized coefficient relating X to Y while keeping constant the mediation.
+               </p>
 
               <p> In all cases, you can set the required Type I error rate (significance cut-off)</p>
              </div>

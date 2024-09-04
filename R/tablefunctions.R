@@ -354,8 +354,8 @@ extrainfo <- function(obj, ...) UseMethod(".extrainfo")
 
    text<-"<p> Power parameters are computed " %+% test %+% " with " %+%
           paste(infoparms, collapse=", ") %+% 
-          " and type I error rate set to " %+% obj$data$sig.level %+%
-          " The z-test tests that the mediated effect is different from zero." %+%
+          " and type I error rate set to " %+% obj$data$sig.level %+% "." %+%
+          " The test tests whether the mediated effect is different from zero." %+%
             "<p>The required " %+% nicify_param(obj$aim) %+% " is " %+% nicify_param(obj$aim,short=TRUE) %+% "=" %+% format5(obj$data[[obj$aim]]) %+% "."
    
     if (obj$aim == "es") text <- text %+% " The required X to mediation coefficient (a) is " %+% format5(obj$data$a) %+% " yielding a power equal to " %+%  format5(obj$data$power) %+% "."

@@ -97,6 +97,12 @@ children:
             type: TextBox
             format: number
             enable: (!aim:alpha)
+      - type: Label
+        label: Info
+        children:
+                 - name: explain
+                   type: CheckBox
+            
   - type: CollapseBox
     label: Sensitivity Analysis
     name: panel_sensitivity
@@ -365,8 +371,3 @@ children:
                    type: RadioButton
                    optionName: ncp_type
                    optionPart: strict
-          - type: Label
-            label: Output
-            children:
-                 - name: explain
-                   type: CheckBox
