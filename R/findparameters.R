@@ -4,12 +4,28 @@ find_min_n <- function(obj, ...) UseMethod(".find_min_n")
 .find_min_n.default <- function(obj,data) {
   
   data$n <- NULL
+  data$es<-ifelse(data$es*3 > obj$info$esmax, data$es*3, obj$info$esmax)
   res<-try_hard(powervector(obj,data))
-  if (isFALSE(res$error)) 
+  if (isFALSE(res$error)) {
     n<-ceiling(res$obj$n)
+  }
   else
     n<-obj$info$nmin
+   return(n)
+}
 
+
+.find_min_n.mediation <- function(obj,data) {
+  
+  data$n <- NULL
+  data$a<-ifelse(data$a^(.5) < .99, data$a^(.5), .99)
+  mark(data)
+  res<-try_hard(powervector(obj,data))
+  if (isFALSE(res$error)) {
+    n<-ceiling(res$obj$n)
+  }
+  else
+    n<-obj$info$nmin
    return(n)
 }
 
@@ -18,7 +34,7 @@ find_max_n <- function(obj, ...) UseMethod(".find_max_n")
 
 .find_max_n.default <- function(obj,data) {
   
-  data$es<-ifelse(data$es*.95 > obj$info$esmin, data$es*.95, obj$info$esmin)
+  data$es<-ifelse(data$es/3 > obj$info$esmin, data$es/3, obj$info$esmin)
   data$power=.99
   data$n <- NULL
   res<-try_hard(powervector(obj,data))
@@ -68,7 +84,7 @@ required_param<-function(data) {
 
   whichnull<-setdiff(c("n","es","sig.level","power"), names(data))  
   if (length(whichnull)>1 || length(whichnull)==0) {
-         stop("PAMLj: only one parameters should be NULL")
+         stop("PAMLj: only one parameters should be NULL: here we have ", paste(whichnull,collapse=", "))
   }
   whichnull
 }

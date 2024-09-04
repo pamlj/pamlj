@@ -1,6 +1,6 @@
 ---
-name:  pamlglm
-title: T-Test power analysis
+name:  pamlmed
+title: Mediation power analysis
 jrs:   "1.1"
 
 items:
@@ -8,35 +8,46 @@ items:
     - name: intro
       title: Introduction
       type: Html
-      
-    - name: issues
-      title: Issues
-      type: Html
-      visible: false
 
     - name: extrainfo
       title: Extra Info
       type: Html
       visible: false
 
+    - name: issues
+      title: Issues
+      type: Html
+      visible: false
+ 
     - name:  powertab
       title: A Priori Power Analysis
       type: Table
       rows:  1
-      refs: pwr
+      refs: 
+         - pamlj
+      clearWith:
+        - a
+        - b
+        - cprime
+        - power
+        - n
+        - sig.level
+        - aim
+        - alternative
+        - test
       columns: 
         - name: n
           title: 'N'
           type: integer
-        - name: n1
-          title: N₁
-          type: integer
-          visible: false
-
-        - name: n2
-          title: N₂
-          type: integer
-          visible: false
+        - name: a
+          title: 'X->M (a)'
+          type: number
+        - name: b
+          title: 'M->Y (b)'
+          type: number
+        - name: cprime
+          title: 'X->Y (c)'
+          type: number
 
         - name: es
           title: 'Effect size'
@@ -44,22 +55,51 @@ items:
         - name: power
           title: 'Power'
           type: number
-        - name: df
-          title: 'df'
-          type: integer
         - name: sig.level
-          title: '&alpha;'
+          title: α
+          type: number
+
+    - name:  effectsize
+      title: Computed Parameters
+      type: Table
+      clearWith:
+        - a
+        - b
+        - c
+        - power
+        - n
+        - sig.level
+        - aim
+        - alternative
+
+      columns: 
+        - name: index
+          title: 'Index'
+          type: text
+        - name: value
+          title: 'Value'
           type: number
 
 
-    - name:  powerbyes
-      title: Power by Effect Size
+    - name:  powerbyn
+      title: Power by Sample size
       type: Table
       rows:  4
+      visible: (table_pwbyn)
+      clearWith:
+        - a
+        - b
+        - cprime
+        - power
+        - n
+        - sig.level
+        - aim
+        - alternative
+        - test
       columns:
-        - name: es
-          title: 'True effect size'
-          type: number
+        - name: n
+          title: 'Sample size'
+          type: integer
 
         - name: power
           title: 'Power to detect'
@@ -69,30 +109,11 @@ items:
           title: 'Description'
           type: text
 
+
     - name: plotnotes
       title: Plot notes
       type: Html
       visible: false
-
-
-
-    - name: powerContour
-      title: Power Contour
-      type: Image
-      width:  500
-      height: 350
-      renderFun: .plot_contour
-      visible: (plot_contour & !is_equi)
-
-
-    - name: powerEscurve
-      title: Power Curve by Effect Size
-      type: Image
-      width:  400
-      height: 350
-      renderFun: .plot_escurve
-      visible: (plot_escurve & !is_equi)
-
 
     - name: powerNcurve
       title: Power Curve by N
@@ -100,9 +121,7 @@ items:
       width:  400
       height: 350
       renderFun: .plot_ncurve
-      visible: (plot_ncurve & !is_equi)
-
-
+      visible: (plot_ncurve)
 
     - name: powerCustom
       title: Power Parameters
@@ -111,12 +130,12 @@ items:
       height: 350
       renderFun: .plot_custom
       visible: false
-
+      
     - name: customnotes
       title: Plot notes
       type: Html
       visible: false
-      
+
     - name:  customtable
       title: Power Analysis parameters
       type: Table
@@ -132,12 +151,6 @@ items:
           title: "Z"
           type: number
           visible: false
-        - name: n1
-          title: N₁
-          type: integer
-          visible: false
-        - name: n2
-          title: N₂
-          type: integer
-          visible: false
-        
+        - name: es
+          title: ME
+          type: Number

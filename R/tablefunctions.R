@@ -84,24 +84,108 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
 }
 
 
+
+powerbyn <- function(x, ...) UseMethod(".powerbyn")
+
+.powerbyn.default <- function(obj) {
+
+            power = c(.5, .8, .95)
+            data<-obj$data
+            dd<-do.call(rbind,lapply(power, function(x) {
+                                 data$power<-x
+                                 return(data)}))
+            dd$n<-NULL    
+            results<-powervector(obj,dd)
+            results$n<-round(results$n,digits=0)
+#            check<-which(is.na(res$es))
+#            if (length(check)>0) warning("Some effect size cannot be computed given the input parameters.")
+
+            esList <-list(
+                          list(n=results$n[1]),
+                          list(n=results$n[1] %+% "-" %+% results$n[2]),
+                          list(n=results$n[2] %+% "-" %+% results$n[3]),
+                          list(n=results$n[3])
+                      )
+            return(esList)
+            
+}
+
+
 extrainfo <- function(obj, ...) UseMethod(".extrainfo")
 
 .extrainfo.default <-function(obj) return()
 
+.extrainfo.ttestind <- function(obj) {
+ 
+   if (!obj$option("explain")) return()  
+  
+   infoparms<-list(n="total sample size N=" %+% obj$data$n,
+                   es="effect size " %+% obj$info$letter %+% " = " %+% format5(obj$data$es),
+                   power="power equal to " %+% obj$data$power)
+   
+   infoparms[[obj$aim]]<-NULL
+
+   text<-"<p> Power parameters are computed for a t-test with " %+%
+          paste(infoparms, collapse=", ") %+% 
+          " and type I error rate set to " %+% obj$data$sig.level %+%
+          " The t-test compares the means of two groups of cases.</p>" %+%
+            "<p>The required " %+% nicify_param(obj$aim) %+% " is " %+% nicify_param(obj$aim,short=TRUE) %+% "=" %+% format5(obj$data[[obj$aim]]) %+% ".</p>"
+
+    obj$warning<-list(topic="extrainfo",message=text,head="info")  
+
+}
+
+.extrainfo.ttestpaired <- function(obj) {
+  
+   if (!obj$option("explain")) return()  
+       
+   infoparms<-list(n="total sample size N=" %+% obj$data$n,
+                   es="effect size " %+% obj$info$letter %+% " = " %+% format5(obj$data$es),
+                   power="power equal to " %+% obj$data$power)
+   
+   infoparms[[obj$aim]]<-NULL
+
+   text<-"<p> Power parameters are computed for a t-test with " %+%
+          paste(infoparms, collapse=", ") %+% 
+          " and type I error rate set to " %+% obj$data$sig.level %+%
+          " The t-test compares two means in a repeated-measure design.</p>" %+%
+            "<p>The required " %+% nicify_param(obj$aim) %+% " is " %+% nicify_param(obj$aim,short=TRUE) %+% "=" %+% format5(obj$data[[obj$aim]]) %+% ".</p>"
+      obj$warning<-list(topic="extrainfo",message=text,head="info")  
+}
+
+.extrainfo.ttestone <- function(obj) {
+  
+   if (!obj$option("explain")) return()  
+
+   infoparms<-list(n="total sample size N=" %+% obj$data$n,
+                   es="effect size " %+% obj$info$letter %+% " = " %+% format5(obj$data$es),
+                   power="power equal to " %+% obj$data$power)
+   
+   infoparms[[obj$aim]]<-NULL
+
+   text<-"<p> Power parameters are computed for a t-test with " %+%
+          paste(infoparms, collapse=", ") %+% 
+          " and type I error rate set to " %+% obj$data$sig.level %+%
+          " The t-test tests the mean of one sample against the value of zero.</p>" %+%
+            "<p>The required " %+% nicify_param(obj$aim) %+% " is " %+% nicify_param(obj$aim,short=TRUE) %+% "=" %+% format5(obj$data[[obj$aim]]) %+% ".</p>"
+      obj$warning<-list(topic="extrainfo",message=text,head="info")  
+}
+
+
 .extrainfo.glm <- function(obj) {
 
-  if (!obj$options$explain) return()
+  if (!obj$option("explain")) return()  
   
   if (obj$options$covs==0 && obj$options$factors==0) {
     
     terms<-ifelse(obj$data$df_model>1,"terms","term")
     text<-" <p> Power parameters are computed for a general linear model with " %+% obj$data$df_model %+%
-          " degrees of freedom, for an effect size " %+% obj$info$letter %+% " = " %+% format(obj$data$es,digits=5) %+%
+          " degrees of freedom, for an effect size " %+% obj$info$letter %+% " = " %+% format5(obj$data$es) %+%
           " with " %+% obj$data$df_effect %+% " degrees of freedom " %+%
           " and type I error rate set to " %+% obj$data$sig.level %+%
           " The model is equivalent to a regression with " %+% obj$data$df_model %+% " " %+% terms %+% " or" %+%
           " an ANOVA with " %+% (obj$data$df_model+1) %+% " groups.</p>" %+%
-          "<p>The required " %+% nicify_param(obj$aim) %+% " is " %+% nicify_param(obj$aim,short=TRUE) %+% "=" %+% format(obj$data[[obj$aim]],digits=5) %+% ".</p>"
+          "<p>The required " %+% nicify_param(obj$aim) %+% " is " %+% nicify_param(obj$aim,short=TRUE) %+% "=" %+% format5(obj$data[[obj$aim]]) %+% ".</p>"
             
     obj$warning<-list(topic="extrainfo",message=text,head="info")
     
@@ -171,14 +255,14 @@ extrainfo <- function(obj, ...) UseMethod(".extrainfo")
      } 
     
       text<-" <p> Power parameters are computed for a general linear model with " %+% obj$data$df_model %+%
-          " degrees of freedom, for an effect size " %+% obj$info$letter %+% " = " %+% format(obj$data$es,digits=5) %+%
+          " degrees of freedom, for an effect size " %+% obj$info$letter %+% " = " %+% format5(obj$data$es) %+%
           " with " %+% obj$data$df_effect %+% " degrees of freedom " %+%
           " and type I error rate set to " %+% obj$data$sig.level %+%
           " The model is equivalent to " %+% analysis %+% " with  terms: " %+%
             ifelse(is.null(feffects),"",feffects) %+%
             ifelse(is.null(reffects),"",reffects) %+%
             ifelse(is.null(meffects),"",meffects) %+%
-          "<p>The required " %+% nicify_param(obj$aim) %+% " is " %+% nicify_param(obj$aim,short=TRUE) %+% "=" %+% format(obj$data[[obj$aim]],digits=5) %+% ".</p>"
+          "<p>The required " %+% nicify_param(obj$aim) %+% " is " %+% nicify_param(obj$aim,short=TRUE) %+% "=" %+% format5(obj$data[[obj$aim]]) %+% ".</p>"
       obj$warning<-list(topic="extrainfo",message=text,head="info")
       
 
@@ -188,4 +272,96 @@ extrainfo <- function(obj, ...) UseMethod(".extrainfo")
   
 }
 
+
+.extrainfo.propind <- function(obj) {
+ 
+   if (!obj$option("explain")) return()  
+  
+   infoparms<-list(n="total sample size N=" %+% obj$data$n,
+                   es="effect size " %+% obj$info$letter %+% " = " %+% format5(obj$data$es),
+                   power="power equal to " %+% obj$data$power)
+   
+   infoparms[[obj$aim]]<-NULL
+
+   text<-"<p> Power parameters are computed for a z-test with " %+%
+          paste(infoparms, collapse=", ") %+% 
+          " and type I error rate set to " %+% obj$data$sig.level %+%
+          " The z-test compares two proportions in two different groups of cases." %+%
+          " The proportions are transformed with the archsine function before computing the power parameters.</p>" %+%
+            "<p>The required " %+% nicify_param(obj$aim) %+% " is " %+% nicify_param(obj$aim,short=TRUE) %+% "=" %+% format5(obj$data[[obj$aim]]) %+% ".</p>"
+
+    obj$warning<-list(topic="extrainfo",message=text,head="info")  
+
+}
+
+.extrainfo.propone <- function(obj) {
+ 
+   if (!obj$option("explain")) return()  
+  
+   infoparms<-list(n="total sample size N=" %+% obj$data$n,
+                   es="effect size " %+% obj$info$letter %+% " = " %+% format5(obj$data$es),
+                   power="power equal to " %+% obj$data$power)
+   
+   infoparms[[obj$aim]]<-NULL
+
+   text<-"<p> Power parameters are computed for a z-test with " %+%
+          paste(infoparms, collapse=", ") %+% 
+          " and type I error rate set to " %+% obj$data$sig.level %+%
+          " The z-test tests one proportion (P1) obtained in the one sample against an hypothetical value (P2)." %+%
+          " The proportions are transformed with the archsine function before computing the power parameters.</p>" %+%
+            "<p>The required " %+% nicify_param(obj$aim) %+% " is " %+% nicify_param(obj$aim,short=TRUE) %+% "=" %+% format5(obj$data[[obj$aim]]) %+% ".</p>"
+
+    obj$warning<-list(topic="extrainfo",message=text,head="info")  
+
+}
+
+.extrainfo.proppaired <- function(obj) {
+ 
+   if (!obj$option("explain")) return()  
+  
+   infoparms<-list(n="total sample size N=" %+% obj$data$n,
+                   es="effect size " %+% obj$info$letter %+% " = " %+% format5(obj$data$es),
+                   power="power equal to " %+% obj$data$power)
+   
+   infoparms[[obj$aim]]<-NULL
+
+   text<-"<p> Power parameters are computed for a (approximated) McNemar test with " %+%
+          paste(infoparms, collapse=", ") %+% 
+          " and type I error rate set to " %+% obj$data$sig.level %+%
+          " The McNemar tests two proportions obtained in the same sample." %+%
+            "<p>The required " %+% nicify_param(obj$aim) %+% " is " %+% nicify_param(obj$aim,short=TRUE) %+% "=" %+% format5(obj$data[[obj$aim]]) %+% ".</p>"
+
+    obj$warning<-list(topic="extrainfo",message=text,head="info")  
+
+}
+
+
+.extrainfo.mediation <- function(obj) {
+ 
+   if (!obj$option("explain")) return()  
+  
+   switch (obj$data$test,
+           sobel = test <-"for the <b>Sobel test (z-test)</b>",
+           joint = test <- "<b> for joint significance test </b> (both a and b significant)",
+           mc    = test <- "with <b>Monte Carlo simulation method</b>"
+   )
+   infoparms<-list(n="total sample size N=" %+% obj$data$n,
+                   es="completely standardized effect size " %+% obj$info$letter %+% " = " %+% format5(obj$data$es) %+% " given by a*b=" %+% format5(obj$data$a) %+% "*" %+% format5(obj$data$b),
+                   power="power equal to " %+% format5(obj$data$power)
+                   )
+   
+   infoparms[[obj$aim]]<-NULL
+
+   text<-"<p> Power parameters are computed " %+% test %+% " with " %+%
+          paste(infoparms, collapse=", ") %+% 
+          " and type I error rate set to " %+% obj$data$sig.level %+% "." %+%
+          " The test tests whether the mediated effect is different from zero." %+%
+            "<p>The required " %+% nicify_param(obj$aim) %+% " is " %+% nicify_param(obj$aim,short=TRUE) %+% "=" %+% format5(obj$data[[obj$aim]]) %+% "."
+   
+    if (obj$aim == "es") text <- text %+% " The required X to mediation coefficient (a) is " %+% format5(obj$data$a) %+% " yielding a power equal to " %+%  format5(obj$data$power) %+% "."
+
+     text <- text %+% "</p>"
+    obj$warning<-list(topic="extrainfo",message=text,head="info")  
+
+}
 

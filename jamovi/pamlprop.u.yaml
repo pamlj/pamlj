@@ -204,6 +204,7 @@ children:
     stretchFactor: 1
     children:
       - type: LayoutBox
+        style: inline
         children:
           - type: Label
             label: Effect size type
@@ -221,3 +222,8 @@ children:
                 optionName: es_type
                 optionPart: rr
                 enable: (!mode:proppaired)
+          - type: Label
+            label: Info
+            children:
+                 - type: CheckBox
+                   name: explain

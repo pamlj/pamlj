@@ -1,43 +1,24 @@
-j_DEBUG <- T
-j_INFO  <- T
+j_DEBUG <- F
+j_INFO  <- F
 t_INFO  <- F
-
-#### Helper functions used by Scaffold (not exported)
-
-j_WOS   <- .Platform$OS.type=="windows"
-
-## -- Note for Windows users
-## If your OS is Windows, but feel free
-## to change the path and name of the log file as you like.
-## --
-wosjscaf<-"wosjscaf.log"
-if (j_WOS)
-     wosjscaf <- paste0(base::Sys.getenv("TEMP"),paste0("\\",wosjscaf))
 
 
 #### Helper functions used by Scaffold (not exported)
 
 tinfo <- function(...) {
   if (t_INFO) {
-    if (j_WOS && wosjscaf != "") base::sink(file=wosjscaf, append=TRUE)
-    
     cat(paste(list(...)))
     cat("\n")
-    
-    if (j_WOS && wosjscaf != "") base::sink()
   }
 }
 
 
 jinfo <- function(...) {
   if (j_INFO) {
-    if (j_WOS && wosjscaf != "") base::sink(file=wosjscaf, append=TRUE)
-    
+
     cat("\n")
     cat(paste(list(...)))
     cat("\n")
-    
-    if (j_WOS && wosjscaf != "") base::sink()
   }
 }
 
@@ -46,8 +27,7 @@ mark <- function(...) {
   if (!j_DEBUG)
     return()
   
-  if (j_WOS && wosjscaf != "") base::sink(file=wosjscaf, append=TRUE)
-  
+
   if (missing(...)) cat("Mark here\n")
   
   items<-list(...)
@@ -62,7 +42,6 @@ mark <- function(...) {
   
   if (length(items)>1)  cat("_____end_______\n\n")
   
-  if (j_WOS && wosjscaf != "") base::sink()
 }
 
 is.something <- function(x, ...) UseMethod(".is.something")
@@ -252,25 +231,6 @@ ebind_square<-function(...) {
   return(do.call(rbind,tabs))
   
 }
-### syntax functions
-
-`%+%`<-function(a,b) {
-  paste0(a,b)
-}
-
-
-`ladd<-`<-function(x,value) {
-  x[[length(x)+1]]<-value
-  return(x)
-}
-
-`padd<-` <- function(x, value) {
-  x <- c(0, x)
-  x[[1]] <- value
-  x
-}
-
-###########
 
 
 sourcifyOption<- function(x,...) UseMethod(".sourcifyOption")
@@ -356,3 +316,27 @@ clean_lol<-function(alist) {
   }
   il
 }
+
+### syntax functions
+
+`%+%`<-function(a,b) {
+  paste0(a,b)
+}
+
+
+`ladd<-`<-function(x,value) {
+  x[[length(x)+1]]<-value
+  return(x)
+}
+
+`padd<-` <- function(x, value) {
+  x <- c(0, x)
+  x[[1]] <- value
+  x
+}
+
+###########
+
+### formatting and stuff ###
+
+format5<-function(x) format(x,digits=5)

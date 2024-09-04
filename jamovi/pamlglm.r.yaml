@@ -8,6 +8,7 @@ items:
     - name: intro
       title: Introduction
       type: Html
+      
     - name: extrainfo
       title: Extra Info
       type: Html
@@ -17,6 +18,7 @@ items:
       title: Issues
       type: Html
       visible: false
+
 
     - name:  powertab
       title: A Priori Power Analysis

@@ -460,3 +460,51 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                 return(results)
 }
 
+
+#### mediation ####
+
+.powervector.mediation <- function(obj,data) {
+
+                 aim<-required_param(data)
+                 if (aim=="es") data$a<-NULL
+                
+
+                .names <- intersect(names(data),rlang::fn_fmls_names(pamlj.mediation))
+                
+                results<-lapply(1:nrow(data),function(i) {
+                     one      <-as.list(data[i,.names])
+                     if (one$test=="mc") fun<-pamlj.mediation.mc
+                     else fun<-pamlj.mediation
+                     tryobj<-try_hard(do.call(fun,one), silent=F)
+                     out<-tryobj$obj
+                     if (!isFALSE(tryobj$error)) {
+                     switch(aim,
+                            n = {
+                                stop("failed on n")
+                               },
+                            power={ 
+                                stop("failed on power")
+                                  },
+                            es={ 
+                               stop("failed on es")
+                               }
+                            
+                            )
+                     }
+                     out
+                    })
+                          
+
+                 results<-as.data.frame(do.call("rbind",results))
+                 if (nrow(results)>3) results<- na.omit(results)
+                 for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
+                 
+                .names<-c(names(data)[!names( data) %in% names(results)],names(results))
+                 odata<- data[, !names( data) %in% names(results)]
+                 results<-cbind(odata,results)
+                 names(results)<-.names
+                 results$n  <- round(results$n,digits=0)
+                 results$es <- results$a*results$b
+                 return(results)
+  
+}

@@ -89,6 +89,7 @@ children:
             name: alternative
   - type: LayoutBox
     margin: large
+    style: inline
     children:
       - type: Label
         label: Equivalence Testing
@@ -100,7 +101,12 @@ children:
             type: TextBox   
             format: number
             enable: (is_equi)
-  
+      - type: Label
+        label: Options
+        children:
+          - name: explain
+            type: CheckBox  
+
   - type: CollapseBox
     label: Sensitivity Analysis
     name: panel_sensitivity

@@ -736,6 +736,40 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
 
 
+### mediation #### 
+
+.checkdata.mediation <- function(obj) {
+  
+
+      if (abs(obj$options$b) > .99)
+                 obj$stop("Standardized coefficient (b) cannot be larger than .99")
+      if (is.something(obj$options$a) && abs(obj$options$a) > .99)
+                 obj$stop("Standardized coefficient (a) cannot be larger than .99")
+
+      if (abs(obj$options$b) < 1e-03)
+                 obj$stop("Standardized coefficient (b) cannot be smaller than .001")
+      if (is.something(obj$options$a) && abs(obj$options$a) < 1e-03)
+                 obj$stop("Standardized coefficient (a) cannot be larger than " %+% .99)
+  
+      obj$data             <- data.frame(b=obj$options$b)
+      obj$data$cprime      <- obj$options$cprime
+      obj$data$a           <- obj$options$a
+      if (is.something(obj$data$a)) obj$data$es<-obj$data$a*obj$data$b
+      obj$data$n           <- obj$options$n
+      obj$data$sig.level   <- obj$options$sig.level
+      obj$data$power       <- obj$options$power
+      obj$data$alternative <- obj$options$alternative
+      obj$data$test        <- obj$options$test
+
+      obj$data[[obj$aim]]  <- NULL
+      obj$info$letter      <- "ME"
+      obj$info$esmax       <- .9801
+      obj$info$esmin       <-  1e-06
+      obj$info$nmin        <-  10
+
+      jinfo("Checking data for mediation done")
+}
+
 
 
 checkfailure <- function(obj, ...) UseMethod(".checkfailure")
@@ -841,8 +875,8 @@ commonchecks <- function(obj) {
         .data<-obj$data
         .data$n<-obj$info$nmax
         esmin<-find_min_es(obj,.data)
-        fesmin<-format(esmin, digits=5)
-        es<-format(obj$data$es,digits=5)
+        fesmin<-format5(esmin)
+        es<-format5(obj$data$es)
 
      
 
@@ -865,17 +899,16 @@ commonchecks <- function(obj) {
 }
 
 
-postchecks <- function(obj, ...) UseMethod(".postchecks")
 
-.postchecks.default<-function(obj) {
+
+postchecks<-function(obj) {
   
-  jinfo("PAMLj: post checks default")
+  jinfo("PAMLj: post checks")
     data<-obj$data
-
     switch (data$method,
       nmin = {   
               data$n <- obj$info$nmin
-              esmax  <- round(find_max_es(obj,data), digits=5)
+              esmax  <- round(find_max_es(obj,data))
               es     <- round(data$es,digits=5) 
               message<-    "The effect size ("%+% obj$info$letter %+% " = " %+%  es %+% ") is larger than the maximum effect size (" %+% obj$info$letter %+% "=" %+% esmax %+% ")" %+%
                                    " that guarantees power=" %+% data$power %+% " with a sample of minimum size (N=" %+% data$n %+% ")." %+%
@@ -885,12 +918,22 @@ postchecks <- function(obj, ...) UseMethod(".postchecks")
               obj$warning<-list(topic="issues",message=message,head="info")
               },
       brute = {   
-              es     <- format(data$es,digits=5) 
+              es     <- format5(data$es) 
               message<-"The effect size (" %+% obj$info$letter %+% " = " %+%  es %+% ") is very small. An approximate method is used to compute the effect size. " %+%
                         "Sensitivity analysis (and plots) cannot be computed." 
               obj$warning<-list(topic="issues",message=message,head="warning")
               obj$plots$sensitivity<-FALSE
-      },
+              },
+      powmax = {   
+              es     <- format5(data$es) 
+              power  <- format5(obj$data$power)
+              message<-"Given the input parameters, a power equal to " %+% obj$options$power %+% " cannot be achieved." %+%
+                       " The maximum feasable effect size (" %+% obj$info$letter %+% " = " %+%  es %+% ") yields a power of " %+% power %+% ". " %+%
+                        "Sensitivity analysis (and plots) cannot be computed." 
+              obj$warning<-list(topic="issues",message=message,head="warning")
+              obj$plots$sensitivity<-FALSE
+
+        },
       eserror = {   
 
               message<-"The required effect size (" %+% obj$info$letter %+% ") cannot be computed. It's value is likely larger than a feasable effect size." %+%
@@ -931,6 +974,24 @@ postchecks <- function(obj, ...) UseMethod(".postchecks")
     
   }
 
+  morechecks(obj)
+}
 
+morechecks <- function(obj, ...) UseMethod(".morechecks")
+
+.morechecks.default <- function(obj) return()
+
+.morechecks.mediation <- function(obj) {
+  
+  jinfo("PAMLj: more checks mediation")
+
+  if (obj$aim == "es") {
+    
+                   message<-"The analysis seeks for X to Mediator coefficient  (a) that guarantees (if possible) the required power given the sample size and sig.level"
+                   obj$warning<-list(topic="issues",message=message,head="info")
+    
+  }
+  
+  
 }
 

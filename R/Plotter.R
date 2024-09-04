@@ -23,9 +23,13 @@ Plotter <- R6::R6Class(
       preparePlots=function(image, ggtheme, theme, ...) {
         
             if (!private$.operator$ok || !private$.operator$plots$sensitivity) {
-              private$.results$powerContour$setVisible(FALSE)
-              private$.results$powerEscurve$setVisible(FALSE)
-              private$.results$powerNcurve$setVisible(FALSE)
+              if ("powerContour" %in% names(private$.results))
+                            private$.results$powerContour$setVisible(FALSE)
+              if ("powerEscurve" %in% names(private$.results))
+                            private$.results$powerEscurve$setVisible(FALSE)
+              if ("powerNcurve" %in% names(private$.results))
+                            private$.results$powerNcurve$setVisible(FALSE)
+              
               if (any(self$option("plot_contour"),self$option("plot_escurve"),self$option("plot_ncurve")))
                        private$.operator$warning<-list(topic="plotnotes",message="Plots cannot be produced.",head="error")
               return()
@@ -178,6 +182,8 @@ Plotter <- R6::R6Class(
               return()
      if (self$option("is_equi"))
               return()
+       if (!("powerContour" %in% names(private$.results)))
+           return()
 
       jinfo("PLOTTER: preparing contour plot")
       
@@ -277,7 +283,6 @@ Plotter <- R6::R6Class(
       
       obj  <- private$.operator
       data <- private$.operator$data
-
       image<-private$.results$powerNcurve
       ## check the min-max for effect size
       esmax <- obj$info$esmax
@@ -297,13 +302,13 @@ Plotter <- R6::R6Class(
       .data$n<-NULL
       nmin<-powervector(obj,.data)$n
 
-       if (nmin > data$n) {
+       if (nmin >= data$n && nmin > obj$info$nmin) {
+          .data$power<-.data$power/2
           nmin<-  find_min_n(obj,.data)
           nmax<-  find_max_n(obj,data)
       }
       if (nmax< data$n) nmax<-round(data$n*1.5,digits=0)
       if (nmax<(nmin*2)) nmax=(nmin*2)
-
 
         FLX<-identity
         FEX<-identity
@@ -342,8 +347,10 @@ Plotter <- R6::R6Class(
       
        if (!self$option("plot_escurve"))
                return()
-        jinfo("PLOTTER: preparing Es curve plot")
+       if (!("powerEscurve" %in% names(private$.results))) 
+            return()
 
+        jinfo("PLOTTER: preparing Es curve plot")
         obj <- private$.operator
         data <- private$.operator$data
         image<-private$.results$powerEscurve

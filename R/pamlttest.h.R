@@ -33,6 +33,7 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             plot_z_lines = 0,
             plot_z_value = list(),
             plot_to_table = FALSE,
+            explain = FALSE,
             .caller = "ttest",
             .interface = "jamovi", ...) {
 
@@ -180,6 +181,10 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "plot_to_table",
                 plot_to_table,
                 default=FALSE)
+            private$..explain <- jmvcore::OptionBool$new(
+                "explain",
+                explain,
+                default=FALSE)
             private$...caller <- jmvcore::OptionString$new(
                 ".caller",
                 .caller,
@@ -218,6 +223,7 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..plot_z_lines)
             self$.addOption(private$..plot_z_value)
             self$.addOption(private$..plot_to_table)
+            self$.addOption(private$..explain)
             self$.addOption(private$...caller)
             self$.addOption(private$...interface)
         }),
@@ -249,6 +255,7 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         plot_z_lines = function() private$..plot_z_lines$value,
         plot_z_value = function() private$..plot_z_value$value,
         plot_to_table = function() private$..plot_to_table$value,
+        explain = function() private$..explain$value,
         .caller = function() private$...caller$value,
         .interface = function() private$...interface$value),
     private = list(
@@ -279,6 +286,7 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..plot_z_lines = NA,
         ..plot_z_value = NA,
         ..plot_to_table = NA,
+        ..explain = NA,
         ...caller = NA,
         ...interface = NA)
 )
@@ -289,6 +297,7 @@ pamlttestResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     active = list(
         intro = function() private$.items[["intro"]],
         issues = function() private$.items[["issues"]],
+        extrainfo = function() private$.items[["extrainfo"]],
         powertab = function() private$.items[["powertab"]],
         powerbyes = function() private$.items[["powerbyes"]],
         plotnotes = function() private$.items[["plotnotes"]],
@@ -313,6 +322,11 @@ pamlttestResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=options,
                 name="issues",
                 title="Issues",
+                visible=FALSE))
+            self$add(jmvcore::Html$new(
+                options=options,
+                name="extrainfo",
+                title="Extra Info",
                 visible=FALSE))
             self$add(jmvcore::Table$new(
                 options=options,
@@ -493,12 +507,14 @@ pamlttestBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param plot_z_lines .
 #' @param plot_z_value .
 #' @param plot_to_table .
+#' @param explain .
 #' @param .caller .
 #' @param .interface .
 #' @return A results object containing:
 #' \tabular{llllll}{
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$issues} \tab \tab \tab \tab \tab a html \cr
+#'   \code{results$extrainfo} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powerbyes} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$plotnotes} \tab \tab \tab \tab \tab a html \cr
@@ -545,6 +561,7 @@ pamlttest <- function(
     plot_z_lines = 0,
     plot_z_value = list(),
     plot_to_table = FALSE,
+    explain = FALSE,
     .caller = "ttest",
     .interface = "jamovi") {
 
@@ -580,6 +597,7 @@ pamlttest <- function(
         plot_z_lines = plot_z_lines,
         plot_z_value = plot_z_value,
         plot_to_table = plot_to_table,
+        explain = explain,
         .caller = .caller,
         .interface = .interface)
 
