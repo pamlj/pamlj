@@ -465,12 +465,13 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
 .powervector.mediation <- function(obj,data) {
 
+   mark("mediation pw",data) 
                  aim<-required_param(data)
                  if (aim=="es") data$a<-NULL
                 
 
                 .names <- intersect(names(data),rlang::fn_fmls_names(pamlj.mediation))
-                
+               
                 results<-lapply(1:nrow(data),function(i) {
                      one      <-as.list(data[i,.names])
                      if (one$test=="mc") fun<-pamlj.mediation.mc

@@ -73,7 +73,7 @@ effectsize_run <- function(obj, ...) UseMethod(".effectsize_run")
 }
 
 
-.effectsize_init.mediation <- function(obj) {
+.effectsize_init.medsimple <- function(obj) {
 
     return(list(
                list(index="ME"),
@@ -82,12 +82,32 @@ effectsize_run <- function(obj, ...) UseMethod(".effectsize_run")
                  ))
 }
 
-.effectsize_run.mediation <- function(obj) {
+.effectsize_run.medsimple <- function(obj) {
 
    tab <- list()
    ladd(tab)<-list(value=obj$data$es)
    ladd(tab)<-list(value=obj$data$r2a)
-   ladd(tab)<-list(value=obj$data$r2b)
+   ladd(tab)<-list(value=obj$data$r2y)
+   
+   return(tab)
+  
+}
+
+.effectsize_init.medcomplex <- function(obj) {
+
+    return(list(
+               list(index=letter_r2 %+% " predicting M1"),
+               list(index=letter_r2 %+% " predicting M2"),
+               list(index=letter_r2 %+% " predicting Y")
+                 ))
+}
+
+.effectsize_run.medcomplex <- function(obj) {
+
+   tab <- list()
+   ladd(tab)<-list(value=obj$extradata$r2a[1])
+   ladd(tab)<-list(value=obj$extradata$r2a[2])
+   ladd(tab)<-list(value=obj$data$r2y)
    
    return(tab)
   

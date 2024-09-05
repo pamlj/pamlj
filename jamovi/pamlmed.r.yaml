@@ -76,6 +76,10 @@ items:
            - alternative
            - test
       columns: 
+        - name: effect
+          title: 'Effect'
+          type: text
+          visible: (mode:medcomplex)
         - name: n
           title: 'N'
           type: integer

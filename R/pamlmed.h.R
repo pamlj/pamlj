@@ -7,11 +7,11 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     public = list(
         initialize = function(
             aim = "n",
-            mode = "simple",
+            mode = "medsimple",
             a = 0.3,
             b = 0.3,
             cprime = 0,
-            model_type = "simple",
+            model_type = "twomeds",
             a1 = "",
             b1 = "",
             a2 = "",
@@ -42,7 +42,7 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             plot_z_value = list(),
             plot_to_table = FALSE,
             explain = FALSE,
-            diagram = FALSE,
+            diagram = TRUE,
             .interface = "jamovi",
             .caller = "mediation", ...) {
 
@@ -66,7 +66,7 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=list(
                     "medsimple",
                     "medcomplex"),
-                default="simple")
+                default="medsimple")
             private$..a <- jmvcore::OptionNumber$new(
                 "a",
                 a,
@@ -86,7 +86,7 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "twomeds",
                     "threemeds",
                     "twoserial"),
-                default="simple")
+                default="twomeds")
             private$..a1 <- jmvcore::OptionString$new(
                 "a1",
                 a1,
@@ -232,7 +232,7 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..diagram <- jmvcore::OptionBool$new(
                 "diagram",
                 diagram,
-                default=FALSE)
+                default=TRUE)
             private$...interface <- jmvcore::OptionString$new(
                 ".interface",
                 .interface,
@@ -461,6 +461,11 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "alternative",
                     "test"),
                 columns=list(
+                    list(
+                        `name`="effect", 
+                        `title`="Effect", 
+                        `type`="text", 
+                        `visible`="(mode:medcomplex)"),
                     list(
                         `name`="n", 
                         `title`="N", 
@@ -726,11 +731,11 @@ pamlmedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @export
 pamlmed <- function(
     aim = "n",
-    mode = "simple",
+    mode = "medsimple",
     a = 0.3,
     b = 0.3,
     cprime = 0,
-    model_type = "simple",
+    model_type = "twomeds",
     a1 = "",
     b1 = "",
     a2 = "",
@@ -761,7 +766,7 @@ pamlmed <- function(
     plot_z_value = list(),
     plot_to_table = FALSE,
     explain = FALSE,
-    diagram = FALSE,
+    diagram = TRUE,
     .interface = "jamovi",
     .caller = "mediation") {
 

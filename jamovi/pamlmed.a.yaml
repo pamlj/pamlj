@@ -39,7 +39,7 @@ options:
               title: Simple (3 variables)
             - name: medcomplex
               title: Complex (multiple mediators)
-      default: simple
+      default: medsimple
 
 ## mode simple
 
@@ -79,8 +79,7 @@ options:
               title: Three parallel mediators
             - name: twoserial 
               title: Two serial mediators
-
-      default: simple
+      default: twomeds
 
     - name: a1   
       title: X to M1 (a1) 
@@ -315,7 +314,7 @@ options:
     - name: diagram
       type: Bool
       title: "Path diagram"
-      default: false
+      default: true
 
     - name: .interface
       type: String

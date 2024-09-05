@@ -762,6 +762,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$data$power       <- obj$options$power
       obj$data$alternative <- obj$options$alternative
       obj$data$test        <- obj$options$test
+      obj$plots$data       <- obj$data
 
       obj$data[[obj$aim]]  <- NULL
       obj$info$letter      <- "ME"
@@ -780,11 +781,38 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
         bs<-list(a1=obj$options$a1,b1=obj$options$b1,a2=obj$options$a2,b2=obj$options$b2,a3=obj$options$a3,b3=obj$options$b3)
       switch (obj$options$model_type,
               twomeds = {
-                        betas <- bs[1:4]
-                        betas$r12 <- obj$options$r12
-                        check <- lapply(betas, as.numeric,USE.NAMES=T)
+                        betas           <- bs[1:4]
+                        betas$r12       <- obj$options$r12
+                        check           <- lapply(betas, as.numeric,USE.NAMES=T)
+                        plotdata        <- data.frame(do.call(cbind,check))
+                        plotdata$cprime <- obj$options$cprime2
+                        obj$plots$data  <- plotdata
                         if (any(sapply(check, is.na))) obj$filled<-FALSE
-                        obj$data<-data.frame(do.call(cbind,check))
+                        
+                        exdata        <- data.frame(id=1:2)
+                        if (obj$filled) {
+                          exdata$cprime <- plotdata$cprime
+                          exdata$a      <- c(plotdata$a1,plotdata$a2)
+                          exdata$b      <- c(plotdata$b1,plotdata$b2)
+                          corMat      <- diag(4)
+                          corMat[2,1] <- corMat[1,2] <- plotdata$a1
+                          corMat[3,1] <- corMat[1,3] <- plotdata$a2
+                          corMat[2,3] <- corMat[2,3] <- plotdata$r12
+                          corMat[4,1] <- corMat[1,4] <- plotdata$cprime + plotdata$a1*plotdata$b1 + plotdata$a2*plotdata$b2
+                          corMat[2,4] <- corMat[4,2] <- plotdata$a1*plotdata$cprime + plotdata$b1 + plotdata$b2*plotdata$r12
+                          corMat[3,4] <- corMat[4,3] <- plotdata$a2*plotdata$cprime + plotdata$b2 + plotdata$b1*plotdata$r12
+                          
+                          ry<-corMat[1:3,4]
+                          rx<-corMat[1:3,1:3]  
+                          
+                          r2b <- t(ry)%*%MASS::ginv(rx)%*%ry
+                          exdata$r2b <- as.numeric(r2b)
+                          exdata$r2a <- exdata$a^2
+                          exdata$es  <-  exdata$a * exdata$b
+                          exdata$effect <- c("a1*b1","a2*b2")
+
+                        }
+                        
                         },
               threemeds = {
                         betas <- bs
@@ -792,20 +820,97 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                         betas$r13 <- obj$options$r13
                         betas$r23 <- obj$options$r23
                         check <- lapply(betas, as.numeric,USE.NAMES=T)
+                       
+                        plotdata<- data.frame(do.call(cbind,check))
+                        plotdata$cprime      <- obj$options$cprime2
+                        obj$plots$data       <- plotdata
+
                         if (any(sapply(check, is.na))) obj$filled<-FALSE
-                        obj$data<-data.frame(do.call(cbind,check))
+                        
+                        exdata        <- data.frame(id=1:3)
+                        
+                        if (obj$filled) {
+                          exdata$cprime <- plotdata$cprime
+                          exdata$a      <- c(plotdata$a1,plotdata$a2,plotdata$a3)
+                          exdata$b      <- c(plotdata$b1,plotdata$b2,plotdata$b3)
+                          corMat <- diag(5)
+                          corMat[2,1] <- corMat[1,2] <- plotdata$a1
+                          corMat[3,1] <- corMat[1,3] <- plotdata$a2
+                          corMat[4,1] <- corMat[1,4] <- plotdata$a3
+                          corMat[2,3] <- corMat[3,2] <- plotdata$r12
+                          corMat[2,4] <- corMat[4,2] <- plotdata$r13
+                          corMat[3,4] <- corMat[4,3] <- plotdata$r23
+  
+                          corMat[5,1] <- corMat[1,5] <- plotdata$cprime + plotdata$a1*plotdata$b1 + plotdata$a2*plotdata$b2 + plotdata$a3*plotdata$b3
+                          corMat[2,5] <- corMat[5,2] <- plotdata$a1*plotdata$cprime + plotdata$b1 + plotdata$b2*plotdata$r12 + plotdata$b3*plotdata$r13
+                          corMat[3,5] <- corMat[5,3] <- plotdata$a2*plotdata$cprime + plotdata$b2 + plotdata$b1*plotdata$r12 + plotdata$b3*plotdata$r13
+                          corMat[4,5] <- corMat[5,4] <- plotdata$a3*plotdata$cprime + plotdata$b3 + plotdata$b2*plotdata$r12 + plotdata$b1*plotdata$r13
+  
+                          
+                          ry <- corMat[1:4,5]
+                          rx <- corMat[1:4,1:4]  
+                          r2b <- t(ry)%*%MASS::ginv(rx)%*%ry
+                          
+                          exdata$r2b <- as.numeric(r2b)
+                          exdata$r2a <- exdata$a^2
+                          exdata$es  <-  exdata$a * exdata$b
+                          exdata$effect <- c("a1*b1","a2*b2","a3*b3")
                         }
+                        
+                        
+                        },
+              twoserial = {
+                        betas <- bs[1:4]
+                        betas$d1  <- obj$options$d1
+                        check <- lapply(betas, as.numeric,USE.NAMES=T)
+                        if (any(sapply(check, is.na))) obj$filled<-FALSE
+                        plotdata<- data.frame(do.call(cbind,check))
+                        plotdata$cprime      <- obj$options$cprime2
+                        obj$plots$data       <- plotdata
+                        exdata        <- data.frame(id=1:3)
+                        
+                        if (obj$filled) {
+                          exdata$cprime <- plotdata$cprime
+                          exdata$a      <- c(plotdata$a1,plotdata$a2,plotdata$a3)
+                          exdata$b      <- c(plotdata$b1,plotdata$b2,plotdata$b3)
+
+                         corMat <- diag(4)
+                         corMat[2,1] <- corMat[1,2] <- plotdata$a1
+                         corMat[3,1] <- corMat[1,3] <- plotdata$a2 + plotdata$d1*plotdata$a1
+                         corMat[2,3] <- corMat[3,2] <- plotdata$d1 + plotdata$a1*plotdata$a2
+
+                         corMat[4,1] <- corMat[1,4] <- plotdata$cprime + plotdata$a1*plotdata$b1 + plotdata$a1*plotdata$b2*plotdata$d2 + plotdata$a2*plotdata$b2
+                         corMat[2,4] <- corMat[4,2] <- plotdata$a1*plotdata$cprime + plotdata$b1 + plotdata$b2*plotdata$d1 + plotdata$a1*plotdata$a2*plotdata$b2
+                         corMat[3,4] <- corMat[3,4] <- plotdata$a2*plotdata$cprime + plotdata$b2 + plotdata$b1*plotdata$d1 + plotdata$a1*plotdata$cprime*plotdata$d1
+                         
+                         ry<-corMat[1:3,4]
+                         rx<-corMat[1:3,1:3]  
+                         r2b<-t(ry)%*%MASS::ginv(rx)%*%ry
+
+                         r2a1<-plotdata$a1^2
+
+                         ry<-corMat[c(1,2),3]
+                         rx<-corMat[c(1,2),c(1,2)]
+                         r2a2<-t(ry)%*%MASS::ginv(rx)%*%ry
+
+                        exdata$r2b <- as.numeric(r2b)
+                        exdata$r2a <- c(as.numeric(r2a1),as.numeric(r2a2))
+
+                        }
+                    }
               
       )
 
-      obj$data$cprime      <- obj$options$cprime2
-      obj$data$n           <- obj$options$n
-      obj$data$sig.level   <- obj$options$sig.level
-      obj$data$power       <- obj$options$power
-      obj$data$alternative <- obj$options$alternative
-      obj$data$test        <- obj$options$test
+      obj$extradata<- exdata
+      obj$extradata$n           <- obj$options$n
+      obj$extradata$sig.level   <- obj$options$sig.level
+      obj$extradata$power       <- obj$options$power
+      obj$extradata$alternative <- obj$options$alternative
+      obj$extradata$test        <- obj$options$test
+      obj$extradata[[obj$aim]]  <- NULL
 
-      obj$data[[obj$aim]]  <- NULL
+      obj$data                  <- obj$extradata[1,]
+      
       obj$info$letter      <- "ME"
       obj$info$esmax       <- .9801
       obj$info$esmin       <-  1e-06

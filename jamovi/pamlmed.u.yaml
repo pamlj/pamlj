@@ -173,8 +173,11 @@ children:
             children:
               - type: CheckBox
                 name: explain
-              - type: CheckBox
-                name: diagram
+              - type: LayoutBox
+                name: diagram_box
+                children:
+                   - type: CheckBox
+                     name: diagram
                 
   - type: CollapseBox
     label: Sensitivity Analysis

@@ -644,12 +644,13 @@ Plotter <- R6::R6Class(
       
               if (!self$option("diagram")) return()
               obj  <- private$.operator
-              data <- private$.operator$data
+              data <- private$.operator$plots$data
               image<-private$.results$diagram
               state<-list()
               jinfo("PLOTTER: preparing diagram")
               
               if (obj$options$mode == "medsimple") {
+                        image$setSize(400,300)
                         state$enlarge<-1.2
                         state$coord<-matrix(c(1,2,1,2,3,3),ncol=2,nrow=3)
                         p<-matrix(NA,nrow=2,ncol=3)
@@ -658,8 +659,16 @@ Plotter <- R6::R6Class(
                         p[2,3]<-3
                         state$p <- p
                         state$labels<-c("X","M","Y")
-                        state$edge.labels<-paste(c("a","b","c"),c(format(data$a,digits=3),format(data$b,digits=3),format(data$c,digits=3)),sep="=")
-                
+                        labs<-data[,c("a","b","cprime")]
+                        lets<-c("a","b","c'")
+                        goodvalues<-sapply(labs,function(x) {
+                                                      if (is.na(x)) return("")
+                                                      else return(paste0("=",format(x,digits=3)))})
+                                            
+                        labs        <- paste0(lets,goodvalues)
+                        
+                        state$edge.labels<-labs
+                        
               } # end of medsimple
               
               
@@ -692,7 +701,7 @@ Plotter <- R6::R6Class(
                                         lets<-c("a"%+%sub1,"b"%+%sub1,"a"%+%sub2,"b"%+%sub2,"c'","r"%+%sub1%+%sub2,"r12")
                                         goodvalues<-sapply(labs,function(x) {
                                                       if (is.na(x)) return("")
-                                                      else return(paste0("=",x))})
+                                                      else return(paste0("=",format(x,digits=3)))})
                                             
                                         labs        <- paste0(lets,goodvalues)
                                        
@@ -725,11 +734,11 @@ Plotter <- R6::R6Class(
                                        state$p <- p
 
                                        pos<-rep(.5,13)
-                                       pos[10]<-.45
+                                       pos[10]<-.42
                                        state$pos <- pos
                                        
                                        curve<-rep(0,13)
-                                       curve[10]<--3
+                                       curve[10]<--2.5
                                        state$curve<-curve
                                        
                                         state$labels<-c("X","M"%+%sub1,"M"%+%sub2,"M"%+%sub3,"Y")
@@ -743,12 +752,45 @@ Plotter <- R6::R6Class(
                                                 )
                                         goodvalues<-sapply(labs,function(x) {
                                                       if (is.na(x)) return("")
-                                                      else return(paste0("=",x))})
+                                                      else return(paste0("=",format(x,digits=3)))})
+                                            
+                                        labs        <- paste0(lets,goodvalues)
+                                        state$edge.labels <- labs
+                                        
+                            },
+                            twoserial = {
+                                      state$enlarge<-.9
+                                      state$coord<-matrix(c( 1,2,
+                                                             2,4,
+                                                             1,3,
+                                                             3,4,
+                                                             2,3,
+                                                             1,4
+                                                       ),ncol=2,byrow=T)
+                                      p<-matrix(NA,nrow=2,ncol=5)
+                                      p[2,1]<-1
+                                      p[1,2]<-2
+                                      p[1,4]<-3
+                                      p[2,5]<-4
+                                      state$p <- p
+                                      
+
+                                        state$labels<-c("X","M"%+%sub1,"M"%+%sub2,"Y")
+                                        labs<-data[,c("a1","b1","a2","b2", "d1","cprime")]
+                                        lets<-c("a"%+%sub1,"b"%+%sub1,
+                                                "a"%+%sub2,"b"%+%sub2,
+                                                "d"%+%sub1,
+                                                "c'"
+                                                )
+                                        goodvalues<-sapply(labs,function(x) {
+                                                      if (is.na(x)) return("")
+                                                      else return(paste0("=",format(x,digits=3)))})
                                             
                                         labs        <- paste0(lets,goodvalues)
                                         state$edge.labels <- labs
                                         
                             }
+                          
                           
                   ) # end of switch
 

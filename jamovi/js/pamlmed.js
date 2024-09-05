@@ -19,6 +19,12 @@ const events = {
       }
       
     },
+    mode_changed: function(ui) {
+      
+      if (ui.mode.value() === "medcomplex") {
+        ui.diagram.setValue(true);
+      } 
+    },
     model_type_changed: function(ui) {
     console.log("model_type_changed");
     update_coefs(ui);      

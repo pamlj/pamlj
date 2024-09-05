@@ -25,6 +25,12 @@ powertab <- function(obj, ...) UseMethod(".powertab")
    return(tab)
 }
   
+.powertab.medcomplex <- function(obj) {
+
+   tab<-powervector(obj,obj$extradata)
+   return(tab)
+}
+
 
 powerbyes <- function(x, ...) UseMethod(".powerbyes")
 

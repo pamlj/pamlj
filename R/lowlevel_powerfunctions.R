@@ -258,7 +258,7 @@ pamlj.prop.paired <- function (n = NULL, p1 = NULL, psi = NULL, sig.level = 0.05
 
 ### mediation ####
 
-pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2b=0,power=NULL,sig.level=.05, alternative="two.sided",test="sobel") {
+pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,power=NULL,sig.level=.05, alternative="two.sided",test="sobel") {
   
   aim<-c("n","power","es")[sapply(list(n,power,a),is.null)]
   if (length(aim) != 1) stop("Only one parameter must be null in pamlj.mediation")
@@ -273,7 +273,7 @@ pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2b=0,power=NULL
             
             p.body <- quote({
                 se.a <- .sefun(n,r2a)
-                se.b <- .sefun(n,r2b,r2den=r2a)
+                se.b <- .sefun(n,r2y,r2den=r2a)
                 se<-se.formula(a, se.a , b, se.b)
                 ncp <- (a * b) / se
                 pw<-.power.fun(ncp,alternative) 
@@ -281,8 +281,8 @@ pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2b=0,power=NULL
                 })
             p.es <- quote({
                 se.a <- .sefun(n,a^2)
-                r2b<-b^2+cprime^2+2*a*b*cprime
-                se.b <- .sefun(n,r2b,r2den=a^2)
+                r2y<-b^2+cprime^2+2*a*b*cprime
+                se.b <- .sefun(n,r2y,r2den=a^2)
                 se<-se.formula(a, se.a , b, se.b)
                 ncp <- (a * b) / se
                 pw<-.power.fun(ncp,alternative) 
@@ -295,7 +295,7 @@ pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2b=0,power=NULL
                 se.a <- .sefun(n,r2a)
                 ncpa <- a/se.a 
                 pwa<-.power.fun(ncpa,alternative) 
-                se.b <- .sefun(n,r2b,r2den=r2a)
+                se.b <- .sefun(n,r2y,r2den=r2a)
                 ncpb <- b/se.b 
                 pwb<-.power.fun(ncpb,alternative)
                 pwa*pwb
@@ -304,8 +304,8 @@ pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2b=0,power=NULL
                 se.a <- .sefun(n,a^2)
                 ncpa <- a/se.a 
                 pwa<-.power.fun(ncpa,alternative)
-                r2b<-b^2+cprime^2+2*a*b*cprime
-                se.b <- .sefun(n,r2b,r2den=a^2)
+                r2y<-b^2+cprime^2+2*a*b*cprime
+                se.b <- .sefun(n,r2y,r2den=a^2)
                 ncpb <- b/se.b 
                 pwb<-.power.fun(ncpb,alternative)
                 pwa*pwb
@@ -335,7 +335,7 @@ pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2b=0,power=NULL
      ##  checks some values
      if (is.something(a)) {
           r2a<-a^2
-          r2b<-b^2+cprime^2+2*a*b*cprime
+          r2y<-b^2+cprime^2+2*a*b*cprime
      }
 
 
@@ -383,17 +383,17 @@ pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2b=0,power=NULL
                    }
                    
                   r2a<-a^2
-                  r2b<-b^2+cprime^2+2*a*b*cprime
+                  r2y<-b^2+cprime^2+2*a*b*cprime
 
                   }
       )
       
-      results<-(list(n = round(n,digits=0), a = a, b=b , es= a*b, cprime=cprime,  r2a=r2a,r2b=r2b, sig.level = sig.level,  power = power, method=method))
+      results<-(list(n = round(n,digits=0), a = a, b=b , es= a*b, cprime=cprime,  r2a=r2a,r2y=r2y, sig.level = sig.level,  power = power, method=method))
       attributes(results)<-c(attributes(results),attribs)
       return(results)
 }
 
-pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2b=0,power=NULL,sig.level=.05, alternative="two.sided",test="mc") {
+pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,power=NULL,sig.level=.05, alternative="two.sided",test="mc") {
   
   aim<-c("n","power","es")[sapply(list(n,power,a),is.null)]
   if (length(aim) != 1) stop("Only one parameter must be null in pamlj.mediation")
@@ -403,7 +403,7 @@ pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2b=0,power=N
 
             p.body <- quote({
                    se.a<-.sefun(n=n,r2num=r2a)
-                   se.b <- .sefun(n,r2b,r2den=r2a)
+                   se.b <- .sefun(n,r2y,r2den=r2a)
                    
                    pw<-mean(unlist(sapply(1:R, function(i) {
                             a_par <- rnorm(1, a, se.a)
@@ -415,8 +415,8 @@ pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2b=0,power=N
             
             p.es <- quote({
                    se.a<-.sefun(n=n,r2num=a^2)
-                   r2b<-b^2+cprime^2+2*a*b*cprime
-                   se.b<-.sefun(n=n,r2b,r2den=a^2)
+                   r2y<-b^2+cprime^2+2*a*b*cprime
+                   se.b<-.sefun(n=n,r2y,r2den=a^2)
                    pw<-mean(unlist(sapply(1:R, function(i) {
                             a_par <- rnorm(1, a, se.a)
                             b_par <- rnorm(1, b, se.b)
@@ -434,7 +434,7 @@ pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2b=0,power=N
      ##  checks some values
      if (is.something(a)) {
                 if (r2a==0) r2a<-a^2
-                if (r2b==0) r2b<-b^2+cprime^2+2*a*b*cprime
+                if (r2y==0) r2y<-b^2+cprime^2+2*a*b*cprime
      }
      R=1000
      L=2500
@@ -445,7 +445,7 @@ pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2b=0,power=N
                   },
             n    ={
                   ### first we obtain a reasonable estimation of n
-                   check<-pamlj.mediation(a=a,b=b,cprime=cprime,r2a=r2a,r2b=r2b,power=power,sig.level=sig.level, alternative=alternative,test="joint")
+                   check<-pamlj.mediation(a=a,b=b,cprime=cprime,r2a=r2a,r2y=r2y,power=power,sig.level=sig.level, alternative=alternative,test="joint")
                    if (check$method %in% c("nmax","nmin")) return(check)
                    n_par<-check$n
                    if (n_par > 10e+06) {
@@ -458,7 +458,7 @@ pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2b=0,power=N
                   },
             es   ={
                    ### first we obtain a reasonable estimation of es
-                   check<-pamlj.mediation(n=n,a=NULL,b=b,cprime=cprime,r2a=r2a,r2b=r2b,power=power,sig.level=sig.level, alternative=alternative,test="joint")
+                   check<-pamlj.mediation(n=n,a=NULL,b=b,cprime=cprime,r2a=r2a,r2y=r2y,power=power,sig.level=sig.level, alternative=alternative,test="joint")
                    ## if powmax method is returned, we cannot do better so we stop
                    if (check$method %in% c("powmax")) return(check)
                    # now we try 
@@ -466,10 +466,10 @@ pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2b=0,power=N
                    ul <- check$power*1.05
                    a<-uniroot(function(a) eval(p.es) - power, interval = c(ll,ul))$root
                    r2a<-a^2
-                   r2b<-b^2+cprime^2+2*a*b*cprime
+                   r2y<-b^2+cprime^2+2*a*b*cprime
                   }
       )
-      results<-(list(n = round(n,digits=0), a = a, b=b , es= a*b, cprime=cprime, r2a=r2a,r2b=r2b, sig.level = sig.level,  power = power, method=method))
+      results<-(list(n = round(n,digits=0), a = a, b=b , es= a*b, cprime=cprime, r2a=r2a,r2y=r2y, sig.level = sig.level,  power = power, method=method))
       attributes(results)<-c(attributes(results),attribs)
       return(results)
 }
