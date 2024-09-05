@@ -738,7 +738,9 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
 ### mediation #### 
 
-.checkdata.mediation <- function(obj) {
+.checkdata.medsimple <- function(obj) {
+
+      jinfo("Checking data for medsimple")
   
 
       if (abs(obj$options$b) > .99)
@@ -767,9 +769,50 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$info$esmin       <-  1e-06
       obj$info$nmin        <-  10
 
-      jinfo("Checking data for mediation done")
+      jinfo("Checking data for medsimple done")
 }
 
+
+.checkdata.medcomplex <- function(obj) {
+  
+       jinfo("Checking data for medcomplex")
+
+        bs<-list(a1=obj$options$a1,b1=obj$options$b1,a2=obj$options$a2,b2=obj$options$b2,a3=obj$options$a3,b3=obj$options$b3)
+      switch (obj$options$model_type,
+              twomeds = {
+                        betas <- bs[1:4]
+                        betas$r12 <- obj$options$r12
+                        check <- lapply(betas, as.numeric,USE.NAMES=T)
+                        if (any(sapply(check, is.na))) obj$filled<-FALSE
+                        obj$data<-data.frame(do.call(cbind,check))
+                        },
+              threemeds = {
+                        betas <- bs
+                        betas$r12 <- obj$options$r12
+                        betas$r13 <- obj$options$r13
+                        betas$r23 <- obj$options$r23
+                        check <- lapply(betas, as.numeric,USE.NAMES=T)
+                        if (any(sapply(check, is.na))) obj$filled<-FALSE
+                        obj$data<-data.frame(do.call(cbind,check))
+                        }
+              
+      )
+
+      obj$data$cprime      <- obj$options$cprime2
+      obj$data$n           <- obj$options$n
+      obj$data$sig.level   <- obj$options$sig.level
+      obj$data$power       <- obj$options$power
+      obj$data$alternative <- obj$options$alternative
+      obj$data$test        <- obj$options$test
+
+      obj$data[[obj$aim]]  <- NULL
+      obj$info$letter      <- "ME"
+      obj$info$esmax       <- .9801
+      obj$info$esmin       <-  1e-06
+      obj$info$nmin        <-  10
+
+      jinfo("Checking data for medcoplex done")
+}
 
 
 checkfailure <- function(obj, ...) UseMethod(".checkfailure")

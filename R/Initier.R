@@ -14,7 +14,7 @@ Initer <- R6::R6Class(
     aim        =  NULL, # the aim of the main analysis (n, power or es)
     caller     =  NULL, # which jamovi analysis is launched (correlation, glm, ttest etc)
     mode       =  NULL, # (if present) the mode within the analysis
-
+    filled     =  TRUE, # some commands need to be filled before we go
 
     initialize=function(jmvobj) {
 

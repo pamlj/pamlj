@@ -2,7 +2,7 @@
 name: pamlmed
 title: Mediation 
 menuGroup: Power
-version: '0.0.1'
+version: '0.4.0'
 jas: '1.2'
 export: true
 completeWhenFilled: false
@@ -31,6 +31,18 @@ options:
                 ui: |
                         The aim of the analysis: `N` (default) for sample size, `Power` to estimate power, `Effect Size` for effect size (correlation)
 
+    - name: mode
+      title: "Models"
+      type: List
+      options:
+            - name: medsimple 
+              title: Simple (3 variables)
+            - name: medcomplex
+              title: Complex (multiple mediators)
+      default: simple
+
+## mode simple
+
     - name: a
       title: X to Mediator effect (a) 
       type:  Number
@@ -53,6 +65,115 @@ options:
       description:
                 R: |
                         The expected standardized effect of the independent variable on the mediator
+
+
+## mode complex
+
+    - name: model_type
+      title: "Model type"
+      type: List
+      options:
+            - name: twomeds
+              title: Two parallel mediators
+            - name: threemeds 
+              title: Three parallel mediators
+            - name: twoserial 
+              title: Two serial mediators
+
+      default: simple
+
+    - name: a1   
+      title: X to M1 (a1) 
+      type:  String
+      default: ""
+      description:
+                R: |
+                        The expected standardized effect of the independent variable on mediator 1
+    - name: b1
+      title: M1 to Y (b1) 
+      type:  String
+      default: ""
+      description:
+                R: |
+                        The expected standardized effect of the independent variable on mediator 1
+
+    - name: a2   
+      title: X to M2 (a2) 
+      type:  String
+      default: ""
+      description:
+                R: |
+                        The expected standardized effect of the independent variable on mediator 1
+    - name: b2
+      title: M2 to Y (b2) 
+      type:  String
+      default: ""
+      description:
+                R: |
+                        The expected standardized effect of the independent variable on mediator 1
+
+    - name: a3   
+      title: X to M3 (a3) 
+      type:  String
+      default: ""
+      description:
+                R: |
+                        The expected standardized effect of the independent variable on mediator 1
+    - name: b3
+      title: M3 to Y (b3) 
+      type:  String
+      default: ""
+      description:
+                R: |
+                        The expected standardized effect of the independent variable on mediator 1
+
+    - name: d1
+      title: M1 to M2 (d1) 
+      type:  String
+      default: ""
+      description:
+                R: |
+                        The expected standardized effect of the independent variable on mediator 1
+
+    - name: d2
+      title: M2 to M3 (d2) 
+      type:  String
+      default: ""
+      description:
+                R: |
+                        The expected standardized effect of the independent variable on mediator 1
+
+    - name: r12
+      title: r(12) 
+      type:  String
+      default: ""
+      description:
+                R: |
+                        The expected standardized effect of the independent variable on mediator 1
+    - name: r13
+      title: r(13) 
+      type:  String
+      default: ""
+      description:
+                R: |
+                        The expected standardized effect of the independent variable on mediator 1
+    - name: r23
+      title: r(23) 
+      type:  String
+      default: ""
+      description:
+                R: |
+                        The expected standardized effect of the independent variable on mediator 1
+
+    - name: cprime2
+      title: X to Y (c') 
+      type:  Number
+      default: 0
+      description:
+                R: |
+                        The expected standardized effect of the independent variable on the mediator
+
+
 
     - name: power
       title: Minimal desired power 

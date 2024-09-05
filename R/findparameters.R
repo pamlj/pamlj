@@ -19,7 +19,6 @@ find_min_n <- function(obj, ...) UseMethod(".find_min_n")
   
   data$n <- NULL
   data$a<-ifelse(data$a^(.5) < .99, data$a^(.5), .99)
-  mark(data)
   res<-try_hard(powervector(obj,data))
   if (isFALSE(res$error)) {
     n<-ceiling(res$obj$n)

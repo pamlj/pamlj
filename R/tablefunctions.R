@@ -216,7 +216,6 @@ extrainfo <- function(obj, ...) UseMethod(".extrainfo")
            fterms    <- obj$options$factors
            inter    <- obj$options$factors_order
            levels  <- obj$options$factor_list
-           mark(levels)
            order    <- fterms
            switch(inter, 
                   main   = order<-1 ,

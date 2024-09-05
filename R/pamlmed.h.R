@@ -7,9 +7,23 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     public = list(
         initialize = function(
             aim = "n",
+            mode = "simple",
             a = 0.3,
             b = 0.3,
             cprime = 0,
+            model_type = "simple",
+            a1 = "",
+            b1 = "",
+            a2 = "",
+            b2 = "",
+            a3 = "",
+            b3 = "",
+            d1 = "",
+            d2 = "",
+            r12 = "",
+            r13 = "",
+            r23 = "",
+            cprime2 = 0,
             power = 0.9,
             n = 100,
             sig.level = 0.05,
@@ -46,6 +60,13 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "n",
                     "power",
                     "es"))
+            private$..mode <- jmvcore::OptionList$new(
+                "mode",
+                mode,
+                options=list(
+                    "medsimple",
+                    "medcomplex"),
+                default="simple")
             private$..a <- jmvcore::OptionNumber$new(
                 "a",
                 a,
@@ -57,6 +78,62 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..cprime <- jmvcore::OptionNumber$new(
                 "cprime",
                 cprime,
+                default=0)
+            private$..model_type <- jmvcore::OptionList$new(
+                "model_type",
+                model_type,
+                options=list(
+                    "twomeds",
+                    "threemeds",
+                    "twoserial"),
+                default="simple")
+            private$..a1 <- jmvcore::OptionString$new(
+                "a1",
+                a1,
+                default="")
+            private$..b1 <- jmvcore::OptionString$new(
+                "b1",
+                b1,
+                default="")
+            private$..a2 <- jmvcore::OptionString$new(
+                "a2",
+                a2,
+                default="")
+            private$..b2 <- jmvcore::OptionString$new(
+                "b2",
+                b2,
+                default="")
+            private$..a3 <- jmvcore::OptionString$new(
+                "a3",
+                a3,
+                default="")
+            private$..b3 <- jmvcore::OptionString$new(
+                "b3",
+                b3,
+                default="")
+            private$..d1 <- jmvcore::OptionString$new(
+                "d1",
+                d1,
+                default="")
+            private$..d2 <- jmvcore::OptionString$new(
+                "d2",
+                d2,
+                default="")
+            private$..r12 <- jmvcore::OptionString$new(
+                "r12",
+                r12,
+                default="")
+            private$..r13 <- jmvcore::OptionString$new(
+                "r13",
+                r13,
+                default="")
+            private$..r23 <- jmvcore::OptionString$new(
+                "r23",
+                r23,
+                default="")
+            private$..cprime2 <- jmvcore::OptionNumber$new(
+                "cprime2",
+                cprime2,
                 default=0)
             private$..power <- jmvcore::OptionNumber$new(
                 "power",
@@ -168,9 +245,23 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 hidden=TRUE)
 
             self$.addOption(private$..aim)
+            self$.addOption(private$..mode)
             self$.addOption(private$..a)
             self$.addOption(private$..b)
             self$.addOption(private$..cprime)
+            self$.addOption(private$..model_type)
+            self$.addOption(private$..a1)
+            self$.addOption(private$..b1)
+            self$.addOption(private$..a2)
+            self$.addOption(private$..b2)
+            self$.addOption(private$..a3)
+            self$.addOption(private$..b3)
+            self$.addOption(private$..d1)
+            self$.addOption(private$..d2)
+            self$.addOption(private$..r12)
+            self$.addOption(private$..r13)
+            self$.addOption(private$..r23)
+            self$.addOption(private$..cprime2)
             self$.addOption(private$..power)
             self$.addOption(private$..n)
             self$.addOption(private$..sig.level)
@@ -195,9 +286,23 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         }),
     active = list(
         aim = function() private$..aim$value,
+        mode = function() private$..mode$value,
         a = function() private$..a$value,
         b = function() private$..b$value,
         cprime = function() private$..cprime$value,
+        model_type = function() private$..model_type$value,
+        a1 = function() private$..a1$value,
+        b1 = function() private$..b1$value,
+        a2 = function() private$..a2$value,
+        b2 = function() private$..b2$value,
+        a3 = function() private$..a3$value,
+        b3 = function() private$..b3$value,
+        d1 = function() private$..d1$value,
+        d2 = function() private$..d2$value,
+        r12 = function() private$..r12$value,
+        r13 = function() private$..r13$value,
+        r23 = function() private$..r23$value,
+        cprime2 = function() private$..cprime2$value,
         power = function() private$..power$value,
         n = function() private$..n$value,
         sig.level = function() private$..sig.level$value,
@@ -221,9 +326,23 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         .caller = function() private$...caller$value),
     private = list(
         ..aim = NA,
+        ..mode = NA,
         ..a = NA,
         ..b = NA,
         ..cprime = NA,
+        ..model_type = NA,
+        ..a1 = NA,
+        ..b1 = NA,
+        ..a2 = NA,
+        ..b2 = NA,
+        ..a3 = NA,
+        ..b3 = NA,
+        ..d1 = NA,
+        ..d2 = NA,
+        ..r12 = NA,
+        ..r13 = NA,
+        ..r23 = NA,
+        ..cprime2 = NA,
         ..power = NA,
         ..n = NA,
         ..sig.level = NA,
@@ -288,15 +407,28 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=options,
                 name="diagram",
                 title="",
-                width=400,
-                height=350,
+                width=500,
+                height=400,
                 renderFun=".plot_diagram",
                 visible="(diagram)",
                 clearWith=list(
                     "a",
                     "b",
                     "c",
-                    "aim")))
+                    "a1",
+                    "b1",
+                    "a2",
+                    "b2",
+                    "a3",
+                    "b3",
+                    "r12",
+                    "r13",
+                    "r22",
+                    "aim",
+                    "mode",
+                    "cprime",
+                    "cprime2",
+                    "model_type")))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="powertab",
@@ -307,7 +439,21 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 clearWith=list(
                     "a",
                     "b",
+                    "c",
+                    "a1",
+                    "b1",
+                    "a2",
+                    "b2",
+                    "a3",
+                    "b3",
+                    "r12",
+                    "r13",
+                    "r22",
+                    "aim",
+                    "mode",
                     "cprime",
+                    "cprime2",
+                    "model_type",
                     "power",
                     "n",
                     "sig.level",
@@ -351,12 +497,28 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "a",
                     "b",
                     "c",
+                    "a1",
+                    "b1",
+                    "a2",
+                    "b2",
+                    "a3",
+                    "b3",
+                    "r12",
+                    "r13",
+                    "r22",
+                    "aim",
+                    "mode",
                     "cprime",
+                    "cprime2",
+                    "model_type",
+                    "aim",
+                    "mode",
                     "power",
                     "n",
                     "sig.level",
                     "aim",
-                    "alternative"),
+                    "alternative",
+                    "test"),
                 columns=list(
                     list(
                         `name`="index", 
@@ -375,14 +537,27 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 clearWith=list(
                     "a",
                     "b",
+                    "c",
+                    "a1",
+                    "b1",
+                    "a2",
+                    "b2",
+                    "a3",
+                    "b3",
+                    "r12",
+                    "r13",
+                    "r22",
+                    "aim",
+                    "mode",
                     "cprime",
+                    "cprime2",
+                    "model_type",
                     "power",
                     "n",
                     "sig.level",
                     "aim",
                     "alternative",
-                    "test",
-                    "table_pwbyn"),
+                    "test"),
                 columns=list(
                     list(
                         `name`="n", 
@@ -454,7 +629,7 @@ pamlmedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             super$initialize(
                 package = "pamlj",
                 name = "pamlmed",
-                version = c(0,0,1),
+                version = c(0,4,0),
                 options = options,
                 results = pamlmedResults$new(options=options),
                 data = data,
@@ -473,11 +648,37 @@ pamlmedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' 
 #' @param aim The aim of the analysis: \code{n} (default) for sample size,
 #'   \code{power} to estimate power, \code{es} for effect size (correlation)
+#' @param mode .
 #' @param a The expected standardized effect of the independent variable on
 #'   the mediator
 #' @param b The expected standardized effect of the independent variable on
 #'   the mediator
 #' @param cprime The expected standardized effect of the independent variable
+#'   on the mediator
+#' @param model_type .
+#' @param a1 The expected standardized effect of the independent variable on
+#'   mediator 1
+#' @param b1 The expected standardized effect of the independent variable on
+#'   mediator 1
+#' @param a2 The expected standardized effect of the independent variable on
+#'   mediator 1
+#' @param b2 The expected standardized effect of the independent variable on
+#'   mediator 1
+#' @param a3 The expected standardized effect of the independent variable on
+#'   mediator 1
+#' @param b3 The expected standardized effect of the independent variable on
+#'   mediator 1
+#' @param d1 The expected standardized effect of the independent variable on
+#'   mediator 1
+#' @param d2 The expected standardized effect of the independent variable on
+#'   mediator 1
+#' @param r12 The expected standardized effect of the independent variable on
+#'   mediator 1
+#' @param r13 The expected standardized effect of the independent variable on
+#'   mediator 1
+#' @param r23 The expected standardized effect of the independent variable on
+#'   mediator 1
+#' @param cprime2 The expected standardized effect of the independent variable
 #'   on the mediator
 #' @param power Minimal desired power
 #' @param n Sample size
@@ -525,9 +726,23 @@ pamlmedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @export
 pamlmed <- function(
     aim = "n",
+    mode = "simple",
     a = 0.3,
     b = 0.3,
     cprime = 0,
+    model_type = "simple",
+    a1 = "",
+    b1 = "",
+    a2 = "",
+    b2 = "",
+    a3 = "",
+    b3 = "",
+    d1 = "",
+    d2 = "",
+    r12 = "",
+    r13 = "",
+    r23 = "",
+    cprime2 = 0,
     power = 0.9,
     n = 100,
     sig.level = 0.05,
@@ -556,9 +771,23 @@ pamlmed <- function(
 
     options <- pamlmedOptions$new(
         aim = aim,
+        mode = mode,
         a = a,
         b = b,
         cprime = cprime,
+        model_type = model_type,
+        a1 = a1,
+        b1 = b1,
+        a2 = a2,
+        b2 = b2,
+        a3 = a3,
+        b3 = b3,
+        d1 = d1,
+        d2 = d2,
+        r12 = r12,
+        r13 = r13,
+        r23 = r23,
+        cprime2 = cprime2,
         power = power,
         n = n,
         sig.level = sig.level,

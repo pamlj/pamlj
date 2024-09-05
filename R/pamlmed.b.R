@@ -79,27 +79,26 @@ pamlmedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
          .plot_diagram=function(image, ggtheme, theme, ...) {
            
              if (is.null(image$state)) return()
-           
-             coord<-matrix(c(1,2,1,2,3,3),ncol=2,nrow=3)
+             
+            m<-image$state$enlarge
 
-             p<-matrix(NA,nrow=2,ncol=3)
-             p[2,1]<-1
-             p[1,2]<-2
-             p[2,3]<-3
-
-             mark(image$state)
-             pl<-qgraph::qgraph(coord,
-                    edge.color        = "gray",
-                    edge.width        = 3, 
-                    edge.labels       = image$state$edges,
-                    edge.label.cex    = 2.5,
-                    edge.label.color  = "black",
-                
-                    shape             = "rectangle",
-                    vsize             = 18,
-                    vsize2            = 12,
-                    labels            = c("X","M","Y"),
-                    layout            = p
+             pl<-qgraph::qgraph(image$state$coord,
+                edge.color        = "gray",
+                edge.width        = 3 * m, 
+                edge.label.cex    = 1.6 * m,
+                edge.label.color  = "black",
+                edge.labels       = image$state$edge.labels ,
+                edge.label.margin = .05,
+                edge.label.position = image$state$pos,
+                shape             = "rectangle",
+                labels            =  image$state$labels,
+                label.cex         =  .7,
+                vsize             = 18 * m,
+                vsize2            = 10 * m,
+                layout            = image$state$p,
+                curve             = image$state$curve,
+                bidirectional     = T
+               
                )
              plot(pl)
        }

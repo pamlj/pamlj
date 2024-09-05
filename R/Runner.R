@@ -13,9 +13,12 @@ Runner <- R6::R6Class("Runner",
                                  # it produces the basic estimation required for all tables and plots
                                  # it fills self$data with all power parameters
                                  jinfo("PAMLj: Runner: checking data")
-
+                                
                                  checkdata(self)
                                  commonchecks(self)
+                                 if (!self$filled) {
+                                   self$ok<-FALSE
+                                 }
                                  if (!self$ok) return()
                                  jinfo("PAMLj: Runner: first estimation")
 

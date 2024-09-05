@@ -9,42 +9,150 @@ children:
     children:
       - type: ComboBox
         name: aim
-  - type: LayoutBox
+  - type: ModeSelector
+    name: mode
+    stretchFactor: 1
+    children:
+      - type: Content
+        name: medsimple
+        children:
+            - type: LayoutBox
+              margin: large
+              style: inline
+              children:
+                      - type: Label
+                        label: Parameters
+                        children:
+                          - name: a
+                            type: TextBox
+                            format: number
+                            enable: (!aim:es)
+                          - name: b
+                            type: TextBox
+                            format: number
+                          - type: TextBox
+                            name: cprime
+                            format: number
+
+      - type: Content
+        name: medcomplex
+        children:
+                  - type: LayoutBox
+                    margin: large
+                    children:
+                          - type: ComboBox
+                            name: model_type
+        
+                  - type: Label
+                    margin: large
+                    label: Standardized Coefficients
+                    children:
+                       - type: LayoutBox
+                         style: inline
+                         children:
+                              - type: Label
+                                label: Mediator 1
+                                children:
+                                          - name: a1
+                                            type: TextBox
+                                            format: string
+                                          - name: b1
+                                            type: TextBox
+                                            format: string
+
+                              - type: Label
+                                label: Mediator 2
+                                children:
+                                      - name: a2
+                                        type: TextBox
+                                        format: string
+                                      - name: b2
+                                        type: TextBox
+                                        format: string
+
+                              - type: Label
+                                name: mediator3_beta
+                                label: Mediator 3
+                                children:
+                                      - name: a3
+                                        type: TextBox
+                                        format: string
+                                      - name: b3
+                                        type: TextBox
+                                        format: string
+
+                  - type: Label
+                    name: mediators_corr
+                    margin: large
+                    label: Mediators correlations
+                    children:
+                        - type: LayoutBox
+                          style: inline
+                          children:
+                                  - type: TextBox
+                                    name: r12
+                                    format: string
+                                  - type: LayoutBox
+                                    name: mediator3_corr
+                                    style: inline
+                                    children:
+                                       - type: TextBox
+                                         name: r13
+                                         format: string
+                                       - type: TextBox
+                                         name: r23
+                                         format: string
+
+                  - type: Label
+                    name: mediators_beta
+                    margin: large
+                    label: Mediators coefficients
+                    children:
+                        - type: LayoutBox
+                          style: inline
+                          children:
+                                  - type: TextBox
+                                    name: d1
+                                    format: string
+                                  - type: LayoutBox
+                                    name: mediator2_sbeta
+                                    style: inline
+                                    children:
+                                          - type: TextBox
+                                            name: d2
+                                            format: string
+
+                  - type: Label
+                    margin: large
+                    label: Direct effect
+                    children:
+                        - type: TextBox
+                          name: cprime2
+                          format: number
+
+  - type: Label
+    label: Parameters
     margin: large
     children:
-      - type: Label
-        label: Parameters
-        children:
-          - name: a
-            type: TextBox
-            format: number
-            enable: (!aim:es)
-          - name: b
-            type: TextBox
-            format: number
-          - type: TextBox
-            name: cprime
-            format: number
-          - name: power
-            type: TextBox
-            label: Minimum desired power
-            format: number
-            enable: (!aim:power)
-          - name: 'n'
-            type: TextBox
-            label: N (Sample size)
-            format: number
-            enable: (!aim:n)
-          - name: sig.level
-            type: TextBox
-            label: '&alpha; (type I error rate)'
-            format: number
-            enable: (!aim:alpha)
-          - type: ComboBox
-            name: alternative
-      - type: LayoutBox
-        style: inline
-        children:
+                  - name: power
+                    type: TextBox
+                    label: Minimum desired power
+                    format: number
+                    enable: (!aim:power)
+                  - name: 'n'
+                    type: TextBox
+                    label: N (Sample size)
+                    format: number
+                    enable: (!aim:n)
+                  - name: sig.level
+                    type: TextBox
+                    label: '&alpha; (type I error rate)'
+                    format: number
+                  - type: ComboBox
+                    name: alternative
+  - type: LayoutBox
+    style: inline
+    children:
           - type: Label
             label: Test
             children:
