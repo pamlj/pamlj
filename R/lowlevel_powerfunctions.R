@@ -269,9 +269,9 @@ pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,power=NULL
   obetas<-NULL
   args<-list(...)
   others<-grep("^d[1-9]",names(args))
-  if (length(others)>0)
-         obetas<-args[others]
-
+  if (length(others)>0) {
+         obetas<-unlist(args[others])
+  }
    ##  checks some values
   
   if (aim != "es") {
@@ -284,14 +284,13 @@ pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,power=NULL
   }
 
   betas<-c(a,b,obetas)
-  
   or2s<-NULL
   others<-grep("^r2d[1-9]",names(args))
   if (length(others)>0)
-         or2s<-args[others]
+         or2s<-unlist(args[others])
 
   r2s  <-c(r2a,r2y,or2s)  
-  
+
   ### helping functions
   .sefun <- function(n, r2vector) {
          r2s_x<-c(0,r2vector)
@@ -302,46 +301,17 @@ pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,power=NULL
      
      sobel= {
               se.formula<-function(.betas,.se) {
-              cc<-combn(.betas^2, length(.betas)-1, simplify = FALSE)
-              sqrt(sum(sapply(cc,prod) * .se^2))
-            }
-            p.body <- quote({
-                se.betas   <- .sefun(n,r2s)
-                se         <-  se.formula(betas, se.betas)
-                ncp        <-  prod(betas) / se
-                pw         <- .power.fun(ncp) 
-                pw
-                })
-            p.es <- quote({
-                
-                r2s[1]     <-  a^2
-                r2s[2]     <-  b^2+cprime^2+2*a*b*cprime
-                se.betas   <- .sefun(n,r2s)
-                betas[1]   <-  a
-                se         <-  se.formula(betas, se.betas)
-                ncp        <-  prod(betas) / se
-                pw         <- .power.fun(ncp) 
-                pw
-                })
+                               cc<-combn(.betas^2, length(.betas)-1, simplify = FALSE)
+                               sqrt(sum(sapply(cc,prod) * .se^2))
+                          }
+            p.body <- p.sobel
+            p.es   <- p.es.sobel
 
             },
      joint= {
-            p.body <- quote({
-                se.betas   <- .sefun(n,r2s)
-                ncp        <-  betas / se.betas
-                pw         <-  sapply(ncp, .power.fun) 
-                prod(pw)
-                })
-           p.es <- quote({
-                r2s[1]     <-  a^2
-                r2s[2]     <-  b^2+cprime^2+2*a*b*cprime
-                se.betas   <- .sefun(n,r2s)
-                betas[1]   <-  a
-                ncp        <-  betas / se.betas
-                pw         <-  sapply(ncp, .power.fun) 
-                prod(pw)
-
-                })
+       
+            p.body <- p.joint
+            p.es   <- p.es.joint
 
             }
    )
@@ -417,27 +387,65 @@ pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,power=NULL
       return(results)
 }
 
-pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,power=NULL,sig.level=.05, alternative="two.sided",test="mc") {
-  
+pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,power=NULL,sig.level=.05, alternative="two.sided",test="mc",R=1000,L=1000,...) {
+
+
   aim<-c("n","power","es")[sapply(list(n,power,a),is.null)]
   if (length(aim) != 1) stop("Only one parameter must be null in pamlj.mediation")
   
-  ### helping functions
-  .sefun <- function(n, r2num, r2den=0) sqrt((1 / n) * (1 - r2num) /  (1 - r2den))
+  ### this seems strange, but with this method we can have as many sequential mediation effect as we want
+  # first we check if there are other coefficients other than a and b  
+  obetas<-NULL
+  args<-list(...)
+  others<-grep("^d[1-9]",names(args))
+  if (length(others)>0)
+         obetas<-args[others]
 
-            p.body <- quote({
-                   se.a<-.sefun(n=n,r2num=r2a)
-                   se.b <- .sefun(n,r2y,r2den=r2a)
+   ##  checks some values
+  
+  if (aim != "es") {
+      if (r2a==0)   r2a<-a^2
+      if (r2y==0)   r2y<-b^2+cprime^2+2*a*b*cprime
+  } else {
+    a <- 0
+    r2a <- 0
+    r2y <- 0
+  }
+
+  betas<-c(a,b,obetas)
+  
+  or2s<-NULL
+  others<-grep("^r2d[1-9]",names(args))
+  if (length(others)>0)
+         or2s<-args[others]
+
+  r2s  <-c(r2a,r2y,or2s)  
+
+   attribs<-list()
+   method<-"pamlj"
+  
+  ### helping functions
+        .sefun <- function(n, r2vector) {
+                        r2s_x<-c(0,r2vector)
+                        sapply(1:length(r2vector), function(i) sqrt((1 / n) * (1 - r2vector[i]) /  (1 - r2s_x[i])))
+                  }
+
+         p.body <- quote({
+           
+                   se.betas   <- .sefun(n,r2s)
                    
                    pw<-mean(unlist(sapply(1:R, function(i) {
-                            a_par <- rnorm(1, a, se.a)
-                            b_par <- rnorm(1, b, se.b)
-                            quantile(rnorm(L, a_par, se.a) * rnorm(L, b_par, se.b), probs = sig.level/2, na.rm = TRUE) > 0
+                            pars <- sapply(seq_along(betas),function(j) rnorm(1, betas[j], se.betas[j]))
+                            dist <- lapply(seq_along(betas),function(j) rnorm(L, pars[j], se.betas[j]))     
+                            dist <- as.data.frame(do.call(cbind,dist))
+                            
+                            quantile(apply(dist,1,prod), probs=sig.level/2, na.rm = TRUE) > 0
+#                            quantile(rnorm(L, a_par, se.a) * rnorm(L, b_par, se.b), probs = sig.level/2, na.rm = TRUE) > 0
                             })), na.rm=T)
                    pw
              })
-            
-            p.es <- quote({
+          
+          p.es <- quote({
                    se.a<-.sefun(n=n,r2num=a^2)
                    r2y<-b^2+cprime^2+2*a*b*cprime
                    se.b<-.sefun(n=n,r2y,r2den=a^2)
@@ -451,18 +459,7 @@ pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,power=N
        
 
 
-     # comments and warnings variables
-     attribs<-list()
-     method<-"pamlj"
-     
-     ##  checks some values
-     if (is.something(a)) {
-                if (r2a==0) r2a<-a^2
-                if (r2y==0) r2y<-b^2+cprime^2+2*a*b*cprime
-     }
-     R=1000
-     L=2500
-                
+
      switch(aim, 
             power={
                    power<-eval(p.body)
@@ -500,3 +497,44 @@ pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,power=N
 
 
 ##### mediation power functions
+
+          p.sobel <- quote({
+                se.betas   <- .sefun(n,r2s)
+                se         <-  se.formula(betas, se.betas)
+                ncp        <-  prod(betas) / se
+                pw         <- .power.fun(ncp) 
+                pw
+                })
+          
+            p.es.sobel <- quote({
+                
+                r2s[1]     <-  a^2
+                r2s[2]     <-  b^2+cprime^2+2*a*b*cprime
+                se.betas   <- .sefun(n,r2s)
+                betas[1]   <-  a
+                se         <-  se.formula(betas, se.betas)
+                ncp        <-  prod(betas) / se
+                pw         <- .power.fun(ncp) 
+                pw
+                })
+            
+            p.joint <- quote({
+                se.betas   <- .sefun(n,r2s)
+                ncp        <-  betas / se.betas
+                pw         <-  sapply(ncp, .power.fun) 
+                prod(pw)
+                })
+            
+            p.es.joint <- quote({
+                r2s[1]     <-  a^2
+                r2s[2]     <-  b^2+cprime^2+2*a*b*cprime
+                se.betas   <- .sefun(n,r2s)
+                betas[1]   <-  a
+                ncp        <-  betas / se.betas
+                pw         <-  sapply(ncp, .power.fun) 
+                prod(pw)
+
+                })
+
+            
+            
