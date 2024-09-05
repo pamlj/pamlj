@@ -465,7 +465,6 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
 .powervector.mediation <- function(obj,data) {
 
-   mark("mediation pw",data) 
                  aim<-required_param(data)
                  if (aim=="es") data$a<-NULL
                 
@@ -497,6 +496,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                           
 
                  results<-as.data.frame(do.call("rbind",results))
+                   mark("med powerfunction res",results)
                  if (nrow(results)>3) results<- na.omit(results)
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
                  
@@ -505,7 +505,8 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                  results<-cbind(odata,results)
                  names(results)<-.names
                  results$n  <- round(results$n,digits=0)
-                 results$es <- results$a*results$b
+                 mark("med powerfunction res",results)
+
                  return(results)
   
 }
