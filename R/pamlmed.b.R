@@ -49,7 +49,7 @@ pamlmedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                 jinfo(paste("MODULE:  PAMLcorr #### phase run  ####"))
                  private$.runner$run()
                  private$.plotter$preparePlots()
-
+                 private$.checkpoint()
                  for (tab in private$.smartObjs) {
                      tab$runTable()
                  }

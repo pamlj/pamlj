@@ -290,7 +290,7 @@ pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,power=NULL
          or2s<-unlist(args[others])
 
   r2s  <-c(r2a,r2y,or2s)  
-
+  
   ### helping functions
   .sefun <- function(n, r2vector) {
          r2s_x<-c(0,r2vector)
@@ -339,7 +339,7 @@ pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,power=NULL
                    power<-eval(p.body)
                   },
             n    ={
-                   n<-try(uniroot(function(n) eval(p.body) - power, interval = c(10, 1e10))$root,silent=T)
+                   n<-try(uniroot(function(n) eval(p.body) - power, interval = c(10, 1e10))$root,silent=F)
                    # if it fails, n should be too small or to large. we test for too small
                    if ("try-error" %in% class(n)) {
                       n<-10
@@ -435,10 +435,12 @@ pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,power=N
                    se.betas   <- .sefun(n,r2s)
                    
                    pw<-mean(unlist(sapply(1:R, function(i) {
+                            # for each beta we draw a random value from its distribution
                             pars <- sapply(seq_along(betas),function(j) rnorm(1, betas[j], se.betas[j]))
+                            ### than we draw a normal distribution for each parameter
                             dist <- lapply(seq_along(betas),function(j) rnorm(L, pars[j], se.betas[j]))     
                             dist <- as.data.frame(do.call(cbind,dist))
-                            
+                            ## and we test the 2.5th quantile of the product of the distributions
                             quantile(apply(dist,1,prod), probs=sig.level/2, na.rm = TRUE) > 0
 #                            quantile(rnorm(L, a_par, se.a) * rnorm(L, b_par, se.b), probs = sig.level/2, na.rm = TRUE) > 0
                             })), na.rm=T)
@@ -467,9 +469,12 @@ pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,power=N
             n    ={
                   ### first we obtain a reasonable estimation of n
                    check<-pamlj.mediation(a=a,b=b,cprime=cprime,r2a=r2a,r2y=r2y,power=power,sig.level=sig.level, alternative=alternative,test="joint")
+                   mark("mc mediation: should I go on?")
                    if (check$method %in% c("nmax","nmin")) return(check)
+                   mark("mc mediation: yes")
+
                    n_par<-check$n
-                   if (n_par > 10e+06) {
+                   if (n_par > 1e+06) {
                      check$method<-"nmax"
                      return(check)
                    }

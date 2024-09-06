@@ -1,6 +1,29 @@
 ### here are the S3 functions to fill the main tables
 
 
+powertab_init <- function(obj, ...) UseMethod(".powertab_init")
+
+.powertab_init.default <- function(obj) {
+  
+          if (!obj$ok) return()
+  
+          tab <-  obj$data
+          if (!is.null(obj$data)) 
+                 attr(tab,"titles")<-list(es=obj$info$letter)  
+          return(tab)
+          
+}
+
+.powertab_init.medcomplex <- function(obj) {
+
+          if (!obj$ok) return()
+  
+          tab <-  obj$extradata
+          attr(tab,"titles")<-list(es=obj$info$letter)  
+          return(tab)
+          
+}
+
 powertab <- function(obj, ...) UseMethod(".powertab")
 
 .powertab.default <- function(obj) return(obj$data)
@@ -348,10 +371,15 @@ extrainfo <- function(obj, ...) UseMethod(".extrainfo")
            joint = test <- "<b> for joint significance test </b> (both a and b significant)",
            mc    = test <- "with <b>Monte Carlo simulation method</b>"
    )
-   infoparms<-list(n="total sample size N=" %+% obj$data$n,
-                   es="completely standardized effect size " %+% obj$info$letter %+% " = " %+% format5(obj$data$es) %+% " given by a*b=" %+% format5(obj$data$a) %+% "*" %+% format5(obj$data$b),
+    infoparms<-list(n="total sample size N=" %+% obj$data$n,
                    power="power equal to " %+% format5(obj$data$power)
                    )
+
+   if (is.null(obj$extradata)) 
+            infoparms$es <- "completely standardized effect size " %+% obj$info$letter %+% " = " %+% format5(obj$data$es) %+% " given by a*b=" %+% format5(obj$data$a) %+% "*" %+% format5(obj$data$b)
+      else 
+            infoparms$es<- "mediated effects" %+% paste(obj$extradata$effect,collapse=", ")
+  
    
    infoparms[[obj$aim]]<-NULL
 

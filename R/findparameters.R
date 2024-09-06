@@ -64,15 +64,18 @@ return(es)
 find_min_es <- function(obj, ...) UseMethod(".find_min_es")
 
 .find_min_es.default <- function(obj,data) {
-
+ 
+  if ("es" %in% obj$info$nochecks) return(obj$info$esmin)
+  
   data$es <- NULL
+  if (is.null(data$power)) data$power=.99
   data$n  <- obj$info$nmax
   res<-try_hard(powervector(obj,data))
   if (isFALSE(res$error)) 
     es<-res$obj$es
   else
     es<-res$info$esmin
-
+mark("max es",es)
 return(es)
 }
 
@@ -80,7 +83,7 @@ return(es)
 
 
 required_param<-function(data) {
-
+  
   whichnull<-setdiff(c("n","es","sig.level","power"), names(data))  
   if (length(whichnull)>1 || length(whichnull)==0) {
          stop("PAMLj: only one parameters should be NULL: here we have ", paste(whichnull,collapse=", "))

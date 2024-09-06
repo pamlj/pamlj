@@ -95,20 +95,52 @@ effectsize_run <- function(obj, ...) UseMethod(".effectsize_run")
 
 .effectsize_init.medcomplex <- function(obj) {
 
+    if (obj$options$model_type != "threemeds" ) {
     return(list(
                list(index=letter_r2 %+% " predicting M1"),
                list(index=letter_r2 %+% " predicting M2"),
                list(index=letter_r2 %+% " predicting Y")
                  ))
+    } else
+       return(list(
+               list(index=letter_r2 %+% " predicting M1"),
+               list(index=letter_r2 %+% " predicting M2"),
+               list(index=letter_r2 %+% " predicting M3"),
+               list(index=letter_r2 %+% " predicting Y")
+                 ))
+    
+
 }
 
 .effectsize_run.medcomplex <- function(obj) {
 
-   tab <- list()
-   ladd(tab)<-list(value=obj$extradata$r2a[1])
-   ladd(tab)<-list(value=obj$extradata$r2a[2])
-   ladd(tab)<-list(value=obj$data$r2y)
-   
+  if (obj$options$model_type == "twoserial" ) {
+    return(list(
+               list(value=obj$extradata$r2a[1]),
+               list(value=obj$extradata$r2d1[3]),
+               list(value=obj$extradata$r2y[2])
+
+                 ))
+  }
+    if (obj$options$model_type == "twomeds" ) {
+    return(list(
+               list(value=obj$extradata$r2a[1]),
+               list(value=obj$extradata$r2a[2]),
+               list(value=obj$extradata$r2y[1])
+
+                 ))
+  }
+
+    if (obj$options$model_type == "threemeds" ) {
+    return(list(
+               list(value=obj$extradata$r2a[1]),
+               list(value=obj$extradata$r2a[2]),
+               list(value=obj$extradata$r2a[3]),
+               list(value=obj$extradata$r2y[1])
+
+                 ))
+  }
+
    return(tab)
   
 }

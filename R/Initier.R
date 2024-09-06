@@ -23,8 +23,7 @@ Initer <- R6::R6Class(
       jmvobj$results$issues$setContent(" ")
       jmvobj$results$plotnotes$setContent(" ")
       jmvobj$results$customnotes$setContent(" ")
-      if ("extrainfo" %in% names(jmvobj$results))
-               jmvobj$results$extrainfo$setContent(" ")
+      jmvobj$results$extrainfo$setContent(" ")
 
           self$aim                 <- jmvobj$options$aim
           self$caller              <- jmvobj$options$.caller
@@ -46,7 +45,7 @@ Initer <- R6::R6Class(
           self$info$nmax                <- 10^7
           self$info$nmax_spell          <- "ten million cases"      
           self$info$nsave               <- 10      
-
+         
 
           ### some specs for plots
           self$plots$esrange<-3
@@ -68,11 +67,8 @@ Initer <- R6::R6Class(
   }, # here initialize ends
     #### init functions #####
     init_powertab = function() {
-      
-          tab<-self$data
-          if (!is.null(self$data))
-                 attr(tab,"titles")<-list(es=self$info$letter)  
-          return(tab)
+    
+        powertab_init(self)
     },
     init_effectsize = function() {
           tab<-effectsize_init(self)
