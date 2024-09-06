@@ -354,12 +354,12 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$info$alternative <- obj$options$alternative
       obj$info$nmin        <- obj$data$df_model+2
       obj$info$logy        <- TRUE
-      obj$info$r2          <- as.numeric(obj$options$b_r2)
       
       obj$info$ri2         <- 0
       obj$info$toaes            <- function(value) value^2*(1-obj$info$ri2)/(1-obj$info$r2)
-      obj$info$fromaes          <- function(value) sqrt( value * (1-obj$info$r2)/ (1-obj$info$ri2) ) 
-
+      obj$info$fromaes          <- function(value) {
+                                                   sqrt( value * (1-obj$info$r2)/ (1-obj$info$ri2) ) 
+                               }
 
        if (is.something(obj$data$es)) {
         
@@ -383,6 +383,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
               obj$warning<-list(topic="powertab",message=paste("Model df cannot be less then the number of covariates. Model df are set to",local_df))
               obj$data$df_model<-local_df     
            }
+           
            if (nrow(obj$analysis$data) > 0) {
                 
                  rows<-max(2,length(obj$options$rx))
@@ -423,7 +424,6 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
         } else {
                 obj$stop("GLM power analysis based on beta coefficients requires an expected R-squared for the model")
        }
-  
 
 }
 
@@ -750,22 +750,25 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 .checkdata.medsimple <- function(obj) {
 
       jinfo("Checking data for medsimple")
+
   
 
-      if (abs(obj$options$b) > .99)
-                 obj$stop("Standardized coefficient (b) cannot be larger than .99")
-      if (is.something(obj$options$a) && abs(obj$options$a) > .99)
-                 obj$stop("Standardized coefficient (a) cannot be larger than .99")
-
-      if (abs(obj$options$b) < 1e-03)
-                 obj$stop("Standardized coefficient (b) absolute value cannot be smaller than .001")
-      if (is.something(obj$options$a) && abs(obj$options$a) < 1e-03)
-                 obj$stop("Standardized coefficient (a) absolute value cannot be smaller than .001 ")
-  
       obj$data             <- data.frame(b=obj$options$b)
-      obj$data$cprime      <- obj$options$cprime
       obj$data$a           <- obj$options$a
-      if (is.something(obj$data$a)) obj$data$es<-obj$data$a*obj$data$b
+      betas<-list(a=obj$data$a,b=obj$data$b,"c"=obj$data$cprime)
+      test <- check_parameters(betas, fun=function(x) (!is.null(x) && abs(x)<.001), verbose=FALSE)
+      if (length(test)>0) obj$stop("Standardized coefficients (absolute value) cannot be smaller than .001. Please correct coefficients: " %+% paste(test,collapse=", "))
+      
+      obj$data$cprime      <- obj$options$cprime
+      betas$cprime <- obj$data$cprime
+      test <- check_parameters(betas, fun=function(x) (!is.null(x) && abs(x) >.99), verbose=FALSE)
+      if (length(test)>0) obj$stop("Standardized coefficients cannot be larger than .99. Please correct coefficients: " %+% paste(test,collapse=", "))
+
+      if (is.something(obj$data$a)) {
+                      obj$data$es<-obj$data$a*obj$data$b
+                      obj$info$rxy<-obj$data$a*obj$data$b+obj$data$cprime
+      }
+      
       obj$data$n           <- obj$options$n
       obj$data$sig.level   <- obj$options$sig.level
       obj$data$power       <- obj$options$power
@@ -788,13 +791,13 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
        jinfo("Checking data for medcomplex")
 
         bs<-list(a1=obj$options$a1,b1=obj$options$b1,a2=obj$options$a2,b2=obj$options$b2,a3=obj$options$a3,b3=obj$options$b3)
-  
+        numbs<-sapply(bs,as.numeric)
         ### some checks      
-        bsnum<-sapply(bs, as.numeric,USE.NAMES=T)
-        check<-bsnum[unlist(sapply(bsnum[unlist(!sapply(bsnum,is.na))],function(x) (x>.99)))]
-        if (length(check)>0) obj$stop("Standardized coefficients cannot be larger than .99. Please correct coefficients: " %+% paste(names(check),collapse=", "))
-        check<-bsnum[unlist(sapply(bsnum[unlist(!sapply(bsnum,is.na))],function(x) (abs(x)<.001)))]
-        if (length(check)>0) obj$stop("Standardized coefficients absolute value cannot be smaller than .001. Please correct coefficients: " %+% paste(names(check),collapse=", "))
+        
+        test <- check_parameters(numbs, fun=function(x) (!is.na(x) && abs(x) >.99), verbose=FALSE)
+        if (length(test)>0) obj$stop("Standardized coefficients cannot be larger than .99. Please correct coefficients: " %+% paste(test,collapse=", "))
+        test <- check_parameters(numbs, fun=function(x) (!is.na(x) && abs(x)<.001), verbose=FALSE)
+        if (length(test)>0) obj$stop("Standardized coefficients (absolute value) cannot be smaller than .001. Please correct coefficients: " %+% paste(test,collapse=", "))
 
         
         #### here we go
@@ -833,12 +836,20 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                                         obj$stop("Input coefficients are not feasable. The resulting R-squared are impossible. Please adjust the input values")
                           }
 
-                          
+                          obj$info$rxy<-corMat[4,1]
                           exdata$r2y <- as.numeric(r2b)
                           exdata$r2a <- exdata$a^2
                           exdata$es  <-  exdata$a * exdata$b
                           exdata$effect <- c("a1*b1","a2*b2")
 
+                        } else {
+                          
+                          needed <-c("X to M1 (a1)","M1 to Y (b1)","X to M2 (a2)","M2 to Y (b2)","M1-M2 correlation (r12)")
+                          names(check)<-needed
+                          test<-check_parameters(check, fun=is.na)
+                          if (length(test)>0) obj$warning<-list(topic="issues",message=test,head="info")
+
+                          
                         }
                         
                         },
@@ -882,20 +893,19 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                           if (r2b > .99) {
                                         obj$stop("Input coefficients are not feasable. The resulting R-squared are impossible. Please adjust the input values")
                           }
- #                         mark(corMat,plotdata$cprime,exdata$a,exdata$b,r2b)
 
                           exdata$r2y <- as.numeric(r2b)
                           exdata$r2a <- exdata$a^2
                           exdata$es  <-  exdata$a * exdata$b
+                          obj$info$rxy<-corMat[5,1]
                           exdata$effect <- c("a1*b1","a2*b2","a3*b3")
                         } else {
                           
-                          needed <-c("X to M1 (a1)","M1 to Y (b1)","X to M2 (a2)","M2 to Y (b2)","X to M3 (a3)","M3 to Y (b3)","M1-M2 Correlation (r12)","M1-M3 Correlation (r13)","M2-M3 Correlation (r23)")
-                          needed <- needed[sapply(check,is.na)]
-                          text <- "<p>Please fill in the required coefficients:</p> <ul>" 
-                          for (ned in needed) text <- text %+% "<li>" %+% ned %+% "</li>" 
-                          text <-  text %+% "</ul>"
-                          obj$warning<-list(topic="issues",message=text,head="info")
+                          needed <-c("X to M1 (a1)","M1 to Y (b1)","X to M2 (a2)","M2 to Y (b2)", "X to M3 (a3)",
+                                     "M3 to Y (b3)","M1-M2 Correlation (r12)","M1-M3 Correlation (r13)", "M2-M3 Correlation (r23)")
+                          names(check)<-needed
+                          test<-check_parameters(check, fun=is.na)
+                          if (length(test)>0) obj$warning<-list(topic="issues",message=test,head="info")
                         }
                         
                         
@@ -948,18 +958,17 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                          exdata$es[1] <- plotdata$a1*plotdata$b1
                          exdata$es[2] <- plotdata$a2*plotdata$b2
                          exdata$es[3] <- plotdata$a1*plotdata$d1*plotdata$b2
-                        
+                         obj$info$rxy<-corMat[4,1]
+
                          exdata$effect <- c("a1*b1","a2*b2","a1*d1*b2")
  
 
                         } else {
                           
                           needed <-c("X to M1 (a1)","M1 to Y (b1)","X to M2 (a2)","M2 to Y (b2)","M1 to M2 (d1)")
-                          needed <- needed[sapply(check,is.na)]
-                          text <- "<p>Please fill in the required coefficients:</p> <ul>" 
-                          for (ned in needed) text <- text %+% "<li>" %+% ned %+% "</li>" 
-                          text <-  text %+% "</ul>"
-                          obj$warning<-list(topic="issues",message=text,head="info")
+                          names(check)<-needed
+                          test<-check_parameters(check, fun=is.na)
+                          if (length(test)>0) obj$warning<-list(topic="issues",message=test,head="info")
                         }
                     }
               
@@ -1042,7 +1051,7 @@ commonchecks <- function(obj) {
 
      
 
-        if ( any(obj$data$es < esmin )) {
+        if ( any(abs(obj$data$es) < abs(esmin))) {
                    message<-       "The effect size (" %+% obj$info$letter %+% " = " %+% es %+% ") is smaller than the effect size (" %+%
                                     obj$info$letter %+% " = " %+% fesmin %+% ")" %+%
                                    " that requires around " %+% obj$info$nmax_spell %+% " cases (N=" %+% obj$info$nmax %+% ")  to obtain a power of " %+%
@@ -1144,6 +1153,20 @@ morechecks <- function(obj, ...) UseMethod(".morechecks")
 
 .morechecks.default <- function(obj) return()
 
+
+.morechecks.glm <- function(obj) {
+  
+  jinfo("PAMLj: more checks glm")
+
+  if (obj$aim == "es") {
+    
+    if (obj$data$df_model==1) obj$info$r2<-obj$data$f2/(1+obj$data$f2)
+    
+  }
+
+}
+
+
 .morechecks.mediation <- function(obj) {
   
   jinfo("PAMLj: more checks mediation")
@@ -1160,6 +1183,10 @@ morechecks <- function(obj, ...) UseMethod(".morechecks")
                    .obj$data<-.obj$extradata[i,]
                    commonchecks(.obj)
    }
+  } else {
+    
+    obj$info$rxy<-obj$data$a*obj$data$b+obj$data$cprime
+    
   }
   
 }

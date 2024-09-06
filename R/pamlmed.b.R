@@ -32,7 +32,11 @@ pamlmedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                  
                  aSmartObj<-SmartTable$new(self$results$powerbyn,private$.runner)
                  ladd(private$.smartObjs)<-aSmartObj
-          
+                 
+                 aSmartObj<-SmartTable$new(self$results$powerxy,private$.runner)
+                 ladd(private$.smartObjs)<-aSmartObj
+
+                           
                  aSmartObj<-SmartTable$new(self$results$customtable,private$.runner)
                  aSmartObj$hideOn<-list("z"=NA)
                  ladd(private$.smartObjs)<-aSmartObj

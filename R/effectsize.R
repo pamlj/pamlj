@@ -78,16 +78,18 @@ effectsize_run <- function(obj, ...) UseMethod(".effectsize_run")
     return(list(
                list(index="ME"),
                list(index=letter_r2 %+% " predicting M"),
-               list(index=letter_r2 %+% " predicting Y")
+               list(index=letter_r2 %+% " predicting Y"),
+               list(index=" X-Y correlation (c) ")
                  ))
 }
 
 .effectsize_run.medsimple <- function(obj) {
 
    tab <- list()
-   ladd(tab)<-list(value=obj$data$es)
-   ladd(tab)<-list(value=obj$data$r2a)
-   ladd(tab)<-list(value=obj$data$r2y)
+   ladd(tab) <- list(value=obj$data$es)
+   ladd(tab) <- list(value=obj$data$r2a)
+   ladd(tab) <- list(value=obj$data$r2y)
+   ladd(tab) <- list(value=obj$info$rxy)
    
    return(tab)
   
@@ -99,14 +101,18 @@ effectsize_run <- function(obj, ...) UseMethod(".effectsize_run")
     return(list(
                list(index=letter_r2 %+% " predicting M1"),
                list(index=letter_r2 %+% " predicting M2"),
-               list(index=letter_r2 %+% " predicting Y")
+               list(index=letter_r2 %+% " predicting Y"),
+               list(index=" X-Y correlation (c) ")
+               
                  ))
     } else
        return(list(
                list(index=letter_r2 %+% " predicting M1"),
                list(index=letter_r2 %+% " predicting M2"),
                list(index=letter_r2 %+% " predicting M3"),
-               list(index=letter_r2 %+% " predicting Y")
+               list(index=letter_r2 %+% " predicting Y"),
+               list(index=" X-Y correlation (c) ")
+               
                  ))
     
 
@@ -118,7 +124,9 @@ effectsize_run <- function(obj, ...) UseMethod(".effectsize_run")
     return(list(
                list(value=obj$extradata$r2a[1]),
                list(value=obj$extradata$r2d1[3]),
-               list(value=obj$extradata$r2y[2])
+               list(value=obj$extradata$r2y[2]),
+               list(value=obj$info$rxy)
+ 
 
                  ))
   }
@@ -126,7 +134,8 @@ effectsize_run <- function(obj, ...) UseMethod(".effectsize_run")
     return(list(
                list(value=obj$extradata$r2a[1]),
                list(value=obj$extradata$r2a[2]),
-               list(value=obj$extradata$r2y[1])
+               list(value=obj$extradata$r2y[1]),
+               list(value=obj$info$rxy)
 
                  ))
   }
@@ -136,7 +145,8 @@ effectsize_run <- function(obj, ...) UseMethod(".effectsize_run")
                list(value=obj$extradata$r2a[1]),
                list(value=obj$extradata$r2a[2]),
                list(value=obj$extradata$r2a[3]),
-               list(value=obj$extradata$r2y[1])
+               list(value=obj$extradata$r2y[1]),
+               list(value=obj$info$rxy)
 
                  ))
   }

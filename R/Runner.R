@@ -67,6 +67,23 @@ Runner <- R6::R6Class("Runner",
                                      warning("Estimated for ES=",format(self$data$es,digits=5))
                                      return(tab)
                                },
+                              run_powerxy = function() {
+                                     if (!self$ok) return()
+                                     jinfo("PAMLj: Runner: powerxy")
+                                     r<-round(self$info$rxy,digits=4)
+                                     f2<-r^2/(1-r^2)
+                                     tab <- pamlj.glm(u=1,
+                                                      v=self$data$n-2,
+                                                      f2=f2,
+                                                      sig.level=self$data$sig.level,
+                                                      alternative=self$data$alternative,
+                                                      df_model=1)
+                                     tab$beta<-r
+                                     mark(tab)
+                                     self$info$ryxpower<-tab$power
+                                     warning("Power represts the achievable power in a simple regression with only X and Y, given the input parameters.")
+                                     return(list(tab))
+                               },
                               
                               run_means = function() {
                                 

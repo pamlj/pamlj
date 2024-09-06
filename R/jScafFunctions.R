@@ -346,3 +346,21 @@ is.joption <- function(obj, option) {
 ### formatting and stuff ###
 
 format5<-function(x) format(x,digits=5)
+
+
+check_parameters <- function(values, fun=is.null, verbose = TRUE, head="Please fill in the required input:") {
+  
+      needed <- names(values)
+      what   <- unlist(sapply(values,fun))
+      needed <- needed[what]
+      if (length(needed)>0) {
+            if (verbose) {
+            text <- "<p>" %+% head %+% "</p> <ul>" 
+            for (ned in needed) text <- text %+% "<li>" %+% ned %+% "</li>" 
+            text <-  text %+% "</ul>"
+            return(text)
+            } else 
+                return(needed)
+      }
+      return()
+}

@@ -64,6 +64,9 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                 aim<-required_param(data)
                 if (is.something(data$es)) {
                                      data$f2<-obj$info$toaes(data$es)
+                                     mark("in powevec",data$f2,obj$info$toaes,obj$data$es,obj$info$r2)
+                                     mark("in powevec",data$f2,obj$info$toaes,obj$data$es,obj$info$r2)
+
                                      data$es<-NULL
                 }
                 else 
@@ -105,9 +108,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                  for (i in seq_len(ncol(results)))  results[[i]]<-unlist(results[[i]])
                  odata<-data[, !names(data) %in% names(results)]
                  results<-cbind(odata,results)
-                 if (any(results$df_model==1)) obj$info$r2<-results$f2/(1+results$f2)
                  results$es<-obj$info$fromaes(results$f2)
-                 
                  results$df1 <-results$df_effect
                  results$df2 <-ceiling(results$v)
                 return(results)

@@ -469,9 +469,7 @@ pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,power=N
             n    ={
                   ### first we obtain a reasonable estimation of n
                    check<-pamlj.mediation(a=a,b=b,cprime=cprime,r2a=r2a,r2y=r2y,power=power,sig.level=sig.level, alternative=alternative,test="joint")
-                   mark("mc mediation: should I go on?")
                    if (check$method %in% c("nmax","nmin")) return(check)
-                   mark("mc mediation: yes")
 
                    n_par<-check$n
                    if (n_par > 1e+06) {

@@ -75,7 +75,7 @@ find_min_es <- function(obj, ...) UseMethod(".find_min_es")
     es<-res$obj$es
   else
     es<-res$info$esmin
-mark("max es",es)
+
 return(es)
 }
 

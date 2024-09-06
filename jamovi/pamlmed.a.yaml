@@ -306,6 +306,12 @@ options:
       title: "Show table"
       default: false
 
+    - name: test_c
+      type: Bool
+      title: "Test X-Y effect (w/o mediator(s))"
+      default: false
+
+
     - name: explain
       type: Bool
       title: "Explanatory text"

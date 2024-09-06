@@ -41,6 +41,7 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             plot_z_lines = 1,
             plot_z_value = list(),
             plot_to_table = FALSE,
+            test_c = FALSE,
             explain = FALSE,
             diagram = TRUE,
             .interface = "jamovi",
@@ -225,6 +226,10 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "plot_to_table",
                 plot_to_table,
                 default=FALSE)
+            private$..test_c <- jmvcore::OptionBool$new(
+                "test_c",
+                test_c,
+                default=FALSE)
             private$..explain <- jmvcore::OptionBool$new(
                 "explain",
                 explain,
@@ -279,6 +284,7 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..plot_z_lines)
             self$.addOption(private$..plot_z_value)
             self$.addOption(private$..plot_to_table)
+            self$.addOption(private$..test_c)
             self$.addOption(private$..explain)
             self$.addOption(private$..diagram)
             self$.addOption(private$...interface)
@@ -320,6 +326,7 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         plot_z_lines = function() private$..plot_z_lines$value,
         plot_z_value = function() private$..plot_z_value$value,
         plot_to_table = function() private$..plot_to_table$value,
+        test_c = function() private$..test_c$value,
         explain = function() private$..explain$value,
         diagram = function() private$..diagram$value,
         .interface = function() private$...interface$value,
@@ -360,6 +367,7 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..plot_z_lines = NA,
         ..plot_z_value = NA,
         ..plot_to_table = NA,
+        ..test_c = NA,
         ..explain = NA,
         ..diagram = NA,
         ...interface = NA,
@@ -377,6 +385,7 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         powertab = function() private$.items[["powertab"]],
         effectsize = function() private$.items[["effectsize"]],
         powerbyn = function() private$.items[["powerbyn"]],
+        powerxy = function() private$.items[["powerxy"]],
         plotnotes = function() private$.items[["plotnotes"]],
         powerNcurve = function() private$.items[["powerNcurve"]],
         powerCustom = function() private$.items[["powerCustom"]],
@@ -576,6 +585,53 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `name`="desc", 
                         `title`="Description", 
                         `type`="text"))))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="powerxy",
+                title="Power Analysis for X Y effect without mediators (c)",
+                rows=1,
+                visible="(test_c)",
+                refs=list(
+                    "pamlj"),
+                clearWith=list(
+                    "a",
+                    "b",
+                    "c",
+                    "a1",
+                    "b1",
+                    "a2",
+                    "b2",
+                    "a3",
+                    "b3",
+                    "r12",
+                    "r13",
+                    "r22",
+                    "aim",
+                    "mode",
+                    "cprime",
+                    "cprime2",
+                    "power",
+                    "n",
+                    "sig.level",
+                    "aim",
+                    "alternative"),
+                columns=list(
+                    list(
+                        `name`="beta", 
+                        `title`="\u03B2", 
+                        `type`="number"),
+                    list(
+                        `name`="n", 
+                        `title`="N", 
+                        `type`="integer"),
+                    list(
+                        `name`="power", 
+                        `title`="Power", 
+                        `type`="number"),
+                    list(
+                        `name`="sig.level", 
+                        `title`="\u03B1", 
+                        `type`="number"))))
             self$add(jmvcore::Html$new(
                 options=options,
                 name="plotnotes",
@@ -702,6 +758,7 @@ pamlmedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param plot_z_lines .
 #' @param plot_z_value .
 #' @param plot_to_table .
+#' @param test_c .
 #' @param explain .
 #' @param diagram .
 #' @param .interface Used for internal purposes
@@ -715,6 +772,7 @@ pamlmedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$effectsize} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powerbyn} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$powerxy} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$plotnotes} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powerNcurve} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerCustom} \tab \tab \tab \tab \tab an image \cr
@@ -765,6 +823,7 @@ pamlmed <- function(
     plot_z_lines = 1,
     plot_z_value = list(),
     plot_to_table = FALSE,
+    test_c = FALSE,
     explain = FALSE,
     diagram = TRUE,
     .interface = "jamovi",
@@ -810,6 +869,7 @@ pamlmed <- function(
         plot_z_lines = plot_z_lines,
         plot_z_value = plot_z_value,
         plot_to_table = plot_to_table,
+        test_c = test_c,
         explain = explain,
         diagram = diagram,
         .interface = .interface,
