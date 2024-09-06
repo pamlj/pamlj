@@ -16,7 +16,7 @@ Dispatch <- R6::R6Class(
                         initialize=function(results) { 
                           
                                   self$tables<-results
-                                  if (utils::hasName(results$options,".interface"))
+                                  if (is.joption(results$options,".interface"))
                                            self$interface<-results$options$.interface
                            
                         },

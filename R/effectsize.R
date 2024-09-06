@@ -73,22 +73,84 @@ effectsize_run <- function(obj, ...) UseMethod(".effectsize_run")
 }
 
 
-.effectsize_init.mediation <- function(obj) {
+.effectsize_init.medsimple <- function(obj) {
 
     return(list(
                list(index="ME"),
                list(index=letter_r2 %+% " predicting M"),
-               list(index=letter_r2 %+% " predicting Y")
+               list(index=letter_r2 %+% " predicting Y"),
+               list(index=" X-Y correlation (c) ")
                  ))
 }
 
-.effectsize_run.mediation <- function(obj) {
+.effectsize_run.medsimple <- function(obj) {
 
    tab <- list()
-   ladd(tab)<-list(value=obj$data$es)
-   ladd(tab)<-list(value=obj$data$r2a)
-   ladd(tab)<-list(value=obj$data$r2b)
+   ladd(tab) <- list(value=obj$data$es)
+   ladd(tab) <- list(value=obj$data$r2a)
+   ladd(tab) <- list(value=obj$data$r2y)
+   ladd(tab) <- list(value=obj$info$rxy)
    
+   return(tab)
+  
+}
+
+.effectsize_init.medcomplex <- function(obj) {
+
+    if (obj$options$model_type != "threemeds" ) {
+    return(list(
+               list(index=letter_r2 %+% " predicting M1"),
+               list(index=letter_r2 %+% " predicting M2"),
+               list(index=letter_r2 %+% " predicting Y"),
+               list(index=" X-Y correlation (c) ")
+               
+                 ))
+    } else
+       return(list(
+               list(index=letter_r2 %+% " predicting M1"),
+               list(index=letter_r2 %+% " predicting M2"),
+               list(index=letter_r2 %+% " predicting M3"),
+               list(index=letter_r2 %+% " predicting Y"),
+               list(index=" X-Y correlation (c) ")
+               
+                 ))
+    
+
+}
+
+.effectsize_run.medcomplex <- function(obj) {
+
+  if (obj$options$model_type == "twoserial" ) {
+    return(list(
+               list(value=obj$extradata$r2a[1]),
+               list(value=obj$extradata$r2d1[3]),
+               list(value=obj$extradata$r2y[2]),
+               list(value=obj$info$rxy)
+ 
+
+                 ))
+  }
+    if (obj$options$model_type == "twomeds" ) {
+    return(list(
+               list(value=obj$extradata$r2a[1]),
+               list(value=obj$extradata$r2a[2]),
+               list(value=obj$extradata$r2y[1]),
+               list(value=obj$info$rxy)
+
+                 ))
+  }
+
+    if (obj$options$model_type == "threemeds" ) {
+    return(list(
+               list(value=obj$extradata$r2a[1]),
+               list(value=obj$extradata$r2a[2]),
+               list(value=obj$extradata$r2a[3]),
+               list(value=obj$extradata$r2y[1]),
+               list(value=obj$info$rxy)
+
+                 ))
+  }
+
    return(tab)
   
 }

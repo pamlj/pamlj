@@ -32,7 +32,11 @@ pamlmedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                  
                  aSmartObj<-SmartTable$new(self$results$powerbyn,private$.runner)
                  ladd(private$.smartObjs)<-aSmartObj
-          
+                 
+                 aSmartObj<-SmartTable$new(self$results$powerxy,private$.runner)
+                 ladd(private$.smartObjs)<-aSmartObj
+
+                           
                  aSmartObj<-SmartTable$new(self$results$customtable,private$.runner)
                  aSmartObj$hideOn<-list("z"=NA)
                  ladd(private$.smartObjs)<-aSmartObj
@@ -49,7 +53,7 @@ pamlmedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                 jinfo(paste("MODULE:  PAMLcorr #### phase run  ####"))
                  private$.runner$run()
                  private$.plotter$preparePlots()
-
+                 private$.checkpoint()
                  for (tab in private$.smartObjs) {
                      tab$runTable()
                  }
@@ -75,7 +79,34 @@ pamlmedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
         .plot_custom=function(image, ggtheme, theme, ...) {
 
           private$.plotter$plot_custom(image,ggtheme,theme)
+       },
+         .plot_diagram=function(image, ggtheme, theme, ...) {
+           
+             if (is.null(image$state)) return()
+             
+            m<-image$state$enlarge
+
+             pl<-qgraph::qgraph(image$state$coord,
+                edge.color        = "gray",
+                edge.width        = 3 * m, 
+                edge.label.cex    = 1.6 * m,
+                edge.label.color  = "black",
+                edge.labels       = image$state$edge.labels ,
+                edge.label.margin = .05,
+                edge.label.position = image$state$pos,
+                shape             = "rectangle",
+                labels            =  image$state$labels,
+                label.cex         =  .7,
+                vsize             = 18 * m,
+                vsize2            = 10 * m,
+                layout            = image$state$p,
+                curve             = image$state$curve,
+                bidirectional     = T
+               
+               )
+             plot(pl)
        }
+
 
 
      

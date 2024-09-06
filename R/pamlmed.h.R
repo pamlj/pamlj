@@ -7,9 +7,23 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     public = list(
         initialize = function(
             aim = "n",
+            mode = "medsimple",
             a = 0.3,
             b = 0.3,
             cprime = 0,
+            model_type = "twomeds",
+            a1 = "",
+            b1 = "",
+            a2 = "",
+            b2 = "",
+            a3 = "",
+            b3 = "",
+            d1 = "",
+            d2 = "",
+            r12 = "",
+            r13 = "",
+            r23 = "",
+            cprime2 = 0,
             power = 0.9,
             n = 100,
             sig.level = 0.05,
@@ -27,7 +41,9 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             plot_z_lines = 1,
             plot_z_value = list(),
             plot_to_table = FALSE,
+            test_c = FALSE,
             explain = FALSE,
+            diagram = TRUE,
             .interface = "jamovi",
             .caller = "mediation", ...) {
 
@@ -45,6 +61,13 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "n",
                     "power",
                     "es"))
+            private$..mode <- jmvcore::OptionList$new(
+                "mode",
+                mode,
+                options=list(
+                    "medsimple",
+                    "medcomplex"),
+                default="medsimple")
             private$..a <- jmvcore::OptionNumber$new(
                 "a",
                 a,
@@ -56,6 +79,62 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..cprime <- jmvcore::OptionNumber$new(
                 "cprime",
                 cprime,
+                default=0)
+            private$..model_type <- jmvcore::OptionList$new(
+                "model_type",
+                model_type,
+                options=list(
+                    "twomeds",
+                    "threemeds",
+                    "twoserial"),
+                default="twomeds")
+            private$..a1 <- jmvcore::OptionString$new(
+                "a1",
+                a1,
+                default="")
+            private$..b1 <- jmvcore::OptionString$new(
+                "b1",
+                b1,
+                default="")
+            private$..a2 <- jmvcore::OptionString$new(
+                "a2",
+                a2,
+                default="")
+            private$..b2 <- jmvcore::OptionString$new(
+                "b2",
+                b2,
+                default="")
+            private$..a3 <- jmvcore::OptionString$new(
+                "a3",
+                a3,
+                default="")
+            private$..b3 <- jmvcore::OptionString$new(
+                "b3",
+                b3,
+                default="")
+            private$..d1 <- jmvcore::OptionString$new(
+                "d1",
+                d1,
+                default="")
+            private$..d2 <- jmvcore::OptionString$new(
+                "d2",
+                d2,
+                default="")
+            private$..r12 <- jmvcore::OptionString$new(
+                "r12",
+                r12,
+                default="")
+            private$..r13 <- jmvcore::OptionString$new(
+                "r13",
+                r13,
+                default="")
+            private$..r23 <- jmvcore::OptionString$new(
+                "r23",
+                r23,
+                default="")
+            private$..cprime2 <- jmvcore::OptionNumber$new(
+                "cprime2",
+                cprime2,
                 default=0)
             private$..power <- jmvcore::OptionNumber$new(
                 "power",
@@ -147,10 +226,18 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "plot_to_table",
                 plot_to_table,
                 default=FALSE)
+            private$..test_c <- jmvcore::OptionBool$new(
+                "test_c",
+                test_c,
+                default=FALSE)
             private$..explain <- jmvcore::OptionBool$new(
                 "explain",
                 explain,
                 default=FALSE)
+            private$..diagram <- jmvcore::OptionBool$new(
+                "diagram",
+                diagram,
+                default=TRUE)
             private$...interface <- jmvcore::OptionString$new(
                 ".interface",
                 .interface,
@@ -163,9 +250,23 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 hidden=TRUE)
 
             self$.addOption(private$..aim)
+            self$.addOption(private$..mode)
             self$.addOption(private$..a)
             self$.addOption(private$..b)
             self$.addOption(private$..cprime)
+            self$.addOption(private$..model_type)
+            self$.addOption(private$..a1)
+            self$.addOption(private$..b1)
+            self$.addOption(private$..a2)
+            self$.addOption(private$..b2)
+            self$.addOption(private$..a3)
+            self$.addOption(private$..b3)
+            self$.addOption(private$..d1)
+            self$.addOption(private$..d2)
+            self$.addOption(private$..r12)
+            self$.addOption(private$..r13)
+            self$.addOption(private$..r23)
+            self$.addOption(private$..cprime2)
             self$.addOption(private$..power)
             self$.addOption(private$..n)
             self$.addOption(private$..sig.level)
@@ -183,15 +284,31 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..plot_z_lines)
             self$.addOption(private$..plot_z_value)
             self$.addOption(private$..plot_to_table)
+            self$.addOption(private$..test_c)
             self$.addOption(private$..explain)
+            self$.addOption(private$..diagram)
             self$.addOption(private$...interface)
             self$.addOption(private$...caller)
         }),
     active = list(
         aim = function() private$..aim$value,
+        mode = function() private$..mode$value,
         a = function() private$..a$value,
         b = function() private$..b$value,
         cprime = function() private$..cprime$value,
+        model_type = function() private$..model_type$value,
+        a1 = function() private$..a1$value,
+        b1 = function() private$..b1$value,
+        a2 = function() private$..a2$value,
+        b2 = function() private$..b2$value,
+        a3 = function() private$..a3$value,
+        b3 = function() private$..b3$value,
+        d1 = function() private$..d1$value,
+        d2 = function() private$..d2$value,
+        r12 = function() private$..r12$value,
+        r13 = function() private$..r13$value,
+        r23 = function() private$..r23$value,
+        cprime2 = function() private$..cprime2$value,
         power = function() private$..power$value,
         n = function() private$..n$value,
         sig.level = function() private$..sig.level$value,
@@ -209,14 +326,30 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         plot_z_lines = function() private$..plot_z_lines$value,
         plot_z_value = function() private$..plot_z_value$value,
         plot_to_table = function() private$..plot_to_table$value,
+        test_c = function() private$..test_c$value,
         explain = function() private$..explain$value,
+        diagram = function() private$..diagram$value,
         .interface = function() private$...interface$value,
         .caller = function() private$...caller$value),
     private = list(
         ..aim = NA,
+        ..mode = NA,
         ..a = NA,
         ..b = NA,
         ..cprime = NA,
+        ..model_type = NA,
+        ..a1 = NA,
+        ..b1 = NA,
+        ..a2 = NA,
+        ..b2 = NA,
+        ..a3 = NA,
+        ..b3 = NA,
+        ..d1 = NA,
+        ..d2 = NA,
+        ..r12 = NA,
+        ..r13 = NA,
+        ..r23 = NA,
+        ..cprime2 = NA,
         ..power = NA,
         ..n = NA,
         ..sig.level = NA,
@@ -234,7 +367,9 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..plot_z_lines = NA,
         ..plot_z_value = NA,
         ..plot_to_table = NA,
+        ..test_c = NA,
         ..explain = NA,
+        ..diagram = NA,
         ...interface = NA,
         ...caller = NA)
 )
@@ -246,9 +381,11 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         intro = function() private$.items[["intro"]],
         extrainfo = function() private$.items[["extrainfo"]],
         issues = function() private$.items[["issues"]],
+        diagram = function() private$.items[["diagram"]],
         powertab = function() private$.items[["powertab"]],
         effectsize = function() private$.items[["effectsize"]],
         powerbyn = function() private$.items[["powerbyn"]],
+        powerxy = function() private$.items[["powerxy"]],
         plotnotes = function() private$.items[["plotnotes"]],
         powerNcurve = function() private$.items[["powerNcurve"]],
         powerCustom = function() private$.items[["powerCustom"]],
@@ -275,6 +412,32 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 name="issues",
                 title="Issues",
                 visible=FALSE))
+            self$add(jmvcore::Image$new(
+                options=options,
+                name="diagram",
+                title="",
+                width=500,
+                height=400,
+                renderFun=".plot_diagram",
+                visible="(diagram)",
+                clearWith=list(
+                    "a",
+                    "b",
+                    "c",
+                    "a1",
+                    "b1",
+                    "a2",
+                    "b2",
+                    "a3",
+                    "b3",
+                    "r12",
+                    "r13",
+                    "r22",
+                    "aim",
+                    "mode",
+                    "cprime",
+                    "cprime2",
+                    "model_type")))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="powertab",
@@ -285,7 +448,21 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 clearWith=list(
                     "a",
                     "b",
+                    "c",
+                    "a1",
+                    "b1",
+                    "a2",
+                    "b2",
+                    "a3",
+                    "b3",
+                    "r12",
+                    "r13",
+                    "r22",
+                    "aim",
+                    "mode",
                     "cprime",
+                    "cprime2",
+                    "model_type",
                     "power",
                     "n",
                     "sig.level",
@@ -293,6 +470,11 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "alternative",
                     "test"),
                 columns=list(
+                    list(
+                        `name`="effect", 
+                        `title`="Effect", 
+                        `type`="text", 
+                        `visible`="(mode:medcomplex)"),
                     list(
                         `name`="n", 
                         `title`="N", 
@@ -329,11 +511,28 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "a",
                     "b",
                     "c",
+                    "a1",
+                    "b1",
+                    "a2",
+                    "b2",
+                    "a3",
+                    "b3",
+                    "r12",
+                    "r13",
+                    "r22",
+                    "aim",
+                    "mode",
+                    "cprime",
+                    "cprime2",
+                    "model_type",
+                    "aim",
+                    "mode",
                     "power",
                     "n",
                     "sig.level",
                     "aim",
-                    "alternative"),
+                    "alternative",
+                    "test"),
                 columns=list(
                     list(
                         `name`="index", 
@@ -352,7 +551,21 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 clearWith=list(
                     "a",
                     "b",
+                    "c",
+                    "a1",
+                    "b1",
+                    "a2",
+                    "b2",
+                    "a3",
+                    "b3",
+                    "r12",
+                    "r13",
+                    "r22",
+                    "aim",
+                    "mode",
                     "cprime",
+                    "cprime2",
+                    "model_type",
                     "power",
                     "n",
                     "sig.level",
@@ -372,6 +585,53 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `name`="desc", 
                         `title`="Description", 
                         `type`="text"))))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="powerxy",
+                title="Power Analysis for X Y effect without mediators (c)",
+                rows=1,
+                visible="(test_c)",
+                refs=list(
+                    "pamlj"),
+                clearWith=list(
+                    "a",
+                    "b",
+                    "c",
+                    "a1",
+                    "b1",
+                    "a2",
+                    "b2",
+                    "a3",
+                    "b3",
+                    "r12",
+                    "r13",
+                    "r22",
+                    "aim",
+                    "mode",
+                    "cprime",
+                    "cprime2",
+                    "power",
+                    "n",
+                    "sig.level",
+                    "aim",
+                    "alternative"),
+                columns=list(
+                    list(
+                        `name`="beta", 
+                        `title`="\u03B2", 
+                        `type`="number"),
+                    list(
+                        `name`="n", 
+                        `title`="N", 
+                        `type`="integer"),
+                    list(
+                        `name`="power", 
+                        `title`="Power", 
+                        `type`="number"),
+                    list(
+                        `name`="sig.level", 
+                        `title`="\u03B1", 
+                        `type`="number"))))
             self$add(jmvcore::Html$new(
                 options=options,
                 name="plotnotes",
@@ -430,7 +690,7 @@ pamlmedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             super$initialize(
                 package = "pamlj",
                 name = "pamlmed",
-                version = c(0,0,1),
+                version = c(0,4,0),
                 options = options,
                 results = pamlmedResults$new(options=options),
                 data = data,
@@ -449,11 +709,37 @@ pamlmedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' 
 #' @param aim The aim of the analysis: \code{n} (default) for sample size,
 #'   \code{power} to estimate power, \code{es} for effect size (correlation)
+#' @param mode .
 #' @param a The expected standardized effect of the independent variable on
 #'   the mediator
 #' @param b The expected standardized effect of the independent variable on
 #'   the mediator
 #' @param cprime The expected standardized effect of the independent variable
+#'   on the mediator
+#' @param model_type .
+#' @param a1 The expected standardized effect of the independent variable on
+#'   mediator 1
+#' @param b1 The expected standardized effect of the independent variable on
+#'   mediator 1
+#' @param a2 The expected standardized effect of the independent variable on
+#'   mediator 1
+#' @param b2 The expected standardized effect of the independent variable on
+#'   mediator 1
+#' @param a3 The expected standardized effect of the independent variable on
+#'   mediator 1
+#' @param b3 The expected standardized effect of the independent variable on
+#'   mediator 1
+#' @param d1 The expected standardized effect of the independent variable on
+#'   mediator 1
+#' @param d2 The expected standardized effect of the independent variable on
+#'   mediator 1
+#' @param r12 The expected standardized effect of the independent variable on
+#'   mediator 1
+#' @param r13 The expected standardized effect of the independent variable on
+#'   mediator 1
+#' @param r23 The expected standardized effect of the independent variable on
+#'   mediator 1
+#' @param cprime2 The expected standardized effect of the independent variable
 #'   on the mediator
 #' @param power Minimal desired power
 #' @param n Sample size
@@ -472,7 +758,9 @@ pamlmedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param plot_z_lines .
 #' @param plot_z_value .
 #' @param plot_to_table .
+#' @param test_c .
 #' @param explain .
+#' @param diagram .
 #' @param .interface Used for internal purposes
 #' @param .caller Used for internal purposes
 #' @return A results object containing:
@@ -480,9 +768,11 @@ pamlmedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$extrainfo} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$issues} \tab \tab \tab \tab \tab a html \cr
+#'   \code{results$diagram} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$effectsize} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powerbyn} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$powerxy} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$plotnotes} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powerNcurve} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerCustom} \tab \tab \tab \tab \tab an image \cr
@@ -499,9 +789,23 @@ pamlmedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @export
 pamlmed <- function(
     aim = "n",
+    mode = "medsimple",
     a = 0.3,
     b = 0.3,
     cprime = 0,
+    model_type = "twomeds",
+    a1 = "",
+    b1 = "",
+    a2 = "",
+    b2 = "",
+    a3 = "",
+    b3 = "",
+    d1 = "",
+    d2 = "",
+    r12 = "",
+    r13 = "",
+    r23 = "",
+    cprime2 = 0,
     power = 0.9,
     n = 100,
     sig.level = 0.05,
@@ -519,7 +823,9 @@ pamlmed <- function(
     plot_z_lines = 1,
     plot_z_value = list(),
     plot_to_table = FALSE,
+    test_c = FALSE,
     explain = FALSE,
+    diagram = TRUE,
     .interface = "jamovi",
     .caller = "mediation") {
 
@@ -529,9 +835,23 @@ pamlmed <- function(
 
     options <- pamlmedOptions$new(
         aim = aim,
+        mode = mode,
         a = a,
         b = b,
         cprime = cprime,
+        model_type = model_type,
+        a1 = a1,
+        b1 = b1,
+        a2 = a2,
+        b2 = b2,
+        a3 = a3,
+        b3 = b3,
+        d1 = d1,
+        d2 = d2,
+        r12 = r12,
+        r13 = r13,
+        r23 = r23,
+        cprime2 = cprime2,
         power = power,
         n = n,
         sig.level = sig.level,
@@ -549,7 +869,9 @@ pamlmed <- function(
         plot_z_lines = plot_z_lines,
         plot_z_value = plot_z_value,
         plot_to_table = plot_to_table,
+        test_c = test_c,
         explain = explain,
+        diagram = diagram,
         .interface = .interface,
         .caller = .caller)
 

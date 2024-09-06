@@ -13,9 +13,12 @@ Runner <- R6::R6Class("Runner",
                                  # it produces the basic estimation required for all tables and plots
                                  # it fills self$data with all power parameters
                                  jinfo("PAMLj: Runner: checking data")
-
+                                
                                  checkdata(self)
                                  commonchecks(self)
+                                 if (!self$filled) {
+                                   self$ok<-FALSE
+                                 }
                                  if (!self$ok) return()
                                  jinfo("PAMLj: Runner: first estimation")
 
@@ -63,6 +66,26 @@ Runner <- R6::R6Class("Runner",
                                      tab <- powerbyn(self)
                                      warning("Estimated for ES=",format(self$data$es,digits=5))
                                      return(tab)
+                               },
+                              run_powerxy = function() {
+                                     if (!self$ok) return()
+                                
+                                     jinfo("PAMLj: Runner: powerxy")
+                                     r<-self$info$rxy
+                                     f2<-r^2/(1-r^2)
+                                    
+                                     tab <- pamlj.glm(u=1,
+                                                      v=self$data$n-2,
+                                                      f2=f2,
+                                                      sig.level=self$data$sig.level,
+                                                      alternative=self$data$alternative,
+                                                      df_model=1)
+                                     tab$beta<-r
+                                     self$info$ryxpower<-tab$power
+                                     text <- "Power rapresents the attainable power in a simple regression with only X and Y, given the input parameters."
+                                     text <- text %+% " The N is set based on the smallest mediated effect."
+                                     warning(text)
+                                     return(list(tab))
                                },
                               
                               run_means = function() {

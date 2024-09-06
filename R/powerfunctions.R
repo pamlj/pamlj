@@ -105,9 +105,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                  for (i in seq_len(ncol(results)))  results[[i]]<-unlist(results[[i]])
                  odata<-data[, !names(data) %in% names(results)]
                  results<-cbind(odata,results)
-                 if (any(results$df_model==1)) obj$info$r2<-results$f2/(1+results$f2)
                  results$es<-obj$info$fromaes(results$f2)
-                 
                  results$df1 <-results$df_effect
                  results$df2 <-ceiling(results$v)
                 return(results)
@@ -469,10 +467,11 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                  if (aim=="es") data$a<-NULL
                 
 
-                .names <- intersect(names(data),rlang::fn_fmls_names(pamlj.mediation))
-                
+#                .names <- intersect(names(data),rlang::fn_fmls_names(pamlj.mediation))
+                .names <- names(data)
                 results<-lapply(1:nrow(data),function(i) {
-                     one      <-as.list(data[i,.names])
+                     one      <- as.list(data[i,.names])
+                     one      <- one[!sapply(one,is.na)]
                      if (one$test=="mc") fun<-pamlj.mediation.mc
                      else fun<-pamlj.mediation
                      tryobj<-try_hard(do.call(fun,one), silent=F)
@@ -496,6 +495,7 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                           
 
                  results<-as.data.frame(do.call("rbind",results))
+               
                  if (nrow(results)>3) results<- na.omit(results)
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
                  
@@ -504,7 +504,6 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                  results<-cbind(odata,results)
                  names(results)<-.names
                  results$n  <- round(results$n,digits=0)
-                 results$es <- results$a*results$b
                  return(results)
   
 }

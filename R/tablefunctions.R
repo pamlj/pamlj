@@ -1,6 +1,29 @@
 ### here are the S3 functions to fill the main tables
 
 
+powertab_init <- function(obj, ...) UseMethod(".powertab_init")
+
+.powertab_init.default <- function(obj) {
+  
+          if (!obj$ok) return()
+  
+          tab <-  obj$data
+          if (!is.null(obj$data)) 
+                 attr(tab,"titles")<-list(es=obj$info$letter)  
+          return(tab)
+          
+}
+
+.powertab_init.medcomplex <- function(obj) {
+
+          if (!obj$ok) return()
+  
+          tab <-  obj$extradata
+          attr(tab,"titles")<-list(es=obj$info$letter)  
+          return(tab)
+          
+}
+
 powertab <- function(obj, ...) UseMethod(".powertab")
 
 .powertab.default <- function(obj) return(obj$data)
@@ -25,6 +48,12 @@ powertab <- function(obj, ...) UseMethod(".powertab")
    return(tab)
 }
   
+.powertab.medcomplex <- function(obj) {
+
+   tab<-powervector(obj,obj$extradata)
+   return(tab)
+}
+
 
 powerbyes <- function(x, ...) UseMethod(".powerbyes")
 
@@ -97,8 +126,6 @@ powerbyn <- function(x, ...) UseMethod(".powerbyn")
             dd$n<-NULL    
             results<-powervector(obj,dd)
             results$n<-round(results$n,digits=0)
-#            check<-which(is.na(res$es))
-#            if (length(check)>0) warning("Some effect size cannot be computed given the input parameters.")
 
             esList <-list(
                           list(n=results$n[1]),
@@ -218,7 +245,6 @@ extrainfo <- function(obj, ...) UseMethod(".extrainfo")
            fterms    <- obj$options$factors
            inter    <- obj$options$factors_order
            levels  <- obj$options$factor_list
-           mark(levels)
            order    <- fterms
            switch(inter, 
                   main   = order<-1 ,
@@ -345,10 +371,15 @@ extrainfo <- function(obj, ...) UseMethod(".extrainfo")
            joint = test <- "<b> for joint significance test </b> (both a and b significant)",
            mc    = test <- "with <b>Monte Carlo simulation method</b>"
    )
-   infoparms<-list(n="total sample size N=" %+% obj$data$n,
-                   es="completely standardized effect size " %+% obj$info$letter %+% " = " %+% format5(obj$data$es) %+% " given by a*b=" %+% format5(obj$data$a) %+% "*" %+% format5(obj$data$b),
+    infoparms<-list(n="total sample size N=" %+% obj$data$n,
                    power="power equal to " %+% format5(obj$data$power)
                    )
+
+   if (is.null(obj$extradata)) 
+            infoparms$es <- "completely standardized effect size " %+% obj$info$letter %+% " = " %+% format5(obj$data$es) %+% " given by a*b=" %+% format5(obj$data$a) %+% "*" %+% format5(obj$data$b)
+      else 
+            infoparms$es<- "mediated effects" %+% paste(obj$extradata$effect,collapse=", ")
+  
    
    infoparms[[obj$aim]]<-NULL
 
@@ -361,6 +392,12 @@ extrainfo <- function(obj, ...) UseMethod(".extrainfo")
     if (obj$aim == "es") text <- text %+% " The required X to mediation coefficient (a) is " %+% format5(obj$data$a) %+% " yielding a power equal to " %+%  format5(obj$data$power) %+% "."
 
      text <- text %+% "</p>"
+     
+     if (is.something(obj$info$ryxpower)) text <- text %+%
+                                                 "<p> Given the results, the test concerning the simple regression between X and Y will have power equal to " %+%
+                                                  obj$info$ryxpower %+% 
+                                                 "<p>"
+     
     obj$warning<-list(topic="extrainfo",message=text,head="info")  
 
 }

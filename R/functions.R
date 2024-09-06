@@ -25,16 +25,6 @@ fields_tome <- function(obj, ...) UseMethod(".fields_tome")
 }
 
 
-
-
-required_param<-function(data) {
-
-  whichnull<-setdiff(c("n","es","sig.level","power"), names(data))  
-  if (length(whichnull)>1 || length(whichnull)==0)
-         stop("PAMLj: only one parameters should be NULL")
-  whichnull
-}
-
 nicify_param<- function(what,short=FALSE) {
 
   if (short) {

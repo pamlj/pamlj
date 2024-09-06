@@ -8,6 +8,12 @@ items:
     - name: intro
       title: Introduction
       type: Html
+
+    - name: extrainfo
+      title: Extra Info
+      type: Html
+      visible: false
+
     - name: issues
       title: Issues
       type: Html

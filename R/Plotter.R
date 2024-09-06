@@ -22,6 +22,13 @@ Plotter <- R6::R6Class(
       },
       preparePlots=function(image, ggtheme, theme, ...) {
         
+        
+            ## first we prepare plots that should go anyway
+        
+            private$.prepare_diagram()
+
+            ## then we prepare plots that should go if calculation has succeeded
+        
             if (!private$.operator$ok || !private$.operator$plots$sensitivity) {
               if ("powerContour" %in% names(private$.results))
                             private$.results$powerContour$setVisible(FALSE)
@@ -632,6 +639,166 @@ Plotter <- R6::R6Class(
             
             return(z_values)
     
+    },
+    .prepare_diagram=function() {
+      
+              if (!self$option("diagram")) return()
+              obj  <- private$.operator
+              data <- private$.operator$plots$data
+              image<-private$.results$diagram
+              state<-list()
+              jinfo("PLOTTER: preparing diagram")
+              
+              if (obj$options$mode == "medsimple") {
+                        image$setSize(400,300)
+                        state$enlarge<-1.2
+                        state$coord<-matrix(c(1,2,1,2,3,3),ncol=2,nrow=3)
+                        p<-matrix(NA,nrow=2,ncol=3)
+                        p[2,1]<-1
+                        p[1,2]<-2
+                        p[2,3]<-3
+                        state$p <- p
+                        state$labels<-c("X","M","Y")
+                        labs<-data[,c("a","b","cprime")]
+                        lets<-c("a","b","c'")
+                        goodvalues<-sapply(labs,function(x) {
+                                                      if (is.na(x)) return("")
+                                                      else return(paste0("=",format(x,digits=3)))})
+                                            
+                        labs        <- paste0(lets,goodvalues)
+                        
+                        state$edge.labels<-labs
+                        
+              } # end of medsimple
+              
+              
+              if (obj$options$mode == "medcomplex") {
+                  switch (obj$options$model_type,
+                            twomeds = {
+                                       state$enlarge<-1
+                                       state$coord<-matrix(c( 1,2,
+                                                              2,4,
+                                                              1,3,
+                                                              3,4,
+                                                              1,4,
+                                                              2,3,
+                                                              3,2
+                                                     ),ncol=2,byrow=T)
+
+                                        p<-matrix(NA,nrow=3,ncol=3)
+                                        p[2,1]<-1
+                                        p[1,2]<-2
+                                        p[3,2]<-3
+                                        p[2,3]<-4
+                                        state$p<-p
+                                        
+                                        pos<-rep(.5,7)
+                                        pos[6]<-.4
+                                        state$pos<-pos
+                                        
+                                        state$labels<-c("X","M"%+%sub1,"M"%+%sub2,"Y")
+                                        labs<-data[,c("a1","b1","a2","b2","cprime","r12","r12")]
+                                        lets<-c("a"%+%sub1,"b"%+%sub1,"a"%+%sub2,"b"%+%sub2,"c'","r"%+%sub1%+%sub2,"r12")
+                                        goodvalues<-sapply(labs,function(x) {
+                                                      if (is.na(x)) return("")
+                                                      else return(paste0("=",format(x,digits=3)))})
+                                            
+                                        labs        <- paste0(lets,goodvalues)
+                                       
+                                        state$edge.labels <- labs
+                                        state$curve <- c(0,0,0,0,0,-2)
+                            },
+                            threemeds = {
+                                       state$enlarge<-.8
+                                       state$coord<-matrix(c( 1,2,
+                                                        2,5,
+                                                        1,3,
+                                                        3,5,
+                                                        1,4,
+                                                        4,5,
+                                                        1,5,
+                                                        2,3,
+                                                        3,2,
+                                                        2,4,
+                                                        4,2,
+                                                        3,4,
+                                                        4,3
+                                                        ),ncol=2,byrow=T)
+
+                                       p<-matrix(NA,nrow=3,ncol=3)
+                                       p[2,1]<-1
+                                       p[1,2]<-2
+                                       p[2,2]<-3
+                                       p[3,2]<-4
+                                       p[2,3]<-5
+                                       state$p <- p
+
+                                       pos<-rep(.5,13)
+                                       pos[10]<-.42
+                                       state$pos <- pos
+                                       
+                                       curve<-rep(0,13)
+                                       curve[10]<--2.5
+                                       state$curve<-curve
+                                       
+                                        state$labels<-c("X","M"%+%sub1,"M"%+%sub2,"M"%+%sub3,"Y")
+                                        labs<-data[,c("a1","b1","a2","b2","a3","b3","cprime","r12","r12","r13","r13","r23","r23")]
+                                        lets<-c("a"%+%sub1,"b"%+%sub1,
+                                                "a"%+%sub2,"b"%+%sub2,
+                                                "a"%+%sub3,"b"%+%sub3,"c'",
+                                                "r"%+%sub1%+%sub2,"r12",
+                                                "r"%+%sub1%+%sub3,"r13",
+                                                "r"%+%sub2%+%sub3,"r23"
+                                                )
+                                        goodvalues<-sapply(labs,function(x) {
+                                                      if (is.na(x)) return("")
+                                                      else return(paste0("=",format(x,digits=3)))})
+                                            
+                                        labs        <- paste0(lets,goodvalues)
+                                        state$edge.labels <- labs
+                                        
+                            },
+                            twoserial = {
+                                      state$enlarge<-.9
+                                      state$coord<-matrix(c( 1,2,
+                                                             2,4,
+                                                             1,3,
+                                                             3,4,
+                                                             2,3,
+                                                             1,4
+                                                       ),ncol=2,byrow=T)
+                                      p<-matrix(NA,nrow=2,ncol=5)
+                                      p[2,1]<-1
+                                      p[1,2]<-2
+                                      p[1,4]<-3
+                                      p[2,5]<-4
+                                      state$p <- p
+                                      
+
+                                        state$labels<-c("X","M"%+%sub1,"M"%+%sub2,"Y")
+                                        labs<-data[,c("a1","b1","a2","b2", "d1","cprime")]
+                                        lets<-c("a"%+%sub1,"b"%+%sub1,
+                                                "a"%+%sub2,"b"%+%sub2,
+                                                "d"%+%sub1,
+                                                "c'"
+                                                )
+                                        goodvalues<-sapply(labs,function(x) {
+                                                      if (is.na(x)) return("")
+                                                      else return(paste0("=",format(x,digits=3)))})
+                                            
+                                        labs        <- paste0(lets,goodvalues)
+                                        state$edge.labels <- labs
+                                        
+                            }
+                          
+                          
+                  ) # end of switch
+
+              } # end of medcomplex
+              
+              
+              image$setState(state)
+
     }
 
   ) # end of private

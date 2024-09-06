@@ -38,14 +38,11 @@ INFO[["mediation"]]<-" <h1> Info </h1>
              <div>
              <p> Please select the aim of the analysis:</p>
              <ul>
-             <li> <b> Calculate N</b> computes the required sample size given the <b> a = X to Mediation</b> and <b> Mediator to Y</b> standardized coefficients and <b> Minimum desire power</b>  </li>          
-             <li> <b> Calculate Power</b> computes the achievable power given the <b> b= X to Mediation</b> and <b> Mediator to Y</b> standardized coefficients and the <b> N (Sample size)</b>  </li>          
-             <li> <b> Calculate Effect Size</b> computes the minimum <b> a </b> required to achieve the required power given the <b> b </b> coefficient and <b> N (Sample size)</b>  </li>          
-
+             <li> <b> Calculate N</b> computes the required sample size given the standardized coefficients and <b> Minimum desire power</b>  </li>          
+             <li> <b> Calculate Power</b> computes the achievable power given the standardized coefficients and the <b> N (Sample size)</b>  </li>          
              </ul>
-              <p> The coefficients <b> X to Mediatior effect (a)</b> and <b> Mediatior to Y effect (c)</b> are the standardized coefficients (beta).
-               The effect size <b> ME </b> is the completely standardized effect size and it is equal to <b> a * b </b>.
-               <b> X to Y effect (c') </b> is the standardized coefficient relating X to Y while keeping constant the mediation.
+              <p> The coefficients (<b1> X to M1 effect (a1)</b>, <b> M1 to Y effect (b1)</b> etc.) are the standardized coefficients (beta).
+               The effect size <b> ME </b> is the completely standardized effect size and it is equal to product of the coefficients involved in the indirect effect.
                </p>
 
               <p> In all cases, you can set the required Type I error rate (significance cut-off)</p>
@@ -136,6 +133,27 @@ INFO2[["facmeans"]]<-"
                  If more than one factor is defined, the <b>means</b> and <b>standard deviations</b> should correspond to the means of the cells
                  resulting from the combinations of the factor levels.
               </p>
+             </div>
+             "
+INFO2[["medsimple"]]<-" 
+             <div>
+             </ul>
+              <p> The coefficients <b> X to Mediatior effect (a)</b> and <b> Mediatior to Y effect (b)</b> are the standardized coefficients (beta).
+               The effect size <b> ME </b> is the completely standardized effect size and it is equal to <b> a * b </b>.
+               <b> X to Y effect (c') </b> is the standardized coefficient relating X to Y while keeping constant the mediation.
+               </p>
+
+              <p> In all cases, you can set the required Type I error rate (significance cut-off)</p>
+             </div>
+             "
+INFO2[["medcomplex"]]<-"
+             <div>
+             </ul>
+              <p> The coefficients (<b> X to M1 effect (a1)</b>, <b> M1 to Y effect (b1)</b> etc.) are the standardized coefficients (beta).
+               The effect size <b> ME </b> is the completely standardized effect size and it is equal to product of the coefficients involved in the indirect effect.
+               </p>
+
+              <p> In all cases, you can set the required Type I error rate (significance cut-off)</p>
              </div>
              "
 

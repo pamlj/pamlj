@@ -19,6 +19,32 @@ items:
       type: Html
       visible: false
  
+    - name: diagram
+      title: ""
+      type: Image
+      width:  500
+      height: 400
+      renderFun: .plot_diagram
+      visible: (diagram)
+      clearWith:
+           - a
+           - b
+           - c
+           - a1
+           - b1
+           - a2
+           - b2
+           - a3
+           - b3
+           - r12
+           - r13
+           - r22
+           - aim
+           - mode
+           - cprime
+           - cprime2
+           - model_type
+           
     - name:  powertab
       title: A Priori Power Analysis
       type: Table
@@ -26,16 +52,34 @@ items:
       refs: 
          - pamlj
       clearWith:
-        - a
-        - b
-        - cprime
-        - power
-        - n
-        - sig.level
-        - aim
-        - alternative
-        - test
+           - a
+           - b
+           - c
+           - a1
+           - b1
+           - a2
+           - b2
+           - a3
+           - b3
+           - r12
+           - r13
+           - r22
+           - aim
+           - mode
+           - cprime
+           - cprime2
+           - model_type
+           - power
+           - n
+           - sig.level
+           - aim
+           - alternative
+           - test
       columns: 
+        - name: effect
+          title: 'Effect'
+          type: text
+          visible: (mode:medcomplex)
         - name: n
           title: 'N'
           type: integer
@@ -63,14 +107,31 @@ items:
       title: Computed Parameters
       type: Table
       clearWith:
-        - a
-        - b
-        - c
-        - power
-        - n
-        - sig.level
-        - aim
-        - alternative
+           - a
+           - b
+           - c
+           - a1
+           - b1
+           - a2
+           - b2
+           - a3
+           - b3
+           - r12
+           - r13
+           - r22
+           - aim
+           - mode
+           - cprime
+           - cprime2
+           - model_type
+           - aim
+           - mode
+           - power
+           - n
+           - sig.level
+           - aim
+           - alternative
+           - test
 
       columns: 
         - name: index
@@ -87,15 +148,30 @@ items:
       rows:  4
       visible: (table_pwbyn)
       clearWith:
-        - a
-        - b
-        - cprime
-        - power
-        - n
-        - sig.level
-        - aim
-        - alternative
-        - test
+           - a
+           - b
+           - c
+           - a1
+           - b1
+           - a2
+           - b2
+           - a3
+           - b3
+           - r12
+           - r13
+           - r22
+           - aim
+           - mode
+           - cprime
+           - cprime2
+           - model_type
+           - power
+           - n
+           - sig.level
+           - aim
+           - alternative
+           - test
+
       columns:
         - name: n
           title: 'Sample size'
@@ -108,6 +184,50 @@ items:
         - name: desc
           title: 'Description'
           type: text
+
+
+    - name:  powerxy
+      title: Power Analysis for X Y effect without mediators (c)
+      type: Table
+      rows:  1
+      visible: (test_c)
+      refs: 
+         - pamlj
+      clearWith:
+           - a
+           - b
+           - c
+           - a1
+           - b1
+           - a2
+           - b2
+           - a3
+           - b3
+           - r12
+           - r13
+           - r22
+           - aim
+           - mode
+           - cprime
+           - cprime2
+           - power
+           - n
+           - sig.level
+           - aim
+           - alternative
+      columns: 
+        - name: beta
+          title: β
+          type: number
+        - name: n
+          title: 'N'
+          type: integer
+        - name: power
+          title: 'Power'
+          type: number
+        - name: sig.level
+          title: α
+          type: number
 
 
     - name: plotnotes
