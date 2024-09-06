@@ -69,9 +69,11 @@ Runner <- R6::R6Class("Runner",
                                },
                               run_powerxy = function() {
                                      if (!self$ok) return()
+                                
                                      jinfo("PAMLj: Runner: powerxy")
-                                     r<-round(self$info$rxy,digits=4)
+                                     r<-self$info$rxy
                                      f2<-r^2/(1-r^2)
+                                    
                                      tab <- pamlj.glm(u=1,
                                                       v=self$data$n-2,
                                                       f2=f2,
@@ -79,9 +81,10 @@ Runner <- R6::R6Class("Runner",
                                                       alternative=self$data$alternative,
                                                       df_model=1)
                                      tab$beta<-r
-                                     mark(tab)
                                      self$info$ryxpower<-tab$power
-                                     warning("Power represts the achievable power in a simple regression with only X and Y, given the input parameters.")
+                                     text <- "Power rapresents the attainable power in a simple regression with only X and Y, given the input parameters."
+                                     text <- text %+% " The N is set based on the smallest mediated effect."
+                                     warning(text)
                                      return(list(tab))
                                },
                               

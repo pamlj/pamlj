@@ -1175,11 +1175,14 @@ morechecks <- function(obj, ...) UseMethod(".morechecks")
                    message<-"The analysis seeks for X to Mediator coefficient  (a) that guarantees (if possible) the required power given the sample size and sig.level"
                    obj$warning<-list(topic="issues",message=message,head="info")
   }
-  if (is.something(obj$extradata)) {
+  
+  
+  if (1==2 && is.something(obj$extradata)) {
+    
   .obj<-obj
-  class(.obj)<-class(obj)[-length(class(obj))]
+   class(.obj)<-class(obj)[-length(class(obj))]
 
-  for (i in seq_len(nrow(obj$extradata))) {
+   for (i in seq_len(nrow(obj$extradata))) {
                    .obj$data<-.obj$extradata[i,]
                    commonchecks(.obj)
    }

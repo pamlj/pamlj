@@ -392,6 +392,12 @@ extrainfo <- function(obj, ...) UseMethod(".extrainfo")
     if (obj$aim == "es") text <- text %+% " The required X to mediation coefficient (a) is " %+% format5(obj$data$a) %+% " yielding a power equal to " %+%  format5(obj$data$power) %+% "."
 
      text <- text %+% "</p>"
+     
+     if (is.something(obj$info$ryxpower)) text <- text %+%
+                                                 "<p> Given the results, the test concerning the simple regression between X and Y will have power equal to " %+%
+                                                  obj$info$ryxpower %+% 
+                                                 "<p>"
+     
     obj$warning<-list(topic="extrainfo",message=text,head="info")  
 
 }

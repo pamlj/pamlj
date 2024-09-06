@@ -64,9 +64,6 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                 aim<-required_param(data)
                 if (is.something(data$es)) {
                                      data$f2<-obj$info$toaes(data$es)
-                                     mark("in powevec",data$f2,obj$info$toaes,obj$data$es,obj$info$r2)
-                                     mark("in powevec",data$f2,obj$info$toaes,obj$data$es,obj$info$r2)
-
                                      data$es<-NULL
                 }
                 else 
