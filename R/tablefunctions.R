@@ -138,6 +138,67 @@ powerbyn <- function(x, ...) UseMethod(".powerbyn")
 }
 
 
+
+info_text <- function(obj, ...) {
+  
+  text <- paste(
+    '<style>',
+    '.accordion {',
+    '  background-color: #3498db;',
+    '  color: white;',
+    '  cursor: pointer;',
+    '  padding: 10px;',
+    '  width: 100%;',
+    '  border: none;',
+    '  text-align: left;',
+    '  outline: none;',
+    '  font-size: 15px;',
+    '  transition: 0.4s;',
+    '}',
+    '.accordion.active, .accordion:hover {',
+    '  background-color: #2980b9;',
+    '}',
+    '.panel {',
+    '  padding: 0 18px;',
+    '  display: none;',
+    '  background-color: white;',
+    '  overflow: hidden;',
+    '}',
+    '</style>',
+    '<script>',
+    'var acc = document.getElementsByClassName("accordion");',
+    'for (var i = 0; i < acc.length; i++) {',
+    '  acc[i].addEventListener("click", function() {',
+    '    this.classList.toggle("active");',
+    '    var panel = this.nextElementSibling;',
+    '    if (panel.style.display === "block") {',
+    '      panel.style.display = "none";',
+    '      this.innerHTML = "Info &#x25BC;";',  # Freccia gi?
+    '    } else {',
+    '      panel.style.display = "block";',
+    '      this.innerHTML = "Info &#x25B2;";',  # Freccia su
+    '    }',
+    '  });',
+    '}',
+    '</script>',
+    '<button class=\"accordion\">Info &#x25BC;</button>',
+    '<div class=\"panel\">',
+    '{addinfo}',
+    '{addinfo2}',
+    '{help}',
+    '</div>'
+)
+
+  mode2<-ifelse(is.something(as.character(INFO2[[obj$mode]])),INFO2[[obj$mode]]," ")
+  jmvcore::format(text, addinfo=INFO[obj$caller],addinfo2=mode2, help=link_help(obj))
+  
+  
+  
+}
+
+
+
+
 extrainfo <- function(obj, ...) UseMethod(".extrainfo")
 
 .extrainfo.default <-function(obj) return()
