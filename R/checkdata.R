@@ -981,7 +981,8 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$extradata$alternative <- obj$options$alternative
       obj$extradata$test        <- obj$options$test
       obj$extradata[[obj$aim]]  <- NULL
-      obj$data                  <- obj$extradata[1,]
+      w<-which.min(obj$extradata$es)[1]
+      obj$data                  <- obj$extradata[w,]
       obj$info$letter      <- "ME"
       obj$info$esmax       <- .9801
       obj$info$esmin       <-  1e-06
