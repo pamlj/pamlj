@@ -397,7 +397,7 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             super$initialize(
                 options=options,
                 name="",
-                title="Mediation power analysis")
+                title="Mediation")
             self$add(jmvcore::Html$new(
                 options=options,
                 name="intro",

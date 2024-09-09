@@ -82,7 +82,7 @@ Runner <- R6::R6Class("Runner",
                                                       df_model=1)
                                      tab$beta<-r
                                      self$info$ryxpower<-tab$power
-                                     text <- "Power rapresents the attainable power in a simple regression with only X and Y, given the input parameters."
+                                     text <- "Power represents the attainable power in a simple regression with only X and Y, given the input parameters."
                                      text <- text %+% " The N is set based on the smallest mediated effect."
                                      warning(text)
                                      return(list(tab))
