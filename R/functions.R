@@ -1,4 +1,7 @@
 
+`%dofuture%` <- doFuture::`%dofuture%`
+
+
 paml_palette<- function(...) viridis::viridis(...,alpha=.7)
 
 

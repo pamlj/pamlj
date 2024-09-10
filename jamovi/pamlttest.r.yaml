@@ -23,7 +23,9 @@ items:
       title: A Priori Power Analysis
       type: Table
       rows:  1
-      refs: pwr
+      refs: 
+          - pwr
+          - jpower
       columns: 
         - name: n
           title: 'N'

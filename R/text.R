@@ -1,53 +1,45 @@
 ### here we define the text shown in the analysis output panel. 
 ### Each analysis has two classes (possibly equal), "caller" and "mode"
-### INFO containts the text to be shown based on the "caller" class (like glm, factorial, correlation, etc)
-### INFO2 containts the text to be shown based on the "mode" class (like peta, eta, beta, etc)
+### INFO contains the text to be shown based on the "caller" class (like glm, factorial, correlation, etc)
+### INFO2 contains the text to be shown based on the "mode" class (like peta, eta, beta, etc)
 ### If the analysis does not have a "mode" (like correlation), the mode is ignored
 
-common_init<-" <h1> Info </h1>
-             <div>
-             <p> Please select the aim of the analysis:</p>
-             <ul>
-             <li> <b> Calculate N</b> computes the required sample size given the <b> Target effect size</b> and <b> Minimum desire power</b>  </li>          
-             <li> <b> Calculate Power</b> computes the achievable power given the <b> Target effect size</b> and <b> N (Sample size)</b>  </li>          
-             <li> <b> Calculate Effect Size</b> computes the minimally-detectable effect size given the <b> N (Sample size)</b> and <b> Minimum desired power</b>  </li>          
-             </ul>
-              <p> In all cases, you can set the required Type I error rate (significance cut-off)</b>
-             </div>
-             "
+
+common_init <- "<p> Please select the aim of the analysis:</p>
+                <ul>
+                <li> <b> Calculate N</b> computes the required sample size given the <b> Target effect size</b> and <b> Minimum desire power</b>  </li>          
+                <li> <b> Calculate Power</b> computes the achievable power given the <b> Target effect size</b> and <b> N (Sample size)</b>  </li>          
+                <li> <b> Calculate Effect Size</b> computes the minimally-detectable effect size given the <b> N (Sample size)</b> and <b> Minimum desired power</b>  </li>          
+                </ul>
+                <p> In all cases, you can set the required Type I error rate (significance cut-off)</b>
+                "
+factorial_init <- "<p> Please select the aim of the analysis:</p>
+                  <ul>
+                  <li> <b> Calculate N</b> computes the required sample size given the <b> Target effect size</b> and <b> Minimum desire power</b>  </li>          
+                  <li> <b> Calculate Power</b> computes the achievable power given the <b> Target effect size</b> and <b> N (Sample size)</b>  </li>          
+                  </ul>
+                  <p> In all cases, you can set the required Type I error rate (significance cut-off)</b>
+                  "
+mediation_init <- "<p> Please select the aim of the analysis:</p>
+                  <ul>
+                  <li> <b> Calculate N</b> computes the required sample size given the standardized coefficients and <b> Minimum desire power</b>  </li>          
+                  <li> <b> Calculate Power</b> computes the achievable power given the standardized coefficients and the <b> N (Sample size)</b>  </li>          
+                  </ul>
+                  <p> The coefficients (<b1> X to M1 effect (a1)</b>, <b> M1 to Y effect (b1)</b> etc.) are the standardized coefficients (beta).
+                  The effect size <b> ME </b> is the completely standardized effect size and it is equal to product of the coefficients involved in the indirect effect.
+                  </p>
+
+                  <p> In all cases, you can set the required Type I error rate (significance cut-off)</p>
+                  "
+
 INFO<-list()
 
 INFO[["correlation"]] <- common_init
 INFO[["glm"]]         <- common_init
 INFO[["ttest"]]       <- common_init
 INFO[["proportions"]] <- common_init
-
-INFO[["factorial"]]<-" <h1> Info </h1>
-             <div>
-             <p> Please select the aim of the analysis:</p>
-             <ul>
-             <li> <b> Calculate N</b> computes the required sample size given the <b> Target effect size</b> and <b> Minimum desire power</b>  </li>          
-             <li> <b> Calculate Power</b> computes the achievable power given the <b> Target effect size</b> and <b> N (Sample size)</b>  </li>          
-             </ul>
-              <p> In all cases, you can set the required Type I error rate (significance cut-off)</b>
-             </div>
-             "
-
-
-INFO[["mediation"]]<-" <h1> Info </h1>
-             <div>
-             <p> Please select the aim of the analysis:</p>
-             <ul>
-             <li> <b> Calculate N</b> computes the required sample size given the standardized coefficients and <b> Minimum desire power</b>  </li>          
-             <li> <b> Calculate Power</b> computes the achievable power given the standardized coefficients and the <b> N (Sample size)</b>  </li>          
-             </ul>
-              <p> The coefficients (<b1> X to M1 effect (a1)</b>, <b> M1 to Y effect (b1)</b> etc.) are the standardized coefficients (beta).
-               The effect size <b> ME </b> is the completely standardized effect size and it is equal to product of the coefficients involved in the indirect effect.
-               </p>
-
-              <p> In all cases, you can set the required Type I error rate (significance cut-off)</p>
-             </div>
-             "
+INFO[["factorial"]]   <- factorial_init
+INFO[["mediation"]]   <- mediation_init
 
 
 INFO2<-list()
@@ -69,22 +61,19 @@ INFO2[["eta"]]<-"
              <b> Model definition </b> panel to help you out. <p>
              </div>
               "
-
 INFO2[["beta"]]<-"
              <div>
              <p> Please notice that in case of multiple regression, the predictors are <b> assumed to be uncorrelated </b>. If correlated predictors
              are expected, please insert the correlations among covariates in the <b>Correlations panel </b> or use the <b>Partial Eta-squared</b> interface.</p>
              <p> In all cases, you can set the required Type I error rate and whether the test will be carried out two-tailed or one-tailed.</b></p>
-             <p> In all cases, set the expected <b> R-squared </b> for the full model. 
+             <p> For models with more than one independent variable, set the expected <b> R-squared </b> for the full model. 
              For models with only one independent variable the R-squared is calculated
              as the square of the beta coefficients.<p>
              <p> Set the <b> Model degrees of freedom</b>. 
               If the model degrees of freedom are not easy to compute, please use the 
              <b> Model definition </b> panel to help you out. <p>
              </div>
-            "
-
-
+             "
 INFO2[["propind"]]<-"
                    <div>
                    In all cases, you can also decide whether the test will be carried out two-tailed or one-tailed.
@@ -96,7 +85,6 @@ INFO2[["propind"]]<-"
                    The default effect size is the odd of the proportions in input (P1/(1-P1)/(P2/(1-P2)). In the <b> Options </b> panel
                    one can choose to use the proportion differences (P1-P2) or the relative risk (P1/P2). Results are equivalent.
                    </div>
-
                    " 
 INFO2[["propone"]]<-"
                    <div>
@@ -109,7 +97,6 @@ INFO2[["propone"]]<-"
                    The default effect size is the odd of the proportion in input (P1/(1-P1)/(P2/(1-P2)). In the <b> Options </b> panel
                    one can choose to use the proportion differences (P1-P2) or the relative risk (P1/P2). Results are equivalent.
                    </div>
-
                    " 
 INFO2[["proppaired"]]<-"
                    <div>
@@ -123,10 +110,7 @@ INFO2[["proppaired"]]<-"
                    In the <b> Options </b> panel
                    one can choose to use the proportion differences (P12-P21). Results are equivalent.
                    </div>
-
                    " 
-
-
 INFO2[["facmeans"]]<-"
              <div>
              <p> Please list in the datasheet at least one <b>factor</b> and the data column containing the groups means and the group standard deviations.

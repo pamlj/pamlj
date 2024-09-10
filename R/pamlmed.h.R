@@ -29,6 +29,8 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             sig.level = 0.05,
             alternative = "two.sided",
             test = "sobel",
+            mcR = 1000,
+            parallel = FALSE,
             table_pwbyn = TRUE,
             plot_ncurve = FALSE,
             plot_log = FALSE,
@@ -163,6 +165,14 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "sobel",
                     "mc",
                     "joint"))
+            private$..mcR <- jmvcore::OptionNumber$new(
+                "mcR",
+                mcR,
+                default=1000)
+            private$..parallel <- jmvcore::OptionBool$new(
+                "parallel",
+                parallel,
+                default=FALSE)
             private$..table_pwbyn <- jmvcore::OptionBool$new(
                 "table_pwbyn",
                 table_pwbyn,
@@ -272,6 +282,8 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..sig.level)
             self$.addOption(private$..alternative)
             self$.addOption(private$..test)
+            self$.addOption(private$..mcR)
+            self$.addOption(private$..parallel)
             self$.addOption(private$..table_pwbyn)
             self$.addOption(private$..plot_ncurve)
             self$.addOption(private$..plot_log)
@@ -314,6 +326,8 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         sig.level = function() private$..sig.level$value,
         alternative = function() private$..alternative$value,
         test = function() private$..test$value,
+        mcR = function() private$..mcR$value,
+        parallel = function() private$..parallel$value,
         table_pwbyn = function() private$..table_pwbyn$value,
         plot_ncurve = function() private$..plot_ncurve$value,
         plot_log = function() private$..plot_log$value,
@@ -355,6 +369,8 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..sig.level = NA,
         ..alternative = NA,
         ..test = NA,
+        ..mcR = NA,
+        ..parallel = NA,
         ..table_pwbyn = NA,
         ..plot_ncurve = NA,
         ..plot_log = NA,
@@ -397,7 +413,7 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             super$initialize(
                 options=options,
                 name="",
-                title="Mediation power analysis")
+                title="Mediation")
             self$add(jmvcore::Html$new(
                 options=options,
                 name="intro",
@@ -432,12 +448,15 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "b3",
                     "r12",
                     "r13",
-                    "r22",
+                    "r23",
+                    "d1",
                     "aim",
                     "mode",
                     "cprime",
                     "cprime2",
-                    "model_type")))
+                    "model_type",
+                    "mcR",
+                    "parallel")))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="powertab",
@@ -457,7 +476,8 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "b3",
                     "r12",
                     "r13",
-                    "r22",
+                    "r23",
+                    "d1",
                     "aim",
                     "mode",
                     "cprime",
@@ -468,7 +488,9 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "sig.level",
                     "aim",
                     "alternative",
-                    "test"),
+                    "test",
+                    "mcR",
+                    "parallel"),
                 columns=list(
                     list(
                         `name`="effect", 
@@ -520,6 +542,7 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "r12",
                     "r13",
                     "r22",
+                    "d1",
                     "aim",
                     "mode",
                     "cprime",
@@ -532,7 +555,9 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "sig.level",
                     "aim",
                     "alternative",
-                    "test"),
+                    "test",
+                    "mcR",
+                    "parallel"),
                 columns=list(
                     list(
                         `name`="index", 
@@ -560,7 +585,8 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "b3",
                     "r12",
                     "r13",
-                    "r22",
+                    "r23",
+                    "d1",
                     "aim",
                     "mode",
                     "cprime",
@@ -605,7 +631,8 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "b3",
                     "r12",
                     "r13",
-                    "r22",
+                    "r23",
+                    "d1",
                     "aim",
                     "mode",
                     "cprime",
@@ -746,6 +773,8 @@ pamlmedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param sig.level Type I error rate (significance cut-off or alpha)
 #' @param alternative .
 #' @param test .
+#' @param mcR .
+#' @param parallel .
 #' @param table_pwbyn .
 #' @param plot_ncurve .
 #' @param plot_log .
@@ -811,6 +840,8 @@ pamlmed <- function(
     sig.level = 0.05,
     alternative = "two.sided",
     test = "sobel",
+    mcR = 1000,
+    parallel = FALSE,
     table_pwbyn = TRUE,
     plot_ncurve = FALSE,
     plot_log = FALSE,
@@ -857,6 +888,8 @@ pamlmed <- function(
         sig.level = sig.level,
         alternative = alternative,
         test = test,
+        mcR = mcR,
+        parallel = parallel,
         table_pwbyn = table_pwbyn,
         plot_ncurve = plot_ncurve,
         plot_log = plot_log,

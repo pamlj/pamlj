@@ -333,7 +333,9 @@ pamlttestResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 name="powertab",
                 title="A Priori Power Analysis",
                 rows=1,
-                refs="pwr",
+                refs=list(
+                    "pwr",
+                    "jpower"),
                 columns=list(
                     list(
                         `name`="n", 
