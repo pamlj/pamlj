@@ -52,8 +52,12 @@ nicify_param<- function(what,short=FALSE) {
 link_help <- function(obj, ...) UseMethod(".link_help")
 
 .link_help.default<-function(obj) {
+  
   text<-NULL
   link<-LINKS[[obj$mode]]
+  
+  if (is.null(link)) link<-LINKS[[obj$caller]]
+                                 
   if (is.something(link)) {
     text<-"<p style='display: flex; align-items: center;'> " %+% 
           "<span style=' display:inline-block; text-align: center;" %+% 

@@ -124,6 +124,7 @@ children:
                 format: number
   - type: Label
     label: Parameters
+    name: power_parameters
     margin: large
     children:
       - name: power
@@ -153,13 +154,13 @@ children:
             optionName: test
             optionPart: sobel
           - type: RadioButton
-            name: test_mc
-            optionName: test
-            optionPart: mc
-          - type: RadioButton
             name: test_joint
             optionName: test
             optionPart: joint
+          - type: RadioButton
+            name: test_mc
+            optionName: test
+            optionPart: mc
       - type: Label
         label: Options
         children:

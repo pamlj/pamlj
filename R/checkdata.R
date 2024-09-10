@@ -793,6 +793,8 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
   
        jinfo("Checking data for medcomplex")
 
+        if (obj$aim == "es") obj$stop("Finding minumum effect size for complex mediation model is not implemented yes")
+  
         bs<-list(a1=obj$options$a1,b1=obj$options$b1,a2=obj$options$a2,b2=obj$options$b2,a3=obj$options$a3,b3=obj$options$b3)
         numbs<-sapply(bs,as.numeric)
         ### some checks      
@@ -1091,7 +1093,6 @@ postchecks<-function(obj) {
       nmin = {   
               data$n <- obj$info$nmin
               esmax  <- find_max_es(obj,data)
-              mark(esmax)
               es     <- round(data$es,digits=5) 
               
               message<-    "The effect size ("%+% obj$info$letter %+% " = " %+%  es %+% ") is larger than the maximum effect size (" %+% obj$info$letter %+% 
