@@ -217,7 +217,16 @@ options:
                 title: Monte Carlo (slow)
         -       name: joint
                 title: Joint Significance
-        
+
+    -   name: mcR
+        title: Number of simulations
+        type: Number
+        default: 1000
+
+    -   name: parallel
+        title: Parallel computation
+        type: Bool
+        default: false
 
     -   name: table_pwbyn
         title: Power quantiles by N

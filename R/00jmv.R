@@ -13,4 +13,10 @@
         `author`="Marcello Gallucci", 
         `year`=2024, 
         `title`="pamlj: Power analysis in jamovi", 
-        `url`="https://pamlj.github.io/"))
+        `url`="https://pamlj.github.io/"), 
+    `jpower`=list(
+        `type`="software", 
+        `author`="Richard Morey, Ravi Selker", 
+        `year`=2019, 
+        `title`="jpower: A module to compute power for various designs within jamovi", 
+        `url`="https://github.com/richarddmorey/jpower"))

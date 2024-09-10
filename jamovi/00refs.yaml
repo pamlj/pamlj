@@ -13,3 +13,9 @@ refs:
       title: "pamlj: Power analysis in jamovi"
       url: https://pamlj.github.io/
 
+   jpower:
+      type: 'software'
+      author: Richard Morey, Ravi Selker
+      year: 2019
+      title: "jpower: A module to compute power for various designs within jamovi"
+      url: https://github.com/richarddmorey/jpower

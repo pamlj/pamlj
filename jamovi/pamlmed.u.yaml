@@ -172,7 +172,6 @@ children:
                 name: diagram
           - type: CheckBox
             name: test_c
-                
   - type: CollapseBox
     label: Sensitivity Analysis
     name: panel_sensitivity
@@ -270,3 +269,20 @@ children:
                         label: Value
                         template:
                           type: TextBox
+  - type: CollapseBox
+    label: Options
+    name: panel_options
+    collapsed: true
+    stretchFactor: 1
+    children:
+      - type: LayoutBox
+        style: inline
+        children:
+          - type: Label
+            label: Monte Carlo
+            children: 
+                     - type: TextBox
+                       name: mcR
+                       format: number
+                     - type: CheckBox
+                       name: parallel

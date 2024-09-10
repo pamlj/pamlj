@@ -57,6 +57,10 @@ pamlmedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                  for (tab in private$.smartObjs) {
                      tab$runTable()
                  }
+      jinfo("MODULE:  #### phase end ####")
+
+      jinfo("TIME:",Sys.time()-private$.time," secs")
+                 
 
         },
         .plot_contour=function(image, ggtheme, theme, ...) {

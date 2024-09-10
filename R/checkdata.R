@@ -774,6 +774,9 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$data$power       <- obj$options$power
       obj$data$alternative <- obj$options$alternative
       obj$data$test        <- obj$options$test
+      obj$data$R           <- obj$options$mcR
+      obj$data$parallel    <- obj$options$parallel
+
       obj$plots$data       <- obj$data
 
       obj$data[[obj$aim]]  <- NULL
@@ -781,7 +784,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$info$esmax       <- .9801
       obj$info$esmin       <-  1e-06
       obj$info$nmin        <-  10
-
+      obj$info$nochecks    <-  "es"
       jinfo("Checking data for medsimple done")
 }
 
@@ -980,8 +983,11 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$extradata$power       <- obj$options$power
       obj$extradata$alternative <- obj$options$alternative
       obj$extradata$test        <- obj$options$test
-      obj$extradata[[obj$aim]]  <- NULL
+      obj$extradata$R           <- obj$options$mcR
+      obj$extradata$parallel    <- obj$options$parallel
       
+      obj$extradata[[obj$aim]]  <- NULL
+
       if (obj$filled)
                 w <- which.min(obj$extradata$es)[1]
       else
@@ -1054,7 +1060,6 @@ commonchecks <- function(obj) {
         fesmin<-format5(esmin)
         es<-format5(obj$data$es)
 
-     
 
         if ( any(abs(obj$data$es) < abs(esmin))) {
                    message<-       "The effect size (" %+% obj$info$letter %+% " = " %+% es %+% ") is smaller than the effect size (" %+%
@@ -1085,11 +1090,14 @@ postchecks<-function(obj) {
     switch (data$method,
       nmin = {   
               data$n <- obj$info$nmin
-              esmax  <- round(find_max_es(obj,data))
+              esmax  <- find_max_es(obj,data)
+              mark(esmax)
               es     <- round(data$es,digits=5) 
-              message<-    "The effect size ("%+% obj$info$letter %+% " = " %+%  es %+% ") is larger than the maximum effect size (" %+% obj$info$letter %+% "=" %+% esmax %+% ")" %+%
+              
+              message<-    "The effect size ("%+% obj$info$letter %+% " = " %+%  es %+% ") is larger than the maximum effect size (" %+% obj$info$letter %+% 
+                                   "=" %+% format(esmax,digits=5) %+% ")" %+%
                                    " that guarantees power=" %+% data$power %+% " with a sample of minimum size (N=" %+% data$n %+% ")." %+%
-                                   "This means that any effect size larger than "%+% esmax %+% " guarantees a power > " %+% data$power %+% 
+                                   "This means that any effect size larger than "%+% format(esmax,digits=5) %+% " guarantees a power > " %+% data$power %+% 
                                    " for any sample size equal or larger than " %+% data$n %+% "." %+%
                                    "<a href='https://pamlj.github.io/details_failure.html' target='_blank'> More info here </a>"
               obj$warning<-list(topic="issues",message=message,head="info")

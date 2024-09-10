@@ -50,13 +50,14 @@ find_max_es <- function(obj, ...) UseMethod(".find_max_es")
 
 .find_max_es.default <- function(obj,data) {
 
+  mark("finding min es")
+
   data$es <- NULL
   res<-try_hard(powervector(obj,data))
   if (isFALSE(res$error)) 
     es<-res$obj$es
   else
     es<-obj$info$esmax
-  
 
 return(es)
 }
@@ -65,8 +66,9 @@ find_min_es <- function(obj, ...) UseMethod(".find_min_es")
 
 .find_min_es.default <- function(obj,data) {
  
+  mark("finding min es")
   if ("es" %in% obj$info$nochecks) return(obj$info$esmin)
-  
+    
   data$es <- NULL
   if (is.null(data$power)) data$power=.99
   data$n  <- obj$info$nmax

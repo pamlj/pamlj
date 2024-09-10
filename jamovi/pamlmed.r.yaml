@@ -45,7 +45,8 @@ items:
            - cprime
            - cprime2
            - model_type
-           
+           - mcR
+           - parallel
     - name:  powertab
       title: A Priori Power Analysis
       type: Table
@@ -77,6 +78,9 @@ items:
            - aim
            - alternative
            - test
+           - mcR
+           - parallel
+
       columns: 
         - name: effect
           title: 'Effect'
@@ -135,6 +139,8 @@ items:
            - aim
            - alternative
            - test
+           - mcR
+           - parallel
 
       columns: 
         - name: index

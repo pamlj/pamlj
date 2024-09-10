@@ -387,8 +387,16 @@ pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,power=NULL
       return(results)
 }
 
-pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,power=NULL,sig.level=.05, alternative="two.sided",test="mc",R=1000,L=1000,...) {
+pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,
+                               power=NULL,sig.level=.05, alternative="two.sided",
+                               test="mc",R=1000,L=1000,parallel=FALSE,...) {
 
+    if (Sys.info()['sysname'] == "Windows") 
+                     plan<-future::multisession
+    else                 
+                     plan<-future::multicore
+  
+  future::plan(plan)
 
   aim<-c("n","power","es")[sapply(list(n,power,a),is.null)]
   if (length(aim) != 1) stop("Only one parameter must be null in pamlj.mediation")
@@ -433,24 +441,38 @@ pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,power=N
          p.body <- quote({
            
                    se.betas   <- .sefun(n,r2s)
-                   
+                   if (parallel) {
+                   pw<-mean(unlist(foreach::foreach(i = 1:R, .options.future = list(seed = TRUE)) %dofuture%  {
+                            # for each beta we draw a random value from its distribution
+                            pars <- sapply(seq_along(betas),function(j) rnorm(1, betas[j], se.betas[j]))
+                            ### than we draw a normal distribution for each parameter
+                            dist <- lapply(seq_along(betas),function(j) rnorm(L, pars[j], se.betas[j]))
+                            dist <- as.data.frame(do.call(cbind,dist))
+                            ## and we test the 2.5th quantile of the product of the distributions
+                            quantile(apply(dist,1,prod), probs=sig.level/2, na.rm = TRUE) > 0
+                            }))
+                   } else {
+                                      
                    pw<-mean(unlist(sapply(1:R, function(i) {
                             # for each beta we draw a random value from its distribution
                             pars <- sapply(seq_along(betas),function(j) rnorm(1, betas[j], se.betas[j]))
                             ### than we draw a normal distribution for each parameter
-                            dist <- lapply(seq_along(betas),function(j) rnorm(L, pars[j], se.betas[j]))     
+                            dist <- lapply(seq_along(betas),function(j) rnorm(L, pars[j], se.betas[j]))
                             dist <- as.data.frame(do.call(cbind,dist))
                             ## and we test the 2.5th quantile of the product of the distributions
                             quantile(apply(dist,1,prod), probs=sig.level/2, na.rm = TRUE) > 0
-#                            quantile(rnorm(L, a_par, se.a) * rnorm(L, b_par, se.b), probs = sig.level/2, na.rm = TRUE) > 0
                             })), na.rm=T)
+                   }
+
+
                    pw
              })
           
           p.es <- quote({
-                   se.a<-.sefun(n=n,r2num=a^2)
+                   se.a<-.sefun(n=n,a^2)
                    r2y<-b^2+cprime^2+2*a*b*cprime
-                   se.b<-.sefun(n=n,r2y,r2den=a^2)
+                   .r2s<-c(r2y,a^2)
+                   se.b<-.sefun(n=n,.r2s)
                    pw<-mean(unlist(sapply(1:R, function(i) {
                             a_par <- rnorm(1, a, se.a)
                             b_par <- rnorm(1, b, se.b)
@@ -470,14 +492,14 @@ pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,power=N
                   ### first we obtain a reasonable estimation of n
                    check<-pamlj.mediation(a=a,b=b,cprime=cprime,r2a=r2a,r2y=r2y,power=power,sig.level=sig.level, alternative=alternative,test="joint")
                    if (check$method %in% c("nmax","nmin")) return(check)
-
                    n_par<-check$n
                    if (n_par > 1e+06) {
                      check$method<-"nmax"
                      return(check)
                    }
-                   ll<-n_par*.90
-                   ul<-n_par*1.10
+                   ## now we set the search limits to reasonable values, so uniroot gets faster
+                   ll<-n_par*.80
+                   ul<-n_par*1.20
                    n<-try(uniroot(function(n) eval(p.body) - power, interval = c(ll, ul))$root,silent=F)
                   },
             es   ={
