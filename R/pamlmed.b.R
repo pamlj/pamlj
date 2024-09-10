@@ -49,17 +49,16 @@ pamlmedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
       
         }, ## end of init
         .run = function() {
-          
+                now <- Sys.time()
                 jinfo(paste("MODULE:  PAMLcorr #### phase run  ####"))
                  private$.runner$run()
                  private$.plotter$preparePlots()
-                 private$.checkpoint()
                  for (tab in private$.smartObjs) {
                      tab$runTable()
                  }
       jinfo("MODULE:  #### phase end ####")
 
-      jinfo("TIME:",Sys.time()-private$.time," secs")
+      jinfo("TIME:",Sys.time()-private$.time," secs. Runtime: ",Sys.time()-now)
                  
 
         },
