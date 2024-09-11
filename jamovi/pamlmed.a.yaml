@@ -209,14 +209,14 @@ options:
 
     -   name: test
         type: List
-        default: sobel
+        default: joint
         options:
+        -       name: joint
+                title: Joint Significance
         -       name: sobel
                 title: Sobel
         -       name: mc
                 title: Monte Carlo (slow)
-        -       name: joint
-                title: Joint Significance
 
     -   name: mcR
         title: Number of simulations

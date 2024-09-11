@@ -150,13 +150,13 @@ children:
         label: Test
         children:
           - type: RadioButton
-            name: test_sobel
-            optionName: test
-            optionPart: sobel
-          - type: RadioButton
             name: test_joint
             optionName: test
             optionPart: joint
+          - type: RadioButton
+            name: test_sobel
+            optionName: test
+            optionPart: sobel
           - type: RadioButton
             name: test_mc
             optionName: test
