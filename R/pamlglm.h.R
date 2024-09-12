@@ -26,6 +26,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             plot_escurve = FALSE,
             plot_ncurve = FALSE,
             plot_log = FALSE,
+            plot_palette = "viridis",
             covs = 0,
             factors = 0,
             factors_list = list(
@@ -157,6 +158,17 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "plot_log",
                 plot_log,
                 default=FALSE)
+            private$..plot_palette <- jmvcore::OptionList$new(
+                "plot_palette",
+                plot_palette,
+                default="viridis",
+                options=list(
+                    "viridis",
+                    "rocket",
+                    "mako",
+                    "cividis",
+                    "plasma",
+                    "turbo"))
             private$..covs <- jmvcore::OptionNumber$new(
                 "covs",
                 covs,
@@ -346,6 +358,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..plot_escurve)
             self$.addOption(private$..plot_ncurve)
             self$.addOption(private$..plot_log)
+            self$.addOption(private$..plot_palette)
             self$.addOption(private$..covs)
             self$.addOption(private$..factors)
             self$.addOption(private$..factors_list)
@@ -395,6 +408,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         plot_escurve = function() private$..plot_escurve$value,
         plot_ncurve = function() private$..plot_ncurve$value,
         plot_log = function() private$..plot_log$value,
+        plot_palette = function() private$..plot_palette$value,
         covs = function() private$..covs$value,
         factors = function() private$..factors$value,
         factors_list = function() private$..factors_list$value,
@@ -443,6 +457,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..plot_escurve = NA,
         ..plot_ncurve = NA,
         ..plot_log = NA,
+        ..plot_palette = NA,
         ..covs = NA,
         ..factors = NA,
         ..factors_list = NA,
@@ -675,7 +690,8 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "e_r2",
                     "v_r2",
                     "ncp_type",
-                    "plot_log")))
+                    "plot_log",
+                    "plot_palette")))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerEscurve",
@@ -700,7 +716,8 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "e_r2",
                     "v_r2",
                     "ncp_type",
-                    "plot_log")))
+                    "plot_log",
+                    "plot_palette")))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerNcurve",
@@ -725,7 +742,8 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "e_r2",
                     "v_r2",
                     "ncp_type",
-                    "plot_log")))
+                    "plot_log",
+                    "plot_palette")))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerCustom",
@@ -815,6 +833,7 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param plot_escurve .
 #' @param plot_ncurve .
 #' @param plot_log .
+#' @param plot_palette .
 #' @param covs .
 #' @param factors .
 #' @param factors_list .
@@ -889,6 +908,7 @@ pamlglm <- function(
     plot_escurve = FALSE,
     plot_ncurve = FALSE,
     plot_log = FALSE,
+    plot_palette = "viridis",
     covs = 0,
     factors = 0,
     factors_list = list(
@@ -949,6 +969,7 @@ pamlglm <- function(
         plot_escurve = plot_escurve,
         plot_ncurve = plot_ncurve,
         plot_log = plot_log,
+        plot_palette = plot_palette,
         covs = covs,
         factors = factors,
         factors_list = factors_list,

@@ -18,19 +18,19 @@ description: >-
   deviations. It provides estimation of required sample size, power and
   minimally-detectable effect size, plus plots for sensitivity analysis.
 analyses:
-  - title: T-Test
-    name: pamlttest
-    ns: pamlj
-    menuSubgroup: Pamlj
-    menuTitle: T-Test
-    description: |
-      Something here
-    menuGroup: Power
   - title: Correlation
     name: pamlcorr
     ns: pamlj
     menuSubgroup: Pamlj
     menuTitle: Correlation
+    description: |
+      Something here
+    menuGroup: Power
+  - title: T-Test
+    name: pamlttest
+    ns: pamlj
+    menuSubgroup: Pamlj
+    menuTitle: T-Test
     description: |
       Something here
     menuGroup: Power

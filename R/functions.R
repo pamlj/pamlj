@@ -2,8 +2,21 @@
 `%dofuture%` <- doFuture::`%dofuture%`
 
 
-paml_palette<- function(...) viridis::viridis(...,alpha=.7)
+paml_palette<- function(what=NULL) {
 
+  p <- viridis::viridis
+mark(what)
+  switch(what, 
+        viridis = p <- function(...) viridis::viridis(...,alpha=.7),
+        turbo   = p <- function(...) viridis::turbo(...,alpha=.7),
+        rocket  = p <- function(...) viridis::rocket(...,alpha=.7),
+        mako    = p <- function(...) viridis::mako(...,alpha=.7),
+        cividis  = p <- function(...) viridis::cividis(...,alpha=.7),
+        plasma  = p <- function(...) viridis::plasma(...,alpha=.7),
+
+  )
+  return(p)
+}
 
 fields_tothem <- function(obj, ...) UseMethod(".fields_tothem")
 
