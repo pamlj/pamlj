@@ -109,19 +109,27 @@ children:
     collapsed: true
     stretchFactor: 1
     children:
-      - type: LayoutBox
-        children:
-          - type: Label
-            label: Plots
-            children:
-              - type: CheckBox
-                name: plot_contour
-              - type: CheckBox
-                name: plot_escurve
-              - type: CheckBox
-                name: plot_ncurve
-              - type: CheckBox
-                name: plot_log
+        - type: LayoutBox
+          children:
+            - type: LayoutBox
+              style: inline
+              children:
+              - type: Label
+                label: Plots
+                children:
+                  - type: CheckBox
+                    name: plot_contour
+                  - type: CheckBox
+                    name: plot_escurve
+                  - type: CheckBox
+                    name: plot_ncurve
+              - type: Label
+                label: Options
+                children:
+                  - name: plot_log
+                    type: CheckBox
+                  - type: ComboBox
+                    name: plot_palette
 
   - type: CollapseBox
     label: Power Parameters plot

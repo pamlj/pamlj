@@ -190,6 +190,25 @@ options:
       type: Bool
       default: false
 
+    - name: plot_palette
+      title: Colors
+      type: List
+      default: viridis
+      options:
+             - name:  viridis
+               title: Viridis
+             - name:  rocket
+               title: Rocket
+             - name:  mako
+               title: Mako
+             - name:  cividis
+               title: Cividis
+             - name:  plasma
+               title: Plasma
+             - name:  turbo
+               title: Turbo
+      
+
 ### custom plots 
 
 

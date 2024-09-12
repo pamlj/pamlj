@@ -179,6 +179,7 @@ items:
         - v_r2
         - ncp_type
         - plot_log
+        - plot_palette
     - name: powerEscurve
       title: Power Curve by Effect Size
       type: Image
@@ -203,6 +204,7 @@ items:
         - v_r2
         - ncp_type
         - plot_log
+        - plot_palette
 
     - name: powerNcurve
       title: Power Curve by N
@@ -228,6 +230,7 @@ items:
         - v_r2
         - ncp_type
         - plot_log
+        - plot_palette
 
       
     - name: powerCustom

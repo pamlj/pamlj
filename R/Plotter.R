@@ -60,7 +60,7 @@ Plotter <- R6::R6Class(
 
         res<-try_hard(
        
-        filled.contour(data$x,data$y,data$z,color.palette =  paml_palette,
+        filled.contour(data$x,data$y,data$z,color.palette =  image$state$plot_palette,
                key.title = {mtext("Power",3, .5)},
                ylab ="",
                xlab="Sample Size (N)",
@@ -94,10 +94,11 @@ Plotter <- R6::R6Class(
         if (!self$option("plot_ncurve") && !self$option("plot_escurve"))
                 return()
 
-         cols = paml_palette(10)
+         cols = paml_palette("viridis")(10)
          state<-image$state
          if (is.null(state)) 
              return()
+         cols = state$cols
          data <- state$data
          range <- max(data$x)-min(data$x)
          plot(data$x,data$y,  ty='n', 
@@ -271,7 +272,7 @@ Plotter <- R6::R6Class(
          })
        z<-do.call(cbind,out)
 
-       #return()
+     
       image$setState(list(x=x,y=y,z=z,
                           point.x=point.x,point.y=point.y,
                           n=data$n,power=data$power,yline=yline,
@@ -279,7 +280,8 @@ Plotter <- R6::R6Class(
                           tickslabels=tickslabels,
                           yticks=yticks,
                           ytickslabels=ytickslabels,
-                          letter=obj$info$letter))
+                          letter=obj$info$letter,
+                          plot_palette=paml_palette(obj$options$plot_palette)))
 
     },
      .prepareNcurve = function() {
@@ -338,6 +340,7 @@ Plotter <- R6::R6Class(
        ydata$x <- x
        ydata$y <- ydata$power
 
+       plot_palette<-paml_palette(obj$options$plot_palette)
        image$setState(list(data=ydata,
                             point.x = point.x,
                             point.y = obj$data$power,
@@ -345,7 +348,8 @@ Plotter <- R6::R6Class(
                             tickslabels=tickslabels,
                             xlab="Required Sample Size (N)",
                             ylab="Power",
-                            text=paste(obj$info$letter,"=",round(data$es,digits=3)," ",greek_vector["alpha"],"=",round(data$sig.level,digits=3))
+                            text=paste(obj$info$letter,"=",round(data$es,digits=3)," ",greek_vector["alpha"],"=",round(data$sig.level,digits=3)),
+                            cols=plot_palette(10)
                           ))
 
 
@@ -391,6 +395,7 @@ Plotter <- R6::R6Class(
         ydata<-powervector(obj,.data)
         ydata$x <- x
         ydata$y <- ydata$power
+        plot_palette<- paml_palette(obj$options$plot_palette)
         image$setState(list(data=ydata,
                             point.x = point.x,
                             point.y = private$.operator$data$power,
@@ -398,7 +403,8 @@ Plotter <- R6::R6Class(
                             tickslabels=tickslabels,
                             xlab="Hypothetical effect size",
                             ylab="Power",
-                            text=paste("N =",data$n," ",greek_vector["alpha"],"=",round(data$sig.level,digits=3))
+                            text=paste("N =",data$n," ",greek_vector["alpha"],"=",round(data$sig.level,digits=3)),
+                            cols=plot_palette(10)
                           ))
     },
     

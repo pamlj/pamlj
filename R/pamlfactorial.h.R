@@ -26,6 +26,7 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
             plot_escurve = FALSE,
             plot_ncurve = FALSE,
             plot_log = FALSE,
+            plot_palette = "viridis",
             plot_x = "none",
             plot_y = "none",
             plot_custom_labels = FALSE,
@@ -151,6 +152,17 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                 "plot_log",
                 plot_log,
                 default=FALSE)
+            private$..plot_palette <- jmvcore::OptionList$new(
+                "plot_palette",
+                plot_palette,
+                default="viridis",
+                options=list(
+                    "viridis",
+                    "rocket",
+                    "mako",
+                    "cividis",
+                    "plasma",
+                    "turbo"))
             private$..plot_x <- jmvcore::OptionList$new(
                 "plot_x",
                 plot_x,
@@ -252,6 +264,7 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
             self$.addOption(private$..plot_escurve)
             self$.addOption(private$..plot_ncurve)
             self$.addOption(private$..plot_log)
+            self$.addOption(private$..plot_palette)
             self$.addOption(private$..plot_x)
             self$.addOption(private$..plot_y)
             self$.addOption(private$..plot_custom_labels)
@@ -288,6 +301,7 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
         plot_escurve = function() private$..plot_escurve$value,
         plot_ncurve = function() private$..plot_ncurve$value,
         plot_log = function() private$..plot_log$value,
+        plot_palette = function() private$..plot_palette$value,
         plot_x = function() private$..plot_x$value,
         plot_y = function() private$..plot_y$value,
         plot_custom_labels = function() private$..plot_custom_labels$value,
@@ -323,6 +337,7 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
         ..plot_escurve = NA,
         ..plot_ncurve = NA,
         ..plot_log = NA,
+        ..plot_palette = NA,
         ..plot_x = NA,
         ..plot_y = NA,
         ..plot_custom_labels = NA,
@@ -625,6 +640,7 @@ pamlfactorialBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param plot_escurve .
 #' @param plot_ncurve .
 #' @param plot_log .
+#' @param plot_palette .
 #' @param plot_x .
 #' @param plot_y .
 #' @param plot_custom_labels .
@@ -685,6 +701,7 @@ pamlfactorial <- function(
     plot_escurve = FALSE,
     plot_ncurve = FALSE,
     plot_log = FALSE,
+    plot_palette = "viridis",
     plot_x = "none",
     plot_y = "none",
     plot_custom_labels = FALSE,
@@ -738,6 +755,7 @@ pamlfactorial <- function(
         plot_escurve = plot_escurve,
         plot_ncurve = plot_ncurve,
         plot_log = plot_log,
+        plot_palette = plot_palette,
         plot_x = plot_x,
         plot_y = plot_y,
         plot_custom_labels = plot_custom_labels,

@@ -187,13 +187,19 @@ children:
             children:
               - type: CheckBox
                 name: plot_ncurve
-              - name: plot_log
-                type: CheckBox
           - type: Label
-            label: Tables
+            label: Options
             children:
+                  - name: plot_log
+                    type: CheckBox
+                  - type: ComboBox
+                    name: plot_palette
+      - type: Label
+        label: Tables
+        children:
               - type: CheckBox
                 name: table_pwbyn
+                
   - type: CollapseBox
     label: Power Parameters plot
     name: panel_customplot
