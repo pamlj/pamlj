@@ -196,7 +196,8 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "mako",
                     "cividis",
                     "plasma",
-                    "turbo"))
+                    "turbo",
+                    "husky"))
             private$..plot_x <- jmvcore::OptionList$new(
                 "plot_x",
                 plot_x,

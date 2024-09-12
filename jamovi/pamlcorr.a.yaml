@@ -110,6 +110,8 @@ options:
                title: Plasma
              - name:  turbo
                title: Turbo
+             - name:  husky
+               title: Husky (grey)
 
 
 ### custom plots 

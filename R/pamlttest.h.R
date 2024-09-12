@@ -23,7 +23,7 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             plot_contour = FALSE,
             plot_escurve = FALSE,
             plot_ncurve = FALSE,
-            plot_log = FALSE,
+            plot_log = TRUE,
             plot_palette = "viridis",
             plot_x = "none",
             plot_y = "none",
@@ -126,7 +126,7 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..plot_log <- jmvcore::OptionBool$new(
                 "plot_log",
                 plot_log,
-                default=FALSE)
+                default=TRUE)
             private$..plot_palette <- jmvcore::OptionList$new(
                 "plot_palette",
                 plot_palette,
@@ -137,7 +137,8 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "mako",
                     "cividis",
                     "plasma",
-                    "turbo"))
+                    "turbo",
+                    "husky"))
             private$..plot_x <- jmvcore::OptionList$new(
                 "plot_x",
                 plot_x,
@@ -569,7 +570,7 @@ pamlttest <- function(
     plot_contour = FALSE,
     plot_escurve = FALSE,
     plot_ncurve = FALSE,
-    plot_log = FALSE,
+    plot_log = TRUE,
     plot_palette = "viridis",
     plot_x = "none",
     plot_y = "none",

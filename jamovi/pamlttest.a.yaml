@@ -128,7 +128,7 @@ options:
     - name: plot_log
       title: Log Scale (when needed)
       type: Bool
-      default: false
+      default: true
 
     - name: plot_palette
       title: Colors
@@ -147,6 +147,8 @@ options:
                title: Plasma
              - name:  turbo
                title: Turbo
+             - name:  husky
+               title: Husky (grey)
 
 ### custom plots 
     

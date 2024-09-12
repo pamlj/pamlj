@@ -350,7 +350,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$info$letter      <- greek_vector["beta"]
       obj$info$esmax       <-  .999999
       obj$info$esmin       <- .001
-      obj$info$loges       <-  function(x) x < .3
+      obj$info$loges       <-  function(x) x < .05
       obj$info$alternative <- obj$options$alternative
       obj$info$nmin        <- obj$data$df_model+2
       obj$info$logy        <- TRUE
@@ -439,7 +439,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$info$esmax       <-  .999999
       obj$info$esmin       <- 1e-08
       obj$info$eslbound    <- 0
-      obj$info$loges            <-  function(x) x < .3
+      obj$info$loges            <-  function(x)  x < .05
       obj$info$alternative <- obj$options$alternative
       obj$info$nmin             <- obj$data$df_model+2
       obj$info$logy             <- TRUE
@@ -487,7 +487,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
       obj$info$esmax       <-  .999999
       obj$info$esmin       <- .001
       obj$info$eslbound    <- 0
-      obj$info$loges            <-  function(x) x < .3
+      obj$info$loges            <-  function(x) x < .05
       obj$info$alternative <- obj$options$alternative
       obj$info$nmin             <- obj$data$df_model+2
       obj$info$logy             <- TRUE
