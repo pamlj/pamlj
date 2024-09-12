@@ -2,10 +2,11 @@
 `%dofuture%` <- doFuture::`%dofuture%`
 
 
+
 paml_palette<- function(what=NULL) {
 
-  p <- viridis::viridis
-mark(what)
+  p <-  function(...)  viridis::viridis(...,alpha=.7)
+  
   switch(what, 
         viridis = p <- function(...) viridis::viridis(...,alpha=.7),
         turbo   = p <- function(...) viridis::turbo(...,alpha=.7),
@@ -13,7 +14,7 @@ mark(what)
         mako    = p <- function(...) viridis::mako(...,alpha=.7),
         cividis  = p <- function(...) viridis::cividis(...,alpha=.7),
         plasma  = p <- function(...) viridis::plasma(...,alpha=.7),
-
+        husky   =  p <- function(...) grey.colors(...)
   )
   return(p)
 }

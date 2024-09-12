@@ -162,7 +162,8 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                     "mako",
                     "cividis",
                     "plasma",
-                    "turbo"))
+                    "turbo",
+                    "husky"))
             private$..plot_x <- jmvcore::OptionList$new(
                 "plot_x",
                 plot_x,

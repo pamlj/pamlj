@@ -168,7 +168,8 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "mako",
                     "cividis",
                     "plasma",
-                    "turbo"))
+                    "turbo",
+                    "husky"))
             private$..covs <- jmvcore::OptionNumber$new(
                 "covs",
                 covs,
