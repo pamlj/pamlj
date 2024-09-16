@@ -31,6 +31,8 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             test = "joint",
             mcR = 1000,
             parallel = FALSE,
+            set_seed = FALSE,
+            seed = 61007,
             table_pwbyn = TRUE,
             plot_ncurve = FALSE,
             plot_log = FALSE,
@@ -174,6 +176,14 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "parallel",
                 parallel,
                 default=FALSE)
+            private$..set_seed <- jmvcore::OptionBool$new(
+                "set_seed",
+                set_seed,
+                default=FALSE)
+            private$..seed <- jmvcore::OptionNumber$new(
+                "seed",
+                seed,
+                default=61007)
             private$..table_pwbyn <- jmvcore::OptionBool$new(
                 "table_pwbyn",
                 table_pwbyn,
@@ -297,6 +307,8 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..test)
             self$.addOption(private$..mcR)
             self$.addOption(private$..parallel)
+            self$.addOption(private$..set_seed)
+            self$.addOption(private$..seed)
             self$.addOption(private$..table_pwbyn)
             self$.addOption(private$..plot_ncurve)
             self$.addOption(private$..plot_log)
@@ -342,6 +354,8 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         test = function() private$..test$value,
         mcR = function() private$..mcR$value,
         parallel = function() private$..parallel$value,
+        set_seed = function() private$..set_seed$value,
+        seed = function() private$..seed$value,
         table_pwbyn = function() private$..table_pwbyn$value,
         plot_ncurve = function() private$..plot_ncurve$value,
         plot_log = function() private$..plot_log$value,
@@ -386,6 +400,8 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..test = NA,
         ..mcR = NA,
         ..parallel = NA,
+        ..set_seed = NA,
+        ..seed = NA,
         ..table_pwbyn = NA,
         ..plot_ncurve = NA,
         ..plot_log = NA,
@@ -466,13 +482,10 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "r13",
                     "r23",
                     "d1",
-                    "aim",
                     "mode",
                     "cprime",
                     "cprime2",
-                    "model_type",
-                    "mcR",
-                    "parallel")))
+                    "model_type")))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="powertab",
@@ -506,7 +519,9 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "alternative",
                     "test",
                     "mcR",
-                    "parallel"),
+                    "parallel",
+                    "seed",
+                    "set_seed"),
                 columns=list(
                     list(
                         `name`="effect", 
@@ -573,7 +588,9 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "alternative",
                     "test",
                     "mcR",
-                    "parallel"),
+                    "parallel",
+                    "seed",
+                    "set_seed"),
                 columns=list(
                     list(
                         `name`="index", 
@@ -613,7 +630,9 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "sig.level",
                     "aim",
                     "alternative",
-                    "test"),
+                    "test",
+                    "seed",
+                    "set_seed"),
                 columns=list(
                     list(
                         `name`="n", 
@@ -791,6 +810,8 @@ pamlmedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param test .
 #' @param mcR .
 #' @param parallel .
+#' @param set_seed .
+#' @param seed .
 #' @param table_pwbyn .
 #' @param plot_ncurve .
 #' @param plot_log .
@@ -859,6 +880,8 @@ pamlmed <- function(
     test = "joint",
     mcR = 1000,
     parallel = FALSE,
+    set_seed = FALSE,
+    seed = 61007,
     table_pwbyn = TRUE,
     plot_ncurve = FALSE,
     plot_log = FALSE,
@@ -908,6 +931,8 @@ pamlmed <- function(
         test = test,
         mcR = mcR,
         parallel = parallel,
+        set_seed = set_seed,
+        seed = seed,
         table_pwbyn = table_pwbyn,
         plot_ncurve = plot_ncurve,
         plot_log = plot_log,

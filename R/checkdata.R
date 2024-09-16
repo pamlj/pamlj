@@ -827,14 +827,14 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                           corMat      <- diag(4)
                           corMat[2,1] <- corMat[1,2] <- plotdata$a1
                           corMat[3,1] <- corMat[1,3] <- plotdata$a2
-                          corMat[2,3] <- corMat[2,3] <- plotdata$r12
+                          corMat[2,3] <- corMat[3,2] <- plotdata$r12
                           corMat[4,1] <- corMat[1,4] <- plotdata$cprime + plotdata$a1*plotdata$b1 + plotdata$a2*plotdata$b2
                           corMat[2,4] <- corMat[4,2] <- plotdata$a1*plotdata$cprime + plotdata$b1 + plotdata$b2*plotdata$r12
                           corMat[3,4] <- corMat[4,3] <- plotdata$a2*plotdata$cprime + plotdata$b2 + plotdata$b1*plotdata$r12
                           
                           ry<-corMat[1:3,4]
                           rx<-corMat[1:3,1:3]  
-                          
+                         
                           r2b <- t(ry)%*%MASS::ginv(rx)%*%ry
                           
                           if (r2b > .99) {
@@ -846,6 +846,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                           exdata$r2a <- exdata$a^2
                           exdata$es  <-  exdata$a * exdata$b
                           exdata$effect <- c("a1*b1","a2*b2")
+                         
 
                         } else {
                           
@@ -939,7 +940,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
 
                          corMat[4,1] <- corMat[1,4] <- plotdata$cprime + plotdata$a1*plotdata$b1 + plotdata$a1*plotdata$b2*plotdata$d1 + plotdata$a2*plotdata$b2
                          corMat[2,4] <- corMat[4,2] <- plotdata$a1*plotdata$cprime + plotdata$b1 + plotdata$b2*plotdata$d1 + plotdata$a1*plotdata$a2*plotdata$b2
-                         corMat[3,4] <- corMat[3,4] <- plotdata$a2*plotdata$cprime + plotdata$b2 + plotdata$b1*plotdata$d1 + plotdata$a1*plotdata$cprime*plotdata$d1
+                         corMat[3,4] <- corMat[4,3] <- plotdata$a2*plotdata$cprime + plotdata$b2 + plotdata$b1*plotdata$d1 + plotdata$a1*plotdata$cprime*plotdata$d1
                          
                          ry<-corMat[1:3,4]
                          rx<-corMat[1:3,1:3]  

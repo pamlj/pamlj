@@ -228,6 +228,16 @@ options:
         type: Bool
         default: false
 
+    -   name: set_seed
+        title: Use a seed
+        type: Bool
+        default: false
+
+    -   name: seed
+        title: Seed
+        type: Number
+        default: 61007
+
     -   name: table_pwbyn
         title: Power quantiles by N
         type: Bool

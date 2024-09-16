@@ -389,7 +389,7 @@ pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,power=NULL
 
 pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,
                                power=NULL,sig.level=.05, alternative="two.sided",
-                               test="mc",R=1000,L=1000,parallel=FALSE,...) {
+                               test="mc",R=1000,L=1000,parallel=FALSE,seed=NULL,...) {
 
   if (parallel) {
     if (Sys.info()['sysname'] == "Windows") 
@@ -397,8 +397,11 @@ pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,
     else                 
                      plan<-future::multicore
   
+    RNGkind("L'Ecuyer-CMRG")
     future::plan(plan)
   }
+  
+  if (is.something(seed)) set.seed(seed)
   
   aim<-c("n","power","es")[sapply(list(n,power,a),is.null)]
   if (length(aim) != 1) stop("Only one parameter must be null in pamlj.mediation")
@@ -434,6 +437,8 @@ pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,
    attribs<-list()
    method<-"pamlj"
   
+ 
+   
   ### helping functions
         .sefun <- function(n, r2vector) {
                         r2s_x<-c(0,r2vector)

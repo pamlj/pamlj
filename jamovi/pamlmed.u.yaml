@@ -288,8 +288,24 @@ children:
           - type: Label
             label: Monte Carlo
             children: 
-                     - type: TextBox
-                       name: mcR
-                       format: number
-                     - type: CheckBox
-                       name: parallel
+              - type: LayoutBox
+                style: inline
+                children:
+                     - type: Label
+                       label: Options
+                       children:
+                             - type: CheckBox
+                               name: parallel
+                             - type: CheckBox
+                               name: set_seed
+
+                     - type: Label
+                       label: Values
+                       children:
+                             - type: TextBox
+                               name: mcR
+                               format: number
+                             - type: TextBox
+                               name: seed
+                               format: number
+                               enable: (set_seed)

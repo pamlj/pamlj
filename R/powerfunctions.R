@@ -465,9 +465,11 @@ powervector <- function(obj, ...) UseMethod(".powervector")
 
                  aim<-required_param(data)
                  if (aim=="es") data$a<-NULL
-                
-#                .names <- intersect(names(data),rlang::fn_fmls_names(pamlj.mediation))
-                results<-lapply(1:nrow(data),function(i) {
+
+                 ## dealing with seed for montecarlo
+                 seed<-NULL
+                 if (obj$options$set_seed) data$seed=obj$options$seed
+                 results<-lapply(1:nrow(data),function(i) {
                      
                      test      <- data$test[i]
                      if (test=="mc") fun<-pamlj.mediation.mc

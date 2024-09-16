@@ -14,7 +14,8 @@ paml_palette<- function(what=NULL) {
         mako    = p <- function(...) viridis::mako(...,alpha=.7),
         cividis  = p <- function(...) viridis::cividis(...,alpha=.7),
         plasma  = p <- function(...) viridis::plasma(...,alpha=.7),
-        husky   =  p <- function(...) grey.colors(...)
+        husky   =  p <- function(...) {mark(list(...))
+                                      grDevices::grey.colors(...)}
   )
   return(p)
 }
