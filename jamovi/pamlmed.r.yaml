@@ -40,13 +40,11 @@ items:
            - r13
            - r23
            - d1
-           - aim
            - mode
            - cprime
            - cprime2
            - model_type
-           - mcR
-           - parallel
+
     - name:  powertab
       title: A Priori Power Analysis
       type: Table
@@ -80,7 +78,8 @@ items:
            - test
            - mcR
            - parallel
-
+           - seed
+           - set_seed
       columns: 
         - name: effect
           title: 'Effect'
@@ -141,6 +140,8 @@ items:
            - test
            - mcR
            - parallel
+           - seed
+           - set_seed
 
       columns: 
         - name: index
@@ -181,6 +182,8 @@ items:
            - aim
            - alternative
            - test
+           - seed
+           - set_seed
 
       columns:
         - name: n
@@ -217,7 +220,6 @@ items:
            - r13
            - r23
            - d1
-
            - aim
            - mode
            - cprime
@@ -227,6 +229,7 @@ items:
            - sig.level
            - aim
            - alternative
+
       columns: 
         - name: beta
           title: β
