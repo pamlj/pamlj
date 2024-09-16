@@ -32,7 +32,7 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             mcR = 1000,
             parallel = FALSE,
             set_seed = FALSE,
-            seed = 61007,
+            seed = 42,
             table_pwbyn = TRUE,
             plot_ncurve = FALSE,
             plot_log = FALSE,
@@ -183,7 +183,7 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..seed <- jmvcore::OptionNumber$new(
                 "seed",
                 seed,
-                default=61007)
+                default=42)
             private$..table_pwbyn <- jmvcore::OptionBool$new(
                 "table_pwbyn",
                 table_pwbyn,
@@ -881,7 +881,7 @@ pamlmed <- function(
     mcR = 1000,
     parallel = FALSE,
     set_seed = FALSE,
-    seed = 61007,
+    seed = 42,
     table_pwbyn = TRUE,
     plot_ncurve = FALSE,
     plot_log = FALSE,
