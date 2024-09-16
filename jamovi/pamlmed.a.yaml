@@ -238,6 +238,12 @@ options:
         type: Number
         default: 42
 
+    -   name: sim_ttest
+        title: Assume t-test
+        type: Bool
+        default: false
+
+
     -   name: table_pwbyn
         title: Power quantiles by N
         type: Bool

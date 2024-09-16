@@ -967,6 +967,7 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
                          obj$info$rxy<-corMat[4,1]
 
                          exdata$effect <- c("a1*b1","a2*b2","a1*d1*b2")
+                         obj$warning<-list(topic="powertab",message="Additional coefficients: d1=" %+% plotdata$d1)
  
 
                         } else {
