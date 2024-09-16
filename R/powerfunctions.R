@@ -475,9 +475,10 @@ powervector <- function(obj, ...) UseMethod(".powervector")
                      if (test=="mc") fun<-pamlj.mediation.mc
                      else fun<-pamlj.mediation
                      
-                    .names <- intersect(names(data),rlang::fn_fmls_names(fun))
-                     one      <- data[i,.names]
-                     one      <- one[!sapply(one,is.na)]
+#                    .names <- intersect(names(data),rlang::fn_fmls_names(fun))
+#                     one      <- data[i,.names]
+                      one      <- data[i,]
+                      one      <- one[!sapply(one,is.na)]
                      tryobj<-try_hard(do.call(fun,one), silent=F)
                      out<-tryobj$obj
                      if (!isFALSE(tryobj$error)) {

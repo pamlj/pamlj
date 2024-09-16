@@ -236,7 +236,13 @@ options:
     -   name: seed
         title: Seed
         type: Number
-        default: 61007
+        default: 42
+
+    -   name: sim_ttest
+        title: Assume t-test
+        type: Bool
+        default: false
+
 
     -   name: table_pwbyn
         title: Power quantiles by N

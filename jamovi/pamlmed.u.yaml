@@ -190,16 +190,15 @@ children:
           - type: Label
             label: Options
             children:
-                  - name: plot_log
-                    type: CheckBox
-                  - type: ComboBox
-                    name: plot_palette
+              - name: plot_log
+                type: CheckBox
+              - type: ComboBox
+                name: plot_palette
       - type: Label
         label: Tables
         children:
-              - type: CheckBox
-                name: table_pwbyn
-                
+          - type: CheckBox
+            name: table_pwbyn
   - type: CollapseBox
     label: Power Parameters plot
     name: panel_customplot
@@ -287,25 +286,29 @@ children:
         children:
           - type: Label
             label: Monte Carlo
-            children: 
+            children:
               - type: LayoutBox
                 style: inline
                 children:
-                     - type: Label
-                       label: Options
-                       children:
-                             - type: CheckBox
-                               name: parallel
-                             - type: CheckBox
-                               name: set_seed
-
-                     - type: Label
-                       label: Values
-                       children:
-                             - type: TextBox
-                               name: mcR
-                               format: number
-                             - type: TextBox
-                               name: seed
-                               format: number
-                               enable: (set_seed)
+                  - type: Label
+                    label: Options
+                    children:
+                      - type: CheckBox
+                        name: parallel
+                      - type: CheckBox
+                        name: set_seed
+                  - type: Label
+                    label: Values
+                    children:
+                      - type: TextBox
+                        name: mcR
+                        format: number
+                      - type: TextBox
+                        name: seed
+                        format: number
+                        enable: (set_seed)
+                  - type: LayoutBox
+                    margin: large
+                    children:
+                      - type: CheckBox
+                        name: sim_ttest
