@@ -888,8 +888,8 @@ checkdata <- function(obj, ...) UseMethod(".checkdata")
   
                           corMat[5,1] <- corMat[1,5] <- plotdata$cprime + plotdata$a1*plotdata$b1 + plotdata$a2*plotdata$b2 + plotdata$a3*plotdata$b3
                           corMat[2,5] <- corMat[5,2] <- plotdata$a1*plotdata$cprime + plotdata$b1 + plotdata$b2*plotdata$r12 + plotdata$b3*plotdata$r13
-                          corMat[3,5] <- corMat[5,3] <- plotdata$a2*plotdata$cprime + plotdata$b2 + plotdata$b1*plotdata$r12 + plotdata$b3*plotdata$r13
-                          corMat[4,5] <- corMat[5,4] <- plotdata$a3*plotdata$cprime + plotdata$b3 + plotdata$b2*plotdata$r12 + plotdata$b1*plotdata$r13
+                          corMat[3,5] <- corMat[5,3] <- plotdata$a2*plotdata$cprime + plotdata$b2 + plotdata$b1*plotdata$r12 + plotdata$b3*plotdata$r23
+                          corMat[4,5] <- corMat[5,4] <- plotdata$a3*plotdata$cprime + plotdata$b3 + plotdata$b2*plotdata$r23 + plotdata$b1*plotdata$r13
   
                           colnames(corMat)<-rownames(corMat)<-c("X","M1","M2","M3","Y")
                      
