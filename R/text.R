@@ -157,3 +157,87 @@ LINKS[["ttestind"]]<-"https://pamlj.github.io/ttest_ind.html"
 LINKS[["ttestpone"]]<-"https://pamlj.github.io/ttest_one.html"
 LINKS[["ttestpaired"]]<-"https://pamlj.github.io/ttest_paired.html"
 LINKS[["mediation"]]<-"https://pamlj.github.io/mediation.html"
+
+
+### here we define a nice widget to convey information
+
+info_text <- function(obj, ...) {
+  
+text <- paste(
+    '<style>',
+    '.accordion {',
+    '  background-color: #3498db;', 
+    '  color: white;',
+    '  cursor: pointer;',
+    '  padding: 8px 15px;',
+    '  width: 100%;',
+    '  border: none;',
+    '  text-align: left;',
+    '  outline: none;',
+    '  font-size: 16px;',
+    '  transition: 0.4s;',
+    '  display: flex;',
+    '  align-items: center;',
+    '  position: relative;',
+    '  border-top-left-radius: 8px;',
+    '  border-top-right-radius: 8px;',
+    '}',
+    '.accordion svg {',
+    '  margin-right: 15px;',
+    '  transition: fill 0.4s;',
+    '}',
+    '.accordion svg .circle {',
+    '  fill: white;',
+    '}',
+    '.accordion svg .horizontal,',
+    '.accordion svg .vertical {',
+    '  fill: #3498db;',
+    '  transition: transform 0.8s ease-in-out;',
+    '  transform-origin: center;',
+    '}',
+    '.accordion.active svg .vertical {',
+    '  transform: scaleY(0);',
+    '}',
+    '.panel {',
+    '  padding: 0 15px;',
+    '  display: none;',
+    '  background-color: white;',
+    '  overflow: hidden;',
+    '}',
+    '</style>',
+    '<script>',
+    'var acc = document.getElementsByClassName("accordion");',
+    'for (var i = 0; i < acc.length; i++) {',
+    '  acc[i].addEventListener("click", function() {',
+    '    this.classList.toggle("active");',
+    '    var panel = this.nextElementSibling;',
+    '    if (panel.style.display === "block") {',
+    '      panel.style.display = "none";',
+    '    } else {',
+    '      panel.style.display = "block";',
+    '    }',
+    '  });',
+    '}',
+    '</script>',
+    '<button class="accordion">',
+    '  <svg width="20" height="18" viewBox="0 0 24 24">',
+    '    <circle class="circle" cx="12" cy="12" r="11" />',
+    '    <rect class="horizontal" x="5" y="11" width="15" height="3" />',
+    '    <rect class="vertical" x="11" y="5" width="3" height="15" />',
+    '  </svg>',
+    '  <span style="font-size: 14px;">Info</span>',
+    '</button>',
+    '<div class="panel">',
+    '{addinfo}',
+    '{addinfo2}',
+    '{help}',
+    '</div>'
+
+)
+
+  mode2<-ifelse(is.something(as.character(INFO2[[obj$mode]])),INFO2[[obj$mode]]," ")
+  jmvcore::format(text, addinfo=INFO[obj$caller],addinfo2=mode2, help=link_help(obj))
+  
+  
+  
+}
