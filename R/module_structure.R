@@ -1,7 +1,7 @@
-# Initter handles all the init procedures for setting up the tables
-# Runner handles the estimation of the parameters and then fill the tables.
+# Initer handles all the init procedures for setting up the tables
+# Runner handles the estimation of the parameters and the filling of  tables.
 # For each sub-module, Runner gets two classes, the "model_type" and the "mode"
-# Thus, we need prepare S3 function to handles the different sub-module. 
+# Thus, we need to prepare S3 functions to handles the different sub-modules. 
 # 
 # Here we define the S3 methods that are rquired for each sub-module
 #
@@ -15,6 +15,7 @@
 ## effectsize_init: (not required) some sub.module requires additional effect size to be computed. This function inits the table
 ## effectsize_run:  (not required) some sub.module requires additional effect size to be computed. This function fills the table
 ## extrainfo:       (better if is there) this function add some extra info to be given to the user when the option "explain" is selected
+## find_*_es, find_*_max:  find parameters is usually ok for any sub-module, but we may need to specialize it
 
 
 ## checkdata: this prepares all the info required to estimate the power parameters
