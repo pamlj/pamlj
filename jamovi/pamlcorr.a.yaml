@@ -2,7 +2,7 @@
 name: pamlcorr
 title: Correlation 
 menuGroup: Power
-version: '0.0.1'
+version: '0.5.0'
 jas: '1.2'
 export: true
 completeWhenFilled: false
