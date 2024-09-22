@@ -395,7 +395,7 @@ pamlcorrBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             super$initialize(
                 package = "pamlj",
                 name = "pamlcorr",
-                version = c(0,0,1),
+                version = c(0,5,0),
                 options = options,
                 results = pamlcorrResults$new(options=options),
                 data = data,

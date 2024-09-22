@@ -760,7 +760,7 @@ pamlmedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             super$initialize(
                 package = "pamlj",
                 name = "pamlmed",
-                version = c(0,4,0),
+                version = c(0,5,0),
                 options = options,
                 results = pamlmedResults$new(options=options),
                 data = data,
