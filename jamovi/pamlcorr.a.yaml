@@ -24,11 +24,13 @@ options:
           title: N
         - name: power
           title: Power
+        - name: es
+          title: Effect Size
       description:
                 R: |
-                        The aim of the analysis: `n` (default) for sample size, `power` to estimate power
+                        The aim of the analysis: `n` (default) for sample size, `power` to estimate power, `es` for effect size (correlation)
                 ui: |
-                        The aim of the analysis: `N` (default) for sample size, `Power` to estimate power
+                        The aim of the analysis: `N` (default) for sample size, `Power` to estimate power, `Effect Size` for effect size (correlation)
 
     - name: es
       title: Minimal-interesting effect size 

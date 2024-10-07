@@ -51,8 +51,7 @@ pamlsemOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 default="n",
                 options=list(
                     "n",
-                    "power",
-                    "es"))
+                    "power"))
             private$..code <- jmvcore::OptionString$new(
                 "code",
                 code,
@@ -536,7 +535,7 @@ pamlsemBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' Something here
 #' 
 #' @param aim The aim of the analysis: \code{n} (default) for sample size,
-#'   \code{power} to estimate power, \code{es} for effect size (correlation)
+#'   \code{power} to estimate power
 #' @param code .
 #' @param fonts .
 #' @param toggle .

@@ -21,13 +21,11 @@ options:
           title: N
         - name: power
           title: Power
-        - name: es
-          title: Effect Size
       description:
                 R: |
-                        The aim of the analysis: `n` (default) for sample size, `power` to estimate power, `es` for effect size (correlation)
+                        The aim of the analysis: `n` (default) for sample size, `power` to estimate power
                 ui: |
-                        The aim of the analysis: `N` (default) for sample size, `Power` to estimate power, `Effect Size` for effect size (correlation)
+                        The aim of the analysis: `N` (default) for sample size, `Power` to estimate power
 
 ### syntax stuff
 
