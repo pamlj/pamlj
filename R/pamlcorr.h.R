@@ -41,8 +41,7 @@ pamlcorrOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 default="n",
                 options=list(
                     "n",
-                    "power",
-                    "es"))
+                    "power"))
             private$..es <- jmvcore::OptionNumber$new(
                 "es",
                 es,
@@ -413,7 +412,7 @@ pamlcorrBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' Something here
 #' 
 #' @param aim The aim of the analysis: \code{n} (default) for sample size,
-#'   \code{power} to estimate power, \code{es} for effect size (correlation)
+#'   \code{power} to estimate power
 #' @param es The expected effect size, i.e. the expected correlation
 #' @param power Minimal desired power
 #' @param n Sample size
