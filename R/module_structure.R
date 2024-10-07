@@ -134,7 +134,7 @@ find_min_n <- function(obj, ...) UseMethod(".find_min_n")
 .find_min_n.default <- function(obj,data) {
   
   data$n <- NULL
-  data$es<-ifelse(data$es*3 > obj$info$esmax, data$es*3, obj$info$esmax)
+  data$power<-.10
   res<-try_hard(powervector(obj,data))
   if (isFALSE(res$error)) {
     n<-ceiling(res$obj$n)
@@ -167,7 +167,6 @@ find_max_es <- function(obj, ...) UseMethod(".find_max_es")
 
 .find_max_es.default <- function(obj,data) {
 
-  mark("finding min es")
 
   data$es <- NULL
   res<-try_hard(powervector(obj,data))
@@ -183,7 +182,6 @@ find_min_es <- function(obj, ...) UseMethod(".find_min_es")
 
 .find_min_es.default <- function(obj,data) {
  
-  mark("finding min es")
   if ("es" %in% obj$info$nochecks) return(obj$info$esmin)
     
   data$es <- NULL

@@ -470,18 +470,5 @@
 
 }
 
-### find parameters need some specs for mediation
 
-.find_min_n.mediation <- function(obj,data) {
-  
-  data$n <- NULL
-  data$a<-ifelse(data$a^(.5) < .99, data$a^(.5), .99)
-  res<-try_hard(powervector(obj,data))
-  if (isFALSE(res$error)) {
-    n<-ceiling(res$obj$n)
-  }
-  else
-    n<-obj$info$nmin
-   return(n)
-}
 

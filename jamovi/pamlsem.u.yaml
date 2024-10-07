@@ -1,0 +1,211 @@
+title: SEM power analysis
+name: pamlsem
+jus: '3.0'
+stage: 0
+compilerMode: tame
+events:
+  loaded: ./sem_editor::loaded
+  update: ./sem_editor::update
+children:
+  - type: LayoutBox
+    stretchFactor: 1
+    children:
+      - type: LayoutBox
+        margin: large
+        style: inline
+        children:
+          - type: ComboBox
+            name: aim
+      - type: CustomControl
+        stretchFactor: 1
+        name: syntax
+        events:
+          creating: ./sem_editor::editor_creating
+  - type: Label
+    label: Parameters
+    name: power_parameters
+    margin: large
+    children:
+      - name: power
+        type: TextBox
+        label: Minimum desired power
+        format: number
+        enable: (!aim:power)
+      - name: 'n'
+        type: TextBox
+        label: N (Sample size)
+        format: number
+        enable: (!aim:n)
+      - name: sig.level
+        type: TextBox
+        label: '&alpha; (type I error rate)'
+        format: number
+      - type: ComboBox
+        name: alternative
+  - type: LayoutBox
+    style: inline
+    children:
+      - type: Label
+        label: Model
+        children:
+          - type: ComboBox
+            name: estimator
+          - type: CheckBox
+            name: standardized
+
+      - type: Label
+        label: Method
+        children:
+          - name: method_analytic
+            type: RadioButton
+            optionName: method
+            optionPart: analytic
+          - type: RadioButton
+            name: method_mc
+            optionName: method
+            optionPart: mc
+
+      - type: Label
+        label: Options
+        children:
+          - type: CheckBox
+            name: explain
+          - type: LayoutBox
+            name: diagram_box
+            children:
+              - type: CheckBox
+                name: lav_diagram
+  - type: CollapseBox
+    label: Sensitivity Analysis
+    name: panel_sensitivity
+    collapsed: true
+    stretchFactor: 1
+    children:
+      - type: LayoutBox
+        style: inline
+        children:
+          - type: Label
+            label: Plots
+            children:
+              - type: CheckBox
+                name: plot_ncurve
+          - type: Label
+            label: Options
+            children:
+              - name: plot_log
+                type: CheckBox
+              - type: ComboBox
+                name: plot_palette
+      - type: Label
+        label: Tables
+        children:
+          - type: CheckBox
+            name: table_pwbyn
+  - type: CollapseBox
+    label: Power Parameters plot
+    name: panel_customplot
+    collapsed: true
+    stretchFactor: 1
+    children:
+      - type: LayoutBox
+        children:
+          - type: LayoutBox
+            style: inline
+            children:
+              - type: Label
+                label: Plot Y-axis
+                children:
+                  - type: LayoutBox
+                    style: inline
+                    children:
+                      - type: ComboBox
+                        name: plot_y
+                      - type: CheckBox
+                        name: plot_custom_labels
+              - type: Label
+                label: Results in table
+                children:
+                  - type: CheckBox
+                    name: plot_to_table
+          - type: Label
+            label: Plot X-axis
+            children:
+              - type: LayoutBox
+                style: inline
+                children:
+                  - type: ComboBox
+                    name: plot_x
+                    events:
+                      change: ./common::plot_x_changed
+                  - type: TextBox
+                    name: plot_x_from
+                    format: number
+                  - type: TextBox
+                    name: plot_x_to
+                    format: number
+          - type: Label
+            label: Plot Different Curves by
+            children:
+              - type: LayoutBox
+                style: inline
+                children:
+                  - type: ComboBox
+                    name: plot_z
+                    events:
+                      change: ./common::plot_z_changed
+                  - type: TextBox
+                    name: plot_z_lines
+                    format: number
+                    enable: (!plot_z:none)
+                    events:
+                      change: ./common::plot_z_lines_changed
+          - type: LayoutBox
+            name: plot_lines_values
+            children:
+              - type: Label
+                label: Values for each curves
+                name: plot_value_label
+                children:
+                  - type: ListBox
+                    name: plot_z_value
+                    events:
+                      listItemAdded: ./common::onChange_value_added
+                      listItemRemoved: ./common::onChange_value_removed
+                    showColumnHeaders: false
+                    columns:
+                      - name: var
+                        label: Value
+                        template:
+                          type: TextBox
+  - type: CollapseBox
+    label: Options
+    name: panel_options
+    collapsed: true
+    stretchFactor: 1
+    children:
+      - type: LayoutBox
+        style: inline
+        children:
+          - type: Label
+            label: Monte Carlo
+            children:
+              - type: LayoutBox
+                style: inline
+                children:
+                  - type: Label
+                    label: Options
+                    children:
+                      - type: CheckBox
+                        name: parallel
+                      - type: CheckBox
+                        name: set_seed
+                  - type: Label
+                    label: Values
+                    children:
+                      - type: TextBox
+                        name: mcR
+                        format: number
+                      - type: TextBox
+                        name: seed
+                        format: number
+                        enable: (set_seed)

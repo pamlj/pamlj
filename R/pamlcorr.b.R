@@ -18,7 +18,7 @@ pamlcorrClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
 
 
      ### set up the R6 workhorse class
-                private$.runner          <-  Runner$new(self)
+                 private$.runner          <-  Runner$new(self)
 
                  ### handle plotter #####
                  private$.plotter<-Plotter$new(self,private$.runner)

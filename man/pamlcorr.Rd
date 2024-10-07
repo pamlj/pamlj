@@ -14,7 +14,8 @@ pamlcorr(
   plot_contour = FALSE,
   plot_escurve = FALSE,
   plot_ncurve = FALSE,
-  plot_log = FALSE,
+  plot_log = TRUE,
+  plot_palette = "viridis",
   plot_x = "none",
   plot_y = "none",
   plot_custom_labels = FALSE,
@@ -50,6 +51,8 @@ pamlcorr(
 
 \item{plot_log}{.}
 
+\item{plot_palette}{.}
+
 \item{plot_x}{.}
 
 \item{plot_y}{.}
@@ -76,6 +79,7 @@ pamlcorr(
 A results object containing:
 \tabular{llllll}{
   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
+  \code{results$extrainfo} \tab \tab \tab \tab \tab a html \cr
   \code{results$issues} \tab \tab \tab \tab \tab a html \cr
   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
   \code{results$powerbyes} \tab \tab \tab \tab \tab a table \cr

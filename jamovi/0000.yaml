@@ -66,6 +66,14 @@ analyses:
     menuTitle: Mediation
     description: |
       Something here
+  - title: Structural Equations Models
+    name: pamlsem
+    ns: pamlj
+    menuSubgroup: Pamlj
+    menuGroup: Power
+    menuTitle: Structural Equations Models
+    description: |
+      Something here
 datasets:
   - name: factorial
     path: factorial.csv

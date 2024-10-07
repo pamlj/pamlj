@@ -14,7 +14,8 @@ checkfailure <- function(obj, ...) UseMethod(".checkfailure")
 commonchecks <- function(obj) {
   
     if (!obj$ok) return()
-  
+    jinfo("PAMLj: performing common checks")
+
     if (is.something(obj$data$sig.level ) ) {
         if ( any(obj$data$sig.level < 0.00001) ||  any(obj$data$sig.level > .90)) {
                    obj$stop("Type I error rate should be between .00001 and .90")
@@ -36,19 +37,23 @@ commonchecks <- function(obj) {
 
     } 
 
-    if (is.something(obj$data$n ) ) {
+    if (is.something(obj$data[["n"]] ) ) {
         if ( any(obj$data$n < obj$info$nmin )) {
                    obj$stop(paste("N (total sample size) should be larger than",obj$info$nmin))
         }
     } 
   
-    if (is.something(obj$info$eslbound) && is.something(obj$data$es))
+    ## use the [[ ]] because of the crazy R partial matching
+    if (is.something(obj$data[["es"]])) {
+      
+    if (is.something(obj$info$eslbound))
          if (obj$info$eslbound > obj$data$es) obj$stop("The effect size " %+% obj$info$letter %+% " cannot be smaller than " %+% obj$info$eslbound)
 
-    if (is.something(obj$info$esmax) && is.something(obj$data$es))
+  
+    if (is.something(obj$info$esmax) )
          if (obj$info$esmax < obj$data$es) obj$stop("The effect size " %+% obj$info$letter %+% " cannot be larger than " %+% obj$info$esmax)
 
-    if (is.something(obj$data$es) && !obj$option("is_equi") ) {
+    if (!obj$option("is_equi") ) {
         .data<-obj$data
         .data$n<-obj$info$nmax
         esmin<-find_min_es(obj,.data)
@@ -56,7 +61,7 @@ commonchecks <- function(obj) {
         es<-format5(obj$data$es)
 
 
-        if ( any(abs(obj$data$es) < abs(esmin))) {
+         if ( any(abs(obj$data[["es"]]) < abs(esmin))) {
                    message<-       "The effect size (" %+% obj$info$letter %+% " = " %+% es %+% ") is smaller than the effect size (" %+%
                                     obj$info$letter %+% " = " %+% fesmin %+% ")" %+%
                                    " that requires around " %+% obj$info$nmax_spell %+% " cases (N=" %+% obj$info$nmax %+% ")  to obtain a power of " %+%
@@ -67,11 +72,13 @@ commonchecks <- function(obj) {
                    obj$data$es<-esmin
                    obj$plots$sensitivity<-FALSE
                    
-        }
+         }
+    }
        
       
     } 
   
+    jinfo("PAMLj: performing common checks done")
 
 }
 
@@ -81,6 +88,7 @@ commonchecks <- function(obj) {
 postchecks<-function(obj) {
   
   jinfo("PAMLj: post checks")
+  
     data<-obj$data
     switch (data$method,
       nmin = {   

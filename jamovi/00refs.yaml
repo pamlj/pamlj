@@ -19,3 +19,25 @@ refs:
       year: 2019
       title: "jpower: A module to compute power for various designs within jamovi"
       url: https://github.com/richarddmorey/jpower
+
+   sempower:
+    type: 'software'
+    title : 'semPower: Power Analyses for SEM, R package version 2.1.1'
+    author : Morten Moshagen and Martina Bader,
+    year :  2024,
+    url : https://CRAN.R-project.org/package=semPower
+    
+   lavaan:
+      type: 'article'
+      author: Rosseel, Y.
+      year: 2019
+      title: 'lavaan: An R Package for Structural Equation Modeling'
+      publisher: 'Journal of Statistical Software, 48(2), 1-36'
+      url: 'http://www.jstatsoft.org/v48/i02/'
+   semplot:
+      type: "software"
+      title: "semPlot: Path Diagrams and Visual Analysis of Various SEM Packages' Output"
+      author: Epskamp S. , Stuber S., Nak J., Veenman M,, Jorgensen T.D.
+      year: 2019
+      publisher: "[R Package]. Retrieved from https://CRAN.R-project.org/package=semPlot"
+      url: 'https://CRAN.R-project.org/package=semPlot' 

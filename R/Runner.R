@@ -32,13 +32,13 @@ Runner <- R6::R6Class("Runner",
                                  }
                                  # everything went well, so fill self$data
                                  self$data<-resobj$obj
-                                 postchecks(self)
-                                 extrainfo(self)
+                              #   postchecks(self)
+                              #   extrainfo(self)
 
                                  
                               },
                               run_powertab = function() {
-                                     if (!self$ok) return()
+                                   
                                      jinfo("PAMLj: Runner: powertab")
                                      tab<-powertab(self)
                                      return(tab)
@@ -46,13 +46,12 @@ Runner <- R6::R6Class("Runner",
                                },
                               run_effectsize = function() {
                                 
-                                     if (!self$ok) return()
                                      return(effectsize_run(self))
                                     
                                },
 
                               run_powerbyes = function() {
-                                     if (!self$ok) return()
+                                
                                      jinfo("PAMLj: Runner: powerbyes")
                                 
                                      tab <- powerbyes(self)
@@ -60,7 +59,7 @@ Runner <- R6::R6Class("Runner",
                                      return(tab)
                                },
                               run_powerbyn = function() {
-                                     if (!self$ok) return()
+
                                      jinfo("PAMLj: Runner: powerbyn")
                                 
                                      tab <- powerbyn(self)
@@ -68,8 +67,7 @@ Runner <- R6::R6Class("Runner",
                                      return(tab)
                                },
                               run_powerxy = function() {
-                                     if (!self$ok) return()
-                                
+                                   
                                      jinfo("PAMLj: Runner: powerxy")
                                      r<-self$info$rxy
                                      f2<-r^2/(1-r^2)
@@ -90,7 +88,6 @@ Runner <- R6::R6Class("Runner",
                               
                               run_means = function() {
                                 
-                                  if (!self$ok) return()
                                   exdata<-self$analysis$data
                                   factors <- self$options$factors
                                   means   <- self$options$means
@@ -104,6 +101,7 @@ Runner <- R6::R6Class("Runner",
                                         exdata[[f]]<-factor(exdata[[f]])
                                         contrasts(exdata[[f]])<-contr.sum(nlevels(exdata[[f]]))
                                   }
+                                  
                                   form1<-paste(means,"~",paste(factors,collapse="*"))
                                   model1<-lm(form1,exdata)
                                   form2<-paste(sds,"~",paste(factors,collapse="*"))
@@ -128,14 +126,20 @@ Runner <- R6::R6Class("Runner",
                               },
                               run_customtable = function() {
                            
-                                     if (!self$ok) return()
                                      ## this is filled by plotter$prepateCustom
                                      ## here we simply pass it to the table
                                      state <- self$analysis$results$powerCustom$state
                                      if (is.null(state))
                                          return()
                                      return(state$data)
-                               }
+                              },
+                          endrun = function() {
+                            
+                            self$analysis$results$initnotes$setContent(" ")
+                            self$analysis$results$initnotes$setVisible(FALSE)
+                            
+                            
+                          }
 
                           ), # end of public function estimate
 

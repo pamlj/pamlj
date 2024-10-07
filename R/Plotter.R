@@ -26,6 +26,7 @@ Plotter <- R6::R6Class(
             ## first we prepare plots that should go anyway
         
             private$.prepare_diagram()
+            private$.prepare_lav_diagram()
 
             ## then we prepare plots that should go if calculation has succeeded
         
@@ -294,30 +295,13 @@ Plotter <- R6::R6Class(
       data <- private$.operator$data
       image<-private$.results$powerNcurve
       ## check the min-max for effect size
-      esmax <- obj$info$esmax
-      if (esmax < data$es) esmax<-data$es
-      esmin<-  obj$info$esmin
 
       ## check min-max for N
-      esmax <- data$es*obj$plots$esrange
-      if (esmax > obj$info$esmax) esmax<-obj$info$esmax
-      esmin <- data$es/obj$plots$esrange
-      if (esmin < obj$info$esmin) esmin<-obj$info$esmin
-      .data<-data
-      .data$es<-esmin
-      .data$n<-NULL
-      nmax<-powervector(obj,.data)$n
-      .data$es<-esmax*1.1
-      .data$n<-NULL
-      nmin<-powervector(obj,.data)$n
+      nmax<-find_max_n(obj,data)
+      nmin<-find_min_n(obj,data)
 
-       if (nmin >= data$n && nmin > obj$info$nmin) {
-          .data$power<-.data$power/2
-          nmin<-  find_min_n(obj,.data)
-          nmax<-  find_max_n(obj,data)
-      }
-      if (nmax< data$n) nmax<-round(data$n*1.5,digits=0)
-      if (nmax<(nmin*2)) nmax=(nmin*2)
+       if (nmin >= data$n ) nmin<-data$n
+       if (nmax < data$n) nmax<-round(data$n*1.5,digits=0)
 
         FLX<-identity
         FEX<-identity
@@ -334,8 +318,11 @@ Plotter <- R6::R6Class(
        point.x<-FLX(obj$data$n)
        ticks<-seq(FLX(nmin),FLX(nmax),len=6)
        tickslabels<-round(FEX(ticks))
-      .data <- cbind(n,obj$data)
+      .data<-obj$data
+      .data[["n"]]<-NULL
+      .data  <- cbind(n,.data)
       .data$power<-NULL
+      
        ydata <- powervector(obj,.data)
        ydata$x <- x
        ydata$y <- ydata$power
@@ -805,7 +792,33 @@ Plotter <- R6::R6Class(
               
               image$setState(state)
 
-    }
+    },
+
+     .prepare_lav_diagram=function() {
+       
+          if (!self$option("lav_diagram")) return()
+       
+          obj  <- private$.operator
+          if (!obj$ok) return()
+          jinfo("PLOTTER: preparing path diagram")
+          data <- private$.operator$data
+          if (is.null(private$.operator$data$modelPop)) return()
+          
+          image<-private$.results$diagram
+          
+          model<-lavaan::lavaanify(private$.operator$data$modelPop)
+          nodeLabels<-3
+          nNodes<-length(nodeLabels)
+          size<-16*exp(-nNodes/80)+1
+          state=list(model=model,
+                     sizeLat = size, 
+                     sizeLat2 = size*.50, 
+                     sizeMan=size*.70, 
+                     sizeMan2=size*.35,
+                     edge.label.cex =1.3)
+          image$setState(state)
+
+     }
 
   ) # end of private
 ) # end of class
