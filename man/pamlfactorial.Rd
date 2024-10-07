@@ -6,8 +6,6 @@
 \usage{
 pamlfactorial(
   data,
-  .caller = "factorial",
-  .interface = "jamovi",
   aim = "n",
   mode = "facpeta",
   means = NULL,
@@ -28,6 +26,7 @@ pamlfactorial(
   plot_escurve = FALSE,
   plot_ncurve = FALSE,
   plot_log = FALSE,
+  plot_palette = "viridis",
   plot_x = "none",
   plot_y = "none",
   plot_custom_labels = FALSE,
@@ -39,15 +38,13 @@ pamlfactorial(
   plot_to_table = FALSE,
   ncp_type,
   emeans = FALSE,
-  esos = FALSE
+  esos = FALSE,
+  .interface = "jamovi",
+  .caller = "factorial"
 )
 }
 \arguments{
 \item{data}{the data as a data frame}
-
-\item{.caller}{.}
-
-\item{.interface}{.}
 
 \item{aim}{The aim of the analysis: \code{n} (default) for sample size,
 \code{power} to estimate power}
@@ -94,6 +91,8 @@ Not needed if \code{formula} is used.}
 
 \item{plot_log}{.}
 
+\item{plot_palette}{.}
+
 \item{plot_x}{.}
 
 \item{plot_y}{.}
@@ -117,11 +116,16 @@ Not needed if \code{formula} is used.}
 \item{emeans}{.}
 
 \item{esos}{.}
+
+\item{.interface}{Used for internal purposes}
+
+\item{.caller}{.}
 }
 \value{
 A results object containing:
 \tabular{llllll}{
   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
+  \code{results$extrainfo} \tab \tab \tab \tab \tab a html \cr
   \code{results$issues} \tab \tab \tab \tab \tab a html \cr
   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
   \code{results$powerbyes} \tab \tab \tab \tab \tab a table \cr

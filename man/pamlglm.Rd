@@ -6,7 +6,6 @@
 \usage{
 pamlglm(
   data,
-  .caller = "glm",
   aim = "n",
   mode = "peta",
   b_es = 0.2,
@@ -27,6 +26,7 @@ pamlglm(
   plot_escurve = FALSE,
   plot_ncurve = FALSE,
   plot_log = FALSE,
+  plot_palette = "viridis",
   covs = 0,
   factors = 0,
   factors_list = list(list(var = "factor 1", levels = 0)),
@@ -50,13 +50,14 @@ pamlglm(
   plot_x_to = 0,
   plot_z_lines = 0,
   plot_z_value = list(),
-  plot_to_table = FALSE
+  plot_to_table = FALSE,
+  explain = FALSE,
+  .caller = "glm",
+  .interface = "jamovi"
 )
 }
 \arguments{
 \item{data}{the data as a data frame}
-
-\item{.caller}{.}
 
 \item{aim}{.}
 
@@ -97,6 +98,8 @@ pamlglm(
 \item{plot_ncurve}{.}
 
 \item{plot_log}{.}
+
+\item{plot_palette}{.}
 
 \item{covs}{.}
 
@@ -146,11 +149,18 @@ containing the correlations among independent variables}
 \item{plot_z_value}{.}
 
 \item{plot_to_table}{.}
+
+\item{explain}{.}
+
+\item{.caller}{.}
+
+\item{.interface}{.}
 }
 \value{
 A results object containing:
 \tabular{llllll}{
   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
+  \code{results$extrainfo} \tab \tab \tab \tab \tab a html \cr
   \code{results$issues} \tab \tab \tab \tab \tab a html \cr
   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
   \code{results$effectsize} \tab \tab \tab \tab \tab a table \cr
@@ -159,8 +169,8 @@ A results object containing:
   \code{results$powerContour} \tab \tab \tab \tab \tab an image \cr
   \code{results$powerEscurve} \tab \tab \tab \tab \tab an image \cr
   \code{results$powerNcurve} \tab \tab \tab \tab \tab an image \cr
-  \code{results$customnotes} \tab \tab \tab \tab \tab a html \cr
   \code{results$powerCustom} \tab \tab \tab \tab \tab an image \cr
+  \code{results$customnotes} \tab \tab \tab \tab \tab a html \cr
   \code{results$customtable} \tab \tab \tab \tab \tab a table \cr
 }
 

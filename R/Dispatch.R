@@ -140,19 +140,18 @@ private = list(
                     
                     style = ""
                     title = ""
-                    
                     # Contenitore dell'icona con flex e padding
                     icon_container_style = "display: flex; align-items: center; padding: 10px;"
                     
                     # Dimensioni fisse per l'icona e colore di default
                     icon_style = "font-size: 50px; flex-shrink: 0;"
-                    
                     if (is.something(obj$head)) {
                         switch (obj$head,
                                 "info" = {
                                     # SVG per messaggio informativo
                                     head <- paste0("<div style='", icon_container_style, "'><svg width='50' height='50' xmlns='http://www.w3.org/2000/svg'><circle cx='25' cy='25' r='20' fill='#3e6da9'></circle><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='30' font-family='Arial Black'>i</text></svg></div>")
                                     style <- "border-color: #3e6da9;"
+                                    
                                 },
                                 "warning" = {
                                     # SVG per messaggio di avviso
@@ -176,9 +175,13 @@ private = list(
                     
                     test <- grep(obj$message, content, fixed = TRUE)
                     if (length(test) == 0) {
-                        content <- paste0(content, "<div class='notice-box' style='", style, "'>", head, "<div class='content'>", title, obj$message, "</div></div>")
+                        type<-paste0("<div id='",obj$head,"'></div>")
+                        if (length(grep(type,content,fixed=T))>0) {
+                          content<-gsub(type,paste("<div>",obj$message,"</div>",type),content,fixed=T)
+                        } else {
+                          content <- paste0(content, "<div class='notice-box' style='", style, "'>", head, "<div class='content'><div style='display:block'>", title, "<div>",obj$message, "</div>",type,"</div></div></div>")
+                        }
                     }
-                    
                     return(content)
                 },
                 
@@ -201,3 +204,10 @@ private = list(
 
 
 
+### this is for cleaning all html message widgets otherwise some message sticks
+
+dispatch_message_cleaner<-function(jmvobj) {
+  
+  lapply(jmvobj$results$items, function(x) if ("Html" %in% class(x)) x$setContent(" ")  )
+  
+}

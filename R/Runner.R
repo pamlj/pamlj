@@ -32,8 +32,8 @@ Runner <- R6::R6Class("Runner",
                                  }
                                  # everything went well, so fill self$data
                                  self$data<-resobj$obj
-                                 postchecks(self)
-                                 extrainfo(self)
+                              #   postchecks(self)
+                              #   extrainfo(self)
 
                                  
                               },
@@ -101,6 +101,7 @@ Runner <- R6::R6Class("Runner",
                                         exdata[[f]]<-factor(exdata[[f]])
                                         contrasts(exdata[[f]])<-contr.sum(nlevels(exdata[[f]]))
                                   }
+                                  
                                   form1<-paste(means,"~",paste(factors,collapse="*"))
                                   model1<-lm(form1,exdata)
                                   form2<-paste(sds,"~",paste(factors,collapse="*"))
@@ -131,7 +132,14 @@ Runner <- R6::R6Class("Runner",
                                      if (is.null(state))
                                          return()
                                      return(state$data)
-                               }
+                              },
+                          endrun = function() {
+                            
+                            self$analysis$results$initnotes$setContent(" ")
+                            self$analysis$results$initnotes$setVisible(FALSE)
+                            
+                            
+                          }
 
                           ), # end of public function estimate
 

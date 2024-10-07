@@ -5,7 +5,6 @@
 \title{T-Test}
 \usage{
 pamlttest(
-  .caller = "ttest",
   aim = "n",
   mode = "ttestind",
   ttestind_es = 0.5,
@@ -23,7 +22,8 @@ pamlttest(
   plot_contour = FALSE,
   plot_escurve = FALSE,
   plot_ncurve = FALSE,
-  plot_log = FALSE,
+  plot_log = TRUE,
+  plot_palette = "viridis",
   plot_x = "none",
   plot_y = "none",
   plot_custom_labels = FALSE,
@@ -32,12 +32,13 @@ pamlttest(
   plot_x_to = 0,
   plot_z_lines = 0,
   plot_z_value = list(),
-  plot_to_table = FALSE
+  plot_to_table = FALSE,
+  explain = FALSE,
+  .caller = "ttest",
+  .interface = "jamovi"
 )
 }
 \arguments{
-\item{.caller}{.}
-
 \item{aim}{.}
 
 \item{mode}{.}
@@ -74,6 +75,8 @@ pamlttest(
 
 \item{plot_log}{.}
 
+\item{plot_palette}{.}
+
 \item{plot_x}{.}
 
 \item{plot_y}{.}
@@ -91,12 +94,19 @@ pamlttest(
 \item{plot_z_value}{.}
 
 \item{plot_to_table}{.}
+
+\item{explain}{.}
+
+\item{.caller}{.}
+
+\item{.interface}{.}
 }
 \value{
 A results object containing:
 \tabular{llllll}{
   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
   \code{results$issues} \tab \tab \tab \tab \tab a html \cr
+  \code{results$extrainfo} \tab \tab \tab \tab \tab a html \cr
   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
   \code{results$powerbyes} \tab \tab \tab \tab \tab a table \cr
   \code{results$plotnotes} \tab \tab \tab \tab \tab a html \cr

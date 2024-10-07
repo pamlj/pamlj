@@ -3,6 +3,11 @@ TRANS_WARNS <-list()
 TRANS_WARNS[[1]]<-list(original="end points not of opposite sign",new="Power parameters cannot be for the combination of input parameters")
 
 
+### SEM
+
+TRANS_WARNS[[1]]<-list(original="positive-definite",new="Input parameters imply correlations among observed variables that are not feasable. Please revise the input. ")
+
+
 
 ########### Greek Letters  ###############
 

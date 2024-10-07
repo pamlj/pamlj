@@ -5,7 +5,6 @@
 \title{Proportions}
 \usage{
 pamlprop(
-  .caller = "proportions",
   aim = "n",
   mode = "propind",
   propind_p1 = 0.6,
@@ -25,6 +24,7 @@ pamlprop(
   plot_escurve = FALSE,
   plot_ncurve = FALSE,
   plot_log = TRUE,
+  plot_palette = "viridis",
   plot_x = "none",
   plot_y = "none",
   plot_custom_labels = FALSE,
@@ -34,12 +34,13 @@ pamlprop(
   plot_z_lines = 0,
   plot_z_value = list(),
   plot_to_table = FALSE,
-  es_type = "odd"
+  es_type = "odd",
+  explain = FALSE,
+  .interface = "jamovi",
+  .caller = "proportions"
 )
 }
 \arguments{
-\item{.caller}{.}
-
 \item{aim}{.}
 
 \item{mode}{.}
@@ -78,6 +79,8 @@ pamlprop(
 
 \item{plot_log}{.}
 
+\item{plot_palette}{.}
+
 \item{plot_x}{.}
 
 \item{plot_y}{.}
@@ -97,12 +100,19 @@ pamlprop(
 \item{plot_to_table}{.}
 
 \item{es_type}{.}
+
+\item{explain}{add an additional description of the analysis carried out}
+
+\item{.interface}{Used for internal purposes}
+
+\item{.caller}{.}
 }
 \value{
 A results object containing:
 \tabular{llllll}{
   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
   \code{results$issues} \tab \tab \tab \tab \tab a html \cr
+  \code{results$extrainfo} \tab \tab \tab \tab \tab a html \cr
   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
   \code{results$powerbyes} \tab \tab \tab \tab \tab a table \cr
   \code{results$plotnotes} \tab \tab \tab \tab \tab a html \cr

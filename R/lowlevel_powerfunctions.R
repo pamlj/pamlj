@@ -517,7 +517,6 @@ pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,
                 se.betas   <- .sefun(n,r2s)
                 se         <-  se.formula(betas, se.betas)
                 ncp        <-  prod(betas) / se
-                mark(betas,se.betas,se,ncp)
                 pw         <- .power.fun(ncp) 
                 pw
                 })
@@ -563,3 +562,146 @@ pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,
                             
                 })
             
+
+##### sem power functions
+            
+            
+pamlj.semmc <- function(type,
+                        modelH0,
+                        modelH1,
+                        modelPop,
+                        sigma,
+                        alpha,
+                        estimator,
+                        n=NULL, 
+                        power=NULL,
+                        parallel=FALSE,
+                        seed=NULL,
+                        R=250,...) {
+  
+    if (parallel) {
+       jinfo("SEM MC goes parallel")
+       if (Sys.info()['sysname'] == "Windows") 
+                     plan<-future::multisession
+       else                 
+                     plan<-future::multicore
+  
+       RNGkind("L'Ecuyer-CMRG")
+       future::plan(plan)
+  } else  jinfo("SEM MC does not go parallel")
+
+  
+  if (is.something(seed)) set.seed(seed)
+
+  results<-list( type=type, 
+                "rmsea"=0,
+                "requiredN"=ifelse(is.null(n), NA,n),
+                "impliedPower"=ifelse(is.null(power), NA,power),
+                "chiCrit"=NA,
+                "df"=  NA,
+                "alpha"=alpha,
+                "modelH0"=modelH0,
+                "modelH1"=modelH1,
+                "modelPop"=modelPop,
+                estimator=estimator)
+                
+  repfun<-function(n) {
+        data<-MASS::mvrnorm(n=round(n),rep(0,ncol(sigma)),Sigma=sigma)
+        mod0<-suppressWarnings(try(lavaan::sem(modelH0,data=data)))
+        if ("try-error" %in% class(mod0)) return(NA)
+        if (!lavaan::lavInspect(mod0,"converged")) return(NA)
+        res<-as.numeric(lavaan::lavTestScore(mod0)$test["p.value"]<alpha)
+        res
+  }
+  p.bodypwr <- quote({
+            
+                   if (parallel) {
+                     sims<-unlist(foreach::foreach(i = 1:R, .options.future = list(seed = TRUE)) %dofuture%  repfun(n) )
+                     good<-sims[!sapply(sims,is.na)]
+                     res<-list(power=mean(good),conv=length(good)/R)
+                   } else {
+                     sims<-unlist(sapply(1:R, function(i) repfun(n) )) 
+                     good<-sims[!sapply(sims,is.na)]
+                     res<-list(power=mean(good),conv=length(good)/R)
+                   }
+                   res
+             })
+  p.bodyn <- quote({
+           
+                   if (parallel) {
+                     sims<-unlist(foreach::foreach(i = 1:R, .options.future = list(seed = TRUE)) %dofuture%  repfun(n) )
+                     good<-sims[!sapply(sims,is.na)]
+                     res<-mean(good)
+                   } else {
+                     sims<-unlist(sapply(1:R, function(i) repfun(n) )) 
+                     good<-sims[!sapply(sims,is.na)]
+                     res<-mean(good)
+                   }
+                   round(res-power,digits=2)
+             })
+   ### fixed indices
+   
+   switch (type,
+     'post-hoc' = {
+              results<-eval(p.bodypwr)
+              results$n<-n
+             },
+    'a-priori' = {
+               args<-list(type="a-priori",
+                          modelPop=modelPop,
+                          modelH0=modelH0,
+                          modelH1=modelH1,
+                          estimator=estimator,
+                          alpha=alpha,
+                          power=power)
+               res_par<-do.call(pamlj.semanalytic,args)
+               n_par<-res_par$n
+               ll<-n_par*.80
+               ul<-n_par*2
+               results$n<-n_par
+               nobj<-try_hard(uniroot(function(n) eval(p.bodyn), interval = c(ll, ul))$root,silent=F)
+               if (!isFALSE(nobj$error)) stop(nobj$error)
+               mark(nobj$obj)
+               results$n<-nobj$obj
+             }     
+   )
+  
+       modobj<-try_hard(lavaan::sem(modelH0,sample.cov=sigma,sample.nobs=results$n))
+        if (!isFALSE(modobj$error) ||  !lavaan::lavInspect(modobj$obj,"converged")) {
+          results$es<-NA
+          results$test<-NA
+          results$df<-NA
+        } else {
+          indices<-lavaan::fitmeasures(modobj$obj)
+          results$es<-indices[["rmsea"]]
+          results$test<-indices[["chisq"]]
+          results$df <-lavaan::lavTestScore(modobj$obj)$test[["df"]]
+         }
+  
+  return(results)
+    
+}
+            
+
+pamlj.semanalytic <- function(type,modelH0,modelH1,modelPop,alpha,estimator,n=NULL,power=NULL,...) {
+    
+     results<-semPower::semPower.powerLav(type=type,
+                                    modelH0=modelH0,
+                                    modelH1=modelH1,
+                                    modelPop=modelPop,
+                                    fittingFunction=estimator,
+                                    fittingH1model=FALSE,
+                                    alpha=alpha,
+                                    power=power,
+                                    N=n,
+                                    plotShow=FALSE
+                                    )
+     if (type=="a-priori") {
+       results<-results[c("rmsea","impliedPower","requiredN","df","chiCrit")]
+       names(results)<-c("es","power","n","df","test")
+     } else {
+       results<-results[c("rmsea","power","requiredN","df","chiCrit")]
+       names(results)<-c("es","power","n","df","test")
+     }
+      results
+}

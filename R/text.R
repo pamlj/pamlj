@@ -31,6 +31,13 @@ mediation_init <- "<p> Please select the aim of the analysis:</p>
 
                   <p> In all cases, you can set the required Type I error rate (significance cut-off)</p>
                   "
+sem_init <- "<p> Please select the aim of the analysis:</p>
+                  <ul>
+                  <li> <b> Calculate N</b> computes the required sample size given the standardized coefficients and <b> Minimum desire power</b>  </li>          
+                  <li> <b> Calculate Power</b> computes the achievable power given the standardized coefficients and the <b> N (Sample size)</b>  </li>          
+                  </ul>
+                  <p> In all cases, you can set the required Type I error rate (significance cut-off)</p>
+                  "
 
 INFO<-list()
 
@@ -40,6 +47,7 @@ INFO[["ttest"]]       <- common_init
 INFO[["proportions"]] <- common_init
 INFO[["factorial"]]   <- factorial_init
 INFO[["mediation"]]   <- mediation_init
+INFO[["pamlsem"]]     <- sem_init
 
 
 INFO2<-list()
@@ -138,6 +146,21 @@ INFO2[["medcomplex"]]<-"
                </p>
 
               <p> In all cases, you can set the required Type I error rate (significance cut-off)</p>
+             </div>
+             "
+INFO2[["pamlsem"]]<-"
+             <div>
+             </ul>
+              <p> Please specify a model using lavaan model syntax. For each parameter specify the expected value with
+                  the syntax `y ~ .5*x`. For at least one parameter a constrain to zero must be specified, with
+                  the syntax
+                  <pre>
+                   y~ .5*x + .3*a*z
+                   a==0
+                  </pre>
+                  The power is computed for testing the parameter equal to zero. Multiple constrains are possible.
+               </p>
+
              </div>
              "
 
