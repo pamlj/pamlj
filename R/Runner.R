@@ -133,6 +133,49 @@ Runner <- R6::R6Class("Runner",
                                          return()
                                      return(state$data)
                               },
+
+                              run_implied_covs= function() {
+                              
+                                mark("PAMLj SEM: implied covs run")
+                                model<-lavaan::sem(self$data$modelPop)
+                                tab<-lavaan::inspect(model,"implied")
+                                return(as.data.frame(tab$cov))
+                                
+                              },
+                              run_implied_lvcovs= function() {
+                              
+                                mark("PAMLj SEM: implied latent covs run")
+                                if (length(self$info$lvnames)==0) {
+                                    self$warning<-list(topic="implied_lvcovs",message="No latent variables in the model")
+                                    return()
+                                }
+                                model<-lavaan::sem(self$data$modelPop)
+                                tab<-lavaan::inspect(model,"cov.lv")
+                                tab<-round(tab,digits=2)
+
+                                return(as.data.frame(tab))
+                                
+                              },
+
+                              run_implied_betas= function() {
+                              
+                                mark("PAMLj SEM: implied std betas run")
+                                model<-lavaan::sem(self$data$modelPop)
+                                res<-lavaan::inspect(model,"std")
+                                if (!("beta" %in% names(res))) {
+                                    self$warning<-list(topic="implied_betas",message="No regression coefficients in the model")
+                                    return()
+                                }
+                                test<-apply(res$beta,1,function(x) length(x[x==0]))
+                                .order<-names(test)[order(test,decreasing=TRUE)]
+                                tab<-as.data.frame(res$beta)
+                                tab<-tab[.order,.order]
+                                tab<-round(tab,digits=2)
+                                tab$variable<-names(tab)
+                                tab
+                                
+                              },
+                                                            
                           endrun = function() {
                             
                             self$analysis$results$initnotes$setContent(" ")

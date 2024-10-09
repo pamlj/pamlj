@@ -29,21 +29,35 @@
       
       str_h0         <-  paste(h0,collapse="\n")
       str_h1         <-  paste(h1,collapse="\n")
-
-      if (obj$options$standardized) {
-        ### here comes the magic standardization :-)
-        modelobj<-try_hard(lavaan::sem(popModel))
+      modelobj<-try_hard(lavaan::sem(popModel))
         if (!isFALSE(modelobj$error)) {
           obj$stop(modelobj$error)
-        }
-        model          <-  modelobj$obj
+      }
+      model          <-  modelobj$obj
+      obj$info$lvnames<-lavaan::lavNames(model,type="lv")
+      obj$info$ovnames<-lavaan::lavNames(model,type="ov")
+      
+      if (obj$options$standardized) {
+        ### here comes the magic standardization :-)
+        
         dsigma         <-  diag(lavaan::inspect(model,"implied")$cov)
         exvar          <-  rep(2,length(dsigma))-dsigma
         exvar          <-  exvar[exvar!=1]
         varstr         <-  paste(lapply(names(exvar),function(x) paste0(x,"~~",exvar[x],"*",x) ), collapse="\n")
         str_popModel   <-  paste(paste(str_popModel,"\n"),varstr,collapse="\n")
-      }
+      lsigma         <-  diag(lavaan::inspect(model,"cov.lv"))
+      
+  
+        if (length(lsigma)>0) {
+            exvar          <-  rep(2,length(lsigma))-lsigma
+            exvar          <-  exvar[exvar!=1]
+            varstr         <-  paste(lapply(names(exvar),function(x) paste0(x,"~~",exvar[x],"*",x) ), collapse="\n")
+            mark(varstr)
+            str_popModel   <-  paste(str_popModel,varstr, sep="\n")
+        }
 
+      }
+mark(str_popModel)
      
       obj$data             <- data.frame(n=obj$options$n)
       obj$data$sig.level   <- obj$options$sig.level

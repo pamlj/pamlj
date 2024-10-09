@@ -110,6 +110,39 @@ options:
                 ui: |
                       Assume the observed variables are standardized (selected) or not (unselected) 
 
+    -   name: inspect_sigma
+        type: Bool
+        default: false
+        title: Implied Covariances
+        description:
+                R: |
+                       not used in R
+
+                ui: |
+                       Output the implied variances-covariances of observed variables
+
+    -   name: inspect_lvcov
+        type: Bool
+        default: false
+        title: Implied Latent Covariances
+        description:
+                R: |
+                       not used in R
+
+                ui: |
+                       Output the implied variances-covariances of latent variables
+
+    -   name: inspect_zbeta
+        type: Bool
+        default: false
+        title: Standardized regression
+        description:
+                R: |
+                       not used in R
+
+                ui: |
+                       Output the implied standardized regression coefficients 
+
     -   name: method
         type: List
         title: Method
@@ -305,6 +338,22 @@ options:
       description:
                 R: |
                       Output the path diagram corresponding to the input model
+    - name: diag_size
+      type: List
+      title: "Boxes size"
+      default: medium
+      options:
+        - name: small
+          title: "Small"
+        - name: medium
+          title: "Medium"
+        - name: large
+          title: "Large"
+
+      description:
+                R: |
+                      Size of the path diagram boxes: `small`, `medium`, `large`
+
     - name: .interface
       type: String
       default: jamovi

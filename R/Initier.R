@@ -116,7 +116,36 @@ Initer <- R6::R6Class(
       }
         attr(tab,"keys")<-effects
         return(tab)
+    },
+    init_implied_covs= function() {
+      
+      k<-length(self$info$ovnames)
+      tab<-as.data.frame(matrix(".",ncol=k+1,nrow=k))
+      names(tab)<-self$info$ovnames
+      tab$variable<-self$info$ovnames
+      tab
+      
+    },
+      init_implied_lvcovs= function() {
+        
+      .names<-self$info$lvnames
+       if (length(.names)==0)
+            return()
+
+      k<- length(.names)
+      tab<-as.data.frame(matrix(".",ncol=k+1,nrow=k))
+      names(tab)<-.names
+      tab$variable<-.names
+      tab
+      
+    },
+      init_implied_betas= function() {
+        
+        return(list(list(variable=".")))
+      
     }
+  
+
 
       
     

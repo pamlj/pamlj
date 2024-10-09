@@ -30,6 +30,20 @@ pamlsemClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                  aSmartObj<-SmartTable$new(self$results$powerbyn,private$.runner)
                  ladd(private$.smartObjs)<-aSmartObj
                  
+                 aSmartObj                  <- SmartTable$new(self$results$implied$covs, private$.runner)
+                 aSmartObj$expandOnInit     <- TRUE
+                 aSmartObj$expandFrom       <- 3
+                 ladd(private$.smartObjs)   <- aSmartObj
+
+                 aSmartObj                  <- SmartTable$new(self$results$implied$lvcovs, private$.runner)
+                 aSmartObj$expandOnInit     <- TRUE
+                 aSmartObj$expandFrom       <- 3
+                 ladd(private$.smartObjs)   <- aSmartObj
+
+                 aSmartObj                  <- SmartTable$new(self$results$implied$betas, private$.runner)
+                 aSmartObj$expandOnRun      <- TRUE
+                 aSmartObj$expandFrom       <- 3
+                 ladd(private$.smartObjs)   <- aSmartObj
                            
                  aSmartObj<-SmartTable$new(self$results$customtable,private$.runner)
                  aSmartObj$hideOn<-list("z"=NA)

@@ -228,3 +228,24 @@ children:
                         name: seed
                         format: number
                         enable: (set_seed)
+
+      - type: LayoutBox
+        style: inline
+        children:
+          - type: Label
+            label: Path Diagram
+            name: label_diagram_options
+            children:
+                     - type: ComboBox
+                       name: diag_size
+          - type: Label
+            label: Model Check
+            name: label_inspect_options
+            children:
+                     - type: CheckBox
+                       name: inspect_sigma
+                     - type: CheckBox
+                       name: inspect_lvcov
+                     - type: CheckBox
+                       name: inspect_zbeta
+                       

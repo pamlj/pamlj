@@ -650,7 +650,7 @@ pamlj.semmc <- function(type,
    
    switch (type,
      'post-hoc' = {
-              results<-eval(p.bodypwr)
+              results<-eval(p.body)
               results$n<-n
              },
     'a-priori' = {

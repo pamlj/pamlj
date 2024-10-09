@@ -807,15 +807,24 @@ Plotter <- R6::R6Class(
           image<-private$.results$diagram
           
           model<-lavaan::lavaanify(private$.operator$data$modelPop)
-          nodeLabels<-3
-          nNodes<-length(nodeLabels)
-          size<-16*exp(-nNodes/80)+1
+          nNodes<-dim(model)[1]
+          efac<-1
+          switch(self$options$diag_size,
+                 small={fac<-.5},
+                 medium={fac<-1},
+                 large={fac<-2
+                        efac<-1.6}
+          )
+     
+                 
+          
+          size<-fac*16*exp(-nNodes/80)+1
           state=list(model=model,
                      sizeLat = size, 
                      sizeLat2 = size*.50, 
                      sizeMan=size*.70, 
                      sizeMan2=size*.35,
-                     edge.label.cex =1.3)
+                     edge.label.cex =1.3*efac)
           image$setState(state)
 
      }
