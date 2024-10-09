@@ -180,6 +180,7 @@ LINKS[["ttestind"]]<-"https://pamlj.github.io/ttest_ind.html"
 LINKS[["ttestpone"]]<-"https://pamlj.github.io/ttest_one.html"
 LINKS[["ttestpaired"]]<-"https://pamlj.github.io/ttest_paired.html"
 LINKS[["mediation"]]<-"https://pamlj.github.io/mediation.html"
+LINKS[["pamlsem"]]<-"https://pamlj.github.io/sem.html"
 
 
 ### here we define a nice widget to convey information

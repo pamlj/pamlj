@@ -62,6 +62,7 @@
       obj$info$method      <- obj$options$method
       obj$plots$data       <- obj$data
       obj$data$simulatedPower <- (obj$options$method == "mc") 
+      obj$data$test        <-  obj$options$mc_test 
       
       if (obj$data$simulatedPower) {
         ### we need sigma for this
@@ -127,8 +128,12 @@
 
           if (!obj$ok) return()
           tab<-list(list(effect="H1 vs H0"))
-          if (obj$data$simulatedPower) 
-             obj$warning<-list(topic="powertab",message="Power parameters are computed for Score test for the input constraints. ")
+          if (obj$data$simulatedPower)  {
+            if (obj$data$test == "score")
+                     obj$warning<-list(topic="powertab",message="Power parameters are computed with Monte Carlo method for Score test for the input constraints. ")
+            else
+                     obj$warning<-list(topic="powertab",message="Power parameters are computed with Monte Carlo method for LRT test comparing constrained vs unconstrained model. ")
+          }
           return(tab)
           
 }

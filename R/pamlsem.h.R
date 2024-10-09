@@ -17,6 +17,7 @@ pamlsemOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             estimator = "ML",
             standardized = TRUE,
             method = "analytic",
+            mc_test = "lrt",
             mcR = 500,
             parallel = TRUE,
             set_seed = FALSE,
@@ -106,6 +107,13 @@ pamlsemOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=list(
                     "analytic",
                     "mc"))
+            private$..mc_test <- jmvcore::OptionList$new(
+                "mc_test",
+                mc_test,
+                default="lrt",
+                options=list(
+                    "lrt",
+                    "score"))
             private$..mcR <- jmvcore::OptionNumber$new(
                 "mcR",
                 mcR,
@@ -227,6 +235,7 @@ pamlsemOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..estimator)
             self$.addOption(private$..standardized)
             self$.addOption(private$..method)
+            self$.addOption(private$..mc_test)
             self$.addOption(private$..mcR)
             self$.addOption(private$..parallel)
             self$.addOption(private$..set_seed)
@@ -261,6 +270,7 @@ pamlsemOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         estimator = function() private$..estimator$value,
         standardized = function() private$..standardized$value,
         method = function() private$..method$value,
+        mc_test = function() private$..mc_test$value,
         mcR = function() private$..mcR$value,
         parallel = function() private$..parallel$value,
         set_seed = function() private$..set_seed$value,
@@ -294,6 +304,7 @@ pamlsemOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..estimator = NA,
         ..standardized = NA,
         ..method = NA,
+        ..mc_test = NA,
         ..mcR = NA,
         ..parallel = NA,
         ..set_seed = NA,
@@ -393,7 +404,12 @@ pamlsemResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "set_seed",
                     "method",
                     "estimator",
-                    "standardize"),
+                    "standardize",
+                    "mc_test",
+                    "mcR",
+                    "parallel",
+                    "set_seed",
+                    "seed"),
                 columns=list(
                     list(
                         `name`="effect", 
@@ -542,14 +558,20 @@ pamlsemBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param power Minimal desired power
 #' @param n Sample size
 #' @param sig.level Type I error rate (significance cut-off or alpha)
-#' @param alternative .
-#' @param estimator .
-#' @param standardized .
-#' @param method .
-#' @param mcR .
-#' @param parallel .
-#' @param set_seed .
-#' @param seed .
+#' @param alternative Two-tailed vs one-tailed test
+#' @param estimator Estimator method used in SEM. \code{ML} for Maximum
+#'   Likelihood
+#' @param standardized Assume the observed variables are standardized (TRUE)
+#'   or not (FALSE)
+#' @param method Use analytic methods for computation of power parameter
+#'   (\code{analytic}) or Monte Carlo (\code{mc})
+#' @param mc_test which test is used in Monte Carlo simulations: \code{lrt}
+#'   for LRT or \code{score} for the Score test.
+#' @param mcR Number of repetitions for Monte Carlo method
+#' @param parallel Logical: should parallel computing be used for the Monte
+#'   Carlo method
+#' @param set_seed not used in R
+#' @param seed not used in R
 #' @param table_pwbyn .
 #' @param plot_ncurve .
 #' @param plot_log .
@@ -563,8 +585,8 @@ pamlsemBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param plot_z_lines .
 #' @param plot_z_value .
 #' @param plot_to_table .
-#' @param explain .
-#' @param lav_diagram .
+#' @param explain not used in R
+#' @param lav_diagram Output the path diagram corresponding to the input model
 #' @param .interface Used for internal purposes
 #' @param .caller Used for internal purposes
 #' @return A results object containing:
@@ -602,6 +624,7 @@ pamlsem <- function(
     estimator = "ML",
     standardized = TRUE,
     method = "analytic",
+    mc_test = "lrt",
     mcR = 500,
     parallel = TRUE,
     set_seed = FALSE,
@@ -640,6 +663,7 @@ pamlsem <- function(
         estimator = estimator,
         standardized = standardized,
         method = method,
+        mc_test = mc_test,
         mcR = mcR,
         parallel = parallel,
         set_seed = set_seed,

@@ -59,6 +59,11 @@ items:
            - method
            - estimator
            - standardize
+           - mc_test
+           - mcR
+           - parallel
+           - set_seed
+           - seed
       columns: 
         - name: effect
           title: 'model'
