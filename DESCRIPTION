@@ -1,18 +1,15 @@
 Package: pamlj
 Type: Package
 Title: Power Analysis for linear models 
-Version: 0.6.0
+Version: 0.6.1
 Author: Marcello Gallucci
 Maintainer: Marcello Gallucci <mcfanda@gmail.com>
 Description:   (beta) A suite for power analysis for linear models. At the moment, it allows for
                power analysis of Pearson correlation, the general linear model
-               (t-test/Correlation/Anova/Regression/ANCOVA) and other statistical tests.  For
-               the GLM can be based on standardized coefficients (regression), proportion
-               of partial variance effect sizes (Eta-squared, Omega-Squared, Epsilon-Squared),
-               or means and standard deviations.
+               (t-test/Correlation/Anova/Regression/ANCOVA) and other statistical tests, such as
+               mediation models, structural equations model, tests on proportions, and more.
                It provides estimation of required sample size, power and minimally-detectable
                effect size, plus plots for sensitivity analysis.
-               plots for sensitivity analysis.
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
