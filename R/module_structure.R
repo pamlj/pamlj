@@ -181,7 +181,7 @@ return(es)
 find_min_es <- function(obj, ...) UseMethod(".find_min_es")
 
 .find_min_es.default <- function(obj,data) {
- 
+
   if ("es" %in% obj$info$nochecks) return(obj$info$esmin)
     
   data$es <- NULL
@@ -191,7 +191,7 @@ find_min_es <- function(obj, ...) UseMethod(".find_min_es")
   if (isFALSE(res$error)) 
     es<-res$obj$es
   else
-    es<-res$info$esmin
+    es<-obj$info$esmin
 
 return(es)
 }

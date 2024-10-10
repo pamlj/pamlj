@@ -223,7 +223,7 @@ pamlfactorialOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                 "ncp_type",
                 ncp_type,
                 options=list(
-                    "gpower",
+                    "model",
                     "liberal",
                     "strict"))
             private$..emeans <- jmvcore::OptionBool$new(

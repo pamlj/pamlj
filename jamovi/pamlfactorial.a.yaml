@@ -298,7 +298,7 @@ options:
     - name: ncp_type
       type: List
       options:
-        - name: gpower
+        - name: model
           title: "Model-based"
         - name: liberal
           title: Liberal
