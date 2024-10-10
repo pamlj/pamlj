@@ -257,7 +257,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "ncp_type",
                 ncp_type,
                 options=list(
-                    "gpower",
+                    "model",
                     "liberal",
                     "strict"))
             private$..rx <- jmvcore::OptionVariables$new(
@@ -847,8 +847,14 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param omega .
 #' @param gpower .
 #' @param f2 .
-#' @param use .
-#' @param ncp_type .
+#' @param use not used in R
+#' @param ncp_type What type of non-centrality parameter (NCP) should be used.
+#'   The effect size is always transformed into  a Cohen's \code{f2}, that is
+#'   multiplied by the N to  which is estimated based on the degrees of freedom
+#'   such that \code{N=df+edf+1}. \code{model} defines \code{df} as the model
+#'   degrees of freedom. This is the method used by \code{G*Power} software.
+#'   \code{liberal} uses the effect \code{df}. \code{strict} uses only the error
+#'   df (df=0).
 #' @param rx a vector of strings naming the columns from \code{data}
 #'   containing the correlations among independent variables
 #' @param plot_x .

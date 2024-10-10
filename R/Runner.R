@@ -152,7 +152,6 @@ Runner <- R6::R6Class("Runner",
                                 model<-lavaan::sem(self$data$modelPop)
                                 tab<-lavaan::inspect(model,"cov.lv")
                                 tab<-round(tab,digits=2)
-
                                 return(as.data.frame(tab))
                                 
                               },

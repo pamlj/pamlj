@@ -59,7 +59,7 @@ items:
            - set_seed
            - method
            - estimator
-           - standardizedd
+           - standardized
            - mc_test
            - mcR
            - parallel
@@ -171,6 +171,7 @@ items:
                     - code
                     - estimator
                     - standardized
+                  
 
           columns:
             - name: variable

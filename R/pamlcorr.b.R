@@ -50,7 +50,15 @@ pamlcorrClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                  for (tab in private$.smartObjs) {
                      tab$runTable()
                  }
-
+                 tabs<-list(list(title="Cool1",content="This is cool"),
+                            list(title="Cool2",content="This is cool twice")
+                )
+                            
+                 w<-HTMLWidget$new()
+                 text<-w$generate_accordion(tabs=tabs)
+                 self$results$issues$setContent(text) 
+                 self$results$issues$setVisible(T)
+                 
         },
         .plot_contour=function(image, ggtheme, theme, ...) {
           

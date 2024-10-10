@@ -23,7 +23,7 @@ pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,sig.level=NULL,df_model=N
     
     ncp <-function(f2,u,v) {
       switch (ncp_type,
-        gpower  = {return(f2* (df_model + v+ 1))},
+        model  = {return(f2* (df_model + v+ 1))},
         liberal = {return(f2*(u+v+1))},
         strict  = {return(f2*v)}
       )

@@ -442,7 +442,7 @@ pamlsemResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "set_seed",
                     "method",
                     "estimator",
-                    "standardizedd",
+                    "standardized",
                     "mc_test",
                     "mcR",
                     "parallel",
