@@ -34,7 +34,7 @@
       if (is.null(factors)) return()
 
       exdata  <-obj$analysis$data
-      
+      obj$ok <- TRUE
       form<-paste("means~",paste(factors,collapse="*"))
       obj$info$terms<-attr(terms(as.formula(form)),"term.labels")
 
