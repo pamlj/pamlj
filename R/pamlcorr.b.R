@@ -51,6 +51,7 @@ pamlcorrClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                      tab$runTable()
                  }
 
+                 
         },
         .plot_contour=function(image, ggtheme, theme, ...) {
           

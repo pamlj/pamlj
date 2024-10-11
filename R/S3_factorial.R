@@ -34,7 +34,7 @@
       if (is.null(factors)) return()
 
       exdata  <-obj$analysis$data
-      
+      obj$ok <- TRUE
       form<-paste("means~",paste(factors,collapse="*"))
       obj$info$terms<-attr(terms(as.formula(form)),"term.labels")
 
@@ -214,11 +214,9 @@
                                      data$v<-NULL
                 else
                     data[["v"]]<- data$edfw*(data$n-data$edfb-1)
-
-
                  results<-lapply(1:nrow(data),function(i) {
                    one<-data[i,]
-                   if (one$type=="w" && obj$options$ncp_type=="gpower") ncp<-"strict"
+                   if (one$type=="w" && obj$options$ncp_type=="model") ncp<-"strict"
                    else ncp<-obj$options$ncp_type
 
                    pamlj.glm(u=one$df_effect,

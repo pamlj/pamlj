@@ -131,6 +131,11 @@ options:
           title: Power
         - name: es
           title: Effect size
+      description:
+                R: |
+                      Parameter in the X-axis of custom power parameters plot. `n`, `power` or `es`, the latest being the effect size. 
+                ui: |
+                      Parameter in the X-axis of custom power parameters plot. `N`, `Power` or `Effect Size`. 
 
     - name: plot_y
       type: List
@@ -145,11 +150,21 @@ options:
           title: Power
         - name: es
           title: Effect size
+      description:
+                R: |
+                      Parameter in the Y-axis of custom power parameters plot. `n`, `power` or `es`, the latest being the effect size. 
+                ui: |
+                      Parameter in the Y-axis of custom power parameters plot. `N`, `Power` or `Effect Size`. 
 
     - name: plot_custom_labels
       type: Bool
       title: "Show values"
       default: false
+      description:
+                R: |
+                      Add value labels to the custom power parameters plot, default FALSE.
+                ui: |
+                      Add value labels to the custom power parameters plot.
 
     - name: plot_z
       default: none
@@ -166,6 +181,11 @@ options:
           title: Effect size
         - name: sig.level
           title: "Type I error"
+      description:
+                R: |
+                      break down the custom power parameters plot by a parameter. `n`, `power`, `sig.level` or `es` for effect size
+                ui: |
+                      break down the custom power parameters plot by a parameter. `N`, `Power`, `Type I error` (sig.level) or `Effect size`.
 
 
 
@@ -173,10 +193,21 @@ options:
       type: Number
       title: "From"
       default: 0
+      description:
+                R: |
+                      Range for the parameter in the X-axis of custom power parameters plot. Starting value.
+                ui: |
+                      Range for the parameter in the X-axis of custom power parameters plot. Starting value.
+
     - name: plot_x_to
       type: Number
       title: "To"
       default: 0
+      description:
+                R: |
+                      Range for the parameter in the X-axis of custom power parameters plot. Ending value.
+                ui: |
+                      Range for the parameter in the X-axis of custom power parameters plot. Ending value.
 
 
     - name: plot_z_lines
@@ -184,6 +215,11 @@ options:
       title: "Number of curves"
       default: 1
       min: 1
+      description:
+                R: |
+                      not used in R
+                ui: |
+                      Number of lines to plot
 
     - name: plot_z_value
       type: Array
@@ -191,11 +227,21 @@ options:
       default: []
       template:
           type: String
+      description:
+                R: |
+                      Values of the parameter to break the plot by
+                ui: |
+                      Values of the parameter to break the plot by
 
     - name: plot_to_table
       type: Bool
       title: "Show table"
       default: false
+      description:
+                R: |
+                      Produce a table of the values plotted in custom power parameters plot
+                ui: |
+                      Produce a table of the values plotted in custom power parameters plot
 
 
     - name: .interface

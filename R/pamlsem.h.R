@@ -16,7 +16,11 @@ pamlsemOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             alternative = "two.sided",
             estimator = "ML",
             standardized = TRUE,
+            inspect_sigma = FALSE,
+            inspect_lvcov = FALSE,
+            inspect_zbeta = FALSE,
             method = "analytic",
+            mc_test = "lrt",
             mcR = 500,
             parallel = TRUE,
             set_seed = FALSE,
@@ -36,6 +40,7 @@ pamlsemOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             plot_to_table = FALSE,
             explain = FALSE,
             lav_diagram = TRUE,
+            diag_size = "medium",
             .interface = "jamovi",
             .caller = "pamlsem", ...) {
 
@@ -99,6 +104,18 @@ pamlsemOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "standardized",
                 standardized,
                 default=TRUE)
+            private$..inspect_sigma <- jmvcore::OptionBool$new(
+                "inspect_sigma",
+                inspect_sigma,
+                default=FALSE)
+            private$..inspect_lvcov <- jmvcore::OptionBool$new(
+                "inspect_lvcov",
+                inspect_lvcov,
+                default=FALSE)
+            private$..inspect_zbeta <- jmvcore::OptionBool$new(
+                "inspect_zbeta",
+                inspect_zbeta,
+                default=FALSE)
             private$..method <- jmvcore::OptionList$new(
                 "method",
                 method,
@@ -106,6 +123,13 @@ pamlsemOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=list(
                     "analytic",
                     "mc"))
+            private$..mc_test <- jmvcore::OptionList$new(
+                "mc_test",
+                mc_test,
+                default="lrt",
+                options=list(
+                    "lrt",
+                    "score"))
             private$..mcR <- jmvcore::OptionNumber$new(
                 "mcR",
                 mcR,
@@ -205,6 +229,14 @@ pamlsemOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "lav_diagram",
                 lav_diagram,
                 default=TRUE)
+            private$..diag_size <- jmvcore::OptionList$new(
+                "diag_size",
+                diag_size,
+                default="medium",
+                options=list(
+                    "small",
+                    "medium",
+                    "large"))
             private$...interface <- jmvcore::OptionString$new(
                 ".interface",
                 .interface,
@@ -226,7 +258,11 @@ pamlsemOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..alternative)
             self$.addOption(private$..estimator)
             self$.addOption(private$..standardized)
+            self$.addOption(private$..inspect_sigma)
+            self$.addOption(private$..inspect_lvcov)
+            self$.addOption(private$..inspect_zbeta)
             self$.addOption(private$..method)
+            self$.addOption(private$..mc_test)
             self$.addOption(private$..mcR)
             self$.addOption(private$..parallel)
             self$.addOption(private$..set_seed)
@@ -246,6 +282,7 @@ pamlsemOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..plot_to_table)
             self$.addOption(private$..explain)
             self$.addOption(private$..lav_diagram)
+            self$.addOption(private$..diag_size)
             self$.addOption(private$...interface)
             self$.addOption(private$...caller)
         }),
@@ -260,7 +297,11 @@ pamlsemOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         alternative = function() private$..alternative$value,
         estimator = function() private$..estimator$value,
         standardized = function() private$..standardized$value,
+        inspect_sigma = function() private$..inspect_sigma$value,
+        inspect_lvcov = function() private$..inspect_lvcov$value,
+        inspect_zbeta = function() private$..inspect_zbeta$value,
         method = function() private$..method$value,
+        mc_test = function() private$..mc_test$value,
         mcR = function() private$..mcR$value,
         parallel = function() private$..parallel$value,
         set_seed = function() private$..set_seed$value,
@@ -280,6 +321,7 @@ pamlsemOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         plot_to_table = function() private$..plot_to_table$value,
         explain = function() private$..explain$value,
         lav_diagram = function() private$..lav_diagram$value,
+        diag_size = function() private$..diag_size$value,
         .interface = function() private$...interface$value,
         .caller = function() private$...caller$value),
     private = list(
@@ -293,7 +335,11 @@ pamlsemOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..alternative = NA,
         ..estimator = NA,
         ..standardized = NA,
+        ..inspect_sigma = NA,
+        ..inspect_lvcov = NA,
+        ..inspect_zbeta = NA,
         ..method = NA,
+        ..mc_test = NA,
         ..mcR = NA,
         ..parallel = NA,
         ..set_seed = NA,
@@ -313,6 +359,7 @@ pamlsemOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..plot_to_table = NA,
         ..explain = NA,
         ..lav_diagram = NA,
+        ..diag_size = NA,
         ...interface = NA,
         ...caller = NA)
 )
@@ -328,6 +375,7 @@ pamlsemResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         diagram = function() private$.items[["diagram"]],
         powertab = function() private$.items[["powertab"]],
         powerbyn = function() private$.items[["powerbyn"]],
+        implied = function() private$.items[["implied"]],
         plotnotes = function() private$.items[["plotnotes"]],
         powerNcurve = function() private$.items[["powerNcurve"]],
         powerCustom = function() private$.items[["powerCustom"]],
@@ -367,7 +415,8 @@ pamlsemResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 renderFun=".plot_diagram",
                 visible="(lav_diagram)",
                 clearWith=list(
-                    "code"),
+                    "code",
+                    "diag_size"),
                 refs=list(
                     "semplot")))
             self$add(jmvcore::Table$new(
@@ -393,7 +442,12 @@ pamlsemResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "set_seed",
                     "method",
                     "estimator",
-                    "standardize"),
+                    "standardized",
+                    "mc_test",
+                    "mcR",
+                    "parallel",
+                    "set_seed",
+                    "seed"),
                 columns=list(
                     list(
                         `name`="effect", 
@@ -445,7 +499,7 @@ pamlsemResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "set_seed",
                     "method",
                     "estimator",
-                    "standardize"),
+                    "standardized"),
                 columns=list(
                     list(
                         `name`="n", 
@@ -459,6 +513,64 @@ pamlsemResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `name`="desc", 
                         `title`="Description", 
                         `type`="text"))))
+            self$add(R6::R6Class(
+                inherit = jmvcore::Group,
+                active = list(
+                    covs = function() private$.items[["covs"]],
+                    lvcovs = function() private$.items[["lvcovs"]],
+                    betas = function() private$.items[["betas"]]),
+                private = list(),
+                public=list(
+                    initialize=function(options) {
+                        super$initialize(
+                            options=options,
+                            name="implied",
+                            title="Model implied parameters",
+                            clearWith=list(
+                    "code",
+                    "estimator"))
+                        self$add(jmvcore::Table$new(
+                            options=options,
+                            name="covs",
+                            title="Observed Variances-Covariances",
+                            visible="(inspect_sigma)",
+                            clearWith=list(
+                                "code",
+                                "estimator",
+                                "standardized"),
+                            columns=list(
+                                list(
+                                    `name`="variable", 
+                                    `title`="", 
+                                    `type`="text"))))
+                        self$add(jmvcore::Table$new(
+                            options=options,
+                            name="lvcovs",
+                            title="Latent Variables Covariances",
+                            visible="(inspect_lvcov)",
+                            clearWith=list(
+                                "code",
+                                "estimator",
+                                "standardized"),
+                            columns=list(
+                                list(
+                                    `name`="variable", 
+                                    `title`="", 
+                                    `type`="text"))))
+                        self$add(jmvcore::Table$new(
+                            options=options,
+                            name="betas",
+                            title="Standardized regression coefficients",
+                            visible="(inspect_zbeta)",
+                            clearWith=list(
+                                "code",
+                                "estimator",
+                                "standardized"),
+                            columns=list(
+                                list(
+                                    `name`="variable", 
+                                    `title`="", 
+                                    `type`="text"))))}))$new(options=options))
             self$add(jmvcore::Html$new(
                 options=options,
                 name="plotnotes",
@@ -542,14 +654,23 @@ pamlsemBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param power Minimal desired power
 #' @param n Sample size
 #' @param sig.level Type I error rate (significance cut-off or alpha)
-#' @param alternative .
-#' @param estimator .
-#' @param standardized .
-#' @param method .
-#' @param mcR .
-#' @param parallel .
-#' @param set_seed .
-#' @param seed .
+#' @param alternative Two-tailed vs one-tailed test
+#' @param estimator Estimator method used in SEM. \code{ML} for Maximum
+#'   Likelihood
+#' @param standardized Assume the observed variables are standardized (TRUE)
+#'   or not (FALSE)
+#' @param inspect_sigma not used in R
+#' @param inspect_lvcov not used in R
+#' @param inspect_zbeta not used in R
+#' @param method Use analytic methods for computation of power parameter
+#'   (\code{analytic}) or Monte Carlo (\code{mc})
+#' @param mc_test which test is used in Monte Carlo simulations: \code{lrt}
+#'   for LRT or \code{score} for the Score test.
+#' @param mcR Number of repetitions for Monte Carlo method
+#' @param parallel Logical: should parallel computing be used for the Monte
+#'   Carlo method
+#' @param set_seed not used in R
+#' @param seed not used in R
 #' @param table_pwbyn .
 #' @param plot_ncurve .
 #' @param plot_log .
@@ -563,8 +684,10 @@ pamlsemBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param plot_z_lines .
 #' @param plot_z_value .
 #' @param plot_to_table .
-#' @param explain .
-#' @param lav_diagram .
+#' @param explain not used in R
+#' @param lav_diagram Output the path diagram corresponding to the input model
+#' @param diag_size Size of the path diagram boxes: \code{small},
+#'   \code{medium}, \code{large}
 #' @param .interface Used for internal purposes
 #' @param .caller Used for internal purposes
 #' @return A results object containing:
@@ -576,6 +699,9 @@ pamlsemBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$diagram} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powerbyn} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$implied$covs} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$implied$lvcovs} \tab \tab \tab \tab \tab a table \cr
+#'   \code{results$implied$betas} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$plotnotes} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powerNcurve} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerCustom} \tab \tab \tab \tab \tab an image \cr
@@ -601,7 +727,11 @@ pamlsem <- function(
     alternative = "two.sided",
     estimator = "ML",
     standardized = TRUE,
+    inspect_sigma = FALSE,
+    inspect_lvcov = FALSE,
+    inspect_zbeta = FALSE,
     method = "analytic",
+    mc_test = "lrt",
     mcR = 500,
     parallel = TRUE,
     set_seed = FALSE,
@@ -621,6 +751,7 @@ pamlsem <- function(
     plot_to_table = FALSE,
     explain = FALSE,
     lav_diagram = TRUE,
+    diag_size = "medium",
     .interface = "jamovi",
     .caller = "pamlsem") {
 
@@ -639,7 +770,11 @@ pamlsem <- function(
         alternative = alternative,
         estimator = estimator,
         standardized = standardized,
+        inspect_sigma = inspect_sigma,
+        inspect_lvcov = inspect_lvcov,
+        inspect_zbeta = inspect_zbeta,
         method = method,
+        mc_test = mc_test,
         mcR = mcR,
         parallel = parallel,
         set_seed = set_seed,
@@ -659,6 +794,7 @@ pamlsem <- function(
         plot_to_table = plot_to_table,
         explain = explain,
         lav_diagram = lav_diagram,
+        diag_size = diag_size,
         .interface = .interface,
         .caller = .caller)
 

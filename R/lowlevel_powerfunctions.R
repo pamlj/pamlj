@@ -23,7 +23,7 @@ pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,sig.level=NULL,df_model=N
     
     ncp <-function(f2,u,v) {
       switch (ncp_type,
-        gpower  = {return(f2* (df_model + v+ 1))},
+        model  = {return(f2* (df_model + v+ 1))},
         liberal = {return(f2*(u+v+1))},
         strict  = {return(f2*v)}
       )
@@ -575,6 +575,7 @@ pamlj.semmc <- function(type,
                         estimator,
                         n=NULL, 
                         power=NULL,
+                        test="lrt",
                         parallel=FALSE,
                         seed=NULL,
                         R=250,...) {
@@ -604,8 +605,20 @@ pamlj.semmc <- function(type,
                 "modelH1"=modelH1,
                 "modelPop"=modelPop,
                 estimator=estimator)
-                
-  repfun<-function(n) {
+  
+  lrtfun<-function(n) {
+        data<-MASS::mvrnorm(n=round(n),rep(0,ncol(sigma)),Sigma=sigma)
+        mod0<-suppressWarnings(try(lavaan::sem(modelH0,data=data)))
+        mod1<-suppressWarnings(try(lavaan::sem(modelH1,data=data)))
+        if ("try-error" %in% class(mod0)) return(NA)
+        if (!lavaan::lavInspect(mod0,"converged")) return(NA)
+        if ("try-error" %in% class(mod1)) return(NA)
+        if (!lavaan::lavInspect(mod1,"converged")) return(NA)
+        res<-as.numeric(lavaan::lavTestLRT(mod0,mod1)$`Pr(>Chisq)`[2]<alpha)
+        res
+  }
+  
+    scorefun<-function(n) {
         data<-MASS::mvrnorm(n=round(n),rep(0,ncol(sigma)),Sigma=sigma)
         mod0<-suppressWarnings(try(lavaan::sem(modelH0,data=data)))
         if ("try-error" %in% class(mod0)) return(NA)
@@ -613,7 +626,14 @@ pamlj.semmc <- function(type,
         res<-as.numeric(lavaan::lavTestScore(mod0)$test["p.value"]<alpha)
         res
   }
-  p.bodypwr <- quote({
+
+    switch (test,
+      lrt = {repfun<-lrtfun},
+      score= {repfun<-scorefun}
+    )
+  
+  
+  p.body <- quote({
             
                    if (parallel) {
                      sims<-unlist(foreach::foreach(i = 1:R, .options.future = list(seed = TRUE)) %dofuture%  repfun(n) )
@@ -626,24 +646,11 @@ pamlj.semmc <- function(type,
                    }
                    res
              })
-  p.bodyn <- quote({
-           
-                   if (parallel) {
-                     sims<-unlist(foreach::foreach(i = 1:R, .options.future = list(seed = TRUE)) %dofuture%  repfun(n) )
-                     good<-sims[!sapply(sims,is.na)]
-                     res<-mean(good)
-                   } else {
-                     sims<-unlist(sapply(1:R, function(i) repfun(n) )) 
-                     good<-sims[!sapply(sims,is.na)]
-                     res<-mean(good)
-                   }
-                   round(res-power,digits=2)
-             })
    ### fixed indices
    
    switch (type,
      'post-hoc' = {
-              results<-eval(p.bodypwr)
+              results<-eval(p.body)
               results$n<-n
              },
     'a-priori' = {
@@ -659,9 +666,9 @@ pamlj.semmc <- function(type,
                ll<-n_par*.80
                ul<-n_par*2
                results$n<-n_par
-               nobj<-try_hard(uniroot(function(n) eval(p.bodyn), interval = c(ll, ul))$root,silent=F)
+               myeval<-function(x) round(x$power-power,digits=2)
+               nobj<-try_hard(uniroot(function(n) myeval(eval(p.body)), interval = c(ll, ul))$root,silent=F)
                if (!isFALSE(nobj$error)) stop(nobj$error)
-               mark(nobj$obj)
                results$n<-nobj$obj
              }     
    )

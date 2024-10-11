@@ -31,7 +31,7 @@ children:
         label: Minimum desired power
         format: number
         enable: (!aim:power)
-      - name: 'n'
+      - name: n
         type: TextBox
         label: N (Sample size)
         format: number
@@ -44,6 +44,7 @@ children:
         name: alternative
   - type: LayoutBox
     style: inline
+    name: model_options
     children:
       - type: Label
         label: Model
@@ -53,17 +54,34 @@ children:
           - type: CheckBox
             name: standardized
 
-      - type: Label
-        label: Method
+      - type: LayoutBox
         children:
-          - name: method_analytic
-            type: RadioButton
-            optionName: method
-            optionPart: analytic
-          - type: RadioButton
-            name: method_mc
-            optionName: method
-            optionPart: mc
+
+          - type: Label
+            label: Method
+            children:
+                - name: method_analytic
+                  type: RadioButton
+                  optionName: method
+                  optionPart: analytic
+                - type: RadioButton
+                  name: method_mc
+                  optionName: method
+                  optionPart: mc
+
+          - type: Label
+            label: Test
+            children:
+                - name: mc_test_lrt
+                  type: RadioButton
+                  optionName: mc_test
+                  optionPart: lrt
+                  enable: (method_mc)
+                - type: RadioButton
+                  name: mc_test
+                  optionName: mc_test
+                  optionPart: score
+                  enable: (method_mc)
 
       - type: Label
         label: Options
@@ -188,6 +206,7 @@ children:
         children:
           - type: Label
             label: Monte Carlo
+            name: label_montecarlo
             children:
               - type: LayoutBox
                 style: inline
@@ -209,3 +228,24 @@ children:
                         name: seed
                         format: number
                         enable: (set_seed)
+
+      - type: LayoutBox
+        style: inline
+        children:
+          - type: Label
+            label: Path Diagram
+            name: label_diagram_options
+            children:
+                     - type: ComboBox
+                       name: diag_size
+          - type: Label
+            label: Model Check
+            name: label_inspect_options
+            children:
+                     - type: CheckBox
+                       name: inspect_sigma
+                     - type: CheckBox
+                       name: inspect_lvcov
+                     - type: CheckBox
+                       name: inspect_zbeta
+                       

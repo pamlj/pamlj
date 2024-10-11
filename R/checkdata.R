@@ -54,6 +54,7 @@ commonchecks <- function(obj) {
          if (obj$info$esmax < obj$data$es) obj$stop("The effect size " %+% obj$info$letter %+% " cannot be larger than " %+% obj$info$esmax)
 
     if (!obj$option("is_equi") ) {
+      
         .data<-obj$data
         .data$n<-obj$info$nmax
         esmin<-find_min_es(obj,.data)
@@ -139,14 +140,6 @@ postchecks<-function(obj) {
         }
 
 
-   #  if (obj$data$es < obj$info$esmin) {
-   #  
-   #                 message<-paste0("The effect size (",obj$info$letter," = ", es,") is too small than the effect size (",obj$info$letter," = ", esmin,")",
-   #                                 " That requires more than ",self$info$nmax_spell," cases (N=",self$info$nmax,")  to obtain a power of ",obj$data$power,".")
-   #                 obj$warning<-list(topic="plotnotes",message=message,head="info")
-   #  
-   # }
-    
   
   if (obj$data$power>.9999) {
     

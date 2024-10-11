@@ -1,4 +1,4 @@
-title: 'General Linear Model power analysis'
+title: 'General Linear Model Power Analysis'
 name: pamlglm
 jus: '3.0'
 stage: 0
@@ -367,10 +367,10 @@ children:
           - type: Label
             label: Non-Centrality Parameter (NCP)
             children:
-                 - name: ncp_type_gpower
+                 - name: ncp_type_model
                    type: RadioButton
                    optionName: ncp_type
-                   optionPart: gpower
+                   optionPart: model
                  - name: ncp_type_liberal
                    type: RadioButton
                    optionName: ncp_type

@@ -252,6 +252,7 @@ options:
 
     - name: use
       type: List
+      title: Use as effect size
       options:
         - name: none
           title: None
@@ -263,20 +264,35 @@ options:
           title: "G*Power"
         - name: f2
           title: "f2"
-
+      description:
+                R: |
+                      not used in R
+                ui: Which of the converted effect size indices should be used as partial eta-squared
+                
       default: none
 
     - name: ncp_type
       type: List
+      title: Non-centrality Parameter (NCP)
       options:
-        - name: gpower
+        - name: model
           title: "Model-based"
         - name: liberal
           title: Liberal
         - name: strict
           title: Strict
-
-
+      description:
+              R: |
+                What type of non-centrality parameter (NCP) should be used. The effect size is always transformed into 
+                a Cohen's `f2`, that is multiplied by the N to  which is estimated based on the degrees of freedom such that `N=df+edf+1`.
+                `model` defines `df` as the model degrees of freedom. This is the method used by `G*Power` software.
+                `liberal` uses the effect `df`. `strict` uses only the error df (df=0).
+              
+              ui: |
+                What type of non-centrality parameter (NCP) should be used. The effect size is always transformed into 
+                a Cohen's `f2`, that is multiplied by the N to  which is estimated based on the degrees of freedom such that `N=df+edf+1`.
+                `Model-based` defines `df` as the model degrees of freedom. This is the method used by `G*Power` software.
+                `Liberal` uses the effect `df`. `Strict` uses only the error df (df=0).
 
 ### correlations ###
 

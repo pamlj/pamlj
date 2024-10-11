@@ -78,6 +78,9 @@ options:
           title: Two-tailed
         - name:  one.sided
           title: One-tailed
+      description:
+                R: |
+                        Two-tailed vs one-tailed test 
 
     -   name: estimator
         type: List
@@ -92,10 +95,53 @@ options:
                 title: DWLS
         -       name: ULS
                 title: ULS
+        description:
+                R: |
+                      Estimator method used in SEM. `ML` for Maximum Likelihood 
+                
     -   name: standardized
         type: Bool
         default: true
-        title: Standardize (observed)
+        title: Standardized solution
+        description:
+                R: |
+                      Assume the observed variables are standardized (TRUE) or not (FALSE) 
+
+                ui: |
+                      Assume the observed variables are standardized (selected) or not (unselected) 
+
+    -   name: inspect_sigma
+        type: Bool
+        default: false
+        title: Implied Covariances
+        description:
+                R: |
+                       not used in R
+
+                ui: |
+                       Output the implied variances-covariances of observed variables
+
+    -   name: inspect_lvcov
+        type: Bool
+        default: false
+        title: Implied Latent Covariances
+        description:
+                R: |
+                       not used in R
+
+                ui: |
+                       Output the implied variances-covariances of latent variables
+
+    -   name: inspect_zbeta
+        type: Bool
+        default: false
+        title: Standardized regression
+        description:
+                R: |
+                       not used in R
+
+                ui: |
+                       Output the implied standardized regression coefficients 
 
     -   name: method
         type: List
@@ -106,27 +152,67 @@ options:
                 title: Analytic
         -       name: mc
                 title: Monte Carlo (very slow)
+        description:
+                R: |
+                      Use analytic methods for computation of power parameter (`analytic`) or Monte Carlo (`mc`) 
+
+                ui: |
+                      Use `Analytic` methods for computation of power parameter or `Monte Carlo`
+    -   name: mc_test
+        type: List
+        title: Test        
+        default: lrt
+        options:
+        -       name: lrt
+                title: LRT
+        -       name: score
+                title: Score Test
+        description:
+                R: |
+                      which test is used in Monte Carlo simulations: `lrt` for LRT or `score` for the Score test. 
+
+                ui: |
+                      Which test is used in Monte Carlo simulations: LRT or the Score test. 
 
     -   name: mcR
         title: Number of simulations
         type: Number
         default: 500
+        description:
+                R: |
+                      Number of repetitions for Monte Carlo method 
 
     -   name: parallel
         title: Parallel computation
         type: Bool
         default: true
+        description:
+                R: |
+                      Logical: should parallel computing be used for the Monte Carlo method 
+                ui: |
+                      Should parallel computing be used for the Monte Carlo method 
    
     -   name: set_seed
         title: Use a seed
         type: Bool
         default: false
+        description:
+                R: |
+                      not used in R 
+        
+                ui: |
+                      Should we use a seed for the  Monte Carlo method 
 
     -   name: seed
         title: Seed
         type: Number
         default: 42
-
+        description:
+                R: |
+                      not used in R 
+  
+                ui: |
+                      What seed should we use for Monte Carlo method. Default is Life, the Universe and Everything
 
     -   name: table_pwbyn
         title: Power quantiles by N
@@ -239,11 +325,34 @@ options:
       type: Bool
       title: "Explanatory text"
       default: false
+      description:
+                R: |
+                      not used in R 
+                ui: |
+                      Output some explanatory text of the results
 
     - name: lav_diagram
       type: Bool
       title: "Path diagram"
       default: true
+      description:
+                R: |
+                      Output the path diagram corresponding to the input model
+    - name: diag_size
+      type: List
+      title: "Boxes size"
+      default: medium
+      options:
+        - name: small
+          title: "Small"
+        - name: medium
+          title: "Medium"
+        - name: large
+          title: "Large"
+
+      description:
+                R: |
+                      Size of the path diagram boxes: `small`, `medium`, `large`
 
     - name: .interface
       type: String

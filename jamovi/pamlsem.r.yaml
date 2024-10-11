@@ -32,6 +32,7 @@ items:
       visible: (lav_diagram)
       clearWith:
           - code
+          - diag_size
       refs:
           - semplot
           
@@ -58,7 +59,12 @@ items:
            - set_seed
            - method
            - estimator
-           - standardize
+           - standardized
+           - mc_test
+           - mcR
+           - parallel
+           - set_seed
+           - seed
       columns: 
         - name: effect
           title: 'model'
@@ -103,7 +109,7 @@ items:
            - set_seed
            - method
            - estimator
-           - standardize
+           - standardized
 
       columns:
         - name: n
@@ -119,8 +125,60 @@ items:
           type: text
 
 
+    - name: implied
+      title: "Model implied parameters"
+      type: Group
+      visible: (inspect_sigma || inspect_lvcov || inspect_zbeta)
+      clearWith:
+                    - code
+                    - estimator
+      items:
+        - name: covs
+          title: Observed Variances-Covariances
+          type: Table
+          visible: (inspect_sigma)
+          clearWith:
+                      ### modeloptions  begins
+                    - code
+                    - estimator
+                    - standardized
+          columns:
+            - name: variable
+              title: ""
+              type: text
 
+        - name: lvcovs
+          title: Latent Variables Covariances
+          type: Table
+          visible: (inspect_lvcov)
+          clearWith:
+                      ### modeloptions  begins
+                    - code
+                    - estimator
+                    - standardized
 
+          columns:
+            - name: variable
+              title: ""
+              type: text
+            
+        - name: betas
+          title: Standardized regression coefficients
+          type: Table
+          visible: (inspect_zbeta)
+          clearWith:
+                      ### modeloptions  begins
+                    - code
+                    - estimator
+                    - standardized
+                  
+
+          columns:
+            - name: variable
+              title: ""
+              type: text
+            
+            
     - name: plotnotes
       title: Plot notes
       type: Html

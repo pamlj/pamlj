@@ -424,15 +424,22 @@ pamlcorrBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param plot_ncurve .
 #' @param plot_log .
 #' @param plot_palette .
-#' @param plot_x .
-#' @param plot_y .
-#' @param plot_custom_labels .
-#' @param plot_z .
-#' @param plot_x_from .
-#' @param plot_x_to .
-#' @param plot_z_lines .
-#' @param plot_z_value .
-#' @param plot_to_table .
+#' @param plot_x Parameter in the X-axis of custom power parameters plot.
+#'   \code{n}, \code{power} or \code{es}, the latest being the effect size.
+#' @param plot_y Parameter in the Y-axis of custom power parameters plot.
+#'   \code{n}, \code{power} or \code{es}, the latest being the effect size.
+#' @param plot_custom_labels Add value labels to the custom power parameters
+#'   plot, default FALSE.
+#' @param plot_z break down the custom power parameters plot by a parameter.
+#'   \code{n}, \code{power}, \code{sig.level} or \code{es} for effect size
+#' @param plot_x_from Range for the parameter in the X-axis of custom power
+#'   parameters plot. Starting value.
+#' @param plot_x_to Range for the parameter in the X-axis of custom power
+#'   parameters plot. Ending value.
+#' @param plot_z_lines not used in R
+#' @param plot_z_value Values of the parameter to break the plot by
+#' @param plot_to_table Produce a table of the values plotted in custom power
+#'   parameters plot
 #' @param .interface Used for internal purposes
 #' @param .caller Used for internal purposes
 #' @return A results object containing:
