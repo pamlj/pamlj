@@ -27,6 +27,9 @@
       obj$data$power       <- obj$options$power
       obj$data$alternative <- obj$options$alternative
       obj$data$test        <- obj$options$test
+      if (obj$data$test == "mc")
+           obj$warning     <-  list(topic="initnotes",message="Monte Carlo method may take several minutes to estimate the results. Please be patient.", head="wait")
+
       obj$data$R           <- obj$options$mcR
       obj$data$parallel    <- obj$options$parallel
 
