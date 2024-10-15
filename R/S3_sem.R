@@ -2,6 +2,8 @@
 
 .checkdata.pamlsem <- function(obj) {
 
+      if (is.something(obj$data)) 
+        return()
       jinfo("Checking data for pamlsem")
 
       syntax<-obj$options$code
@@ -31,6 +33,7 @@
 
       str_h0         <-  paste(h0,collapse="\n")
       str_h1         <-  paste(h1,collapse="\n")
+      
       modelobj<-try_hard(lavaan::sem(popModel))
         if (!isFALSE(modelobj$error)) {
           obj$stop(modelobj$error)
@@ -80,11 +83,6 @@
       
       if (obj$data$simulatedPower) {
         ### we need sigma for this
-        modelobj<-try_hard(lavaan::sem(popModel))
-        if (!isFALSE(modelobj$error)) {
-          obj$stop(modelobj$error)
-        }
-        model           <-  modelobj$obj
         obj$info$sigma  <-  lavaan::inspect(model,"implied")$cov
         obj$warning     <-  list(topic="initnotes",message="Monte Carlo method may take several minutes to estimate the results. Please be patient.", head="wait")
         obj$data$R      <- obj$options$mcR
