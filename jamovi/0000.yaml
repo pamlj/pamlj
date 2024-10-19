@@ -1,7 +1,7 @@
 ---
 title: Power analysis for linear models
 name: pamlj
-version: 0.6.2
+version: 0.7.0
 jms: '1.0'
 authors:
   - Marcello Gallucci
@@ -72,6 +72,14 @@ analyses:
     menuSubgroup: Pamlj
     menuGroup: Power
     menuTitle: Structural Equations Models
+    description: |
+      Something here
+  - title: Linear Mixed Models
+    name: pamlmixed
+    ns: pamlj
+    menuSubgroup: Pamlj
+    menuGroup: Power
+    menuTitle: Linear Mixed Models
     description: |
       Something here
 datasets:

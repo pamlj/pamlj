@@ -1,0 +1,225 @@
+---
+name:  pamlmixed
+title: Mixed Models Power analysis 
+jrs:   "1.1"
+
+items:
+
+    - name: intro
+      title: Introduction
+      type: Html
+
+    - name: extrainfo
+      title: Extra Info
+      type: Html
+      visible: false
+
+    - name: issues
+      title: Issues
+      type: Html
+      visible: false
+
+    - name: initnotes
+      type: Html
+      visible: false
+ 
+    - name: diagram
+      title: ""
+      type: Image
+      width:  500
+      height: 400
+      renderFun: .plot_diagram
+      visible: (lav_diagram)
+      clearWith:
+          - code
+          - diag_size
+      refs:
+          - semplot
+          
+    - name:  powertab
+      title: A Priori Power Analysis
+      type: Table
+      rows:  1
+      refs: 
+         - sempower
+         - lavaan
+         - pamlj
+         
+      clearWith:
+           - aim
+           - code
+           - power
+           - n
+           - sig.level
+           - aim
+           - alternative
+           - mcR
+           - parallel
+           - seed
+           - set_seed
+           - method
+           - estimator
+           - standardized
+           - mc_test
+           - mcR
+           - parallel
+           - set_seed
+           - seed
+      columns: 
+        - name: effect
+          title: 'model'
+          type: text
+        - name: n
+          title: 'N'
+          type: integer
+        - name: power
+          title: 'Power'
+          type: number
+        - name: es
+          title: 'RMSEA'
+          type: number
+        - name: test
+          title: 'Chi-squared'
+          type: number
+        - name: df
+          title: df
+          type: integer
+        - name: sig.level
+          title: α
+          type: number
+        - name: conv
+          title: '% converged'
+          type: number
+          visible: (method:mc)
+
+
+    - name:  powerbyn
+      title: Power by Sample size
+      type: Table
+      rows:  4
+      visible: (table_pwbyn)
+      clearWith:
+           - code
+           - power
+           - n
+           - sig.level
+           - aim
+           - alternative
+           - seed
+           - set_seed
+           - method
+           - estimator
+           - standardized
+
+      columns:
+        - name: n
+          title: 'Sample size'
+          type: integer
+
+        - name: power
+          title: 'Power to detect'
+          type: text
+
+        - name: desc
+          title: 'Description'
+          type: text
+
+
+    - name: implied
+      title: "Model implied parameters"
+      type: Group
+      visible: (inspect_sigma || inspect_lvcov || inspect_zbeta)
+      clearWith:
+                    - code
+                    - estimator
+      items:
+        - name: covs
+          title: Observed Variances-Covariances
+          type: Table
+          visible: (inspect_sigma)
+          clearWith:
+                      ### modeloptions  begins
+                    - code
+                    - estimator
+                    - standardized
+          columns:
+            - name: variable
+              title: ""
+              type: text
+
+        - name: lvcovs
+          title: Latent Variables Covariances
+          type: Table
+          visible: (inspect_lvcov)
+          clearWith:
+                      ### modeloptions  begins
+                    - code
+                    - estimator
+                    - standardized
+
+          columns:
+            - name: variable
+              title: ""
+              type: text
+            
+        - name: betas
+          title: Standardized regression coefficients
+          type: Table
+          visible: (inspect_zbeta)
+          clearWith:
+                      ### modeloptions  begins
+                    - code
+                    - estimator
+                    - standardized
+                  
+
+          columns:
+            - name: variable
+              title: ""
+              type: text
+            
+            
+    - name: plotnotes
+      title: Plot notes
+      type: Html
+      visible: false
+
+    - name: powerNcurve
+      title: Power Curve by N
+      type: Image
+      width:  400
+      height: 350
+      renderFun: .plot_ncurve
+      visible: (plot_ncurve)
+
+    - name: powerCustom
+      title: Power Parameters
+      type: Image
+      width:  450
+      height: 350
+      renderFun: .plot_custom
+      visible: false
+      
+    - name: customnotes
+      title: Plot notes
+      type: Html
+      visible: false
+
+    - name:  customtable
+      title: Power Analysis parameters
+      type: Table
+      visible: (plot_to_table && !plot_x:none && !plot_y:none)
+      columns: 
+        - name:  y
+          title: 'Y'
+          type: number
+        - name:  x
+          title: "X"
+          type: number
+        - name:  z
+          title: "Z"
+          type: number
+          visible: false
+        - name: es
+          title: ME
+          type: Number
