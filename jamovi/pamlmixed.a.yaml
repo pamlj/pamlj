@@ -163,18 +163,26 @@ options:
     -   name: method
         type: List
         title: Method
-        default: analytic
+        default: mca
         options:
-        -       name: analytic
-                title: Analytic
-        -       name: mc
-                title: Monte Carlo (very slow)
+        -       name: mca
+                title: Monte Carlo (approx)
+        -       name:  mcf
+                title: Monte Carlo (full)
         description:
                 R: |
-                      Use analytic methods for computation of power parameter (`analytic`) or Monte Carlo (`mc`) 
+                      `mca` uses Monte Carlo method for computation of main power parameters (`powertab`). For sensitivity
+                      analysis uses formula-based method based on parameters extracted from the Monte Carlo results. Results for sensitivity
+                      analysis are thus approximated, althogh very simular to the Monte Carlo method results. 
+                      `Monte Carlo (full)` uses Monte carlo method for computation of main power parameters and for sensitivity
+                      analysis. Simulations may be extremelly time-consuming for this method (in the order of hours).
 
                 ui: |
-                      Use `Analytic` methods for computation of power parameter or `Monte Carlo`
+                      `Monte Carlo (aprox)` use Monte carlo method for computation of main power parameters (`Power Analysis Table`). For sensitivity
+                      analysis uses formula-based method based on parameters extracted from the Monte Carlo results. Results for sensitivity
+                      analysis are thus approximated, althogh very simular to the Monte Carlo method results. 
+                      `Monte Carlo (full)` uses Monte carlo method for computation of main power parameters and for sensitivity
+                      analysis. Simulations may be extremelly time-consuming for this method (in the order of hours).
     -   name: mc_test
         type: List
         title: Test        
@@ -423,5 +431,7 @@ options:
                   -     name: levels
                         type: String
 
+
+ 
 ...
 

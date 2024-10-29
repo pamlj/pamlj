@@ -30,10 +30,12 @@ const events = {
         matches.push(match[1]); 
    }
    matches = [...new Set(matches)];
-   if (matches.len === 0) return;
+   if (matches.length === 0) {
+     ui.clusterpars.setValue([]);
+   };
    
    var newclusters= matches.map(element => {
-       if (clusters.len > 0) {
+       if (clusters.length > 0) {
           match = clusters.find(item => item.name === element);
           if (match !== undefined)
                return(match);
@@ -50,16 +52,14 @@ const events = {
           }
         vars = [...new Set(vars)];          
         
-        if (!vars.some(element => element === "1"))
-            return;
+//        if (!vars.some(element => element === "1"))
+//            return;
         vars = vars.filter(element => element !== "1");
 
-    
     var vartype = ui.var_type.value();        
     let found;
     var newvartype= vars.map(item => {
                       found = vartype.filter(element => element.name === item)
-                      console.log(found)
                       if (found.length === 0)
                             return({name: item, type: "continuous", levels: "---"})
                       else 
@@ -79,13 +79,12 @@ const events = {
           item.levels = "?"
           found=true;
       }
-      if (item.type === "continuous" && item.levels === "?") {
+      if (item.type === "continuous" && item.levels !== "---") {
           item.levels = "---"
           found=true;
       }
       return(item)
     });
-          console.log(newvartype, found)
 
      if (found) {
           ui.var_type.setValue(newvartype);
@@ -96,7 +95,9 @@ const events = {
    
     var clusters =  utils.clone(ui.clusterpars.value(), []);  
  
-
+    if (ui.aim.value() === "power") 
+         return;
+         
     var find =  ui.find.value();  
      
     var found = false;

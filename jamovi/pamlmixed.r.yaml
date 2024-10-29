@@ -23,67 +23,53 @@ items:
       type: Html
       visible: false
  
-    - name: diagram
-      title: ""
-      type: Image
-      width:  500
-      height: 400
-      renderFun: .plot_diagram
-      visible: (lav_diagram)
-      clearWith:
-          - code
-          - diag_size
-      refs:
-          - semplot
-          
+    - name:  infotab
+      title: Model Information
+      type: Table
+      columns: 
+        - name: info
+          title: 'Info'
+          type: text
+          combineBelow: true
+        - name: value
+          title: ''
+          type: text
+        - name: specs
+          title: ''
+          type: text
+
+
     - name:  powertab
       title: A Priori Power Analysis
       type: Table
       rows:  1
-      refs: 
-         - sempower
-         - lavaan
-         - pamlj
-         
       clearWith:
            - aim
            - code
-           - power
-           - n
-           - sig.level
-           - aim
-           - alternative
-           - mcR
-           - parallel
-           - seed
-           - set_seed
-           - method
-           - estimator
-           - standardized
-           - mc_test
-           - mcR
-           - parallel
-           - set_seed
-           - seed
+           - toggle
       columns: 
         - name: effect
-          title: 'model'
+          title: 'Estimate'
           type: text
         - name: n
-          title: 'N'
+          title: 'N per cluster'
+          type: integer
+        - name: k
+          title: 'Cluster levels'
           type: integer
         - name: power
           title: 'Power'
           type: number
-        - name: es
-          title: 'RMSEA'
-          type: number
-        - name: test
-          title: 'Chi-squared'
+        - name: F
+          title: 'F'
           type: number
         - name: df
-          title: df
-          type: integer
+          title: 'df'
+          type: number
+        - name: df_error
+          title: 'df_error'
+          type: number
+
         - name: sig.level
           title: α
           type: number

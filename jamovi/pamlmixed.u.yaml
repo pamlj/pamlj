@@ -25,7 +25,9 @@ children:
         name: syntax
         events:
           creating: ./mixed_editor::editor_creating
-          
+
+  
+ 
   - type: Label
     label: Model Structure
     name: model_structure
@@ -138,14 +140,14 @@ children:
           - type: Label
             label: Method
             children:
-                - name: method_analytic
+                - name: method_mca
                   type: RadioButton
                   optionName: method
-                  optionPart: analytic
+                  optionPart: mca
                 - type: RadioButton
-                  name: method_mc
+                  name: method_mcf
                   optionName: method
-                  optionPart: mc
+                  optionPart: mcf
 
           - type: Label
             label: Test

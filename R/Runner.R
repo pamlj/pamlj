@@ -21,6 +21,9 @@ Runner <- R6::R6Class("Runner",
                                  }
                                  if (!self$ok) return()
                                  jinfo("PAMLj: Runner: first estimation")
+                                 
+                                 rundata(self)
+                                 if (!self$ok) return()
 
                                  resobj <- try_hard(powervector(self,self$data) )
                                  if (!isFALSE(resobj$warning))
@@ -41,6 +44,7 @@ Runner <- R6::R6Class("Runner",
                                    
                                      jinfo("PAMLj: Runner: powertab")
                                      tab<-powertab(self)
+                                     self$ok<-FALSE
                                      return(tab)
                                      
                                },

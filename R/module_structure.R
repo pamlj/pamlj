@@ -7,6 +7,7 @@
 #
 # methods are:
 ## checkdata:       (required) this prepares all the info required to estimate the power parameters
+## rundata :       (not required) process input before running powervector in run phase
 ## powervector:     (required) pass the data, with adjutment, to the lowerlevel power functions 
 ## powertab_init:   (not required) this function produces or format the main table, powertab, before running
 ## powertab:        (not required) this function produces or format the main table, powertab, after running
@@ -21,6 +22,13 @@
 ## checkdata: this prepares all the info required to estimate the power parameters
 
 checkdata <- function(obj, ...) UseMethod(".checkdata")
+
+
+## rundata :       (not required) process input before running powervector in run phase
+
+rundata <- function(obj, ...) UseMethod(".rundata")
+
+.rundata.default <- function(obj) return()
 
 ## powervector must accept a runner object and a data.frame. It must return a data.frame with nrow() equal to the input data.frame
 ## they are used across all table and plots to estimate parameters, so the input data.frame is not necessarely the 

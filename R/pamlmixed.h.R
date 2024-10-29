@@ -20,7 +20,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             inspect_sigma = FALSE,
             inspect_lvcov = FALSE,
             inspect_zbeta = FALSE,
-            method = "analytic",
+            method = "mca",
             mc_test = "lrt",
             mcR = 500,
             parallel = TRUE,
@@ -129,10 +129,10 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..method <- jmvcore::OptionList$new(
                 "method",
                 method,
-                default="analytic",
+                default="mca",
                 options=list(
-                    "analytic",
-                    "mc"))
+                    "mca",
+                    "mcf"))
             private$..mc_test <- jmvcore::OptionList$new(
                 "mc_test",
                 mc_test,
@@ -429,7 +429,7 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         extrainfo = function() private$.items[["extrainfo"]],
         issues = function() private$.items[["issues"]],
         initnotes = function() private$.items[["initnotes"]],
-        diagram = function() private$.items[["diagram"]],
+        infotab = function() private$.items[["infotab"]],
         powertab = function() private$.items[["powertab"]],
         powerbyn = function() private$.items[["powerbyn"]],
         implied = function() private$.items[["implied"]],
@@ -463,73 +463,62 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=options,
                 name="initnotes",
                 visible=FALSE))
-            self$add(jmvcore::Image$new(
+            self$add(jmvcore::Table$new(
                 options=options,
-                name="diagram",
-                title="",
-                width=500,
-                height=400,
-                renderFun=".plot_diagram",
-                visible="(lav_diagram)",
-                clearWith=list(
-                    "code",
-                    "diag_size"),
-                refs=list(
-                    "semplot")))
+                name="infotab",
+                title="Model Information",
+                columns=list(
+                    list(
+                        `name`="info", 
+                        `title`="Info", 
+                        `type`="text", 
+                        `combineBelow`=TRUE),
+                    list(
+                        `name`="value", 
+                        `title`="", 
+                        `type`="text"),
+                    list(
+                        `name`="specs", 
+                        `title`="", 
+                        `type`="text"))))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="powertab",
                 title="A Priori Power Analysis",
                 rows=1,
-                refs=list(
-                    "sempower",
-                    "lavaan",
-                    "pamlj"),
                 clearWith=list(
                     "aim",
                     "code",
-                    "power",
-                    "n",
-                    "sig.level",
-                    "aim",
-                    "alternative",
-                    "mcR",
-                    "parallel",
-                    "seed",
-                    "set_seed",
-                    "method",
-                    "estimator",
-                    "standardized",
-                    "mc_test",
-                    "mcR",
-                    "parallel",
-                    "set_seed",
-                    "seed"),
+                    "toggle"),
                 columns=list(
                     list(
                         `name`="effect", 
-                        `title`="model", 
+                        `title`="Estimate", 
                         `type`="text"),
                     list(
                         `name`="n", 
-                        `title`="N", 
+                        `title`="N per cluster", 
+                        `type`="integer"),
+                    list(
+                        `name`="k", 
+                        `title`="Cluster levels", 
                         `type`="integer"),
                     list(
                         `name`="power", 
                         `title`="Power", 
                         `type`="number"),
                     list(
-                        `name`="es", 
-                        `title`="RMSEA", 
-                        `type`="number"),
-                    list(
-                        `name`="test", 
-                        `title`="Chi-squared", 
+                        `name`="F", 
+                        `title`="F", 
                         `type`="number"),
                     list(
                         `name`="df", 
                         `title`="df", 
-                        `type`="integer"),
+                        `type`="number"),
+                    list(
+                        `name`="df_error", 
+                        `title`="df_error", 
+                        `type`="number"),
                     list(
                         `name`="sig.level", 
                         `title`="\u03B1", 
@@ -721,8 +710,14 @@ pamlmixedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param inspect_sigma not used in R
 #' @param inspect_lvcov not used in R
 #' @param inspect_zbeta not used in R
-#' @param method Use analytic methods for computation of power parameter
-#'   (\code{analytic}) or Monte Carlo (\code{mc})
+#' @param method \code{mca} uses Monte Carlo method for computation of main
+#'   power parameters (\code{powertab}). For sensitivity analysis uses
+#'   formula-based method based on parameters extracted from the Monte Carlo
+#'   results. Results for sensitivity analysis are thus approximated, althogh
+#'   very simular to the Monte Carlo method results.  \code{Monte Carlo (full)}
+#'   uses Monte carlo method for computation of main power parameters and for
+#'   sensitivity analysis. Simulations may be extremelly time-consuming for this
+#'   method (in the order of hours).
 #' @param mc_test which test is used in Monte Carlo simulations: \code{lrt}
 #'   for LRT or \code{score} for the Score test.
 #' @param mcR Number of repetitions for Monte Carlo method
@@ -757,7 +752,7 @@ pamlmixedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$extrainfo} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$issues} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$initnotes} \tab \tab \tab \tab \tab a html \cr
-#'   \code{results$diagram} \tab \tab \tab \tab \tab an image \cr
+#'   \code{results$infotab} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powerbyn} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$implied$covs} \tab \tab \tab \tab \tab a table \cr
@@ -772,9 +767,9 @@ pamlmixedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'
 #' Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:
 #'
-#' \code{results$powertab$asDF}
+#' \code{results$infotab$asDF}
 #'
-#' \code{as.data.frame(results$powertab)}
+#' \code{as.data.frame(results$infotab)}
 #'
 #' @export
 pamlmixed <- function(
@@ -792,7 +787,7 @@ pamlmixed <- function(
     inspect_sigma = FALSE,
     inspect_lvcov = FALSE,
     inspect_zbeta = FALSE,
-    method = "analytic",
+    method = "mca",
     mc_test = "lrt",
     mcR = 500,
     parallel = TRUE,
