@@ -44,7 +44,6 @@ Runner <- R6::R6Class("Runner",
                                    
                                      jinfo("PAMLj: Runner: powertab")
                                      tab<-powertab(self)
-                                     self$ok<-FALSE
                                      return(tab)
                                      
                                },

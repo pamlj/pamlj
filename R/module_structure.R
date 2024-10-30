@@ -70,6 +70,7 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
 
 .powerbyes.default <- function(obj) {
 
+            mark(obj)
             power = c(.5, .8, .95)
             data<-obj$data
             data$power<-NULL
@@ -78,6 +79,7 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
             res<-powervector(obj,dd)
             probs_es<-format(res$es,digits=3)
             check<-which(is.na(res$es))
+           
             if (length(check)>0) warning("Some effect size cannot be computed given the input parameters.")
 
             esList <-list(list(es=paste('0 <', obj$info$letter, greek_vector["leq"],probs_es[1])),
