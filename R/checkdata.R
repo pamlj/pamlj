@@ -16,6 +16,7 @@ commonchecks <- function(obj) {
     if (!obj$ok) return()
     jinfo("PAMLj: performing common checks")
 
+  
     if (is.something(obj$data$sig.level ) ) {
         if ( any(obj$data$sig.level < 0.00001) ||  any(obj$data$sig.level > .90)) {
                    obj$stop("Type I error rate should be between .00001 and .90")
@@ -60,6 +61,7 @@ commonchecks <- function(obj) {
         esmin<-find_min_es(obj,.data)
         fesmin<-format5(esmin)
         es<-format5(obj$data$es)
+     
 
 
          if ( any(abs(obj$data[["es"]]) < abs(esmin))) {

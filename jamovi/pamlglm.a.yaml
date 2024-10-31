@@ -67,12 +67,12 @@ options:
       title: Model degrees of freedom 
       type:  Number
       default: 1
-      min: 1
+      min: 0
     - name: v_df_effect
       title: Effect degrees of freedom 
       type:  Number
       default: 1
-      min: 1
+      min: 0
 
 
     - name: e_es

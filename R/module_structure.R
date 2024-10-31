@@ -70,7 +70,7 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
 
 .powerbyes.default <- function(obj) {
 
-            mark(obj)
+           
             power = c(.5, .8, .95)
             data<-obj$data
             data$power<-NULL
@@ -202,7 +202,6 @@ find_min_es <- function(obj, ...) UseMethod(".find_min_es")
     es<-res$obj$es
   else
     es<-obj$info$esmin
-
 return(es)
 }
 

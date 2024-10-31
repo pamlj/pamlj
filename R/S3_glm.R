@@ -66,7 +66,7 @@
       
       if (is.something(obj$data$df_model)) {
                  if (obj$data$df_model < 1)
-                           stop("Model degrees of freedom cannot be less than 1")
+                           obj$stop("Model degrees of freedom cannot be less than 1")
                  if (obj$data$df_model == 1 && is.something(obj$data$es)) {
                            obj$warning<-list(topic="powertab",message="When df=1 the R-square is the square of the beta coefficient.")
                            obj$info$r2<-obj$data$es^2
@@ -91,6 +91,7 @@
 
 .checkdata.peta <- function(obj) {
 
+      
       obj$data<-data.frame(n = as.numeric(obj$options$n),
                        es = as.numeric(obj$options$v_es),
                        power=obj$options$power,
@@ -118,6 +119,10 @@
                }
         }    
 
+      mark(obj$data$df_effect)
+    if (obj$data$df_effect<1)
+             obj$stop("Effect degrees of freedom cannot be less than 1")
+      
     if (is.something(obj$data$df_model)) {
                 if (obj$data$df_model < 1)
                            obj$stop("Model degrees of freedom cannot be less than 1")
@@ -172,6 +177,9 @@
          stop("Eta-squared value cannot be more than .99")
   }
   
+  if (obj$data$df_effect<1)
+             obj$stop("Effect degrees of freedom cannot be less than 1")
+      
   if (is.something(obj$data$df_model)) {
                 if (obj$data$df_model < 1)
                            stop("Model degrees of freedom cannot be less than 1")
@@ -264,15 +272,15 @@
 
 
 ## powertab_init:   (not required) this function produces or format the main table, powertab, before running
-## NO NEED
+## NO NEED: default is used
 ## powertab:    (not required) this function produces or format the main table, powertab, after running
-## NO NEED
+## NO NEED: default is used
 
 ## powerbyes:       this function produces or format the powerbyes table , after the estimation is done
-## NO NEED
+## NO NEED: default is used
 
 ## powerbyen:       this function produces or format the powerbyen table , after the estimation is done
-## NO NEED
+## NO NEED: default is used
 
 ## effectsize_init: (not required) some sub.module requires additional effect size to be computed. This function inits the table
 

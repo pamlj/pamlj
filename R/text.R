@@ -48,6 +48,7 @@ INFO[["proportions"]] <- common_init
 INFO[["factorial"]]   <- factorial_init
 INFO[["mediation"]]   <- mediation_init
 INFO[["pamlsem"]]     <- sem_init
+INFO[["gzlm"]]        <- common_init
 
 
 INFO2<-list()
@@ -164,6 +165,13 @@ INFO2[["pamlsem"]]<-"
              </div>
              "
 
+INFO2[["gzlm"]]<-"
+             <div>
+             <p> First, select the type of model is expected to be employed. 
+              Then set the effect size, the effect degrees of freedom and 
+              the baseline proportions of cases in the dependent variable levels.
+             </div>
+              "
 
 LINKS<-list()
 
@@ -181,6 +189,7 @@ LINKS[["ttestpone"]]<-"https://pamlj.github.io/ttest_one.html"
 LINKS[["ttestpaired"]]<-"https://pamlj.github.io/ttest_paired.html"
 LINKS[["mediation"]]<-"https://pamlj.github.io/mediation.html"
 LINKS[["pamlsem"]]<-"https://pamlj.github.io/sem.html"
+LINKS[["gzlm"]]<-"https://pamlj.github.io/"
 
 
 ### here we define a nice widget to convey information

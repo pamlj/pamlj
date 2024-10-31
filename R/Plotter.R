@@ -218,7 +218,8 @@ Plotter <- R6::R6Class(
       if (esmin < obj$info$esmin) esmin<-obj$info$esmin
       .data<-data
       .data$es<-esmin
-      .data$n<-NULL
+      .data[["n"]]<-NULL
+
       nmax<-powervector(obj,.data)$n
       .data$es<-esmax*1.1
       .data$n<-NULL
