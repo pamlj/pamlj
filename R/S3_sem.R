@@ -14,7 +14,7 @@
         obj$warning<-list(topic="issues",message="Please input the SEM model in the syntax box", head="info")
         return()
       }
-      spsyntax   <-  strsplit(syntax,"\\n")[[1]]      
+      spsyntax   <-  strsplit(syntax,"\\R")[[1]]      
       ### population model
       popModel   <-  gsub("\\*\\s*[A-Za-z]\\s*\\*", "\\*", spsyntax)
       keep       <-  grep("==|:=",popModel,invert=T)
