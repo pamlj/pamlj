@@ -8,13 +8,12 @@
 
       syntax<-obj$options$code
       syntax<-stringr::str_remove_all(syntax," ")
-
       if (stringr::str_length(syntax)==0) {
         obj$ok<-FALSE
         obj$warning<-list(topic="issues",message="Please input the SEM model in the syntax box", head="info")
         return()
       }
-      spsyntax   <-  strsplit(syntax,"\\n")[[1]]      
+      spsyntax   <-  strsplit(syntax,"\\R",perl=T)[[1]]      
       ### population model
       popModel   <-  gsub("\\*\\s*[A-Za-z]\\s*\\*", "\\*", spsyntax)
       keep       <-  grep("==|:=",popModel,invert=T)

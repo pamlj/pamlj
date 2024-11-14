@@ -119,7 +119,7 @@
                }
         }    
 
-      mark(obj$data$df_effect)
+     
     if (obj$data$df_effect<1)
              obj$stop("Effect degrees of freedom cannot be less than 1")
       
