@@ -56,6 +56,7 @@ pamlmedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                  for (tab in private$.smartObjs) {
                      tab$runTable()
                  }
+                 private$.runner$endrun()                 
       jinfo("MODULE:  #### phase end ####")
 
       jinfo("TIME:",Sys.time()-private$.time," secs. Runtime: ",Sys.time()-now)

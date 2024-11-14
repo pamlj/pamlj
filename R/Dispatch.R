@@ -159,6 +159,11 @@ private = list(
                                     style <- "border-left-color: orange;"
                                     title <- "<h2 style='color:orange;'> Warning</h2>"
                                 },
+                               "wait" = {
+                                    # SVG per messaggio informativo di long time
+                                    head <- paste0("<div style='", icon_container_style, "'><svg width='50' height='50' xmlns='http://www.w3.org/2000/svg'><circle cx='25' cy='25' r='20' fill='none'></circle><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' fill='#3e6da9' font-size='30' font-family='Arial Black'>i</text><g transform='translate(25,25)'><path d='M20,0 A20,20 0 1,1 -6.84,-18.79' fill='none' stroke='#3e6da9' stroke-width='8'><animateTransform attributeName='transform' type='rotate' from='0' to='360' dur='1s' repeatCount='indefinite' /></path></g></svg></div>")
+                                    style <- "border-color: #3e6da9;"
+                                },
                                 "error" = {
                                     # SVG per messaggio di errore
                                     head <- paste0("<div style='", icon_container_style, "'><svg width='50' height='50' xmlns='http://www.w3.org/2000/svg'><circle cx='25' cy='25' r='20' fill='red'></circle><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' fill='white' font-size='25' font-family='Arial Black'>X</text></svg></div>")

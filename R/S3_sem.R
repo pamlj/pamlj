@@ -2,6 +2,8 @@
 
 .checkdata.pamlsem <- function(obj) {
 
+      if (is.something(obj$data)) 
+        return()
       jinfo("Checking data for pamlsem")
 
       syntax<-obj$options$code
@@ -12,7 +14,7 @@
         obj$warning<-list(topic="issues",message="Please input the SEM model in the syntax box", head="info")
         return()
       }
-      spsyntax   <-  strsplit(syntax,"\\n")[[1]]      
+      spsyntax   <-  strsplit(syntax,"\\R")[[1]]      
       ### population model
       popModel   <-  gsub("\\*\\s*[A-Za-z]\\s*\\*", "\\*", spsyntax)
       keep       <-  grep("==|:=",popModel,invert=T)
@@ -23,12 +25,15 @@
 
       h0         <-  gsub("(?<![A-Za-z])\\b\\d+(\\.\\d+)?\\*\\b", "",spsyntax,  perl = TRUE)
       h0         <-  gsub('\\.\\*|\\.',"",h0)
+      consts     <-  grep("==",h0)
+      obj$info$constraints<-stringr::str_split(h0[consts],"\n")
       keep       <-  grep("==",h0,invert=T)
       h1         <-  h0[keep]
       if (length(h0)==length(h1)) obj$stop("Please specify at least one parameter to be tested with `parm==0`")
-      
+
       str_h0         <-  paste(h0,collapse="\n")
       str_h1         <-  paste(h1,collapse="\n")
+      
       modelobj<-try_hard(lavaan::sem(popModel))
         if (!isFALSE(modelobj$error)) {
           obj$stop(modelobj$error)
@@ -45,19 +50,17 @@
         exvar          <-  exvar[exvar!=1]
         varstr         <-  paste(lapply(names(exvar),function(x) paste0(x,"~~",exvar[x],"*",x) ), collapse="\n")
         str_popModel   <-  paste(paste(str_popModel,"\n"),varstr,collapse="\n")
-      lsigma         <-  diag(lavaan::inspect(model,"cov.lv"))
+        lsigma         <-  diag(lavaan::inspect(model,"cov.lv"))
       
   
         if (length(lsigma)>0) {
             exvar          <-  rep(2,length(lsigma))-lsigma
             exvar          <-  exvar[exvar!=1]
             varstr         <-  paste(lapply(names(exvar),function(x) paste0(x,"~~",exvar[x],"*",x) ), collapse="\n")
-            mark(varstr)
             str_popModel   <-  paste(str_popModel,varstr, sep="\n")
         }
 
       }
-mark(str_popModel)
      
       obj$data             <- data.frame(n=obj$options$n)
       obj$data$sig.level   <- obj$options$sig.level
@@ -80,13 +83,8 @@ mark(str_popModel)
       
       if (obj$data$simulatedPower) {
         ### we need sigma for this
-        modelobj<-try_hard(lavaan::sem(popModel))
-        if (!isFALSE(modelobj$error)) {
-          obj$stop(modelobj$error)
-        }
-        model           <-  modelobj$obj
         obj$info$sigma  <-  lavaan::inspect(model,"implied")$cov
-        obj$warning     <-  list(topic="initnotes",message="Monte Carlo method may take several minutes to estimate the results. Please be patient.", head="info")
+        obj$warning     <-  list(topic="initnotes",message="Monte Carlo method may take several minutes to estimate the results. Please be patient.", head="wait")
         obj$data$R      <- obj$options$mcR
         obj$data$parallel <- obj$options$parallel
         if (obj$options$set_seed)
@@ -172,6 +170,35 @@ mark(str_popModel)
  
    if (!obj$option("explain")) return()  
   
+   conds<-stringr::str_split(obj$info$constraints,"==")
+   add<-""
+   plural<-""
+   verb <- " is "
+   if (length(conds)>1) {
+       add<-"any of "
+       plural<-"s "
+   }
+    text<-"Testing " %+% add %+% "the following condition" %+% plural %+% ": <br> <ul>"
+     for (x in conds) {
+     add<-""
+     verb <- " is "
+     plural<-" "
+     cond<-x[-length(x)]
+     if (length(cond)>1) {
+              add<-"all "
+              verb<-" are "
+              plural<-"s "              
+     }
+     astring<-"<b>" %+% paste(cond,collapse=", ") %+% "</b>"
+     text<-text %+% "<li>" %+% add %+%  " coefficient" %+% plural %+% astring  %+% verb %+% " statistically significant  </li>  "
+   }
+    text <- text %+% "</ul>"
+    if (obj$aim=="n")
+        text <- text %+% "<p> To meet the previous requirements, one requires a minimum sample size of N=" %+% obj$data$n %+% "</p>"
+    else
+        text <- text %+% "<p> Meeting the previous requirements, given the input sample size, yields a power of " %+% format(obj$data$power,digits=3)  %+% "</p>"
+      
+    obj$warning<-list(topic="extrainfo",message=text,head="info")  
 }
 
 ### find parameters need some specs for mediation
@@ -198,3 +225,5 @@ mark(str_popModel)
 .find_min_es.pamlsem <- function(obj,data) {
   return(.0001)
 }
+
+

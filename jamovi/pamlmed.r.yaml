@@ -18,7 +18,11 @@ items:
       title: Issues
       type: Html
       visible: false
- 
+
+    - name: initnotes
+      type: Html
+      visible: false
+      
     - name: diagram
       title: ""
       type: Image

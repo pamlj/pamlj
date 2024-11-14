@@ -437,6 +437,7 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         intro = function() private$.items[["intro"]],
         extrainfo = function() private$.items[["extrainfo"]],
         issues = function() private$.items[["issues"]],
+        initnotes = function() private$.items[["initnotes"]],
         diagram = function() private$.items[["diagram"]],
         powertab = function() private$.items[["powertab"]],
         effectsize = function() private$.items[["effectsize"]],
@@ -467,6 +468,10 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=options,
                 name="issues",
                 title="Issues",
+                visible=FALSE))
+            self$add(jmvcore::Html$new(
+                options=options,
+                name="initnotes",
                 visible=FALSE))
             self$add(jmvcore::Image$new(
                 options=options,
@@ -844,6 +849,7 @@ pamlmedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$extrainfo} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$issues} \tab \tab \tab \tab \tab a html \cr
+#'   \code{results$initnotes} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$diagram} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$effectsize} \tab \tab \tab \tab \tab a table \cr

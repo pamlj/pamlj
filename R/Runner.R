@@ -33,7 +33,7 @@ Runner <- R6::R6Class("Runner",
                                  # everything went well, so fill self$data
                                  self$data<-resobj$obj
                               #   postchecks(self)
-                              #   extrainfo(self)
+                                  extrainfo(self)
 
                                  
                               },

@@ -28,7 +28,7 @@ pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,sig.level=NULL,df_model=N
         strict  = {return(f2*v)}
       )
     }
-p.body <- quote({
+    p.body <- quote({
         lambda <- ncp(f2 , u, v)
         pow<-pf(qf(sig.level, u, v, lower.tail = FALSE), u, v, lambda, lower.tail = FALSE)
         pow 
