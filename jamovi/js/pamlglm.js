@@ -106,7 +106,7 @@ var update_convert = function( ui) {
    var N = df_model + df_model + df_error + 1
    var gpower = eta*(k-N)/((eta*k)-N)
 
-console.log(omega)
+
    ui.omega.setValue(omega.toFixed(3));
    ui.epsilon.setValue(epsilon.toFixed(3));
    ui.gpower.setValue(gpower.toFixed(3));

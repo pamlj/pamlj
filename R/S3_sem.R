@@ -15,7 +15,7 @@
         return()
       }
       spsyntax   <-  strsplit(syntax,"\\R", perl=TRUE)[[1]]      
-      mark(syntax,spsyntax)
+#      mark(syntax,spsyntax)
       ### population model
       popModel   <-  gsub("\\*\\s*[A-Za-z]\\s*\\*", "\\*", spsyntax)
       keep       <-  grep("==|:=",popModel,invert=T)
