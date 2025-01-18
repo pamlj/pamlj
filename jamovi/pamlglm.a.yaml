@@ -75,7 +75,7 @@ options:
       min: 1
 
     - name: e_es
-      title: Expected partial Eta-squared (p&eta;&sup2;)
+      title: Expected partial Eta-squared (&eta;&sup2;)
       type:  Number
       default: .2
 

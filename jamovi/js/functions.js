@@ -45,7 +45,6 @@ const fun = {
  
  update_r2: function( ui ) {
 
-console.log(ui.b_df_effect.value())
 
    if (ui.b_r2 != undefined ) {
      if (ui.b_df_model.value() > 1)
