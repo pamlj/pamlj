@@ -74,9 +74,8 @@ options:
       default: 1
       min: 1
 
-
     - name: e_es
-      title: Expected partial Eta-squared (p&eta;&sup2;)
+      title: Expected partial Eta-squared (&eta;&sup2;)
       type:  Number
       default: .2
 
@@ -89,6 +88,7 @@ options:
       title: R-squared 
       type:  Number
       default: .2
+      
     - name: e_df_effect
       title: Effect degrees of freedom 
       type:  Number
