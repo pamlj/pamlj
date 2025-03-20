@@ -4,286 +4,279 @@ jus: '3.0'
 stage: 0
 compilerMode: tame
 events:
-  update: ./pamlfactorial::update
+    update: ./pamlfactorial::update
 children:
-  - type: LayoutBox
-    margin: large
-    children:
-      - type: ComboBox
-        name: aim
-  - type: ModeSelector
-    name: mode
-    stretchFactor: 1
-    children:
-      - type: Content
-        name: facpeta
-        children:
-          - type: LayoutBox
-            margin: large
-            children:
-                  - type: Label
-                    label: Effect Size
-                    children:
-                          - type: TextBox
-                            name: peta
-                            format: number
-            
-                  - type: LayoutBox
-                    margin: large
-                    style: inline
-                    children:
-                       - type: Label
-                         label: Effect Information
-                         children:
-                          - type: LayoutBox
-                            name: df_box
-                            children:         
-                              - type: TextBox
-                                name: df_effect
-                                format: number
-                          - type: LayoutBox
-                            name: repeated_type_box
-                            style: list
-                            children:
-                              - name: repeated_type_repeated
-                                type: RadioButton
-                                optionName: repeated_type
-                                optionPart: repeated
-                              - name: repeated_type_mixed
-                                type: RadioButton
-                                optionName: repeated_type
-                                optionPart: mixed
-                              - type: LayoutBox
-                                name: effect_groups_box
-                                children:         
-                                       - type: TextBox
-                                         name: effect_groups
-                                         format: number
-
-                       - type: Label
-                         label: Design Information
-                         children:
-                                - name: effect_type_between
-                                  type: RadioButton
-                                  optionName: effect_type
-                                  optionPart: between
-                                - name: effect_type_within
-                                  type: RadioButton
-                                  optionName: effect_type
-                                  optionPart: within
-                                - type: TextBox
-                                  name: design_groups
-                                  format: number
-
-
-      - type: Content
-        name: facmeans
-        children:
-          - type: VariableSupplier
-            persistentItems: false
-            stretchFactor: 1
-            children:
-              - type: TargetLayoutBox
-                children:
-                  - type: VariablesListBox
-                    name: factors
-                    isTarget: true
-              - type: TargetLayoutBox
-                children:
-                  - type: VariablesListBox
-                    name: means
-                    maxItemCount: 1
-                    isTarget: true
-              - type: TargetLayoutBox
-                children:
-                  - type: VariablesListBox
-                    name: sds
-                    maxItemCount: 1
-                    isTarget: true
-  - type: LayoutBox
-    margin: large
-    children:
-      - type: Label
-        label: Parameters
-        children:
-          - name: power
-            type: TextBox
-            label: Minimum desired power
-            format: number
-            enable: (!aim:power)
-          - name: 'n'
-            type: TextBox
-            label: N (Sample size)
-            format: number
-            enable: (!aim:n)
-          - name: sig.level
-            type: TextBox
-            label: '&alpha; (type I error rate)'
-            format: number
-            enable: (!aim:alpha)
-  - type: CollapseBox
-    label: Repeated Measures
-    name: panel_repeated
-    collapsed: true
-    stretchFactor: 1
-    children:
-      - type: Supplier
-        name: rmSupplier
-        label: Factors
-        persistentItems: false
-        stretchFactor: 1
-        format: VariableLabel
-        children:
-          - type: TargetLayoutBox
-            label: Repeated Measures (within)
-            children:
-              - type: ListBox
-                name: within
-                isTarget: true
-                valueFilter: unique
-                template:
-                  type: VariableLabel
-      - type: LayoutBox
+    -   type: LayoutBox
         margin: large
         children:
-          - type: TextBox
-            name: r
-            format: number
-  - type: CollapseBox
-    label: Sensitivity Analysis
-    name: panel_sensitivity
-    collapsed: true
-    stretchFactor: 1
-    children:
-        - type: LayoutBox
-          children:
-            - type: LayoutBox
-              style: inline
-              children:
-              - type: Label
-                label: Plots
-                children:
-                  - type: CheckBox
-                    name: plot_contour
-                  - type: CheckBox
-                    name: plot_escurve
-                  - type: CheckBox
-                    name: plot_ncurve
-              - type: Label
-                label: Options
-                children:
-                  - name: plot_log
-                    type: CheckBox
-                  - type: ComboBox
-                    name: plot_palette
-  - type: CollapseBox
-    label: Power Parameters plot
-    name: panel_customplot
-    collapsed: true
-    stretchFactor: 1
-    children:
-      - type: LayoutBox
+            -   type: ComboBox
+                name: aim
+    -   type: ModeSelector
+        name: mode
+        stretchFactor: 1
         children:
-          - type: LayoutBox
-            style: inline
-            children:
-              - type: Label
-                label: Plot Y-axis
+            -   type: Content
+                name: facpeta
                 children:
-                  - type: LayoutBox
-                    style: inline
-                    children:
-                      - type: ComboBox
-                        name: plot_y
-                      - type: CheckBox
-                        name: plot_custom_labels
-              - type: Label
-                label: Results in table
+                    -   type: LayoutBox
+                        margin: large
+                        children:
+                            -   type: Label
+                                label: Effect Size
+                                children:
+                                    -   type: TextBox
+                                        name: peta
+                                        format: number
+                            -   type: LayoutBox
+                                margin: large
+                                style: inline
+                                children:
+                                    -   type: Label
+                                        label: Effect Information
+                                        children:
+                                            -   type: LayoutBox
+                                                name: df_box
+                                                children:
+                                                    -   type: TextBox
+                                                        name: df_effect
+                                                        format: number
+                                            -   type: LayoutBox
+                                                name: repeated_type_box
+                                                style: list
+                                                children:
+                                                    -   name: repeated_type_repeated
+                                                        type: RadioButton
+                                                        optionName: repeated_type
+                                                        optionPart: repeated
+                                                    -   name: repeated_type_mixed
+                                                        type: RadioButton
+                                                        optionName: repeated_type
+                                                        optionPart: mixed
+                                                    -   type: LayoutBox
+                                                        name: effect_groups_box
+                                                        children:
+                                                            -   type: TextBox
+                                                                name: effect_groups
+                                                                format: number
+                                    -   type: Label
+                                        label: Design Information
+                                        children:
+                                            -   name: effect_type_between
+                                                type: RadioButton
+                                                optionName: effect_type
+                                                optionPart: between
+                                            -   name: effect_type_within
+                                                type: RadioButton
+                                                optionName: effect_type
+                                                optionPart: within
+                                            -   type: TextBox
+                                                name: design_groups
+                                                format: number
+            -   type: Content
+                name: facmeans
                 children:
-                      - type: CheckBox
-                        name: plot_to_table
-          - type: Label
-            label: Plot X-axis
-            children:
-              - type: LayoutBox
-                style: inline
+                    -   type: VariableSupplier
+                        persistentItems: false
+                        stretchFactor: 1
+                        children:
+                            -   type: TargetLayoutBox
+                                children:
+                                    -   type: VariablesListBox
+                                        name: factors
+                                        isTarget: true
+                            -   type: TargetLayoutBox
+                                children:
+                                    -   type: VariablesListBox
+                                        name: means
+                                        maxItemCount: 1
+                                        isTarget: true
+                            -   type: TargetLayoutBox
+                                children:
+                                    -   type: VariablesListBox
+                                        name: sds
+                                        maxItemCount: 1
+                                        isTarget: true
+    -   type: LayoutBox
+        margin: large
+        children:
+            -   type: Label
+                label: Parameters
                 children:
-                  - type: ComboBox
-                    name: plot_x
-                    events:
-                      change: ./common::plot_x_changed
-                  - type: TextBox
-                    name: plot_x_from
-                    format: number
-                  - type: TextBox
-                    name: plot_x_to
-                    format: number
-          - type: Label
-            label: Plot Different Curves by
-            children:
-              - type: LayoutBox
-                style: inline
-                children:
-                  - type: ComboBox
-                    name: plot_z
-                    events:
-                      change: ./common::plot_z_changed
-                  - type: TextBox
-                    name: plot_z_lines
-                    format: number
-                    enable: (!plot_z:none)
-                    events:
-                      change: ./common::plot_z_lines_changed
-                    
-          - type: LayoutBox
-            name: plot_lines_values
-            children: 
-             - type: Label
-               label: Values for each curves
-               name: plot_value_label
-               children:
-                - type: ListBox
-                  name: plot_z_value
-                  events:
-                     listItemAdded: ./common::onChange_value_added
-                     listItemRemoved: ./common::onChange_value_removed
-                  showColumnHeaders: false
-                  columns:
-                    - name: var
-                      label: Value
-                      template:
+                    -   name: power
                         type: TextBox
-
-  - type: CollapseBox
-    label: Options
-    name: panel_options
-    collapsed: true
-    stretchFactor: 1
-    children:
-      - type: LayoutBox
-        style: inline
+                        label: Minimum desired power
+                        format: number
+                        enable: (!aim:power)
+                    -   name: 'n'
+                        type: TextBox
+                        label: N (Sample size)
+                        format: number
+                        enable: (!aim:n)
+                    -   name: sig.level
+                        type: TextBox
+                        label: '&alpha; (type I error rate)'
+                        format: number
+                        enable: (!aim:alpha)
+    -   type: CollapseBox
+        label: Repeated Measures
+        name: panel_repeated
+        collapsed: true
+        stretchFactor: 1
         children:
-          - type: Label
-            label: Non-Centrality Parameter (NCP)
-            children:
-                 - name: ncp_type_model
-                   type: RadioButton
-                   optionName: ncp_type
-                   optionPart: model
-                 - name: ncp_type_liberal
-                   type: RadioButton
-                   optionName: ncp_type
-                   optionPart: liberal
-                 - name: ncp_type_strict
-                   type: RadioButton
-                   optionName: ncp_type
-                   optionPart: strict
-
-          - type: Label
-            label: Additional Info
-            name: facmeans_options
-            children:
-                - type: CheckBox
-                  name: emeans
-                - type: CheckBox
-                  name: esos
+            -   type: Supplier
+                name: rmSupplier
+                label: Factors
+                persistentItems: false
+                stretchFactor: 1
+                format: VariableLabel
+                children:
+                    -   type: TargetLayoutBox
+                        label: Repeated Measures (within)
+                        children:
+                            -   type: ListBox
+                                name: within
+                                isTarget: true
+                                valueFilter: unique
+                                template:
+                                    type: VariableLabel
+            -   type: LayoutBox
+                margin: large
+                children:
+                    -   type: TextBox
+                        name: r
+                        format: number
+    -   type: CollapseBox
+        label: Sensitivity Analysis
+        name: panel_sensitivity
+        collapsed: true
+        stretchFactor: 1
+        children:
+            -   type: LayoutBox
+                children:
+                    -   type: LayoutBox
+                        style: inline
+                        children:
+                            -   type: Label
+                                label: Plots
+                                children:
+                                    -   type: CheckBox
+                                        name: plot_contour
+                                    -   type: CheckBox
+                                        name: plot_escurve
+                                    -   type: CheckBox
+                                        name: plot_ncurve
+                            -   type: Label
+                                label: Options
+                                children:
+                                    -   name: plot_log
+                                        type: CheckBox
+                                    -   type: ComboBox
+                                        name: plot_palette
+    -   type: CollapseBox
+        label: Power Parameters plot
+        name: panel_customplot
+        collapsed: true
+        stretchFactor: 1
+        children:
+            -   type: LayoutBox
+                children:
+                    -   type: LayoutBox
+                        style: inline
+                        children:
+                            -   type: Label
+                                label: Plot Y-axis
+                                children:
+                                    -   type: LayoutBox
+                                        style: inline
+                                        children:
+                                            -   type: ComboBox
+                                                name: plot_y
+                                            -   type: CheckBox
+                                                name: plot_custom_labels
+                            -   type: Label
+                                label: Results in table
+                                children:
+                                    -   type: CheckBox
+                                        name: plot_to_table
+                    -   type: Label
+                        label: Plot X-axis
+                        children:
+                            -   type: LayoutBox
+                                style: inline
+                                children:
+                                    -   type: ComboBox
+                                        name: plot_x
+                                        events:
+                                            change: ./common::plot_x_changed
+                                    -   type: TextBox
+                                        name: plot_x_from
+                                        format: number
+                                    -   type: TextBox
+                                        name: plot_x_to
+                                        format: number
+                    -   type: Label
+                        label: Plot Different Curves by
+                        children:
+                            -   type: LayoutBox
+                                style: inline
+                                children:
+                                    -   type: ComboBox
+                                        name: plot_z
+                                        events:
+                                            change: ./common::plot_z_changed
+                                    -   type: TextBox
+                                        name: plot_z_lines
+                                        format: number
+                                        enable: (!plot_z:none)
+                                        events:
+                                            change: ./common::plot_z_lines_changed
+                    -   type: LayoutBox
+                        name: plot_lines_values
+                        children:
+                            -   type: Label
+                                label: Values for each curves
+                                name: plot_value_label
+                                children:
+                                    -   type: ListBox
+                                        name: plot_z_value
+                                        events:
+                                            listItemAdded: ./common::onChange_value_added
+                                            listItemRemoved: ./common::onChange_value_removed
+                                        showColumnHeaders: false
+                                        columns:
+                                            -   name: var
+                                                label: Value
+                                                template:
+                                                    type: TextBox
+    -   type: CollapseBox
+        label: Options
+        name: panel_options
+        collapsed: true
+        stretchFactor: 1
+        children:
+            -   type: LayoutBox
+                style: inline
+                children:
+                    -   type: Label
+                        label: Non-Centrality Parameter (NCP)
+                        children:
+                            -   name: ncp_type_model
+                                type: RadioButton
+                                optionName: ncp_type
+                                optionPart: model
+                            -   name: ncp_type_liberal
+                                type: RadioButton
+                                optionName: ncp_type
+                                optionPart: liberal
+                            -   name: ncp_type_strict
+                                type: RadioButton
+                                optionName: ncp_type
+                                optionPart: strict
+                    -   type: Label
+                        label: Additional Info
+                        name: facmeans_options
+                        children:
+                            -   type: CheckBox
+                                name: emeans
+                            -   type: CheckBox
+                                name: esos

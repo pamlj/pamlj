@@ -9,4 +9,3 @@
 #' @examples
 #' data(factorial)
 NULL
-

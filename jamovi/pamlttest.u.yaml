@@ -4,210 +4,208 @@ jus: '3.0'
 stage: 0
 compilerMode: tame
 events:
-  update: ./pamlttest::update
+    update: ./pamlttest::update
 children:
-  - type: LayoutBox
-    margin: large
-    children:
-      - type: ComboBox
-        name: aim
-  - type: ModeSelector
-    name: mode
-    stretchFactor: 1
-    children:
-      - type: Content
-        name: ttestind
+    -   type: LayoutBox
+        margin: large
         children:
-          - type: LayoutBox
-            margin: large
-            children:
-              - type: Label
-                label: Effect information
+            -   type: ComboBox
+                name: aim
+    -   type: ModeSelector
+        name: mode
+        stretchFactor: 1
+        children:
+            -   type: Content
+                name: ttestind
                 children:
-                  - name: ttestind_es
-                    type: TextBox
-                    format: number
-                    enable: (!aim:es)
-                  - name: ttestind_n
-                    type: TextBox
-                    label: N (Group 1 size)
-                    format: number
-                    enable: (!aim:n)
-                  - type: TextBox
-                    name: ttestind_nratio
-                    format: number
-      - type: Content
-        name: ttestpaired
-        children:
-          - type: LayoutBox
-            margin: large
-            children:
-              - type: Label
-                label: Effect information
+                    -   type: LayoutBox
+                        margin: large
+                        children:
+                            -   type: Label
+                                label: Effect information
+                                children:
+                                    -   name: ttestind_es
+                                        type: TextBox
+                                        format: number
+                                        enable: (!aim:es)
+                                    -   name: ttestind_n
+                                        type: TextBox
+                                        label: N (Group 1 size)
+                                        format: number
+                                        enable: (!aim:n)
+                                    -   type: TextBox
+                                        name: ttestind_nratio
+                                        format: number
+            -   type: Content
+                name: ttestpaired
                 children:
-                  - name: ttestpaired_es
-                    type: TextBox
-                    format: number
-                    enable: (!aim:es)
-                  - name: ttestpaired_n
-                    type: TextBox
-                    format: number
-                    enable: (!aim:n)
-      - type: Content
-        name: ttestone
-        children:
-          - type: LayoutBox
-            margin: large
-            children:
-              - type: Label
-                label: Effect information
+                    -   type: LayoutBox
+                        margin: large
+                        children:
+                            -   type: Label
+                                label: Effect information
+                                children:
+                                    -   name: ttestpaired_es
+                                        type: TextBox
+                                        format: number
+                                        enable: (!aim:es)
+                                    -   name: ttestpaired_n
+                                        type: TextBox
+                                        format: number
+                                        enable: (!aim:n)
+            -   type: Content
+                name: ttestone
                 children:
-                  - name: ttestone_es
-                    type: TextBox
-                    format: number
-                    enable: (!aim:es)
-                  - name: ttestone_n
-                    type: TextBox
-                    format: number
-                    enable: (!aim:n)
-  - type: LayoutBox
-    margin: large
-    children:
-      - type: Label
-        label: Parameters
+                    -   type: LayoutBox
+                        margin: large
+                        children:
+                            -   type: Label
+                                label: Effect information
+                                children:
+                                    -   name: ttestone_es
+                                        type: TextBox
+                                        format: number
+                                        enable: (!aim:es)
+                                    -   name: ttestone_n
+                                        type: TextBox
+                                        format: number
+                                        enable: (!aim:n)
+    -   type: LayoutBox
+        margin: large
         children:
-          - name: power
-            type: TextBox
-            label: Minimum desired power
-            format: number
-            enable: (!aim:power)
-          - name: sig.level
-            type: TextBox
-            label: '&alpha; (type I error rate)'
-            format: number
-          - type: ComboBox
-            name: alternative
-  - type: LayoutBox
-    margin: large
-    style: inline
-    children:
-      - type: Label
-        label: Equivalence Testing
-        children:
-          - name: is_equi
-            type: CheckBox  
-            enable: (aim:n)
-          - name: equi_limit
-            type: TextBox   
-            format: number
-            enable: (is_equi)
-      - type: Label
-        label: Options
-        children:
-          - name: explain
-            type: CheckBox  
-
-  - type: CollapseBox
-    label: Sensitivity Analysis
-    name: panel_sensitivity
-    collapsed: true
-    stretchFactor: 1
-    children:
-        - type: LayoutBox
-          children:
-            - type: LayoutBox
-              style: inline
-              children:
-              - type: Label
-                label: Plots
+            -   type: Label
+                label: Parameters
                 children:
-                  - type: CheckBox
-                    name: plot_contour
-                  - type: CheckBox
-                    name: plot_escurve
-                  - type: CheckBox
-                    name: plot_ncurve
-              - type: Label
+                    -   name: power
+                        type: TextBox
+                        label: Minimum desired power
+                        format: number
+                        enable: (!aim:power)
+                    -   name: sig.level
+                        type: TextBox
+                        label: '&alpha; (type I error rate)'
+                        format: number
+                    -   type: ComboBox
+                        name: alternative
+    -   type: LayoutBox
+        margin: large
+        style: inline
+        children:
+            -   type: Label
+                label: Equivalence Testing
+                children:
+                    -   name: is_equi
+                        type: CheckBox
+                        enable: (aim:n)
+                    -   name: equi_limit
+                        type: TextBox
+                        format: number
+                        enable: (is_equi)
+            -   type: Label
                 label: Options
                 children:
-                  - name: plot_log
-                    type: CheckBox
-                  - type: ComboBox
-                    name: plot_palette
-  - type: CollapseBox
-    label: Power Parameters plot
-    name: panel_customplot
-    collapsed: true
-    stretchFactor: 1
-    children:
-      - type: LayoutBox
+                    -   name: explain
+                        type: CheckBox
+    -   type: CollapseBox
+        label: Sensitivity Analysis
+        name: panel_sensitivity
+        collapsed: true
+        stretchFactor: 1
         children:
-          - type: LayoutBox
-            style: inline
-            children:
-              - type: Label
-                label: Plot Y-axis
+            -   type: LayoutBox
                 children:
-                  - type: LayoutBox
-                    style: inline
-                    children:
-                      - type: ComboBox
-                        name: plot_y
-                      - type: CheckBox
-                        name: plot_custom_labels
-              - type: Label
-                label: Results in table
+                    -   type: LayoutBox
+                        style: inline
+                        children:
+                            -   type: Label
+                                label: Plots
+                                children:
+                                    -   type: CheckBox
+                                        name: plot_contour
+                                    -   type: CheckBox
+                                        name: plot_escurve
+                                    -   type: CheckBox
+                                        name: plot_ncurve
+                            -   type: Label
+                                label: Options
+                                children:
+                                    -   name: plot_log
+                                        type: CheckBox
+                                    -   type: ComboBox
+                                        name: plot_palette
+    -   type: CollapseBox
+        label: Power Parameters plot
+        name: panel_customplot
+        collapsed: true
+        stretchFactor: 1
+        children:
+            -   type: LayoutBox
                 children:
-                      - type: CheckBox
-                        name: plot_to_table
-          - type: Label
-            label: Plot X-axis
-            children:
-              - type: LayoutBox
-                style: inline
-                children:
-                  - type: ComboBox
-                    name: plot_x
-                    events:
-                      change: ./common::plot_x_changed
-                  - type: TextBox
-                    name: plot_x_from
-                    format: number
-                  - type: TextBox
-                    name: plot_x_to
-                    format: number
-          - type: Label
-            label: Plot Different Curves by
-            children:
-              - type: LayoutBox
-                style: inline
-                children:
-                  - type: ComboBox
-                    name: plot_z
-                    events:
-                      change: ./common::plot_z_changed
-                  - type: TextBox
-                    name: plot_z_lines
-                    format: number
-                    enable: (!plot_z:none)
-                    events:
-                      change: ./common::plot_z_lines_changed
-                    
-          - type: LayoutBox
-            name: plot_lines_values
-            children: 
-             - type: Label
-               label: Values for each curves
-               name: plot_value_label
-               children:
-                - type: ListBox
-                  name: plot_z_value
-                  events:
-                     listItemAdded: ./common::onChange_value_added
-                     listItemRemoved: ./common::onChange_value_removed
-                  showColumnHeaders: false
-                  columns:
-                    - name: var
-                      label: Value
-                      template:
-                        type: TextBox
+                    -   type: LayoutBox
+                        style: inline
+                        children:
+                            -   type: Label
+                                label: Plot Y-axis
+                                children:
+                                    -   type: LayoutBox
+                                        style: inline
+                                        children:
+                                            -   type: ComboBox
+                                                name: plot_y
+                                            -   type: CheckBox
+                                                name: plot_custom_labels
+                            -   type: Label
+                                label: Results in table
+                                children:
+                                    -   type: CheckBox
+                                        name: plot_to_table
+                    -   type: Label
+                        label: Plot X-axis
+                        children:
+                            -   type: LayoutBox
+                                style: inline
+                                children:
+                                    -   type: ComboBox
+                                        name: plot_x
+                                        events:
+                                            change: ./common::plot_x_changed
+                                    -   type: TextBox
+                                        name: plot_x_from
+                                        format: number
+                                    -   type: TextBox
+                                        name: plot_x_to
+                                        format: number
+                    -   type: Label
+                        label: Plot Different Curves by
+                        children:
+                            -   type: LayoutBox
+                                style: inline
+                                children:
+                                    -   type: ComboBox
+                                        name: plot_z
+                                        events:
+                                            change: ./common::plot_z_changed
+                                    -   type: TextBox
+                                        name: plot_z_lines
+                                        format: number
+                                        enable: (!plot_z:none)
+                                        events:
+                                            change: ./common::plot_z_lines_changed
+                    -   type: LayoutBox
+                        name: plot_lines_values
+                        children:
+                            -   type: Label
+                                label: Values for each curves
+                                name: plot_value_label
+                                children:
+                                    -   type: ListBox
+                                        name: plot_z_value
+                                        events:
+                                            listItemAdded: ./common::onChange_value_added
+                                            listItemRemoved: ./common::onChange_value_removed
+                                        showColumnHeaders: false
+                                        columns:
+                                            -   name: var
+                                                label: Value
+                                                template:
+                                                    type: TextBox

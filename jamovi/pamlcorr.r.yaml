@@ -1,132 +1,112 @@
----
-name:  pamlcorr
+name: pamlcorr
 title: Correlation power analysis
-jrs:   "1.1"
-
+jrs: '1.1'
 items:
-
-    - name: intro
-      title: Introduction
-      type: Html
-
-    - name: extrainfo
-      title: Extra Info
-      type: Html
-      visible: false
-      
-    - name: issues
-      title: Issues
-      type: Html
-      visible: false
- 
-    - name:  powertab
-      title: A Priori Power Analysis
-      type: Table
-      rows:  1
-      refs: 
-         - pamlj
-      clearWith:
-        - es
-        - power
-        - n
-        - sig.level
-        - aim
-        - alternative
-      columns: 
-        - name: n
-          title: 'N'
-          type: integer
-        - name: es
-          title: 'Effect size'
-          type: number
-        - name: power
-          title: 'Power'
-          type: number
-        - name: sig.level
-          title: α
-          type: number
-
-
-    - name:  powerbyes
-      title: Power by Effect Size
-      type: Table
-      rows:  4
-      clearWith:
-        - es
-        - power
-        - n
-        - sig.level
-        - aim
-        - alternative
-        
-      columns:
-        - name: es
-          title: 'True effect size'
-          type: number
-
-        - name: power
-          title: 'Power to detect'
-          type: text
-
-        - name: desc
-          title: 'Description'
-          type: text
-
-
-    - name: plotnotes
-      title: Plot notes
-      type: Html
-      visible: false
-
-    - name: powerContour
-      title: Power Contour
-      type: Image
-      width:  500
-      height: 350
-      renderFun: .plot_contour
-      visible: (plot_contour)
-
-    - name: powerEscurve
-      title: Power Curve by Effect Size
-      type: Image
-      width:  400
-      height: 350
-      renderFun: .plot_escurve
-      visible: (plot_escurve)
-
-    - name: powerNcurve
-      title: Power Curve by N
-      type: Image
-      width:  400
-      height: 350
-      renderFun: .plot_ncurve
-      visible: (plot_ncurve)
-
-    - name: powerCustom
-      title: Power Parameters
-      type: Image
-      width:  450
-      height: 350
-      renderFun: .plot_custom
-      visible: false
-      
-    - name: customnotes
-      title: Plot notes
-      type: Html
-      visible: false
-
-    - name:  customtable
-      title: Power Analysis parameters
-      type: Table
-      visible: (plot_to_table && !plot_x:none && !plot_y:none)
-      columns: 
-        - name:  y
-          title: 'Y'
-          type: number
-        - name:  x
-          title: "X"
-          type: number
-        - name:  z
-          title: "Z"
-          type: number
-          visible: false
+    -   name: intro
+        title: Introduction
+        type: Html
+    -   name: extrainfo
+        title: Extra Info
+        type: Html
+        visible: false
+    -   name: issues
+        title: Issues
+        type: Html
+        visible: false
+    -   name: powertab
+        title: A Priori Power Analysis
+        type: Table
+        rows: 1
+        refs: pamlj
+        clearWith:
+            - es
+            - power
+            - false
+            - sig.level
+            - aim
+            - alternative
+        columns:
+            -   name: false
+                title: 'N'
+                type: integer
+            -   name: es
+                title: Effect size
+                type: number
+            -   name: power
+                title: Power
+                type: number
+            -   name: sig.level
+                title: α
+                type: number
+    -   name: powerbyes
+        title: Power by Effect Size
+        type: Table
+        rows: 4
+        clearWith:
+            - es
+            - power
+            - false
+            - sig.level
+            - aim
+            - alternative
+        columns:
+            -   name: es
+                title: True effect size
+                type: number
+            -   name: power
+                title: Power to detect
+                type: text
+            -   name: desc
+                title: Description
+                type: text
+    -   name: plotnotes
+        title: Plot notes
+        type: Html
+        visible: false
+    -   name: powerContour
+        title: Power Contour
+        type: Image
+        width: 500
+        height: 350
+        renderFun: .plot_contour
+        visible: (plot_contour)
+    -   name: powerEscurve
+        title: Power Curve by Effect Size
+        type: Image
+        width: 400
+        height: 350
+        renderFun: .plot_escurve
+        visible: (plot_escurve)
+    -   name: powerNcurve
+        title: Power Curve by N
+        type: Image
+        width: 400
+        height: 350
+        renderFun: .plot_ncurve
+        visible: (plot_ncurve)
+    -   name: powerCustom
+        title: Power Parameters
+        type: Image
+        width: 450
+        height: 350
+        renderFun: .plot_custom
+        visible: false
+    -   name: customnotes
+        title: Plot notes
+        type: Html
+        visible: false
+    -   name: customtable
+        title: Power Analysis parameters
+        type: Table
+        visible: (plot_to_table && !plot_x:none && !plot_y:none)
+        columns:
+            -   name: true
+                title: 'Y'
+                type: number
+            -   name: x
+                title: X
+                type: number
+            -   name: z
+                title: Z
+                type: number
+                visible: false

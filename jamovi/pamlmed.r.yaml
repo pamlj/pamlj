@@ -1,295 +1,268 @@
----
-name:  pamlmed
-title: Mediation 
-jrs:   "1.1"
-
+name: pamlmed
+title: Mediation
+jrs: '1.1'
 items:
-
-    - name: intro
-      title: Introduction
-      type: Html
-
-    - name: extrainfo
-      title: Extra Info
-      type: Html
-      visible: false
-
-    - name: issues
-      title: Issues
-      type: Html
-      visible: false
-
-    - name: initnotes
-      type: Html
-      visible: false
-      
-    - name: diagram
-      title: ""
-      type: Image
-      width:  500
-      height: 400
-      renderFun: .plot_diagram
-      visible: (diagram)
-      clearWith:
-           - a
-           - b
-           - c
-           - a1
-           - b1
-           - a2
-           - b2
-           - a3
-           - b3
-           - r12
-           - r13
-           - r23
-           - d1
-           - mode
-           - cprime
-           - cprime2
-           - model_type
-
-    - name:  powertab
-      title: A Priori Power Analysis
-      type: Table
-      rows:  1
-      refs: 
-         - pamlj
-      clearWith:
-           - a
-           - b
-           - c
-           - a1
-           - b1
-           - a2
-           - b2
-           - a3
-           - b3
-           - r12
-           - r13
-           - r23
-           - d1
-           - aim
-           - mode
-           - cprime
-           - cprime2
-           - model_type
-           - power
-           - n
-           - sig.level
-           - aim
-           - alternative
-           - test
-           - mcR
-           - parallel
-           - seed
-           - set_seed
-      columns: 
-        - name: effect
-          title: 'Effect'
-          type: text
-          visible: (mode:medcomplex)
-        - name: n
-          title: 'N'
-          type: integer
-        - name: a
-          title: 'X->M (a)'
-          type: number
-        - name: b
-          title: 'M->Y (b)'
-          type: number
-        - name: cprime
-          title: 'X->Y (c)'
-          type: number
-
-        - name: es
-          title: 'Effect size'
-          type: number
-        - name: power
-          title: 'Power'
-          type: number
-        - name: sig.level
-          title: α
-          type: number
-
-    - name:  effectsize
-      title: Computed Parameters
-      type: Table
-      clearWith:
-           - a
-           - b
-           - c
-           - a1
-           - b1
-           - a2
-           - b2
-           - a3
-           - b3
-           - r12
-           - r13
-           - r22
-           - d1
-           - aim
-           - mode
-           - cprime
-           - cprime2
-           - model_type
-           - aim
-           - mode
-           - power
-           - n
-           - sig.level
-           - aim
-           - alternative
-           - test
-           - mcR
-           - parallel
-           - seed
-           - set_seed
-
-      columns: 
-        - name: index
-          title: 'Index'
-          type: text
-        - name: value
-          title: 'Value'
-          type: number
-
-
-    - name:  powerbyn
-      title: Power by Sample size
-      type: Table
-      rows:  4
-      visible: (table_pwbyn)
-      clearWith:
-           - a
-           - b
-           - c
-           - a1
-           - b1
-           - a2
-           - b2
-           - a3
-           - b3
-           - r12
-           - r13
-           - r23
-           - d1
-           - aim
-           - mode
-           - cprime
-           - cprime2
-           - model_type
-           - power
-           - n
-           - sig.level
-           - aim
-           - alternative
-           - test
-           - seed
-           - set_seed
-
-      columns:
-        - name: n
-          title: 'Sample size'
-          type: integer
-
-        - name: power
-          title: 'Power to detect'
-          type: text
-
-        - name: desc
-          title: 'Description'
-          type: text
-
-
-    - name:  powerxy
-      title: Power Analysis for X Y effect without mediators (c)
-      type: Table
-      rows:  1
-      visible: (test_c)
-      refs: 
-         - pamlj
-      clearWith:
-           - a
-           - b
-           - c
-           - a1
-           - b1
-           - a2
-           - b2
-           - a3
-           - b3
-           - r12
-           - r13
-           - r23
-           - d1
-           - aim
-           - mode
-           - cprime
-           - cprime2
-           - power
-           - n
-           - sig.level
-           - aim
-           - alternative
-
-      columns: 
-        - name: beta
-          title: β
-          type: number
-        - name: n
-          title: 'N'
-          type: integer
-        - name: power
-          title: 'Power'
-          type: number
-        - name: sig.level
-          title: α
-          type: number
-
-
-    - name: plotnotes
-      title: Plot notes
-      type: Html
-      visible: false
-
-    - name: powerNcurve
-      title: Power Curve by N
-      type: Image
-      width:  400
-      height: 350
-      renderFun: .plot_ncurve
-      visible: (plot_ncurve)
-
-    - name: powerCustom
-      title: Power Parameters
-      type: Image
-      width:  450
-      height: 350
-      renderFun: .plot_custom
-      visible: false
-      
-    - name: customnotes
-      title: Plot notes
-      type: Html
-      visible: false
-
-    - name:  customtable
-      title: Power Analysis parameters
-      type: Table
-      visible: (plot_to_table && !plot_x:none && !plot_y:none)
-      columns: 
-        - name:  y
-          title: 'Y'
-          type: number
-        - name:  x
-          title: "X"
-          type: number
-        - name:  z
-          title: "Z"
-          type: number
-          visible: false
-        - name: es
-          title: ME
-          type: Number
+    -   name: intro
+        title: Introduction
+        type: Html
+    -   name: extrainfo
+        title: Extra Info
+        type: Html
+        visible: false
+    -   name: issues
+        title: Issues
+        type: Html
+        visible: false
+    -   name: initnotes
+        type: Html
+        visible: false
+    -   name: diagram
+        title: ''
+        type: Image
+        width: 500
+        height: 400
+        renderFun: .plot_diagram
+        visible: (diagram)
+        clearWith:
+            - a
+            - b
+            - c
+            - a1
+            - b1
+            - a2
+            - b2
+            - a3
+            - b3
+            - r12
+            - r13
+            - r23
+            - d1
+            - mode
+            - cprime
+            - cprime2
+            - model_type
+    -   name: powertab
+        title: A Priori Power Analysis
+        type: Table
+        rows: 1
+        refs: pamlj
+        clearWith:
+            - a
+            - b
+            - c
+            - a1
+            - b1
+            - a2
+            - b2
+            - a3
+            - b3
+            - r12
+            - r13
+            - r23
+            - d1
+            - aim
+            - mode
+            - cprime
+            - cprime2
+            - model_type
+            - power
+            - false
+            - sig.level
+            - aim
+            - alternative
+            - test
+            - mcR
+            - parallel
+            - seed
+            - set_seed
+        columns:
+            -   name: effect
+                title: Effect
+                type: text
+                visible: (mode:medcomplex)
+            -   name: false
+                title: 'N'
+                type: integer
+            -   name: a
+                title: X->M (a)
+                type: number
+            -   name: b
+                title: M->Y (b)
+                type: number
+            -   name: cprime
+                title: X->Y (c)
+                type: number
+            -   name: es
+                title: Effect size
+                type: number
+            -   name: power
+                title: Power
+                type: number
+            -   name: sig.level
+                title: α
+                type: number
+    -   name: effectsize
+        title: Computed Parameters
+        type: Table
+        clearWith:
+            - a
+            - b
+            - c
+            - a1
+            - b1
+            - a2
+            - b2
+            - a3
+            - b3
+            - r12
+            - r13
+            - r22
+            - d1
+            - aim
+            - mode
+            - cprime
+            - cprime2
+            - model_type
+            - aim
+            - mode
+            - power
+            - false
+            - sig.level
+            - aim
+            - alternative
+            - test
+            - mcR
+            - parallel
+            - seed
+            - set_seed
+        columns:
+            -   name: index
+                title: Index
+                type: text
+            -   name: value
+                title: Value
+                type: number
+    -   name: powerbyn
+        title: Power by Sample size
+        type: Table
+        rows: 4
+        visible: (table_pwbyn)
+        clearWith:
+            - a
+            - b
+            - c
+            - a1
+            - b1
+            - a2
+            - b2
+            - a3
+            - b3
+            - r12
+            - r13
+            - r23
+            - d1
+            - aim
+            - mode
+            - cprime
+            - cprime2
+            - model_type
+            - power
+            - false
+            - sig.level
+            - aim
+            - alternative
+            - test
+            - seed
+            - set_seed
+        columns:
+            -   name: false
+                title: Sample size
+                type: integer
+            -   name: power
+                title: Power to detect
+                type: text
+            -   name: desc
+                title: Description
+                type: text
+    -   name: powerxy
+        title: Power Analysis for X Y effect without mediators (c)
+        type: Table
+        rows: 1
+        visible: (test_c)
+        refs: pamlj
+        clearWith:
+            - a
+            - b
+            - c
+            - a1
+            - b1
+            - a2
+            - b2
+            - a3
+            - b3
+            - r12
+            - r13
+            - r23
+            - d1
+            - aim
+            - mode
+            - cprime
+            - cprime2
+            - power
+            - false
+            - sig.level
+            - aim
+            - alternative
+        columns:
+            -   name: beta
+                title: β
+                type: number
+            -   name: false
+                title: 'N'
+                type: integer
+            -   name: power
+                title: Power
+                type: number
+            -   name: sig.level
+                title: α
+                type: number
+    -   name: plotnotes
+        title: Plot notes
+        type: Html
+        visible: false
+    -   name: powerNcurve
+        title: Power Curve by N
+        type: Image
+        width: 400
+        height: 350
+        renderFun: .plot_ncurve
+        visible: (plot_ncurve)
+    -   name: powerCustom
+        title: Power Parameters
+        type: Image
+        width: 450
+        height: 350
+        renderFun: .plot_custom
+        visible: false
+    -   name: customnotes
+        title: Plot notes
+        type: Html
+        visible: false
+    -   name: customtable
+        title: Power Analysis parameters
+        type: Table
+        visible: (plot_to_table && !plot_x:none && !plot_y:none)
+        columns:
+            -   name: true
+                title: 'Y'
+                type: number
+            -   name: x
+                title: X
+                type: number
+            -   name: z
+                title: Z
+                type: number
+                visible: false
+            -   name: es
+                title: ME
+                type: Number

@@ -1,251 +1,199 @@
----
 name: pamlttest
 title: T-Test
 menuGroup: Power
-version: '0.2.0'
+version: 0.2.0
 jas: '1.2'
 export: true
 completeWhenFilled: false
 description:
     main: |
-           Something here
-
+        Something here
 options:
-
-    - name: aim
-      title: Calculate 
-      type:  List
-      default: n
-      options:
-        - name:  n
-          title: N
-        - name: power
-          title: Power
-        - name: es
-          title: Effect Size
-
-    - name: mode
-      title: "T-Test type"
-      type: List
-      options:
-            - name: ttestind
-              title: Independent samples
-            - name: ttestpaired
-              title: Paired samples
-            - name: ttestone
-              title: One sample
-      default: ttestind
-
-### this is for mode ttestind       
-    - name: ttestind_es
-      title: "Expected Cohen's d (&delta;)"
-      type:  Number
-      default: .5
-
-    - name: ttestind_n
-      title: "N of group 1"
-      type:  Number
-      default: 20
-
-    - name: ttestind_nratio
-      title: "Relatve size of groups"
-      type:  Number
-      default: 1
-
-#### this is for mode ttestpaired
-
-    - name: ttestpaired_es
-      title: "Expected Cohen'a d (&delta;)"
-      type:  Number
-      default: .5
-
-    - name: ttestpaired_n
-      title: "N"
-      type:  Number
-      default: 20
-
-#### this is for mode ttestone
-
-    - name: ttestone_es
-      title: "Expected Cohen'a d (&delta;)"
-      type:  Number
-      default: .5
-
-    - name: ttestone_n
-      title: "N"
-      type:  Number
-      default: 20
-
-## equivalence test
-
-    - name: is_equi
-      title: "Perform equivalence testing"
-      type:  Bool
-      default: false
-
-    - name: equi_limit
-      title: "Equivalence limit"
-      type:  Number
-      default: 0.1
-
-
-### this is in general
-    - name: power
-      title: Minimal desired power 
-      type:  Number
-      default: .90
-
-    - name: sig.level
-      title: Alpha (Type I rate)  
-      type:  Number
-      default: .05
-
-    - name: alternative
-      title: Tails  
-      type:  List
-      default: two.sided
-      options:
-        - name:  two.sided
-          title: Two-tailed
-        - name:  greater
-          title: One-tailed
-          
-    - name: plot_contour
-      title: Power contour plot
-      type: Bool
-      default: false
-
-    - name: plot_escurve
-      title: Power curve by effect size
-      type: Bool
-      default: false
-      
-    - name: plot_ncurve
-      title: Power curve by N
-      type: Bool
-      default: false
-
-    - name: plot_log
-      title: Log Scale (when needed)
-      type: Bool
-      default: true
-
-    - name: plot_palette
-      title: Colors
-      type: List
-      default: viridis
-      options:
-             - name:  viridis
-               title: Viridis
-             - name:  rocket
-               title: Rocket
-             - name:  mako
-               title: Mako
-             - name:  cividis
-               title: Cividis
-             - name:  plasma
-               title: Plasma
-             - name:  turbo
-               title: Turbo
-             - name:  husky
-               title: Husky (grey)
-
-### custom plots 
-    
-
-    - name: plot_x
-      type: List
-      title: "X-axis values"
-      default: none
-      options:
-        - name: none
-          title: "----"
-        - name: n
-          title: N
-        - name: power
-          title: Power
-        - name: es
-          title: Effect size
-
-    - name: plot_y
-      type: List
-      title: "Y-axis values"
-      default: none
-      options:
-        - name: none
-          title: "-----"
-        - name: n
-          title: N
-        - name: power
-          title: Power
-        - name: es
-          title: Effect size
-
-    - name: plot_custom_labels
-      type: Bool
-      title: "Show values"
-      default: false
-
-    - name: plot_z
-      default: none
-      type: List
-      title: "Parameter"
-      options:
-        - name: none
-          title: "-----"
-        - name: n
-          title: N
-        - name: power
-          title: Power
-        - name: es
-          title: Effect size
-        - name: sig.level
-          title: "Type I error"
-
-
-
-    - name: plot_x_from
-      type: Number
-      title: "From"
-      default: 0
-    - name: plot_x_to
-      type: Number
-      title: "To"
-      default: 0
-
-
-    - name: plot_z_lines
-      type: Number
-      title: "# of curves"
-      default: 0
-
-    - name: plot_z_value
-      type: Array
-   #   hidden: true
-      default: []
-      template:
-          type: String
-
-
-    - name: plot_to_table
-      type: Bool
-      title: "Show table"
-      default: false
-
-    - name: explain
-      type: Bool
-      title: "Explanatory text"
-      default: false
-
-    - name: .caller
-      type: String
-      default: ttest
-      hidden: true
-
-    - name: .interface
-      type: String
-      default: jamovi
-      hidden: true
-
-...
-
+    -   name: aim
+        title: Calculate
+        type: List
+        default: false
+        options:
+            -   name: false
+                title: false
+            -   name: power
+                title: Power
+            -   name: es
+                title: Effect Size
+    -   name: mode
+        title: T-Test type
+        type: List
+        options:
+            -   name: ttestind
+                title: Independent samples
+            -   name: ttestpaired
+                title: Paired samples
+            -   name: ttestone
+                title: One sample
+        default: ttestind
+    -   name: ttestind_es
+        title: Expected Cohen's d (&delta;)
+        type: Number
+        default: 0.5
+    -   name: ttestind_n
+        title: N of group 1
+        type: Number
+        default: 20
+    -   name: ttestind_nratio
+        title: Relatve size of groups
+        type: Number
+        default: 1
+    -   name: ttestpaired_es
+        title: Expected Cohen'a d (&delta;)
+        type: Number
+        default: 0.5
+    -   name: ttestpaired_n
+        title: 'N'
+        type: Number
+        default: 20
+    -   name: ttestone_es
+        title: Expected Cohen'a d (&delta;)
+        type: Number
+        default: 0.5
+    -   name: ttestone_n
+        title: 'N'
+        type: Number
+        default: 20
+    -   name: is_equi
+        title: Perform equivalence testing
+        type: Bool
+        default: false
+    -   name: equi_limit
+        title: Equivalence limit
+        type: Number
+        default: 0.1
+    -   name: power
+        title: Minimal desired power
+        type: Number
+        default: 0.9
+    -   name: sig.level
+        title: Alpha (Type I rate)
+        type: Number
+        default: 0.05
+    -   name: alternative
+        title: Tails
+        type: List
+        default: two.sided
+        options:
+            -   name: two.sided
+                title: Two-tailed
+            -   name: greater
+                title: One-tailed
+    -   name: plot_contour
+        title: Power contour plot
+        type: Bool
+        default: false
+    -   name: plot_escurve
+        title: Power curve by effect size
+        type: Bool
+        default: false
+    -   name: plot_ncurve
+        title: Power curve by N
+        type: Bool
+        default: false
+    -   name: plot_log
+        title: Log Scale (when needed)
+        type: Bool
+        default: true
+    -   name: plot_palette
+        title: Colors
+        type: List
+        default: viridis
+        options:
+            -   name: viridis
+                title: Viridis
+            -   name: rocket
+                title: Rocket
+            -   name: mako
+                title: Mako
+            -   name: cividis
+                title: Cividis
+            -   name: plasma
+                title: Plasma
+            -   name: turbo
+                title: Turbo
+            -   name: husky
+                title: Husky (grey)
+    -   name: plot_x
+        type: List
+        title: X-axis values
+        default: none
+        options:
+            -   name: none
+                title: '----'
+            -   name: false
+                title: false
+            -   name: power
+                title: Power
+            -   name: es
+                title: Effect size
+    -   name: plot_y
+        type: List
+        title: Y-axis values
+        default: none
+        options:
+            -   name: none
+                title: '-----'
+            -   name: false
+                title: false
+            -   name: power
+                title: Power
+            -   name: es
+                title: Effect size
+    -   name: plot_custom_labels
+        type: Bool
+        title: Show values
+        default: false
+    -   name: plot_z
+        default: none
+        type: List
+        title: Parameter
+        options:
+            -   name: none
+                title: '-----'
+            -   name: false
+                title: false
+            -   name: power
+                title: Power
+            -   name: es
+                title: Effect size
+            -   name: sig.level
+                title: Type I error
+    -   name: plot_x_from
+        type: Number
+        title: From
+        default: 0
+    -   name: plot_x_to
+        type: Number
+        title: To
+        default: 0
+    -   name: plot_z_lines
+        type: Number
+        title: '# of curves'
+        default: 0
+    -   name: plot_z_value
+        type: Array
+        default: []
+        template:
+            type: String
+    -   name: plot_to_table
+        type: Bool
+        title: Show table
+        default: false
+    -   name: explain
+        type: Bool
+        title: Explanatory text
+        default: false
+    -   name: .caller
+        type: String
+        default: ttest
+        hidden: true
+    -   name: .interface
+        type: String
+        default: jamovi
+        hidden: true

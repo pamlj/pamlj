@@ -1,388 +1,321 @@
----
 name: pamlmed
-title: Mediation 
+title: Mediation
 menuGroup: Power
-version: '0.5.0'
+version: 0.5.0
 jas: '1.2'
 export: true
 completeWhenFilled: false
 description:
     main: |
-           Something here
-
+        Something here
 options:
-
-
-
-    - name: aim
-      title: Calculate 
-      type:  List
-      default: n
-      options:
-        - name:  n
-          title: N
-        - name: power
-          title: Power
-        - name: es
-          title: Effect Size
-      description:
-                R: |
-                        The aim of the analysis: `n` (default) for sample size, `power` to estimate power, `es` for effect size (correlation)
-                ui: |
-                        The aim of the analysis: `N` (default) for sample size, `Power` to estimate power, `Effect Size` for effect size (correlation)
-
-    - name: mode
-      title: "Models"
-      type: List
-      options:
-            - name: medsimple 
-              title: Simple (3 variables)
-            - name: medcomplex
-              title: Complex (multiple mediators)
-      default: medsimple
-
-## mode simple
-
-    - name: a
-      title: X to Mediator effect (a) 
-      type:  Number
-      default: .3
-      description:
-                R: |
-                        The expected standardized effect of the independent variable on the mediator
-    - name: b
-      title: Mediator to Y effect (b) 
-      type:  Number
-      default: .3
-      description:
-                R: |
-                        The expected standardized effect of the independent variable on the mediator
-
-    - name: cprime
-      title: X to Y effect (c') 
-      type:  Number
-      default: 0
-      description:
-                R: |
-                        The expected standardized effect of the independent variable on the mediator
-
-
-## mode complex
-
-    - name: model_type
-      title: "Model type"
-      type: List
-      options:
-            - name: twomeds
-              title: Two parallel mediators
-            - name: threemeds 
-              title: Three parallel mediators
-            - name: twoserial 
-              title: Two serial mediators
-      default: twomeds
-
-    - name: a1   
-      title: X to M1 (a1) 
-      type:  String
-      default: ""
-      description:
-                R: |
-                        The expected standardized effect of the independent variable on mediator 1
-    - name: b1
-      title: M1 to Y (b1) 
-      type:  String
-      default: ""
-      description:
-                R: |
-                        The expected standardized effect of the independent variable on mediator 1
-
-    - name: a2   
-      title: X to M2 (a2) 
-      type:  String
-      default: ""
-      description:
-                R: |
-                        The expected standardized effect of the independent variable on mediator 1
-    - name: b2
-      title: M2 to Y (b2) 
-      type:  String
-      default: ""
-      description:
-                R: |
-                        The expected standardized effect of the independent variable on mediator 1
-
-    - name: a3   
-      title: X to M3 (a3) 
-      type:  String
-      default: ""
-      description:
-                R: |
-                        The expected standardized effect of the independent variable on mediator 1
-    - name: b3
-      title: M3 to Y (b3) 
-      type:  String
-      default: ""
-      description:
-                R: |
-                        The expected standardized effect of the independent variable on mediator 1
-
-    - name: d1
-      title: M1 to M2 (d1) 
-      type:  String
-      default: ""
-      description:
-                R: |
-                        The expected standardized effect of the independent variable on mediator 1
-
-    - name: d2
-      title: M2 to M3 (d2) 
-      type:  String
-      default: ""
-      description:
-                R: |
-                        The expected standardized effect of the independent variable on mediator 1
-
-    - name: r12
-      title: r(12) 
-      type:  String
-      default: ""
-      description:
-                R: |
-                        The expected standardized effect of the independent variable on mediator 1
-    - name: r13
-      title: r(13) 
-      type:  String
-      default: ""
-      description:
-                R: |
-                        The expected standardized effect of the independent variable on mediator 1
-    - name: r23
-      title: r(23) 
-      type:  String
-      default: ""
-      description:
-                R: |
-                        The expected standardized effect of the independent variable on mediator 1
-
-    - name: cprime2
-      title: X to Y (c') 
-      type:  Number
-      default: 0
-      description:
-                R: |
-                        The expected standardized effect of the independent variable on the mediator
-
-
-
-    - name: power
-      title: Minimal desired power 
-      type:  Number
-      default: .90
-      description:
-                R: |
-                        Minimal desired power 
-
-    - name: n
-      title: N 
-      type:  Number
-      default: 100
-      description:
-                R: |
-                        Sample size 
-    - name: sig.level
-      title: Alpha (Type I rate)  
-      type:  Number
-      default: .05
-      description:
-                R: |
-                        Type I error rate (significance cut-off or alpha) 
-
-    - name: alternative
-      title: Tails  
-      type:  List
-      default: two.sided
-      options:
-        - name:  two.sided
-          title: Two-tailed
-        - name:  one.sided
-          title: One-tailed
-
+    -   name: aim
+        title: Calculate
+        type: List
+        default: false
+        options:
+            -   name: false
+                title: false
+            -   name: power
+                title: Power
+            -   name: es
+                title: Effect Size
+        description:
+            R: |
+                The aim of the analysis: `n` (default) for sample size, `power` to estimate power, `es` for effect size (correlation)
+            ui: |
+                The aim of the analysis: `N` (default) for sample size, `Power` to estimate power, `Effect Size` for effect size (correlation)
+    -   name: mode
+        title: Models
+        type: List
+        options:
+            -   name: medsimple
+                title: Simple (3 variables)
+            -   name: medcomplex
+                title: Complex (multiple mediators)
+        default: medsimple
+    -   name: a
+        title: X to Mediator effect (a)
+        type: Number
+        default: 0.3
+        description:
+            R: |
+                The expected standardized effect of the independent variable on the mediator
+    -   name: b
+        title: Mediator to Y effect (b)
+        type: Number
+        default: 0.3
+        description:
+            R: |
+                The expected standardized effect of the independent variable on the mediator
+    -   name: cprime
+        title: X to Y effect (c')
+        type: Number
+        default: 0
+        description:
+            R: |
+                The expected standardized effect of the independent variable on the mediator
+    -   name: model_type
+        title: Model type
+        type: List
+        options:
+            -   name: twomeds
+                title: Two parallel mediators
+            -   name: threemeds
+                title: Three parallel mediators
+            -   name: twoserial
+                title: Two serial mediators
+        default: twomeds
+    -   name: a1
+        title: X to M1 (a1)
+        type: String
+        default: ''
+        description:
+            R: |
+                The expected standardized effect of the independent variable on mediator 1
+    -   name: b1
+        title: M1 to Y (b1)
+        type: String
+        default: ''
+        description:
+            R: |
+                The expected standardized effect of the independent variable on mediator 1
+    -   name: a2
+        title: X to M2 (a2)
+        type: String
+        default: ''
+        description:
+            R: |
+                The expected standardized effect of the independent variable on mediator 1
+    -   name: b2
+        title: M2 to Y (b2)
+        type: String
+        default: ''
+        description:
+            R: |
+                The expected standardized effect of the independent variable on mediator 1
+    -   name: a3
+        title: X to M3 (a3)
+        type: String
+        default: ''
+        description:
+            R: |
+                The expected standardized effect of the independent variable on mediator 1
+    -   name: b3
+        title: M3 to Y (b3)
+        type: String
+        default: ''
+        description:
+            R: |
+                The expected standardized effect of the independent variable on mediator 1
+    -   name: d1
+        title: M1 to M2 (d1)
+        type: String
+        default: ''
+        description:
+            R: |
+                The expected standardized effect of the independent variable on mediator 1
+    -   name: d2
+        title: M2 to M3 (d2)
+        type: String
+        default: ''
+        description:
+            R: |
+                The expected standardized effect of the independent variable on mediator 1
+    -   name: r12
+        title: r(12)
+        type: String
+        default: ''
+        description:
+            R: |
+                The expected standardized effect of the independent variable on mediator 1
+    -   name: r13
+        title: r(13)
+        type: String
+        default: ''
+        description:
+            R: |
+                The expected standardized effect of the independent variable on mediator 1
+    -   name: r23
+        title: r(23)
+        type: String
+        default: ''
+        description:
+            R: |
+                The expected standardized effect of the independent variable on mediator 1
+    -   name: cprime2
+        title: X to Y (c')
+        type: Number
+        default: 0
+        description:
+            R: |
+                The expected standardized effect of the independent variable on the mediator
+    -   name: power
+        title: Minimal desired power
+        type: Number
+        default: 0.9
+        description:
+            R: "Minimal desired power \n"
+    -   name: false
+        title: false
+        type: Number
+        default: 100
+        description:
+            R: "Sample size \n"
+    -   name: sig.level
+        title: Alpha (Type I rate)
+        type: Number
+        default: 0.05
+        description:
+            R: "Type I error rate (significance cut-off or alpha) \n"
+    -   name: alternative
+        title: Tails
+        type: List
+        default: two.sided
+        options:
+            -   name: two.sided
+                title: Two-tailed
+            -   name: one.sided
+                title: One-tailed
     -   name: test
         type: List
         default: joint
         options:
-        -       name: joint
+            -   name: joint
                 title: Joint Significance
-        -       name: sobel
+            -   name: sobel
                 title: Sobel
-        -       name: mc
+            -   name: mc
                 title: Monte Carlo (slow)
-
     -   name: mcR
         title: Number of simulations
         type: Number
         default: 1000
-
     -   name: parallel
         title: Parallel computation
         type: Bool
         default: false
-
     -   name: set_seed
         title: Use a seed
         type: Bool
         default: false
-
     -   name: seed
         title: Seed
         type: Number
         default: 42
-
     -   name: sim_ttest
         title: Assume t-test
         type: Bool
         default: false
-
-
     -   name: table_pwbyn
         title: Power quantiles by N
         type: Bool
         default: true
-
-
-    - name: plot_ncurve
-      title: Power curve by N
-      type: Bool
-      default: false
-
-    - name: plot_log
-      title: Log Scale (when needed)
-      type: Bool
-      default: false
-      
-    - name: plot_palette
-      title: Colors
-      type: List
-      default: viridis
-      options:
-             - name:  viridis
-               title: Viridis
-             - name:  rocket
-               title: Rocket
-             - name:  mako
-               title: Mako
-             - name:  cividis
-               title: Cividis
-             - name:  plasma
-               title: Plasma
-             - name:  turbo
-               title: Turbo
-             - name:  husky
-               title: Husky (grey)
-
-### custom plots 
-
-
-
-    - name: plot_x
-      type: List
-      title: "X-axis values"
-      default: none
-      options:
-        - name: none
-          title: "----"
-        - name: n
-          title: N
-        - name: power
-          title: Power
-
-    - name: plot_y
-      type: List
-      title: "Y-axis values"
-      default: none
-      options:
-        - name: none
-          title: "-----"
-        - name: n
-          title: N
-        - name: power
-          title: Power
-
-    - name: plot_custom_labels
-      type: Bool
-      title: "Show values"
-      default: false
-
-    - name: plot_z
-      default: none
-      type: List
-      title: "Parameter"
-      options:
-        - name: none
-          title: "-----"
-        - name: sig.level
-          title: "Type I error"
-
-    - name: plot_x_from
-      type: Number
-      title: "From"
-      default: 0
-    - name: plot_x_to
-      type: Number
-      title: "To"
-      default: 0
-
-
-    - name: plot_z_lines
-      type: Number
-      title: "Number of curves"
-      default: 1
-      min: 1
-
-    - name: plot_z_value
-      type: Array
-   #   hidden: true
-      default: []
-      template:
-          type: String
-
-    - name: plot_to_table
-      type: Bool
-      title: "Show table"
-      default: false
-
-    - name: test_c
-      type: Bool
-      title: "Test X-Y effect (w/o mediator(s))"
-      default: false
-
-
-    - name: explain
-      type: Bool
-      title: "Explanatory text"
-      default: false
-
-    - name: diagram
-      type: Bool
-      title: "Path diagram"
-      default: true
-
-    - name: .interface
-      type: String
-      default: jamovi
-      hidden: true
-      description:
-                R: |
-                        Used for internal purposes 
-
-    - name: .caller
-      type: String
-      default: mediation
-      hidden: true
-      description:
-                R: |
-                        Used for internal purposes 
-
-
-...
-
+    -   name: plot_ncurve
+        title: Power curve by N
+        type: Bool
+        default: false
+    -   name: plot_log
+        title: Log Scale (when needed)
+        type: Bool
+        default: false
+    -   name: plot_palette
+        title: Colors
+        type: List
+        default: viridis
+        options:
+            -   name: viridis
+                title: Viridis
+            -   name: rocket
+                title: Rocket
+            -   name: mako
+                title: Mako
+            -   name: cividis
+                title: Cividis
+            -   name: plasma
+                title: Plasma
+            -   name: turbo
+                title: Turbo
+            -   name: husky
+                title: Husky (grey)
+    -   name: plot_x
+        type: List
+        title: X-axis values
+        default: none
+        options:
+            -   name: none
+                title: '----'
+            -   name: false
+                title: false
+            -   name: power
+                title: Power
+    -   name: plot_y
+        type: List
+        title: Y-axis values
+        default: none
+        options:
+            -   name: none
+                title: '-----'
+            -   name: false
+                title: false
+            -   name: power
+                title: Power
+    -   name: plot_custom_labels
+        type: Bool
+        title: Show values
+        default: false
+    -   name: plot_z
+        default: none
+        type: List
+        title: Parameter
+        options:
+            -   name: none
+                title: '-----'
+            -   name: sig.level
+                title: Type I error
+    -   name: plot_x_from
+        type: Number
+        title: From
+        default: 0
+    -   name: plot_x_to
+        type: Number
+        title: To
+        default: 0
+    -   name: plot_z_lines
+        type: Number
+        title: Number of curves
+        default: 1
+        min: 1
+    -   name: plot_z_value
+        type: Array
+        default: []
+        template:
+            type: String
+    -   name: plot_to_table
+        type: Bool
+        title: Show table
+        default: false
+    -   name: test_c
+        type: Bool
+        title: Test X-Y effect (w/o mediator(s))
+        default: false
+    -   name: explain
+        type: Bool
+        title: Explanatory text
+        default: false
+    -   name: diagram
+        type: Bool
+        title: Path diagram
+        default: true
+    -   name: .interface
+        type: String
+        default: jamovi
+        hidden: true
+        description:
+            R: "Used for internal purposes \n"
+    -   name: .caller
+        type: String
+        default: mediation
+        hidden: true
+        description:
+            R: "Used for internal purposes \n"

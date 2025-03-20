@@ -1,272 +1,248 @@
----
-name:  pamlglm
+name: pamlglm
 title: 'Power: General Linear Model'
-jrs:   "1.1"
-
+jrs: '1.1'
 items:
-
-    - name: intro
-      title: Introduction
-      type: Html
-      
-    - name: extrainfo
-      title: Extra Info
-      type: Html
-      visible: false
-
-    - name: issues
-      title: Issues
-      type: Html
-      visible: false
-
-
-    - name:  powertab
-      title: A Priori Power Analysis
-      type: Table
-      rows:  1
-      refs:
-         - pamlj
-      clearWith:
-        - mode
-        - b_es
-        - v_es
-        - e_es
-        - power
-        - n
-        - sig.level
-        - aim
-        - alternative
-        - b_df_model
-        - v_df_model
-        - e_df_model
-        - b_df_effect
-        - v_df_effect
-        - e_df_effect
-        - e_r2
-        - v_r2
-        - b_r2
-        - ncp_type
-        - rx
-        - ry
-      columns: 
-        - name: n
-          title: 'N'
-          type: integer
-        - name: es
-          title: 'Effect size'
-          type: number
-        - name: f2
-          title: f²
-          type: number
-        - name: power
-          title: 'Power'
-          type: number
-        - name: df1
-          title: 'df'
-          type: integer
-        - name: df2
-          title: 'df(res)'
-          type: integer
-        - name: sig.level
-          title: '&alpha;'
-          type: number
-
-    - name:  effectsize
-      title: Computed Parameters
-      type: Table
-      visible: (mode:beta || mode:eta)
-      clearWith:
-        - mode
-        - b_es
-        - v_es
-        - e_es
-        - power
-        - n
-        - sig.level
-        - aim
-        - alternative
-        - b_df_model
-        - v_df_model
-        - e_df_model
-        - b_df_effect
-        - v_df_effect
-        - e_df_effect
-        - e_r2
-        - v_r2
-        - b_r2
-        - ncp_type
-        - rx
-        - ry
-        - ncp_type
-        
-      columns: 
-        - name: index
-          title: 'Index'
-          type: text
-        - name: value
-          title: 'Value'
-          type: number
-
-
-    - name:  powerbyes
-      title: Power by Effect Size
-      type: Table
-      rows:  4
-      clearWith:
-        - mode
-        - b_es
-        - v_es
-        - e_es
-        - power
-        - n
-        - sig.level
-        - aim
-        - alternative
-        - b_df_model
-        - v_df_model
-        - e_df_model
-        - b_df_effect
-        - v_df_effect
-        - e_df_effect
-        - e_r2
-        - v_r2
-        - b_r2
-        - ncp_type
-        - rx
-        - ry
-        - ncp_type
-        
-      columns:
-        - name: es
-          title: 'True effect size'
-          type: number
-
-        - name: power
-          title: 'Power to detect'
-          type: text
-
-        - name: desc
-          title: 'Description'
-          type: text
-
-
-    - name: plotnotes
-      title: Plot notes
-      type: Html
-      visible: false
-
-    - name: powerContour
-      title: Power Contour
-      type: Image
-      width:  500
-      height: 350
-      renderFun: .plot_contour
-      visible: (plot_contour)
-      clearWith:
-        - mode
-        - b_es
-        - v_es
-        - e_es
-        - power
-        - n
-        - sig.level
-        - aim
-        - alternative
-        - b_df_model
-        - v_df_model
-        - e_df_model
-        - e_r2
-        - v_r2
-        - ncp_type
-        - plot_log
-        - plot_palette
-    - name: powerEscurve
-      title: Power Curve by Effect Size
-      type: Image
-      width:  400
-      height: 350
-      renderFun: .plot_escurve
-      visible: (plot_escurve)
-      clearWith:
-        - mode
-        - b_es
-        - v_es
-        - e_es
-        - power
-        - n
-        - sig.level
-        - aim
-        - alternative
-        - b_df_model
-        - v_df_model
-        - e_df_model
-        - e_r2
-        - v_r2
-        - ncp_type
-        - plot_log
-        - plot_palette
-
-    - name: powerNcurve
-      title: Power Curve by N
-      type: Image
-      width:  400
-      height: 350
-      renderFun: .plot_ncurve
-      visible: (plot_ncurve)
-      clearWith:
-        - mode
-        - b_es
-        - v_es
-        - e_es
-        - power
-        - n
-        - sig.level
-        - aim
-        - alternative
-        - b_df_model
-        - v_df_model
-        - e_df_model
-        - e_r2
-        - v_r2
-        - ncp_type
-        - plot_log
-        - plot_palette
-
-      
-    - name: powerCustom
-      title: Power Parameters
-      type: Image
-      width:  450
-      height: 350
-      renderFun: .plot_custom
-      visible: false
-      
-    - name: customnotes
-      title: Plot notes
-      type: Html
-      visible: false
-
-    - name:  customtable
-      title: Power Analysis parameters
-      type: Table
-      visible: (plot_to_table && !plot_x:none && !plot_y:none)
-      columns: 
-        - name:  y
-          title: 'Y'
-          type: number
-        - name:  x
-          title: "X"
-          type: number
-        - name:  z
-          title: "Z"
-          type: number
-          visible: false
-        - name: n1
-          title: N₁
-          type: integer
-          visible: false
-        - name: n2
-          title: N₂
-          type: integer
-          visible: false
-        
+    -   name: intro
+        title: Introduction
+        type: Html
+    -   name: extrainfo
+        title: Extra Info
+        type: Html
+        visible: false
+    -   name: issues
+        title: Issues
+        type: Html
+        visible: false
+    -   name: powertab
+        title: A Priori Power Analysis
+        type: Table
+        rows: 1
+        refs: pamlj
+        clearWith:
+            - mode
+            - b_es
+            - v_es
+            - e_es
+            - power
+            - false
+            - sig.level
+            - aim
+            - alternative
+            - b_df_model
+            - v_df_model
+            - e_df_model
+            - b_df_effect
+            - v_df_effect
+            - e_df_effect
+            - e_r2
+            - v_r2
+            - b_r2
+            - ncp_type
+            - rx
+            - ry
+        columns:
+            -   name: false
+                title: 'N'
+                type: integer
+            -   name: es
+                title: Effect size
+                type: number
+            -   name: f2
+                title: f²
+                type: number
+            -   name: power
+                title: Power
+                type: number
+            -   name: df1
+                title: df
+                type: integer
+            -   name: df2
+                title: df(res)
+                type: integer
+            -   name: sig.level
+                title: '&alpha;'
+                type: number
+    -   name: effectsize
+        title: Computed Parameters
+        type: Table
+        visible: (mode:beta || mode:eta)
+        clearWith:
+            - mode
+            - b_es
+            - v_es
+            - e_es
+            - power
+            - false
+            - sig.level
+            - aim
+            - alternative
+            - b_df_model
+            - v_df_model
+            - e_df_model
+            - b_df_effect
+            - v_df_effect
+            - e_df_effect
+            - e_r2
+            - v_r2
+            - b_r2
+            - ncp_type
+            - rx
+            - ry
+            - ncp_type
+        columns:
+            -   name: index
+                title: Index
+                type: text
+            -   name: value
+                title: Value
+                type: number
+    -   name: powerbyes
+        title: Power by Effect Size
+        type: Table
+        rows: 4
+        clearWith:
+            - mode
+            - b_es
+            - v_es
+            - e_es
+            - power
+            - false
+            - sig.level
+            - aim
+            - alternative
+            - b_df_model
+            - v_df_model
+            - e_df_model
+            - b_df_effect
+            - v_df_effect
+            - e_df_effect
+            - e_r2
+            - v_r2
+            - b_r2
+            - ncp_type
+            - rx
+            - ry
+            - ncp_type
+        columns:
+            -   name: es
+                title: True effect size
+                type: number
+            -   name: power
+                title: Power to detect
+                type: text
+            -   name: desc
+                title: Description
+                type: text
+    -   name: plotnotes
+        title: Plot notes
+        type: Html
+        visible: false
+    -   name: powerContour
+        title: Power Contour
+        type: Image
+        width: 500
+        height: 350
+        renderFun: .plot_contour
+        visible: (plot_contour)
+        clearWith:
+            - mode
+            - b_es
+            - v_es
+            - e_es
+            - power
+            - false
+            - sig.level
+            - aim
+            - alternative
+            - b_df_model
+            - v_df_model
+            - e_df_model
+            - e_r2
+            - v_r2
+            - ncp_type
+            - plot_log
+            - plot_palette
+    -   name: powerEscurve
+        title: Power Curve by Effect Size
+        type: Image
+        width: 400
+        height: 350
+        renderFun: .plot_escurve
+        visible: (plot_escurve)
+        clearWith:
+            - mode
+            - b_es
+            - v_es
+            - e_es
+            - power
+            - false
+            - sig.level
+            - aim
+            - alternative
+            - b_df_model
+            - v_df_model
+            - e_df_model
+            - e_r2
+            - v_r2
+            - ncp_type
+            - plot_log
+            - plot_palette
+    -   name: powerNcurve
+        title: Power Curve by N
+        type: Image
+        width: 400
+        height: 350
+        renderFun: .plot_ncurve
+        visible: (plot_ncurve)
+        clearWith:
+            - mode
+            - b_es
+            - v_es
+            - e_es
+            - power
+            - false
+            - sig.level
+            - aim
+            - alternative
+            - b_df_model
+            - v_df_model
+            - e_df_model
+            - e_r2
+            - v_r2
+            - ncp_type
+            - plot_log
+            - plot_palette
+    -   name: powerCustom
+        title: Power Parameters
+        type: Image
+        width: 450
+        height: 350
+        renderFun: .plot_custom
+        visible: false
+    -   name: customnotes
+        title: Plot notes
+        type: Html
+        visible: false
+    -   name: customtable
+        title: Power Analysis parameters
+        type: Table
+        visible: (plot_to_table && !plot_x:none && !plot_y:none)
+        columns:
+            -   name: true
+                title: 'Y'
+                type: number
+            -   name: x
+                title: X
+                type: number
+            -   name: z
+                title: Z
+                type: number
+                visible: false
+            -   name: n1
+                title: N₁
+                type: integer
+                visible: false
+            -   name: n2
+                title: N₂
+                type: integer
+                visible: false

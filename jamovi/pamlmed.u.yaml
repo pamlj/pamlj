@@ -4,311 +4,311 @@ jus: '3.0'
 stage: 0
 compilerMode: tame
 children:
-  - type: LayoutBox
-    margin: large
-    children:
-      - type: ComboBox
-        name: aim
-  - type: ModeSelector
-    name: mode
-    stretchFactor: 1
-    children:
-      - type: Content
-        name: medsimple
+    -   type: LayoutBox
+        margin: large
         children:
-          - type: LayoutBox
-            margin: large
-            style: inline
-            children:
-              - type: Label
-                label: Parameters
-                children:
-                  - name: a
-                    type: TextBox
-                    format: number
-                    enable: (!aim:es)
-                  - name: b
-                    type: TextBox
-                    format: number
-                  - type: TextBox
-                    name: cprime
-                    format: number
-      - type: Content
-        name: medcomplex
+            -   type: ComboBox
+                name: aim
+    -   type: ModeSelector
+        name: mode
+        stretchFactor: 1
         children:
-          - type: LayoutBox
-            margin: large
-            children:
-              - type: ComboBox
-                name: model_type
-          - type: Label
-            margin: large
-            label: Standardized Coefficients
-            children:
-              - type: LayoutBox
-                style: inline
+            -   type: Content
+                name: medsimple
                 children:
-                  - type: Label
-                    label: Mediator 1
-                    children:
-                      - name: a1
-                        type: TextBox
-                        format: string
-                      - name: b1
-                        type: TextBox
-                        format: string
-                  - type: Label
-                    label: Mediator 2
-                    children:
-                      - name: a2
-                        type: TextBox
-                        format: string
-                      - name: b2
-                        type: TextBox
-                        format: string
-                  - type: Label
-                    name: mediator3_beta
-                    label: Mediator 3
-                    children:
-                      - name: a3
-                        type: TextBox
-                        format: string
-                      - name: b3
-                        type: TextBox
-                        format: string
-          - type: Label
-            name: mediators_corr
-            margin: large
-            label: Mediators correlations
-            children:
-              - type: LayoutBox
-                style: inline
+                    -   type: LayoutBox
+                        margin: large
+                        style: inline
+                        children:
+                            -   type: Label
+                                label: Parameters
+                                children:
+                                    -   name: a
+                                        type: TextBox
+                                        format: number
+                                        enable: (!aim:es)
+                                    -   name: b
+                                        type: TextBox
+                                        format: number
+                                    -   type: TextBox
+                                        name: cprime
+                                        format: number
+            -   type: Content
+                name: medcomplex
                 children:
-                  - type: TextBox
-                    name: r12
-                    format: string
-                  - type: LayoutBox
-                    name: mediator3_corr
-                    style: inline
-                    children:
-                      - type: TextBox
-                        name: r13
-                        format: string
-                      - type: TextBox
-                        name: r23
-                        format: string
-          - type: Label
-            name: mediators_beta
-            margin: large
-            label: Mediators coefficients
-            children:
-              - type: LayoutBox
-                style: inline
-                children:
-                  - type: TextBox
-                    name: d1
-                    format: string
-                  - type: LayoutBox
-                    name: mediator2_sbeta
-                    style: inline
-                    children:
-                      - type: TextBox
-                        name: d2
-                        format: string
-          - type: Label
-            margin: large
-            label: Direct effect
-            children:
-              - type: TextBox
-                name: cprime2
+                    -   type: LayoutBox
+                        margin: large
+                        children:
+                            -   type: ComboBox
+                                name: model_type
+                    -   type: Label
+                        margin: large
+                        label: Standardized Coefficients
+                        children:
+                            -   type: LayoutBox
+                                style: inline
+                                children:
+                                    -   type: Label
+                                        label: Mediator 1
+                                        children:
+                                            -   name: a1
+                                                type: TextBox
+                                                format: string
+                                            -   name: b1
+                                                type: TextBox
+                                                format: string
+                                    -   type: Label
+                                        label: Mediator 2
+                                        children:
+                                            -   name: a2
+                                                type: TextBox
+                                                format: string
+                                            -   name: b2
+                                                type: TextBox
+                                                format: string
+                                    -   type: Label
+                                        name: mediator3_beta
+                                        label: Mediator 3
+                                        children:
+                                            -   name: a3
+                                                type: TextBox
+                                                format: string
+                                            -   name: b3
+                                                type: TextBox
+                                                format: string
+                    -   type: Label
+                        name: mediators_corr
+                        margin: large
+                        label: Mediators correlations
+                        children:
+                            -   type: LayoutBox
+                                style: inline
+                                children:
+                                    -   type: TextBox
+                                        name: r12
+                                        format: string
+                                    -   type: LayoutBox
+                                        name: mediator3_corr
+                                        style: inline
+                                        children:
+                                            -   type: TextBox
+                                                name: r13
+                                                format: string
+                                            -   type: TextBox
+                                                name: r23
+                                                format: string
+                    -   type: Label
+                        name: mediators_beta
+                        margin: large
+                        label: Mediators coefficients
+                        children:
+                            -   type: LayoutBox
+                                style: inline
+                                children:
+                                    -   type: TextBox
+                                        name: d1
+                                        format: string
+                                    -   type: LayoutBox
+                                        name: mediator2_sbeta
+                                        style: inline
+                                        children:
+                                            -   type: TextBox
+                                                name: d2
+                                                format: string
+                    -   type: Label
+                        margin: large
+                        label: Direct effect
+                        children:
+                            -   type: TextBox
+                                name: cprime2
+                                format: number
+    -   type: Label
+        label: Parameters
+        name: power_parameters
+        margin: large
+        children:
+            -   name: power
+                type: TextBox
+                label: Minimum desired power
                 format: number
-  - type: Label
-    label: Parameters
-    name: power_parameters
-    margin: large
-    children:
-      - name: power
-        type: TextBox
-        label: Minimum desired power
-        format: number
-        enable: (!aim:power)
-      - name: 'n'
-        type: TextBox
-        label: N (Sample size)
-        format: number
-        enable: (!aim:n)
-      - name: sig.level
-        type: TextBox
-        label: '&alpha; (type I error rate)'
-        format: number
-      - type: ComboBox
-        name: alternative
-  - type: LayoutBox
-    style: inline
-    children:
-      - type: Label
-        label: Test
+                enable: (!aim:power)
+            -   name: 'n'
+                type: TextBox
+                label: N (Sample size)
+                format: number
+                enable: (!aim:n)
+            -   name: sig.level
+                type: TextBox
+                label: '&alpha; (type I error rate)'
+                format: number
+            -   type: ComboBox
+                name: alternative
+    -   type: LayoutBox
+        style: inline
         children:
-          - type: RadioButton
-            name: test_joint
-            optionName: test
-            optionPart: joint
-          - type: RadioButton
-            name: test_sobel
-            optionName: test
-            optionPart: sobel
-          - type: RadioButton
-            name: test_mc
-            optionName: test
-            optionPart: mc
-      - type: Label
+            -   type: Label
+                label: Test
+                children:
+                    -   type: RadioButton
+                        name: test_joint
+                        optionName: test
+                        optionPart: joint
+                    -   type: RadioButton
+                        name: test_sobel
+                        optionName: test
+                        optionPart: sobel
+                    -   type: RadioButton
+                        name: test_mc
+                        optionName: test
+                        optionPart: mc
+            -   type: Label
+                label: Options
+                children:
+                    -   type: CheckBox
+                        name: explain
+                    -   type: LayoutBox
+                        name: diagram_box
+                        children:
+                            -   type: CheckBox
+                                name: diagram
+                    -   type: CheckBox
+                        name: test_c
+    -   type: CollapseBox
+        label: Sensitivity Analysis
+        name: panel_sensitivity
+        collapsed: true
+        stretchFactor: 1
+        children:
+            -   type: LayoutBox
+                style: inline
+                children:
+                    -   type: Label
+                        label: Plots
+                        children:
+                            -   type: CheckBox
+                                name: plot_ncurve
+                    -   type: Label
+                        label: Options
+                        children:
+                            -   name: plot_log
+                                type: CheckBox
+                            -   type: ComboBox
+                                name: plot_palette
+            -   type: Label
+                label: Tables
+                children:
+                    -   type: CheckBox
+                        name: table_pwbyn
+    -   type: CollapseBox
+        label: Power Parameters plot
+        name: panel_customplot
+        collapsed: true
+        stretchFactor: 1
+        children:
+            -   type: LayoutBox
+                children:
+                    -   type: LayoutBox
+                        style: inline
+                        children:
+                            -   type: Label
+                                label: Plot Y-axis
+                                children:
+                                    -   type: LayoutBox
+                                        style: inline
+                                        children:
+                                            -   type: ComboBox
+                                                name: plot_y
+                                            -   type: CheckBox
+                                                name: plot_custom_labels
+                            -   type: Label
+                                label: Results in table
+                                children:
+                                    -   type: CheckBox
+                                        name: plot_to_table
+                    -   type: Label
+                        label: Plot X-axis
+                        children:
+                            -   type: LayoutBox
+                                style: inline
+                                children:
+                                    -   type: ComboBox
+                                        name: plot_x
+                                        events:
+                                            change: ./common::plot_x_changed
+                                    -   type: TextBox
+                                        name: plot_x_from
+                                        format: number
+                                    -   type: TextBox
+                                        name: plot_x_to
+                                        format: number
+                    -   type: Label
+                        label: Plot Different Curves by
+                        children:
+                            -   type: LayoutBox
+                                style: inline
+                                children:
+                                    -   type: ComboBox
+                                        name: plot_z
+                                        events:
+                                            change: ./common::plot_z_changed
+                                    -   type: TextBox
+                                        name: plot_z_lines
+                                        format: number
+                                        enable: (!plot_z:none)
+                                        events:
+                                            change: ./common::plot_z_lines_changed
+                    -   type: LayoutBox
+                        name: plot_lines_values
+                        children:
+                            -   type: Label
+                                label: Values for each curves
+                                name: plot_value_label
+                                children:
+                                    -   type: ListBox
+                                        name: plot_z_value
+                                        events:
+                                            listItemAdded: ./common::onChange_value_added
+                                            listItemRemoved: ./common::onChange_value_removed
+                                        showColumnHeaders: false
+                                        columns:
+                                            -   name: var
+                                                label: Value
+                                                template:
+                                                    type: TextBox
+    -   type: CollapseBox
         label: Options
+        name: panel_options
+        collapsed: true
+        stretchFactor: 1
         children:
-          - type: CheckBox
-            name: explain
-          - type: LayoutBox
-            name: diagram_box
-            children:
-              - type: CheckBox
-                name: diagram
-          - type: CheckBox
-            name: test_c
-  - type: CollapseBox
-    label: Sensitivity Analysis
-    name: panel_sensitivity
-    collapsed: true
-    stretchFactor: 1
-    children:
-      - type: LayoutBox
-        style: inline
-        children:
-          - type: Label
-            label: Plots
-            children:
-              - type: CheckBox
-                name: plot_ncurve
-          - type: Label
-            label: Options
-            children:
-              - name: plot_log
-                type: CheckBox
-              - type: ComboBox
-                name: plot_palette
-      - type: Label
-        label: Tables
-        children:
-          - type: CheckBox
-            name: table_pwbyn
-  - type: CollapseBox
-    label: Power Parameters plot
-    name: panel_customplot
-    collapsed: true
-    stretchFactor: 1
-    children:
-      - type: LayoutBox
-        children:
-          - type: LayoutBox
-            style: inline
-            children:
-              - type: Label
-                label: Plot Y-axis
-                children:
-                  - type: LayoutBox
-                    style: inline
-                    children:
-                      - type: ComboBox
-                        name: plot_y
-                      - type: CheckBox
-                        name: plot_custom_labels
-              - type: Label
-                label: Results in table
-                children:
-                  - type: CheckBox
-                    name: plot_to_table
-          - type: Label
-            label: Plot X-axis
-            children:
-              - type: LayoutBox
+            -   type: LayoutBox
                 style: inline
                 children:
-                  - type: ComboBox
-                    name: plot_x
-                    events:
-                      change: ./common::plot_x_changed
-                  - type: TextBox
-                    name: plot_x_from
-                    format: number
-                  - type: TextBox
-                    name: plot_x_to
-                    format: number
-          - type: Label
-            label: Plot Different Curves by
-            children:
-              - type: LayoutBox
-                style: inline
-                children:
-                  - type: ComboBox
-                    name: plot_z
-                    events:
-                      change: ./common::plot_z_changed
-                  - type: TextBox
-                    name: plot_z_lines
-                    format: number
-                    enable: (!plot_z:none)
-                    events:
-                      change: ./common::plot_z_lines_changed
-          - type: LayoutBox
-            name: plot_lines_values
-            children:
-              - type: Label
-                label: Values for each curves
-                name: plot_value_label
-                children:
-                  - type: ListBox
-                    name: plot_z_value
-                    events:
-                      listItemAdded: ./common::onChange_value_added
-                      listItemRemoved: ./common::onChange_value_removed
-                    showColumnHeaders: false
-                    columns:
-                      - name: var
-                        label: Value
-                        template:
-                          type: TextBox
-  - type: CollapseBox
-    label: Options
-    name: panel_options
-    collapsed: true
-    stretchFactor: 1
-    children:
-      - type: LayoutBox
-        style: inline
-        children:
-          - type: Label
-            label: Monte Carlo
-            children:
-              - type: LayoutBox
-                style: inline
-                children:
-                  - type: Label
-                    label: Options
-                    children:
-                      - type: CheckBox
-                        name: parallel
-                      - type: CheckBox
-                        name: set_seed
-                  - type: Label
-                    label: Values
-                    children:
-                      - type: TextBox
-                        name: mcR
-                        format: number
-                      - type: TextBox
-                        name: seed
-                        format: number
-                        enable: (set_seed)
-                  - type: LayoutBox
-                    margin: large
-                    children:
-                      - type: CheckBox
-                        name: sim_ttest
+                    -   type: Label
+                        label: Monte Carlo
+                        children:
+                            -   type: LayoutBox
+                                style: inline
+                                children:
+                                    -   type: Label
+                                        label: Options
+                                        children:
+                                            -   type: CheckBox
+                                                name: parallel
+                                            -   type: CheckBox
+                                                name: set_seed
+                                    -   type: Label
+                                        label: Values
+                                        children:
+                                            -   type: TextBox
+                                                name: mcR
+                                                format: number
+                                            -   type: TextBox
+                                                name: seed
+                                                format: number
+                                                enable: (set_seed)
+                                    -   type: LayoutBox
+                                        margin: large
+                                        children:
+                                            -   type: CheckBox
+                                                name: sim_ttest
