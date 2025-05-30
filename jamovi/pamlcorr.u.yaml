@@ -25,7 +25,7 @@ children:
                         label: Minimum desired power
                         format: number
                         enable: (!aim:power)
-                    -   name: false
+                    -   name: n
                         type: TextBox
                         label: N (Sample size)
                         format: number

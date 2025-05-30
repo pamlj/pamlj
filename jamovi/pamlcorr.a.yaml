@@ -12,10 +12,10 @@ options:
     -   name: aim
         title: Calculate
         type: List
-        default: false
+        default: n
         options:
-            -   name: false
-                title: false
+            -   name: n
+                title: N
             -   name: power
                 title: Power
             -   name: es
@@ -38,8 +38,8 @@ options:
         default: 0.9
         description:
             R: "Minimal desired power \n"
-    -   name: false
-        title: false
+    -   name: n
+        title: N
         type: Number
         default: 20
         description:
@@ -101,8 +101,8 @@ options:
         options:
             -   name: none
                 title: '----'
-            -   name: false
-                title: false
+            -   name: n
+                title: N
             -   name: power
                 title: Power
             -   name: es
@@ -119,8 +119,8 @@ options:
         options:
             -   name: none
                 title: '-----'
-            -   name: false
-                title: false
+            -   name: n
+                title: N
             -   name: power
                 title: Power
             -   name: es
@@ -146,8 +146,8 @@ options:
         options:
             -   name: none
                 title: '-----'
-            -   name: false
-                title: false
+            -   name: n
+                title: N
             -   name: power
                 title: Power
             -   name: es

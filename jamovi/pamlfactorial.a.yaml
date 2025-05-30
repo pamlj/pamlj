@@ -16,10 +16,10 @@ options:
     -   name: aim
         title: Calculate
         type: List
-        default: false
+        default: n
         options:
-            -   name: false
-                title: false
+            -   name: n
+                title: N
             -   name: power
                 title: Power
         description:

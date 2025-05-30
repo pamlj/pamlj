@@ -21,12 +21,12 @@ items:
         clearWith:
             - es
             - power
-            - false
+            - n
             - sig.level
             - aim
             - alternative
         columns:
-            -   name: false
+            -   name: n
                 title: 'N'
                 type: integer
             -   name: es
@@ -45,13 +45,13 @@ items:
         clearWith:
             - es
             - power
-            - false
+            - n
             - sig.level
             - aim
             - alternative
         columns:
             -   name: es
-                title: True effect size
+                title: "True effect size"
                 type: number
             -   name: power
                 title: Power to detect
@@ -100,7 +100,7 @@ items:
         type: Table
         visible: (plot_to_table && !plot_x:none && !plot_y:none)
         columns:
-            -   name: true
+            -   name: y
                 title: 'Y'
                 type: number
             -   name: x

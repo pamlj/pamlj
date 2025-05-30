@@ -1,5 +1,5 @@
-j_DEBUG <- FALSE
-j_INFO <- FALSE
+j_DEBUG = FALSE
+j_INFO = FALSE
 t_INFO <- F
 
 
