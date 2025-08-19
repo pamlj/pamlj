@@ -46,6 +46,12 @@ const events = {
        update_convert(ui);
 
     },
+    onChange_use: function(ui) {
+      console.log("es use changed");
+       update_use(ui);
+
+    },
+    
     onChange_rx: function(ui) {
       console.log("rx changed");
       var rx = ui.rx.value();
@@ -83,13 +89,14 @@ var update_convert = function( ui) {
    if (ui.mode.value() !== "peta" ) {
      return
    } 
-  
+   ui.use.setValue("none")
    console.log("converting ES");
    var eta = ui.eta.value();
    if (eta === 0) {
      ui.omega.setValue(0);
      ui.epsilon.setValue(0);
      ui.gpower.setValue(0);
+     ui.f2.setValue(0);
      return
    }
    var df = ui.v_df_effect.value();
@@ -98,37 +105,44 @@ var update_convert = function( ui) {
    var df_error = ui.eta_df_error.value();
    
    if (df_error === 0) return
-   
+   // f is F-test computed from data 
    var f = eta*df_error/((1-eta)*df)
    var omega = ((f - 1) * df)/( (f -1 ) * df + df_model + df_error + 1);
    var epsilon = ((f - 1) * df)/(f * df + df_error) ;
    var k = df+1
    var N = df_model + df_model + df_error + 1
    var gpower = eta*(k-N)/((eta*k)-N)
-
-console.log(omega)
+   var f2 = eta/(1-eta)
    ui.omega.setValue(omega.toFixed(3));
    ui.epsilon.setValue(epsilon.toFixed(3));
    ui.gpower.setValue(gpower.toFixed(3));
-
-   var obj = ui.v_es;
-
-   if (ui.use.value() === "epsilon")
-       obj.setValue(epsilon.toFixed(3));
-   if (ui.use.value() === "omega")
-       obj.setValue(omega.toFixed(3));
-   if (ui.use.value() === "gpower")
-       obj.setValue(gpower.toFixed(3));
-       
-   if (ui.use.value() === "f2" && ui.f2.value() > 0) {
-      var f2 = ui.f2.value();
-          eta = f2/(1+f2);
-          obj.setValue(eta.toFixed(3));
-   }
-
+   ui.f2.setValue(f2.toFixed(3));
 
 }
 
+var update_use = function( ui ) {
+  
+   var obj = ui.v_es;
+   console.log(ui.use.value())
+   if (ui.use.value() === "epsilon")
+       obj.setValue(ui.epsilon.value());
+   if (ui.use.value() === "omega")
+       obj.setValue(ui.omega.value());
+   if (ui.use.value() === "gpower")
+       obj.setValue(ui.gpower.value());
+       
+   if (ui.use.value() === "f2" && Number(ui.f2.value()) > 0) {
+      var f2 = Number(ui.f2.value())
+          console.dir(f2)
+          console.log(typeof f2)
+          eta = f2/(1+f2);
+          console.log(eta+" "+f2)
+          obj.setValue(eta.toFixed(3));
+   }
+
+ 
+  
+}
 var update_structure = function( ui) {
        
         if (["beta","eta"].includes(ui.mode.value())) {

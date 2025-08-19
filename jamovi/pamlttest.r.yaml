@@ -33,12 +33,10 @@ items:
         - name: n1
           title: N₁
           type: integer
-          visible: false
 
         - name: n2
           title: N₂
           type: integer
-          visible: false
 
         - name: es
           title: 'Effect size'

@@ -43,6 +43,7 @@ Runner <- R6::R6Class("Runner",
                               run_powertab = function() {
                                    
                                      jinfo("PAMLj: Runner: powertab")
+                                     mark(self$data)
                                      tab<-powertab(self)
                                      return(tab)
                                      

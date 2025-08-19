@@ -360,13 +360,11 @@ pamlttestResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     list(
                         `name`="n1", 
                         `title`="N\u2081", 
-                        `type`="integer", 
-                        `visible`=FALSE),
+                        `type`="integer"),
                     list(
                         `name`="n2", 
                         `title`="N\u2082", 
-                        `type`="integer", 
-                        `visible`=FALSE),
+                        `type`="integer"),
                     list(
                         `name`="es", 
                         `title`="Effect size", 

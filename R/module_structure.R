@@ -70,7 +70,7 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
 
 .powerbyes.default <- function(obj) {
 
-            mark(obj)
+           
             power = c(.5, .8, .95)
             data<-obj$data
             data$power<-NULL
