@@ -314,10 +314,10 @@ children:
                 events:
                   change: ./pamlglm::onChange_convert
               - type: TextBox
-                name: epsilon
+                name: omega
                 format: number
               - type: TextBox
-                name: omega
+                name: epsilon
                 format: number
               - type: TextBox
                 name: gpower
