@@ -43,7 +43,6 @@ Runner <- R6::R6Class("Runner",
                               run_powertab = function() {
                                    
                                      jinfo("PAMLj: Runner: powertab")
-                                     mark(self$data)
                                      tab<-powertab(self)
                                      return(tab)
                                      
@@ -75,7 +74,7 @@ Runner <- R6::R6Class("Runner",
                                      jinfo("PAMLj: Runner: powerxy")
                                      r<-self$info$rxy
                                      f2<-r^2/(1-r^2)
-                                    
+                                     
                                      tab <- pamlj.glm(u=1,
                                                       v=self$data$n-2,
                                                       f2=f2,

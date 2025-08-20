@@ -4,7 +4,7 @@
 ## Basically, they are used for one estimate, usually by the powervector() functions that work for multiple estimates (runs))
 ## they must return a `method` field
 
-pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,sig.level=NULL,df_model=NULL,ncp_type="gpower",  alternative="two.sided") {
+pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,sig.level=NULL,df_model=NULL,ncp_type="model",  alternative="two.sided") {
   
   
     if (!is.null(v) && !is.null(power) && !is.null(f2) && !is.null(sig.level)) 
@@ -30,6 +30,7 @@ pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,sig.level=NULL,df_model=N
     }
     p.body <- quote({
         lambda <- ncp(f2 , u, v)
+        mark(sig.level, u, v,lambda,f2,df_model)
         pow<-pf(qf(sig.level, u, v, lower.tail = FALSE), u, v, lambda, lower.tail = FALSE)
         pow 
     })
