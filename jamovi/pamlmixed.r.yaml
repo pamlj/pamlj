@@ -43,10 +43,6 @@ items:
       title: A Priori Power Analysis
       type: Table
       rows:  1
-      clearWith:
-           - aim
-           - code
-           - toggle
       columns: 
         - name: effect
           title: 'Estimate'
@@ -79,91 +75,7 @@ items:
           visible: (method:mc)
 
 
-    - name:  powerbyn
-      title: Power by Sample size
-      type: Table
-      rows:  4
-      visible: (table_pwbyn)
-      clearWith:
-           - code
-           - power
-           - n
-           - sig.level
-           - aim
-           - alternative
-           - seed
-           - set_seed
-           - method
-           - estimator
-           - standardized
 
-      columns:
-        - name: n
-          title: 'Sample size'
-          type: integer
-
-        - name: power
-          title: 'Power to detect'
-          type: text
-
-        - name: desc
-          title: 'Description'
-          type: text
-
-
-    - name: implied
-      title: "Model implied parameters"
-      type: Group
-      visible: (inspect_sigma || inspect_lvcov || inspect_zbeta)
-      clearWith:
-                    - code
-                    - estimator
-      items:
-        - name: covs
-          title: Observed Variances-Covariances
-          type: Table
-          visible: (inspect_sigma)
-          clearWith:
-                      ### modeloptions  begins
-                    - code
-                    - estimator
-                    - standardized
-          columns:
-            - name: variable
-              title: ""
-              type: text
-
-        - name: lvcovs
-          title: Latent Variables Covariances
-          type: Table
-          visible: (inspect_lvcov)
-          clearWith:
-                      ### modeloptions  begins
-                    - code
-                    - estimator
-                    - standardized
-
-          columns:
-            - name: variable
-              title: ""
-              type: text
-            
-        - name: betas
-          title: Standardized regression coefficients
-          type: Table
-          visible: (inspect_zbeta)
-          clearWith:
-                      ### modeloptions  begins
-                    - code
-                    - estimator
-                    - standardized
-                  
-
-          columns:
-            - name: variable
-              title: ""
-              type: text
-            
             
     - name: plotnotes
       title: Plot notes

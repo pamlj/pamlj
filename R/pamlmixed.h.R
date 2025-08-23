@@ -12,36 +12,11 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             fonts = "small",
             toggle = FALSE,
             power = 0.9,
-            n = 100,
             sig.level = 0.05,
-            alternative = "two.sided",
-            estimator = "ML",
-            standardized = TRUE,
-            inspect_sigma = FALSE,
-            inspect_lvcov = FALSE,
-            inspect_zbeta = FALSE,
-            method = "mca",
-            mc_test = "lrt",
             mcR = 500,
             parallel = TRUE,
             set_seed = FALSE,
             seed = 42,
-            table_pwbyn = TRUE,
-            plot_ncurve = FALSE,
-            plot_log = FALSE,
-            plot_palette = "viridis",
-            plot_x = "none",
-            plot_y = "none",
-            plot_custom_labels = FALSE,
-            plot_z = "none",
-            plot_x_from = 0,
-            plot_x_to = 0,
-            plot_z_lines = 1,
-            plot_z_value = list(),
-            plot_to_table = FALSE,
-            explain = FALSE,
-            lav_diagram = TRUE,
-            diag_size = "medium",
             .interface = "jamovi",
             .caller = "pamlmixed",
             clusterpars = list(),
@@ -86,60 +61,10 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "power",
                 power,
                 default=0.9)
-            private$..n <- jmvcore::OptionNumber$new(
-                "n",
-                n,
-                default=100)
             private$..sig.level <- jmvcore::OptionNumber$new(
                 "sig.level",
                 sig.level,
                 default=0.05)
-            private$..alternative <- jmvcore::OptionList$new(
-                "alternative",
-                alternative,
-                default="two.sided",
-                options=list(
-                    "two.sided",
-                    "one.sided"))
-            private$..estimator <- jmvcore::OptionList$new(
-                "estimator",
-                estimator,
-                default="ML",
-                options=list(
-                    "ML",
-                    "WLS",
-                    "DWLS",
-                    "ULS"))
-            private$..standardized <- jmvcore::OptionBool$new(
-                "standardized",
-                standardized,
-                default=TRUE)
-            private$..inspect_sigma <- jmvcore::OptionBool$new(
-                "inspect_sigma",
-                inspect_sigma,
-                default=FALSE)
-            private$..inspect_lvcov <- jmvcore::OptionBool$new(
-                "inspect_lvcov",
-                inspect_lvcov,
-                default=FALSE)
-            private$..inspect_zbeta <- jmvcore::OptionBool$new(
-                "inspect_zbeta",
-                inspect_zbeta,
-                default=FALSE)
-            private$..method <- jmvcore::OptionList$new(
-                "method",
-                method,
-                default="mca",
-                options=list(
-                    "mca",
-                    "mcf"))
-            private$..mc_test <- jmvcore::OptionList$new(
-                "mc_test",
-                mc_test,
-                default="lrt",
-                options=list(
-                    "lrt",
-                    "score"))
             private$..mcR <- jmvcore::OptionNumber$new(
                 "mcR",
                 mcR,
@@ -156,97 +81,6 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "seed",
                 seed,
                 default=42)
-            private$..table_pwbyn <- jmvcore::OptionBool$new(
-                "table_pwbyn",
-                table_pwbyn,
-                default=TRUE)
-            private$..plot_ncurve <- jmvcore::OptionBool$new(
-                "plot_ncurve",
-                plot_ncurve,
-                default=FALSE)
-            private$..plot_log <- jmvcore::OptionBool$new(
-                "plot_log",
-                plot_log,
-                default=FALSE)
-            private$..plot_palette <- jmvcore::OptionList$new(
-                "plot_palette",
-                plot_palette,
-                default="viridis",
-                options=list(
-                    "viridis",
-                    "rocket",
-                    "mako",
-                    "cividis",
-                    "plasma",
-                    "turbo",
-                    "husky"))
-            private$..plot_x <- jmvcore::OptionList$new(
-                "plot_x",
-                plot_x,
-                default="none",
-                options=list(
-                    "none",
-                    "n",
-                    "power"))
-            private$..plot_y <- jmvcore::OptionList$new(
-                "plot_y",
-                plot_y,
-                default="none",
-                options=list(
-                    "none",
-                    "n",
-                    "power"))
-            private$..plot_custom_labels <- jmvcore::OptionBool$new(
-                "plot_custom_labels",
-                plot_custom_labels,
-                default=FALSE)
-            private$..plot_z <- jmvcore::OptionList$new(
-                "plot_z",
-                plot_z,
-                default="none",
-                options=list(
-                    "none",
-                    "sig.level"))
-            private$..plot_x_from <- jmvcore::OptionNumber$new(
-                "plot_x_from",
-                plot_x_from,
-                default=0)
-            private$..plot_x_to <- jmvcore::OptionNumber$new(
-                "plot_x_to",
-                plot_x_to,
-                default=0)
-            private$..plot_z_lines <- jmvcore::OptionNumber$new(
-                "plot_z_lines",
-                plot_z_lines,
-                default=1,
-                min=1)
-            private$..plot_z_value <- jmvcore::OptionArray$new(
-                "plot_z_value",
-                plot_z_value,
-                default=list(),
-                template=jmvcore::OptionString$new(
-                    "plot_z_value",
-                    NULL))
-            private$..plot_to_table <- jmvcore::OptionBool$new(
-                "plot_to_table",
-                plot_to_table,
-                default=FALSE)
-            private$..explain <- jmvcore::OptionBool$new(
-                "explain",
-                explain,
-                default=FALSE)
-            private$..lav_diagram <- jmvcore::OptionBool$new(
-                "lav_diagram",
-                lav_diagram,
-                default=TRUE)
-            private$..diag_size <- jmvcore::OptionList$new(
-                "diag_size",
-                diag_size,
-                default="medium",
-                options=list(
-                    "small",
-                    "medium",
-                    "large"))
             private$...interface <- jmvcore::OptionString$new(
                 ".interface",
                 .interface,
@@ -302,36 +136,11 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..fonts)
             self$.addOption(private$..toggle)
             self$.addOption(private$..power)
-            self$.addOption(private$..n)
             self$.addOption(private$..sig.level)
-            self$.addOption(private$..alternative)
-            self$.addOption(private$..estimator)
-            self$.addOption(private$..standardized)
-            self$.addOption(private$..inspect_sigma)
-            self$.addOption(private$..inspect_lvcov)
-            self$.addOption(private$..inspect_zbeta)
-            self$.addOption(private$..method)
-            self$.addOption(private$..mc_test)
             self$.addOption(private$..mcR)
             self$.addOption(private$..parallel)
             self$.addOption(private$..set_seed)
             self$.addOption(private$..seed)
-            self$.addOption(private$..table_pwbyn)
-            self$.addOption(private$..plot_ncurve)
-            self$.addOption(private$..plot_log)
-            self$.addOption(private$..plot_palette)
-            self$.addOption(private$..plot_x)
-            self$.addOption(private$..plot_y)
-            self$.addOption(private$..plot_custom_labels)
-            self$.addOption(private$..plot_z)
-            self$.addOption(private$..plot_x_from)
-            self$.addOption(private$..plot_x_to)
-            self$.addOption(private$..plot_z_lines)
-            self$.addOption(private$..plot_z_value)
-            self$.addOption(private$..plot_to_table)
-            self$.addOption(private$..explain)
-            self$.addOption(private$..lav_diagram)
-            self$.addOption(private$..diag_size)
             self$.addOption(private$...interface)
             self$.addOption(private$...caller)
             self$.addOption(private$..clusterpars)
@@ -344,36 +153,11 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         fonts = function() private$..fonts$value,
         toggle = function() private$..toggle$value,
         power = function() private$..power$value,
-        n = function() private$..n$value,
         sig.level = function() private$..sig.level$value,
-        alternative = function() private$..alternative$value,
-        estimator = function() private$..estimator$value,
-        standardized = function() private$..standardized$value,
-        inspect_sigma = function() private$..inspect_sigma$value,
-        inspect_lvcov = function() private$..inspect_lvcov$value,
-        inspect_zbeta = function() private$..inspect_zbeta$value,
-        method = function() private$..method$value,
-        mc_test = function() private$..mc_test$value,
         mcR = function() private$..mcR$value,
         parallel = function() private$..parallel$value,
         set_seed = function() private$..set_seed$value,
         seed = function() private$..seed$value,
-        table_pwbyn = function() private$..table_pwbyn$value,
-        plot_ncurve = function() private$..plot_ncurve$value,
-        plot_log = function() private$..plot_log$value,
-        plot_palette = function() private$..plot_palette$value,
-        plot_x = function() private$..plot_x$value,
-        plot_y = function() private$..plot_y$value,
-        plot_custom_labels = function() private$..plot_custom_labels$value,
-        plot_z = function() private$..plot_z$value,
-        plot_x_from = function() private$..plot_x_from$value,
-        plot_x_to = function() private$..plot_x_to$value,
-        plot_z_lines = function() private$..plot_z_lines$value,
-        plot_z_value = function() private$..plot_z_value$value,
-        plot_to_table = function() private$..plot_to_table$value,
-        explain = function() private$..explain$value,
-        lav_diagram = function() private$..lav_diagram$value,
-        diag_size = function() private$..diag_size$value,
         .interface = function() private$...interface$value,
         .caller = function() private$...caller$value,
         clusterpars = function() private$..clusterpars$value,
@@ -385,36 +169,11 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..fonts = NA,
         ..toggle = NA,
         ..power = NA,
-        ..n = NA,
         ..sig.level = NA,
-        ..alternative = NA,
-        ..estimator = NA,
-        ..standardized = NA,
-        ..inspect_sigma = NA,
-        ..inspect_lvcov = NA,
-        ..inspect_zbeta = NA,
-        ..method = NA,
-        ..mc_test = NA,
         ..mcR = NA,
         ..parallel = NA,
         ..set_seed = NA,
         ..seed = NA,
-        ..table_pwbyn = NA,
-        ..plot_ncurve = NA,
-        ..plot_log = NA,
-        ..plot_palette = NA,
-        ..plot_x = NA,
-        ..plot_y = NA,
-        ..plot_custom_labels = NA,
-        ..plot_z = NA,
-        ..plot_x_from = NA,
-        ..plot_x_to = NA,
-        ..plot_z_lines = NA,
-        ..plot_z_value = NA,
-        ..plot_to_table = NA,
-        ..explain = NA,
-        ..lav_diagram = NA,
-        ..diag_size = NA,
         ...interface = NA,
         ...caller = NA,
         ..clusterpars = NA,
@@ -431,8 +190,6 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         initnotes = function() private$.items[["initnotes"]],
         infotab = function() private$.items[["infotab"]],
         powertab = function() private$.items[["powertab"]],
-        powerbyn = function() private$.items[["powerbyn"]],
-        implied = function() private$.items[["implied"]],
         plotnotes = function() private$.items[["plotnotes"]],
         powerNcurve = function() private$.items[["powerNcurve"]],
         powerCustom = function() private$.items[["powerCustom"]],
@@ -486,10 +243,6 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 name="powertab",
                 title="A Priori Power Analysis",
                 rows=1,
-                clearWith=list(
-                    "aim",
-                    "code",
-                    "toggle"),
                 columns=list(
                     list(
                         `name`="effect", 
@@ -528,95 +281,6 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `title`="% converged", 
                         `type`="number", 
                         `visible`="(method:mc)"))))
-            self$add(jmvcore::Table$new(
-                options=options,
-                name="powerbyn",
-                title="Power by Sample size",
-                rows=4,
-                visible="(table_pwbyn)",
-                clearWith=list(
-                    "code",
-                    "power",
-                    "n",
-                    "sig.level",
-                    "aim",
-                    "alternative",
-                    "seed",
-                    "set_seed",
-                    "method",
-                    "estimator",
-                    "standardized"),
-                columns=list(
-                    list(
-                        `name`="n", 
-                        `title`="Sample size", 
-                        `type`="integer"),
-                    list(
-                        `name`="power", 
-                        `title`="Power to detect", 
-                        `type`="text"),
-                    list(
-                        `name`="desc", 
-                        `title`="Description", 
-                        `type`="text"))))
-            self$add(R6::R6Class(
-                inherit = jmvcore::Group,
-                active = list(
-                    covs = function() private$.items[["covs"]],
-                    lvcovs = function() private$.items[["lvcovs"]],
-                    betas = function() private$.items[["betas"]]),
-                private = list(),
-                public=list(
-                    initialize=function(options) {
-                        super$initialize(
-                            options=options,
-                            name="implied",
-                            title="Model implied parameters",
-                            clearWith=list(
-                    "code",
-                    "estimator"))
-                        self$add(jmvcore::Table$new(
-                            options=options,
-                            name="covs",
-                            title="Observed Variances-Covariances",
-                            visible="(inspect_sigma)",
-                            clearWith=list(
-                                "code",
-                                "estimator",
-                                "standardized"),
-                            columns=list(
-                                list(
-                                    `name`="variable", 
-                                    `title`="", 
-                                    `type`="text"))))
-                        self$add(jmvcore::Table$new(
-                            options=options,
-                            name="lvcovs",
-                            title="Latent Variables Covariances",
-                            visible="(inspect_lvcov)",
-                            clearWith=list(
-                                "code",
-                                "estimator",
-                                "standardized"),
-                            columns=list(
-                                list(
-                                    `name`="variable", 
-                                    `title`="", 
-                                    `type`="text"))))
-                        self$add(jmvcore::Table$new(
-                            options=options,
-                            name="betas",
-                            title="Standardized regression coefficients",
-                            visible="(inspect_zbeta)",
-                            clearWith=list(
-                                "code",
-                                "estimator",
-                                "standardized"),
-                            columns=list(
-                                list(
-                                    `name`="variable", 
-                                    `title`="", 
-                                    `type`="text"))))}))$new(options=options))
             self$add(jmvcore::Html$new(
                 options=options,
                 name="plotnotes",
@@ -700,48 +364,12 @@ pamlmixedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param fonts .
 #' @param toggle .
 #' @param power Minimal desired power
-#' @param n Sample size
 #' @param sig.level Type I error rate (significance cut-off or alpha)
-#' @param alternative Two-tailed vs one-tailed test
-#' @param estimator Estimator method used in SEM. \code{ML} for Maximum
-#'   Likelihood
-#' @param standardized Assume the observed variables are standardized (TRUE)
-#'   or not (FALSE)
-#' @param inspect_sigma not used in R
-#' @param inspect_lvcov not used in R
-#' @param inspect_zbeta not used in R
-#' @param method \code{mca} uses Monte Carlo method for computation of main
-#'   power parameters (\code{powertab}). For sensitivity analysis uses
-#'   formula-based method based on parameters extracted from the Monte Carlo
-#'   results. Results for sensitivity analysis are thus approximated, althogh
-#'   very simular to the Monte Carlo method results.  \code{Monte Carlo (full)}
-#'   uses Monte carlo method for computation of main power parameters and for
-#'   sensitivity analysis. Simulations may be extremelly time-consuming for this
-#'   method (in the order of hours).
-#' @param mc_test which test is used in Monte Carlo simulations: \code{lrt}
-#'   for LRT or \code{score} for the Score test.
 #' @param mcR Number of repetitions for Monte Carlo method
 #' @param parallel Logical: should parallel computing be used for the Monte
 #'   Carlo method
 #' @param set_seed not used in R
 #' @param seed not used in R
-#' @param table_pwbyn .
-#' @param plot_ncurve .
-#' @param plot_log .
-#' @param plot_palette .
-#' @param plot_x .
-#' @param plot_y .
-#' @param plot_custom_labels .
-#' @param plot_z .
-#' @param plot_x_from .
-#' @param plot_x_to .
-#' @param plot_z_lines .
-#' @param plot_z_value .
-#' @param plot_to_table .
-#' @param explain not used in R
-#' @param lav_diagram Output the path diagram corresponding to the input model
-#' @param diag_size Size of the path diagram boxes: \code{small},
-#'   \code{medium}, \code{large}
 #' @param .interface Used for internal purposes
 #' @param .caller Used for internal purposes
 #' @param clusterpars .
@@ -754,10 +382,6 @@ pamlmixedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$initnotes} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$infotab} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
-#'   \code{results$powerbyn} \tab \tab \tab \tab \tab a table \cr
-#'   \code{results$implied$covs} \tab \tab \tab \tab \tab a table \cr
-#'   \code{results$implied$lvcovs} \tab \tab \tab \tab \tab a table \cr
-#'   \code{results$implied$betas} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$plotnotes} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$powerNcurve} \tab \tab \tab \tab \tab an image \cr
 #'   \code{results$powerCustom} \tab \tab \tab \tab \tab an image \cr
@@ -779,36 +403,11 @@ pamlmixed <- function(
     fonts = "small",
     toggle = FALSE,
     power = 0.9,
-    n = 100,
     sig.level = 0.05,
-    alternative = "two.sided",
-    estimator = "ML",
-    standardized = TRUE,
-    inspect_sigma = FALSE,
-    inspect_lvcov = FALSE,
-    inspect_zbeta = FALSE,
-    method = "mca",
-    mc_test = "lrt",
     mcR = 500,
     parallel = TRUE,
     set_seed = FALSE,
     seed = 42,
-    table_pwbyn = TRUE,
-    plot_ncurve = FALSE,
-    plot_log = FALSE,
-    plot_palette = "viridis",
-    plot_x = "none",
-    plot_y = "none",
-    plot_custom_labels = FALSE,
-    plot_z = "none",
-    plot_x_from = 0,
-    plot_x_to = 0,
-    plot_z_lines = 1,
-    plot_z_value = list(),
-    plot_to_table = FALSE,
-    explain = FALSE,
-    lav_diagram = TRUE,
-    diag_size = "medium",
     .interface = "jamovi",
     .caller = "pamlmixed",
     clusterpars = list(),
@@ -825,36 +424,11 @@ pamlmixed <- function(
         fonts = fonts,
         toggle = toggle,
         power = power,
-        n = n,
         sig.level = sig.level,
-        alternative = alternative,
-        estimator = estimator,
-        standardized = standardized,
-        inspect_sigma = inspect_sigma,
-        inspect_lvcov = inspect_lvcov,
-        inspect_zbeta = inspect_zbeta,
-        method = method,
-        mc_test = mc_test,
         mcR = mcR,
         parallel = parallel,
         set_seed = set_seed,
         seed = seed,
-        table_pwbyn = table_pwbyn,
-        plot_ncurve = plot_ncurve,
-        plot_log = plot_log,
-        plot_palette = plot_palette,
-        plot_x = plot_x,
-        plot_y = plot_y,
-        plot_custom_labels = plot_custom_labels,
-        plot_z = plot_z,
-        plot_x_from = plot_x_from,
-        plot_x_to = plot_x_to,
-        plot_z_lines = plot_z_lines,
-        plot_z_value = plot_z_value,
-        plot_to_table = plot_to_table,
-        explain = explain,
-        lav_diagram = lav_diagram,
-        diag_size = diag_size,
         .interface = .interface,
         .caller = .caller,
         clusterpars = clusterpars,

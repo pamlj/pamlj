@@ -122,15 +122,12 @@
       obj$data             <- data.frame(sig.level=obj$options$sig.level)
       obj$data$power       <- obj$options$power
       obj$info$model       <- model
-      if (obj$options$alternative=="one-tailed") obj$data$sig.level<-obj$data$sig.level*2 
       obj$info$letter      <- "Coef"
       obj$info$esmax       <-  10
       obj$info$esmin       <-  1e-06
       obj$info$nmin        <-  10
       obj$info$nochecks    <-  "es"
       obj$plots$data       <- obj$data
-      obj$info$method      <- obj$options$method == "mc"
-      obj$info$test        <-  obj$options$mc_test 
       obj$info$R           <-  obj$options$mcR 
       obj$info$set_seed    <-  obj$options$set_seed 
       obj$info$seed        <-  obj$options$seed 
@@ -140,32 +137,6 @@
       jinfo("Checking data for pamlmixed done")
 }
 
-.rundata.pamlmixed <- function(obj) {
-
-      infomod<-obj$info$model
-      n<-max(unlist(lapply(infomod$re, function(x) x$n)),na.rm=T)
-      k<-max(unlist(lapply(infomod$re, function(x) x$k)),na.rm=T)
-      obj$data$n<-n
-      obj$data$k<-k
-      data<-lme4::mkDataTemplate(as.formula(infomod$formula),nGrps=k,nPerGrp=n,rfunc=rnorm)
-      varcor<-lapply(infomod$re,function(x) {
-        diag(x=x$coefs,nrow=length(x$coefs))
-      })
-      mark(infomod$formula,infomod$re,varcor)
-      modelobj<-try_hard({
-               simr::makeLmer(as.formula(infomod$formula),
-                            data=data,
-                            fixef=infomod$fixed$coefs,
-                            VarCorr=varcor
-                            ,sigma=1)
-     })
-      if (!isFALSE(modelobj$error)) {
-        obj$stop(modelobj$error)
-      }
-
-      obj$data$model<-modelobj$obj
-    
-} 
 
 
 ## powervector must accept a runner object and a data.frame. It must return a data.frame with nrow() equal to the input data.frame
@@ -178,44 +149,120 @@
 
 .powervector.pamlmixed <- function(obj,data) {
   
-  model<-data$model
+  find<-obj$options$find
+  
+  if (obj$aim=="n") {
+    if (find == "k") {
+           n<-obj$info$model$re[[1]]$n
+           l <- 5
+           f<-function(int) {
+             pamlmixed_onerun(obj,n,int)
+           }
+    }
+    if (find == "n") {
+           k<-obj$info$model$re[[1]]$k
+           l <- 2
+           f<-function(int) {
+             pamlmixed_onerun(obj,int,k)
+           }
+    }
+    .pow<-int_seek(f,"power",obj$info$power,lower=l,upper=2000)  
+    pow<-.pow$f
+    obj$data<-pow
+  } 
+  if (obj$aim=="power") {
+    
+     pow<-pamlmixed_onerun(obj,obj$info$model$re[[1]]$n,obj$info$model$re[[1]]$k)
+     obj$data<-pow
+  }
+  
+  return(pow)
+  
+           
+  
+}
+
+
+###### local functions
+
+
+pamlmixed_makemodel <- function(obj,n,k) {
+  
+  infomod<-obj$info$model
+  fixed<-as.list(infomod$fixed$coefs)
+  data<-lme4::mkDataTemplate(as.formula(infomod$formula),nGrps=k,nPerGrp=n,rfunc=rnorm)
+  for (i in seq_along(infomod$variables)) {
+    x<-infomod$variables[[i]]
+    if (x$type=="categorical") {
+      data[[x$name]]<-cut(data[[x$name]],breaks=x$levels,labels=1:x$levels)
+      xcoefs<-fixed[[i]]
+      if (x$levels>2) xcoefs<-c(fixed[[i]],rep(0,x$levels-2)) 
+      fixed[[i]]<-xcoefs
+    }
+  }
+  
+  varcor<-lapply(infomod$re,function(x) {
+    diag(x=x$coefs,nrow=length(x$coefs))
+  })
+  fixed<-unlist(fixed)
+  modelobj<-try_hard({
+    simr::makeLmer(as.formula(infomod$formula),
+                   data=data,
+                   fixef=fixed,
+                   VarCorr=varcor
+                   ,sigma=1)
+  })
+
+  if (!isFALSE(modelobj$error)) {
+    obj$stop(modelobj$error)
+  }
+  
+  return(modelobj$obj)
+  
+} 
+
+
+pamlmixed_onerun <- function(obj,n,k) {
+  
+  
+  model<-pamlmixed_makemodel(obj,n,k)
   
   if (obj$info$parallel) {
     if (Sys.info()['sysname'] == "Windows") 
-                     plan<-future::multisession
+      plan<-future::multisession
     else                 
-                     plan<-future::multicore
+      plan<-future::multicore
   }
   RNGkind("L'Ecuyer-CMRG")
   future::plan(plan)
   lmodel<-lmerTest::as_lmerModLmerTest(model)
   onefun<-function() {
-      y<-stats::simulate(lmodel)$sim_1
-      fit<-simr::doFit(y,lmodel)
-      fit<-lmerTest::as_lmerModLmerTest(fit)
-      anov<-stats::anova(fit)
-      anov$name<-rownames(anov)
-      anov 
+    y<-stats::simulate(lmodel)$sim_1
+    fit<-simr::doFit(y,lmodel)
+    fit<-lmerTest::as_lmerModLmerTest(fit)
+    anov<-stats::anova(fit)
+    anov$name<-rownames(anov)
+    anov 
   }
   ## sims<-rbind,lapply(1:3,function(x) onefun())
   R<-obj$info$R
   if (obj$info$parallel)
-             sims<-foreach::foreach(i = 1:R, .options.future = list(seed = TRUE)) %dofuture%  onefun()
-  
+    sims<-foreach::foreach(i = 1:R, .options.future = list(seed = TRUE)) %dofuture%  onefun()
+  else
+    sims<-rbind(lapply(1:R,function(x) onefun()))
+                
   res<-as.data.frame(do.call(rbind,sims))
-  res$power<-res[,6] < .05
+  res$power<- (res[,6] < obj$info$sig.level)
   pow<-lapply(c("NumDF", "DenDF","F value","Pr(>F)","power"), function(name) tapply(res[[name]],res$name,mean, na.rm=T))
   pow<-as.data.frame(do.call(cbind,pow))
   names(pow)<-c("df","df_error","F","p","power")
-  pow$sig.level<-data$sig.level
-  pow$n<-obj$data$n
-  pow$k<-obj$data$k
+  pow$n<-n
+  pow$k<-k
   pow$effect<-rownames(pow)
-  obj$data<-pow
-}
+  return(pow)
+                
+ }
 
-
-###### local functions
 
 
 
@@ -247,7 +294,6 @@ decompose_formula<-function(astring) {
 
           if (length(.coefs) != length(.terms))
                 warns$coefs=TRUE
-
           results$coefs   <-  .coefs
           results$terms   <- .terms
           attr(results,"warnings")<-warns
@@ -305,5 +351,43 @@ check_mixed_model<- function(obj,mmterms, type, cluster=NULL) {
 
   
   
-  
+}
+
+### a sort of uniroot for integers and lower checks
+
+# Integer-only proportional seeker
+# Assumes f is non-decreasing in n (important for termination).
+int_seek <- function(f, value, t, lower = -Inf, upper = Inf,
+                     s = 10,                 # proportionality factor (bigger => larger jumps)
+                     max_iter = 100L,         # safety cap
+                     tol = 0.01) {               # optional tolerance on the target
+  # normalize inputs
+  if (!is.finite(lower)) lower <- -.Machine$integer.max
+  if (!is.finite(upper)) upper <-  .Machine$integer.max
+  upper <- as.integer(upper)
+  n<-lower  
+  steps <- 0L
+  inc<- 0
+  repeat {
+    res <- f(n)
+    y<-min(res[[value]])
+    mark(paste("int_seek trying",n,"with result",y,"inc:",inc))
+    
+    if (y > t - tol) {
+      return(list(f=res, n = n, value = y, steps = steps, hit_upper = FALSE))
+    }
+    if (n >= upper) {
+      return(list(f=res, n = n, value = y, steps = steps, hit_upper = TRUE))
+    }
+    gap <- t - y                 # in [0,1]
+    inc <- as.integer(ceiling(s * gap))  # proportional to gap
+
+    if (inc < 1L) inc <- 1L
+    if (n + inc > upper) inc <- upper - n
+    n <- n + inc
+    steps <- steps + 1L
+    if (steps >= max_iter) {
+      return(list(f=res, n = n, value = f(n), steps = steps, hit_upper = (n >= upper)))
+    }
+  }
 }

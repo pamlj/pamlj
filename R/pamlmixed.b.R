@@ -12,7 +12,7 @@ pamlmixedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
         .runner=NULL,
         .init = function() {
 
-                jinfo(paste("MODULE:  PAMLsem #### phase init  ####"))
+                jinfo(paste("MODULE:  PAMLmixed #### phase init  ####"))
                 private$.time<-Sys.time()
                 class(private$.results) <- c('pamlj', class(private$.results)) ## this is useful in R interface
 
@@ -21,8 +21,8 @@ pamlmixedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                 private$.runner          <-  Runner$new(self)
 
                  ### handle plotter #####
-                 private$.plotter<-Plotter$new(self,private$.runner)
-                 private$.plotter$initPlots()      
+#                 private$.plotter<-Plotter$new(self,private$.runner)
+#                 private$.plotter$initPlots()      
       ### info table ###
                  aSmartObj<-SmartTable$new(self$results$infotab,private$.runner)
                  ladd(private$.smartObjs)<-aSmartObj
@@ -30,24 +30,7 @@ pamlmixedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                  aSmartObj<-SmartTable$new(self$results$powertab,private$.runner)
                  ladd(private$.smartObjs)<-aSmartObj
 
-                 aSmartObj<-SmartTable$new(self$results$powerbyn,private$.runner)
-                 ladd(private$.smartObjs)<-aSmartObj
-                 
-                 aSmartObj                  <- SmartTable$new(self$results$implied$covs, private$.runner)
-                 aSmartObj$expandOnInit     <- TRUE
-                 aSmartObj$expandFrom       <- 3
-                 ladd(private$.smartObjs)   <- aSmartObj
 
-                 aSmartObj                  <- SmartTable$new(self$results$implied$lvcovs, private$.runner)
-                 aSmartObj$expandOnInit     <- TRUE
-                 aSmartObj$expandFrom       <- 3
-                 ladd(private$.smartObjs)   <- aSmartObj
-
-                 aSmartObj                  <- SmartTable$new(self$results$implied$betas, private$.runner)
-                 aSmartObj$expandOnRun      <- TRUE
-                 aSmartObj$expandFrom       <- 3
-                 ladd(private$.smartObjs)   <- aSmartObj
-                           
                  aSmartObj<-SmartTable$new(self$results$customtable,private$.runner)
                  aSmartObj$hideOn<-list("z"=NA)
                  ladd(private$.smartObjs)<-aSmartObj
@@ -61,9 +44,9 @@ pamlmixedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
         }, ## end of init
         .run = function() {
                 now <- Sys.time()
-                jinfo(paste("MODULE:  PAMLsem #### phase run  ####"))
+                jinfo(paste("MODULE:  PAMLmixed #### phase run  ####"))
                  private$.runner$run()
-                 private$.plotter$preparePlots()
+                 #private$.plotter$preparePlots()
                  for (tab in private$.smartObjs) {
                      tab$runTable()
                  }

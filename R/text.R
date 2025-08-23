@@ -38,6 +38,7 @@ sem_init <- "<p> Please select the aim of the analysis:</p>
                   </ul>
                   <p> In all cases, you can set the required Type I error rate (significance cut-off)</p>
                   "
+mix_init  <- "<p> This submodule is highly experimental. Please use it only for testing and debugging</p>"
 
 INFO<-list()
 
@@ -48,6 +49,7 @@ INFO[["proportions"]] <- common_init
 INFO[["factorial"]]   <- factorial_init
 INFO[["mediation"]]   <- mediation_init
 INFO[["pamlsem"]]     <- sem_init
+INFO[["pamlmixed"]]     <- mix_init
 
 
 INFO2<-list()

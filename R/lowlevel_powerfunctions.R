@@ -30,7 +30,6 @@ pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,sig.level=NULL,df_model=N
     }
     p.body <- quote({
         lambda <- ncp(f2 , u, v)
-        mark(sig.level, u, v,lambda,f2,df_model)
         pow<-pf(qf(sig.level, u, v, lower.tail = FALSE), u, v, lambda, lower.tail = FALSE)
         pow 
     })

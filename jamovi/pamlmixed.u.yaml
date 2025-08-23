@@ -19,88 +19,77 @@ children:
           - type: ComboBox
             name: find
             enable: (aim:n)
-
       - type: CustomControl
         stretchFactor: 1
         name: syntax
         events:
           creating: ./mixed_editor::editor_creating
-
-  
- 
   - type: Label
     label: Model Structure
     name: model_structure
     margin: large
     stretchFactor: 1
     children:
-          - type: LayoutBox
-            name: box_model_structure
-            stretchFactor: 1            
+      - type: LayoutBox
+        name: box_model_structure
+        stretchFactor: 1
+        children:
+          - type: Label
+            label: Clusters
+            name: label_clusters
+            stretchFactor: 1
             children:
-              - type: Label
-                label: Clusters
-                name: label_clusters
+              - type: ListBox
+                name: clusterpars
                 stretchFactor: 1
-                children:
-                -       type: ListBox
-                        name: clusterpars
-                        stretchFactor: 1
-                        events:
-                          listItemAdded: ./common::onChange_value_added
-                          listItemRemoved: ./common::onChange_value_removed
-                        showColumnHeaders: true
-                        columns:
-                        -       name: name
-                                label: Name
-                                template:
-                                        type: Label
-                                        stretchFactor: 2
-
-                        -       name: k
-                                label: Levels
-                                template:
-                                        type: TextBox
-                                        stretchFactor: 1
-
-
-                        -       name: n
-                                label: Cases
-                                template:
-                                        type: TextBox
-                                        stretchFactor: 1
-                               
-
-              - type: Label
-                label: Variables
-                name: label_variables
+                events:
+                  listItemAdded: ./common::onChange_value_added
+                  listItemRemoved: ./common::onChange_value_removed
+                showColumnHeaders: true
+                columns:
+                  - name: name
+                    label: Name
+                    template:
+                      type: Label
+                      stretchFactor: 2
+                  - name: k
+                    label: Levels
+                    template:
+                      type: TextBox
+                      stretchFactor: 1
+                  - name: 'n'
+                    label: Cases
+                    template:
+                      type: TextBox
+                      stretchFactor: 1
+          - type: Label
+            label: Variables
+            name: label_variables
+            stretchFactor: 1
+            children:
+              - type: ListBox
+                name: var_type
                 stretchFactor: 1
-                children:
-                -       type: ListBox
-                        name: var_type
-                        stretchFactor: 1
-                        events:
-                          listItemAdded: ./common::onChange_value_added
-                          listItemRemoved: ./common::onChange_value_removed
-                        showColumnHeaders: true
-                        columns:
-                        -       name: name
-                                label: Name
-                                template:
-                                        type: Label
-                                        stretchFactor: 2
-
-                        -       name: type
-                                label: Type
-                                template:
-                                        type: ComboBox
-                                        stretchFactor: 1
-                        -       name: levels
-                                label: Levels
-                                template:
-                                        type: TextBox
-                                        stretchFactor: 1
-
+                events:
+                  listItemAdded: ./common::onChange_value_added
+                  listItemRemoved: ./common::onChange_value_removed
+                showColumnHeaders: true
+                columns:
+                  - name: name
+                    label: Name
+                    template:
+                      type: Label
+                      stretchFactor: 2
+                  - name: type
+                    label: Type
+                    template:
+                      type: ComboBox
+                      stretchFactor: 1
+                  - name: levels
+                    label: Levels
+                    template:
+                      type: TextBox
+                      stretchFactor: 1
   - type: Label
     label: Parameters
     name: power_parameters
@@ -111,170 +100,10 @@ children:
         label: Minimum desired power
         format: number
         enable: (!aim:power)
-      - name: n
-        type: TextBox
-        label: N (Sample size)
-        format: number
-        enable: (!aim:n)
       - name: sig.level
         type: TextBox
         label: '&alpha; (type I error rate)'
         format: number
-      - type: ComboBox
-        name: alternative
-  - type: LayoutBox
-    style: inline
-    name: model_options
-    children:
-      - type: Label
-        label: Model
-        children:
-          - type: ComboBox
-            name: estimator
-          - type: CheckBox
-            name: standardized
-
-      - type: LayoutBox
-        children:
-
-          - type: Label
-            label: Method
-            children:
-                - name: method_mca
-                  type: RadioButton
-                  optionName: method
-                  optionPart: mca
-                - type: RadioButton
-                  name: method_mcf
-                  optionName: method
-                  optionPart: mcf
-
-          - type: Label
-            label: Test
-            children:
-                - name: mc_test_lrt
-                  type: RadioButton
-                  optionName: mc_test
-                  optionPart: lrt
-                  enable: (method_mc)
-                - type: RadioButton
-                  name: mc_test
-                  optionName: mc_test
-                  optionPart: score
-                  enable: (method_mc)
-
-      - type: Label
-        label: Options
-        children:
-          - type: CheckBox
-            name: explain
-          - type: LayoutBox
-            name: diagram_box
-            children:
-              - type: CheckBox
-                name: lav_diagram
-  - type: CollapseBox
-    label: Sensitivity Analysis
-    name: panel_sensitivity
-    collapsed: true
-    stretchFactor: 1
-    children:
-      - type: LayoutBox
-        style: inline
-        children:
-          - type: Label
-            label: Plots
-            children:
-              - type: CheckBox
-                name: plot_ncurve
-          - type: Label
-            label: Options
-            children:
-              - name: plot_log
-                type: CheckBox
-              - type: ComboBox
-                name: plot_palette
-      - type: Label
-        label: Tables
-        children:
-          - type: CheckBox
-            name: table_pwbyn
-  - type: CollapseBox
-    label: Power Parameters plot
-    name: panel_customplot
-    collapsed: true
-    stretchFactor: 1
-    children:
-      - type: LayoutBox
-        children:
-          - type: LayoutBox
-            style: inline
-            children:
-              - type: Label
-                label: Plot Y-axis
-                children:
-                  - type: LayoutBox
-                    style: inline
-                    children:
-                      - type: ComboBox
-                        name: plot_y
-                      - type: CheckBox
-                        name: plot_custom_labels
-              - type: Label
-                label: Results in table
-                children:
-                  - type: CheckBox
-                    name: plot_to_table
-          - type: Label
-            label: Plot X-axis
-            children:
-              - type: LayoutBox
-                style: inline
-                children:
-                  - type: ComboBox
-                    name: plot_x
-                    events:
-                      change: ./common::plot_x_changed
-                  - type: TextBox
-                    name: plot_x_from
-                    format: number
-                  - type: TextBox
-                    name: plot_x_to
-                    format: number
-          - type: Label
-            label: Plot Different Curves by
-            children:
-              - type: LayoutBox
-                style: inline
-                children:
-                  - type: ComboBox
-                    name: plot_z
-                    events:
-                      change: ./common::plot_z_changed
-                  - type: TextBox
-                    name: plot_z_lines
-                    format: number
-                    enable: (!plot_z:none)
-                    events:
-                      change: ./common::plot_z_lines_changed
-          - type: LayoutBox
-            name: plot_lines_values
-            children:
-              - type: Label
-                label: Values for each curves
-                name: plot_value_label
-                children:
-                  - type: ListBox
-                    name: plot_z_value
-                    events:
-                      listItemAdded: ./common::onChange_value_added
-                      listItemRemoved: ./common::onChange_value_removed
-                    showColumnHeaders: false
-                    columns:
-                      - name: var
-                        label: Value
-                        template:
-                          type: TextBox
   - type: CollapseBox
     label: Options
     name: panel_options
@@ -308,24 +137,3 @@ children:
                         name: seed
                         format: number
                         enable: (set_seed)
-
-      - type: LayoutBox
-        style: inline
-        children:
-          - type: Label
-            label: Path Diagram
-            name: label_diagram_options
-            children:
-                     - type: ComboBox
-                       name: diag_size
-          - type: Label
-            label: Model Check
-            name: label_inspect_options
-            children:
-                     - type: CheckBox
-                       name: inspect_sigma
-                     - type: CheckBox
-                       name: inspect_lvcov
-                     - type: CheckBox
-                       name: inspect_zbeta
-                       

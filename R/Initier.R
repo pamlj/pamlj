@@ -72,7 +72,7 @@ Initer <- R6::R6Class(
                  list(info="Fixed coefs",value=paste(info$fixed$coefs, collapse=", "), specs=""),       
                  list(info="Clusters:",value=" ",specs=" ")
             )
-      for (cluster in info$clusters) ladd(tab)<-list(info="Clusters:",value=cluster,specs="Levels=" %+% info$re[[cluster]]$k %+%  " N=" %+% info$re[[cluster]]$n)
+      for (cluster in info$clusters) ladd(tab)<-list(info="Clusters:",value=cluster)
       ladd(tab)<-list(info="Variables:",value=" ",specs=" ")
       for (var in info$variables) ladd(tab)<-list(info="Variables:",value=var$name,specs=var$type  )
       tab
