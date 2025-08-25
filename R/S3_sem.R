@@ -14,7 +14,8 @@
         obj$warning<-list(topic="issues",message="Please input the SEM model in the syntax box", head="info")
         return()
       }
-      spsyntax   <-  strsplit(syntax,"\\n")[[1]]      
+      spsyntax   <-  strsplit(syntax,"\\R", perl=TRUE)[[1]]      
+#      mark(syntax,spsyntax)
       ### population model
       popModel   <-  gsub("\\*\\s*[A-Za-z]\\s*\\*", "\\*", spsyntax)
       keep       <-  grep("==|:=",popModel,invert=T)
@@ -194,7 +195,7 @@
    }
     text <- text %+% "</ul>"
     if (obj$aim=="n")
-        text <- text %+% "<p> To meet the previous requirements, one requires a minimum sample size of N=" %+% obj$data$n %+% "</p>"
+        text <- text %+% "<p> To meet the previous requirements, one requires a minimum sample size of N=" %+% round(obj$data$n) %+% "</p>"
     else
         text <- text %+% "<p> Meeting the previous requirements, given the input sample size, yields a power of " %+% format(obj$data$power,digits=3)  %+% "</p>"
       

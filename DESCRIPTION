@@ -4,7 +4,7 @@ Title: Power Analysis for linear models
 Version: 0.7.1
 Author: Marcello Gallucci
 Maintainer: Marcello Gallucci <mcfanda@gmail.com>
-Description:   (beta) A suite for power analysis for linear models. At the moment, it allows for
+Description:   (beta) A suite for power analysis for linear models. It allows for
                power analysis of Pearson correlation, the general linear model
                (t-test/Correlation/Anova/Regression/ANCOVA) and other statistical tests, such as
                mediation models, structural equations model, tests on proportions, and more.
