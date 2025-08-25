@@ -1,7 +1,7 @@
 ---
 title: Power analysis for linear models
 name: pamlj
-version: 0.7.0
+version: 0.7.1
 jms: '1.0'
 authors:
   - Marcello Gallucci
