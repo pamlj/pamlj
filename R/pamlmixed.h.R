@@ -190,11 +190,7 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         initnotes = function() private$.items[["initnotes"]],
         infotab = function() private$.items[["infotab"]],
         powertab = function() private$.items[["powertab"]],
-        plotnotes = function() private$.items[["plotnotes"]],
-        powerNcurve = function() private$.items[["powerNcurve"]],
-        powerCustom = function() private$.items[["powerCustom"]],
-        customnotes = function() private$.items[["customnotes"]],
-        customtable = function() private$.items[["customtable"]]),
+        plotnotes = function() private$.items[["plotnotes"]]),
     private = list(),
     public=list(
         initialize=function(options) {
@@ -285,51 +281,7 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=options,
                 name="plotnotes",
                 title="Plot notes",
-                visible=FALSE))
-            self$add(jmvcore::Image$new(
-                options=options,
-                name="powerNcurve",
-                title="Power Curve by N",
-                width=400,
-                height=350,
-                renderFun=".plot_ncurve",
-                visible="(plot_ncurve)"))
-            self$add(jmvcore::Image$new(
-                options=options,
-                name="powerCustom",
-                title="Power Parameters",
-                width=450,
-                height=350,
-                renderFun=".plot_custom",
-                visible=FALSE))
-            self$add(jmvcore::Html$new(
-                options=options,
-                name="customnotes",
-                title="Plot notes",
-                visible=FALSE))
-            self$add(jmvcore::Table$new(
-                options=options,
-                name="customtable",
-                title="Power Analysis parameters",
-                visible="(plot_to_table && !plot_x:none && !plot_y:none)",
-                columns=list(
-                    list(
-                        `name`="y", 
-                        `title`="Y", 
-                        `type`="number"),
-                    list(
-                        `name`="x", 
-                        `title`="X", 
-                        `type`="number"),
-                    list(
-                        `name`="z", 
-                        `title`="Z", 
-                        `type`="number", 
-                        `visible`=FALSE),
-                    list(
-                        `name`="es", 
-                        `title`="ME", 
-                        `type`="Number"))))}))
+                visible=FALSE))}))
 
 pamlmixedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     "pamlmixedBase",
@@ -383,10 +335,6 @@ pamlmixedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$infotab} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$plotnotes} \tab \tab \tab \tab \tab a html \cr
-#'   \code{results$powerNcurve} \tab \tab \tab \tab \tab an image \cr
-#'   \code{results$powerCustom} \tab \tab \tab \tab \tab an image \cr
-#'   \code{results$customnotes} \tab \tab \tab \tab \tab a html \cr
-#'   \code{results$customtable} \tab \tab \tab \tab \tab a table \cr
 #' }
 #'
 #' Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:

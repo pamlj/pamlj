@@ -31,10 +31,6 @@ pamlmixedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                  ladd(private$.smartObjs)<-aSmartObj
 
 
-                 aSmartObj<-SmartTable$new(self$results$customtable,private$.runner)
-                 aSmartObj$hideOn<-list("z"=NA)
-                 ladd(private$.smartObjs)<-aSmartObj
-                 
                  ### init all ####
                  for (tab in private$.smartObjs) {
                      tab$initTable()
