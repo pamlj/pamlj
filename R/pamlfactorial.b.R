@@ -30,6 +30,7 @@ pamlfactorialClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class
                  ladd(private$.smartObjs)<-aSmartObj
 
                  aSmartObj<-SmartTable$new(self$results$powerbyes,private$.runner)
+                 aSmartObj$debug <- TRUE
                  ladd(private$.smartObjs)<-aSmartObj
 
                  aSmartObj<-SmartArray$new(self$results$means,private$.runner)

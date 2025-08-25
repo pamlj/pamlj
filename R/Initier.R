@@ -63,6 +63,20 @@ Initer <- R6::R6Class(
 
   }, # here initialize ends
     #### init functions #####
+  
+    init_infotab = function() {
+       
+      info<-self$info$model
+      tab<- list(list(info="Model",value=info$formula, specs=""),
+                 list(info="Fixed effects",value=info$fixed$rhs, specs=""),       
+                 list(info="Fixed coefs",value=paste(info$fixed$coefs, collapse=", "), specs=""),       
+                 list(info="Clusters:",value=" ",specs=" ")
+            )
+      for (cluster in info$clusters) ladd(tab)<-list(info="Clusters:",value=cluster)
+      ladd(tab)<-list(info="Variables:",value=" ",specs=" ")
+      for (var in info$variables) ladd(tab)<-list(info="Variables:",value=var$name,specs=var$type  )
+      tab
+    },
     init_powertab = function() {
     
         powertab_init(self)

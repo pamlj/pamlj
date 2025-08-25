@@ -16,7 +16,7 @@
       obj$info$alternative <- obj$options$alternative
       obj$info$nmin        <- obj$data$df_model+2
       obj$info$logy        <- TRUE
-      
+      obj$info$r2          <- obj$options$b_r2
       obj$info$ri2         <- 0
       obj$info$r2          <- obj$options$b_r2
       obj$info$toaes            <- function(value) value^2*(1-obj$info$ri2)/(1-obj$info$r2)

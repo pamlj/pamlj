@@ -353,6 +353,7 @@ check_parameters <- function(values, fun=is.null, verbose = TRUE, head="Please f
       needed <- names(values)
       what   <- unlist(sapply(values,fun))
       needed <- needed[what]
+      
       if (length(needed)>0) {
             if (verbose) {
             text <- "<p>" %+% head %+% "</p> <ul>" 
@@ -363,4 +364,17 @@ check_parameters <- function(values, fun=is.null, verbose = TRUE, head="Please f
                 return(needed)
       }
       return()
+}
+
+test_parameters <- function(obj,values, fun=is.null, verbose = TRUE, head="Please fill in the required input:") {
+  
+  test<-check_parameters(values,fun=fun,verbose=verbose,head=head) 
+ 
+  if (length(test)>0) {
+     obj$ok <-FALSE
+     obj$warning<-list(topic="issues",message=paste(test,collapse=", "), head="info") 
+     call <- rlang::expr(return()) 
+     rlang::eval_bare(call, env = parent.frame())
+     
+  }
 }

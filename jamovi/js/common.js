@@ -36,6 +36,7 @@ const events = {
 
      ui.plot_z_value.setValue([]);
      ui.plot_z_lines.setValue(1);
+     
      fun.update_z_value(ui);
      
     },
@@ -59,9 +60,10 @@ const events = {
     },
     
     onChange_value_added: function(ui) {
-      
+      console.log("values added");
     },
     onChange_value_removed: function(ui) {
+      console.log("values removed");
       
     }
 

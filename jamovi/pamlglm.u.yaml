@@ -314,10 +314,10 @@ children:
                 events:
                   change: ./pamlglm::onChange_convert
               - type: TextBox
-                name: epsilon
+                name: omega
                 format: number
               - type: TextBox
-                name: omega
+                name: epsilon
                 format: number
               - type: TextBox
                 name: gpower
@@ -326,7 +326,8 @@ children:
                 name: f2
                 format: number
                 events:
-                  change: ./pamlglm::onChange_convert
+                  change: ./pamlglm::onChange_use
+
           - type: Label
             label: Use as effect size
             children:
@@ -334,32 +335,30 @@ children:
                 type: RadioButton
                 optionName: use
                 optionPart: none
-                events:
-                  change: ./pamlglm::onChange_convert
               - name: use_omega
                 type: RadioButton
                 optionName: use
                 optionPart: omega
                 events:
-                  change: ./pamlglm::onChange_convert
+                  change: ./pamlglm::onChange_use
               - type: RadioButton
                 name: use_epsilon
                 optionName: use
                 optionPart: epsilon
                 events:
-                  change: ./pamlglm::onChange_convert
+                  change: ./pamlglm::onChange_use
               - type: RadioButton
                 name: use_gpower
                 optionName: use
                 optionPart: gpower
                 events:
-                  change: ./pamlglm::onChange_convert
+                  change: ./pamlglm::onChange_use
               - type: RadioButton
                 name: use_f2
                 optionName: use
                 optionPart: f2
                 events:
-                  change: ./pamlglm::onChange_convert
+                  change: ./pamlglm::onChange_use
       - type: LayoutBox
         name: other_stuff
         style: inline

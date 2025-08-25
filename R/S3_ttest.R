@@ -155,7 +155,7 @@
                  results$n  <- results$n1 + results$n2
                  results$df <- results$n - 2
                  results$es <- obj$info$fromaes(results$d)
-                 if (is.something(obj$data$equi_limit)) {
+                 if (is.something(obj$info$equi_limit)) {
                     results$power<-2*results$power-1
                     results$sig.level<-results$sig.level/2
                  }

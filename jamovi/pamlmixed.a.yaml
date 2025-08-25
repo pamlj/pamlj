@@ -1,0 +1,183 @@
+---
+name: pamlmixed
+title: Linear Mixed Models 
+menuGroup: Power
+version: '0.5.0'
+jas: '1.2'
+export: true
+completeWhenFilled: false
+description:
+    main: |
+           Something here
+
+options:
+
+    - name: aim
+      title: Calculate 
+      type:  List
+      default: n
+      options:
+        - name:  n
+          title: N
+        - name: power
+          title: Power
+      description:
+                R: |
+                        The aim of the analysis: `n` (default) for sample size, `power` to estimate power
+                ui: |
+                        The aim of the analysis: `N` (default) for sample size, `Power` to estimate power
+
+    - name: find
+      title: Find 
+      type:  List
+      default: k
+      options:
+        - name:  k
+          title: Number of clusters
+        - name:  n
+          title: Cases within clusters
+
+      description:
+                R: |
+                        The aim of the analysis: `n` (default) for sample size, `power` to estimate power
+                ui: |
+                        The aim of the analysis: `N` (default) for sample size, `Power` to estimate power
+
+
+### syntax stuff
+
+    - name: code
+      type: String
+      hidden: true
+      default: ""
+      
+    - name: fonts
+      type: String
+      default: "small"
+      hidden: true
+
+    - name: toggle
+      type: Bool
+      default: false
+      hidden: true
+      
+#####################      
+      
+    - name: power
+      title: Minimal desired power 
+      type:  Number
+      default: .90
+      description:
+                R: |
+                        Minimal desired power 
+
+    - name: sig.level
+      title: Alpha (Type I rate)  
+      type:  Number
+      default: .05
+      description:
+                R: |
+                        Type I error rate (significance cut-off or alpha) 
+
+
+
+
+    -   name: mcR
+        title: Number of simulations
+        type: Number
+        default: 500
+        description:
+                R: |
+                      Number of repetitions for Monte Carlo method 
+
+    -   name: parallel
+        title: Parallel computation
+        type: Bool
+        default: true
+        description:
+                R: |
+                      Logical: should parallel computing be used for the Monte Carlo method 
+                ui: |
+                      Should parallel computing be used for the Monte Carlo method 
+   
+    -   name: set_seed
+        title: Use a seed
+        type: Bool
+        default: false
+        description:
+                R: |
+                      not used in R 
+        
+                ui: |
+                      Should we use a seed for the  Monte Carlo method 
+
+    -   name: seed
+        title: Seed
+        type: Number
+        default: 42
+        description:
+                R: |
+                      not used in R 
+  
+                ui: |
+                      What seed should we use for Monte Carlo method. Default is Life, the Universe and Everything
+
+
+
+
+    - name: .interface
+      type: String
+      default: jamovi
+      hidden: true
+      description:
+                R: |
+                        Used for internal purposes 
+
+    - name: .caller
+      type: String
+      default: pamlmixed
+      hidden: true
+      description:
+                R: |
+                        Used for internal purposes 
+
+
+### specifics
+
+    - name: clusterpars
+      type: Array
+   #   hidden: true
+      default: []
+      template: 
+             type: Group
+             elements: 
+              - name:  name
+                type: String
+              - name:  k
+                type: String
+              - name:  n
+                type: String
+
+
+    - name: var_type
+      title: Variable type
+      type: Array
+      default: []
+      template:
+                type: Group
+                elements:
+                  -     name: name
+                        type: String
+                  -     name: type
+                        type: List
+                        options:
+                          - categorical
+                          - continuous
+                        default: continuous
+                  -     name: levels
+                        type: String
+
+
+ 
+...
+

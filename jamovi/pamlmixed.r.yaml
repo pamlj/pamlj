@@ -1,6 +1,6 @@
 ---
-name:  pamlglm
-title: T-Test power analysis
+name:  pamlmixed
+title: Mixed Models Power analysis 
 jrs:   "1.1"
 
 items:
@@ -8,91 +8,79 @@ items:
     - name: intro
       title: Introduction
       type: Html
-      
-    - name: issues
-      title: Issues
-      type: Html
-      visible: false
 
     - name: extrainfo
       title: Extra Info
       type: Html
       visible: false
 
+    - name: issues
+      title: Issues
+      type: Html
+      visible: false
+
+    - name: initnotes
+      type: Html
+      visible: false
+ 
+    - name:  infotab
+      title: Model Information
+      type: Table
+      columns: 
+        - name: info
+          title: 'Info'
+          type: text
+          combineBelow: true
+        - name: value
+          title: ''
+          type: text
+        - name: specs
+          title: ''
+          type: text
+
+
     - name:  powertab
       title: A Priori Power Analysis
       type: Table
       rows:  1
-      refs: 
-          - pwr
-          - jpower
       columns: 
+        - name: effect
+          title: 'Estimate'
+          type: text
         - name: n
-          title: 'N'
+          title: 'N per cluster'
           type: integer
-        - name: n1
-          title: N₁
+        - name: k
+          title: 'Cluster levels'
           type: integer
-
-        - name: n2
-          title: N₂
-          type: integer
-
-        - name: es
-          title: 'Effect size'
-          type: number
         - name: power
           title: 'Power'
           type: number
+        - name: F
+          title: 'F'
+          type: number
         - name: df
           title: 'df'
-          type: integer
+          type: number
+        - name: df_error
+          title: 'df_error'
+          type: number
+
         - name: sig.level
-          title: '&alpha;'
+          title: α
           type: number
-
-
-    - name:  powerbyes
-      title: Power by Effect Size
-      type: Table
-      rows:  4
-      columns:
-        - name: es
-          title: 'True effect size'
+        - name: conv
+          title: '% converged'
           type: number
+          visible: (method:mc)
 
-        - name: power
-          title: 'Power to detect'
-          type: text
 
-        - name: desc
-          title: 'Description'
-          type: text
 
+            
     - name: plotnotes
       title: Plot notes
       type: Html
       visible: false
-
-
-
-    - name: powerContour
-      title: Power Contour
-      type: Image
-      width:  500
-      height: 350
-      renderFun: .plot_contour
-      visible: (plot_contour & !is_equi)
-
-
-    - name: powerEscurve
-      title: Power Curve by Effect Size
-      type: Image
-      width:  400
-      height: 350
-      renderFun: .plot_escurve
-      visible: (plot_escurve & !is_equi)
-
 
     - name: powerNcurve
       title: Power Curve by N
@@ -100,9 +88,7 @@ items:
       width:  400
       height: 350
       renderFun: .plot_ncurve
-      visible: (plot_ncurve & !is_equi)
-
-
+      visible: (plot_ncurve)
 
     - name: powerCustom
       title: Power Parameters
@@ -111,12 +97,12 @@ items:
       height: 350
       renderFun: .plot_custom
       visible: false
-
+      
     - name: customnotes
       title: Plot notes
       type: Html
       visible: false
-      
+
     - name:  customtable
       title: Power Analysis parameters
       type: Table
@@ -132,12 +118,6 @@ items:
           title: "Z"
           type: number
           visible: false
-        - name: n1
-          title: N₁
-          type: integer
-          visible: false
-        - name: n2
-          title: N₂
-          type: integer
-          visible: false
-        
+        - name: es
+          title: ME
+          type: Number

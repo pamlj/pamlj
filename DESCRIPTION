@@ -1,7 +1,7 @@
 Package: pamlj
 Type: Package
 Title: Power Analysis for linear models 
-Version: 0.6.3
+Version: 0.7.1
 Author: Marcello Gallucci
 Maintainer: Marcello Gallucci <mcfanda@gmail.com>
 Description:   (beta) A suite for power analysis for linear models. It allows for
@@ -10,8 +10,9 @@ Description:   (beta) A suite for power analysis for linear models. It allows fo
                mediation models, structural equations model, tests on proportions, and more.
                It provides estimation of required sample size, power and minimally-detectable
                effect size, plus plots for sensitivity analysis.
-License: GPL (>=2) 
+License: GPL (>=2)
 Encoding: UTF-8
 LazyData: true
-Imports: jmvcore (>= 0.8.0), pwr,viridis,rlang, qgraph, foreach, doFuture, semPower, MASS, lavaan
+Imports: jmvcore (>= 0.8.0), pwr,viridis,rlang, qgraph, foreach, doFuture, semPower, MASS, lavaan,
+         simr
 RoxygenNote: 7.3.0

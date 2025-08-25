@@ -189,8 +189,10 @@ Plotter <- R6::R6Class(
       
      if (!self$option("plot_contour"))
               return()
-     if (self$option("is_equi"))
-              return()
+     if (self$option("is_equi")) {
+       self$warning<-list(topic="plotnotes",message="Sensitivity plots are not available for equivalence tests", head="info")
+       return()
+     }
        if (!("powerContour" %in% names(private$.results)))
            return()
 
