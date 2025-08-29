@@ -124,7 +124,6 @@ options:
 
 
 
-
     - name: .interface
       type: String
       default: jamovi

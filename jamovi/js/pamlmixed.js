@@ -4,12 +4,12 @@ const events = {
 
  aim_changed: function(ui) {
  
-  fixclusters(ui, ui.clusterpars.value());  
+//  fixclusters(ui, ui.clusterpars.value());  
    
  },
  find_changed: function(ui) {
  
-  fixclusters(ui, ui.clusterpars.value());  
+//  fixclusters(ui, ui.clusterpars.value());  
    
  },
  
@@ -94,7 +94,7 @@ const events = {
  clusterpars_changed:  function(ui) {
    
     var clusters =  utils.clone(ui.clusterpars.value(), []);  
- 
+    return;
     if (ui.aim.value() === "power") 
          return;
          

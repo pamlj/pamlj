@@ -42,6 +42,8 @@
       model          <-  modelobj$obj
       obj$info$lvnames<-lavaan::lavNames(model,type="lv")
       obj$info$ovnames<-lavaan::lavNames(model,type="ov")
+
+  
       
       if (obj$options$standardized) {
         ### here comes the magic standardization :-)
@@ -53,7 +55,6 @@
         str_popModel   <-  paste(paste(str_popModel,"\n"),varstr,collapse="\n")
         lsigma         <-  diag(lavaan::inspect(model,"cov.lv"))
       
-  
         if (length(lsigma)>0) {
             exvar          <-  rep(2,length(lsigma))-lsigma
             exvar          <-  exvar[exvar!=1]

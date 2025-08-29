@@ -103,7 +103,7 @@
          x$n<-as.numeric(x$n)
          if (is.na(x$n)) x$n<-2
          x$k<-as.numeric(x$k)
-         if (is.na(x$k)) x$k<-10
+         if (is.na(x$k)) x$k<-5
          x$coefs<-re$coefs
          x$terms<-re$terms
          x$name<-NULL
@@ -151,19 +151,20 @@
   
   find<-obj$options$find
   
+
   if (obj$aim=="n") {
     if (find == "k") {
            n<-obj$info$model$re[[1]]$n
-           l <- 5
+           l <- obj$info$model$re[[1]]$k
            f<-function(int) {
-             pamlmixed_onerun(obj,n,int)
+             pamlmixed_onerun(obj,n=NULL,int)
            }
     }
     if (find == "n") {
            k<-obj$info$model$re[[1]]$k
-           l <- 2
+           l <- obj$info$model$re[[1]]$n
            f<-function(int) {
-             pamlmixed_onerun(obj,int,k)
+             pamlmixed_onerun(obj,int,k=NULL)
            }
     }
     .pow<-int_seek(f,"power",obj$info$power,lower=l,upper=2000)  
@@ -186,15 +187,41 @@
 ###### local functions
 
 
-pamlmixed_makemodel <- function(obj,n,k) {
+pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
+  
   
   infomod<-obj$info$model
   fixed<-as.list(infomod$fixed$coefs)
-  data<-lme4::mkDataTemplate(as.formula(infomod$formula),nGrps=k,nPerGrp=n,rfunc=rnorm)
+#  data<-lme4::mkDataTemplate(as.formula(infomod$formula),nGrps=k,nPerGrp=n,rfunc=rnorm)
+  #mark(infomod)
+  #### cluster data
+  ks<-sapply(infomod$re, function(x) x$k)
+  if (is.something(k)) ks[[1]]<-k
+  levels<-lapply(ks,function(x) 1:x)
+  cdata<-as.data.frame(expand.grid(levels))
+  names(cdata)<-infomod$clusters
+  ### within data
+  ns<-sapply(infomod$re, function(x) x$n)
+  if (is.something(n)) ns[[1]]<-n
+  levels<-lapply(ns,function(x) 1:x)
+  wdata<-as.data.frame(expand.grid(levels))
+  names(wdata)<-paste0(".id.",1:length(levels))
+  ### put them together
+  ldata<-list()
+  for (i in seq_len(nrow(cdata))) {
+    one<-cbind(cdata[i,],wdata)
+    ldata[[length(ldata)+1]]<-one
+  }
+  jinfo("PAMLj: sample clusters:",paste(ks),"with ns:",paste(ns))
+  data<-do.call(rbind,ldata)
+  names(data)<-c(infomod$clusters,  names(wdata)<-paste0(".id.",1:length(levels)))
+  r<-nrow(data)
   for (i in seq_along(infomod$variables)) {
     x<-infomod$variables[[i]]
+    data[[x$name]]<-rnorm(r)
     if (x$type=="categorical") {
-      data[[x$name]]<-cut(data[[x$name]],breaks=x$levels,labels=1:x$levels)
+      rep<-round(r/x$levels)
+      data[[x$name]]<-factor(rep(1:x$levels,rep+100)[1:r])
       xcoefs<-fixed[[i]]
       if (x$levels>2) xcoefs<-c(fixed[[i]],rep(0,x$levels-2)) 
       fixed[[i]]<-xcoefs
@@ -216,13 +243,15 @@ pamlmixed_makemodel <- function(obj,n,k) {
   if (!isFALSE(modelobj$error)) {
     obj$stop(modelobj$error)
   }
-  
-  return(modelobj$obj)
+  model<-modelobj$obj
+  attr(model,"n")<-ns[[1]]
+  attr(model,"k")<-ks[[1]]
+  return(model)
   
 } 
 
 
-pamlmixed_onerun <- function(obj,n,k) {
+pamlmixed_onerun <- function(obj,n=NULL,k=NULL) {
   
   
   model<-pamlmixed_makemodel(obj,n,k)
@@ -244,7 +273,6 @@ pamlmixed_onerun <- function(obj,n,k) {
     anov$name<-rownames(anov)
     anov 
   }
-  ## sims<-rbind,lapply(1:3,function(x) onefun())
   R<-obj$info$R
   if (obj$info$parallel)
     sims<-foreach::foreach(i = 1:R, .options.future = list(seed = TRUE)) %dofuture%  onefun()
@@ -256,9 +284,10 @@ pamlmixed_onerun <- function(obj,n,k) {
   pow<-lapply(c("NumDF", "DenDF","F value","Pr(>F)","power"), function(name) tapply(res[[name]],res$name,mean, na.rm=T))
   pow<-as.data.frame(do.call(cbind,pow))
   names(pow)<-c("df","df_error","F","p","power")
-  pow$n<-n
-  pow$k<-k
   pow$effect<-rownames(pow)
+  mark(attr(model,"n"))
+  pow$n<-attr(model,"n")
+  pow$k<-attr(model,"k")
   return(pow)
                 
  }
@@ -391,3 +420,6 @@ int_seek <- function(f, value, t, lower = -Inf, upper = Inf,
     }
   }
 }
+
+
+
