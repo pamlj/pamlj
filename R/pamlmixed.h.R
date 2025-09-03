@@ -11,6 +11,8 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             code = "",
             fonts = "small",
             toggle = FALSE,
+            run = NULL,
+            sigma = 1,
             power = 0.9,
             sig.level = 0.05,
             mcR = 500,
@@ -57,6 +59,14 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 toggle,
                 default=FALSE,
                 hidden=TRUE)
+            private$..run <- jmvcore::OptionAction$new(
+                "run",
+                run,
+                hidden=TRUE)
+            private$..sigma <- jmvcore::OptionNumber$new(
+                "sigma",
+                sigma,
+                default=1)
             private$..power <- jmvcore::OptionNumber$new(
                 "power",
                 power,
@@ -135,6 +145,8 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..code)
             self$.addOption(private$..fonts)
             self$.addOption(private$..toggle)
+            self$.addOption(private$..run)
+            self$.addOption(private$..sigma)
             self$.addOption(private$..power)
             self$.addOption(private$..sig.level)
             self$.addOption(private$..mcR)
@@ -152,6 +164,8 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         code = function() private$..code$value,
         fonts = function() private$..fonts$value,
         toggle = function() private$..toggle$value,
+        run = function() private$..run$value,
+        sigma = function() private$..sigma$value,
         power = function() private$..power$value,
         sig.level = function() private$..sig.level$value,
         mcR = function() private$..mcR$value,
@@ -168,6 +182,8 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..code = NA,
         ..fonts = NA,
         ..toggle = NA,
+        ..run = NA,
+        ..sigma = NA,
         ..power = NA,
         ..sig.level = NA,
         ..mcR = NA,
@@ -315,6 +331,8 @@ pamlmixedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param code .
 #' @param fonts .
 #' @param toggle .
+#' @param run .
+#' @param sigma Residual variance
 #' @param power Minimal desired power
 #' @param sig.level Type I error rate (significance cut-off or alpha)
 #' @param mcR Number of repetitions for Monte Carlo method
@@ -350,6 +368,8 @@ pamlmixed <- function(
     code = "",
     fonts = "small",
     toggle = FALSE,
+    run,
+    sigma = 1,
     power = 0.9,
     sig.level = 0.05,
     mcR = 500,
@@ -371,6 +391,8 @@ pamlmixed <- function(
         code = code,
         fonts = fonts,
         toggle = toggle,
+        run = run,
+        sigma = sigma,
         power = power,
         sig.level = sig.level,
         mcR = mcR,

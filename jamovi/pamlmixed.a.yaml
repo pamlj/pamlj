@@ -60,9 +60,21 @@ options:
       type: Bool
       default: false
       hidden: true
+
+    - name: run
+      type: Action      
+      hidden: true
       
 #####################      
       
+    - name: sigma
+      title: Residual variance 
+      type:  Number
+      default: 1
+      description:
+                R: |
+                        Residual variance 
+
     - name: power
       title: Minimal desired power 
       type:  Number

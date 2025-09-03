@@ -95,6 +95,11 @@ children:
     name: power_parameters
     margin: large
     children:
+      - name: sigma
+        type: TextBox
+        label: Residual Variance
+        format: number
+        
       - name: power
         type: TextBox
         label: Minimum desired power

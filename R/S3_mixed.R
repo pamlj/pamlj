@@ -117,7 +117,7 @@
          paste("(",.terms,"|",x,")")
          }), collapse=" + ")
       model$formula<-paste(model$fixed$lhs,"~",paste(model$fixed$terms,collapse=" + "),"+",re,collapse=" + ")
-       
+      model$sigma <- obj$options$sigma 
 
       obj$data             <- data.frame(sig.level=obj$options$sig.level)
       obj$data$power       <- obj$options$power
@@ -175,6 +175,7 @@
     
      pow<-pamlmixed_onerun(obj,obj$info$model$re[[1]]$n,obj$info$model$re[[1]]$k)
      obj$data<-pow
+     
   }
   
   return(pow)
@@ -237,7 +238,7 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
                    data=data,
                    fixef=fixed,
                    VarCorr=varcor
-                   ,sigma=1)
+                   ,sigma=infomod$sigma)
   })
 
   if (!isFALSE(modelobj$error)) {
@@ -249,7 +250,6 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
   return(model)
   
 } 
-
 
 pamlmixed_onerun <- function(obj,n=NULL,k=NULL) {
   
