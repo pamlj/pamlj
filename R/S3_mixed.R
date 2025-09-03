@@ -30,7 +30,7 @@
       }
 
       
-      ## amy cluster?
+      ## any cluster?
       if (!is.something(clusters)) {
         msg<-"<p>Please specify at least one clustering variable in the model with the syntax: </p> <p>+(1|cluster)</p>."
         obj$warning<-list(topic="issues",message=msg,head="info")
@@ -43,15 +43,25 @@
       
 
       if (obj$aim=="n") {
+        
+        if (length(clusters)>1) {
+               obj$warning<-list(topic="issues",message="Required N's are computed for the first cluster: " %+% names(clusters)[[1]], head="info")
+               .clusters<-clusters[-1]
+               test<-test_parameters(obj,.clusters, fun=function(x) (is.na(x$k) || x$k<5),head="Please insert the number of levels larger than 4 for cluster:")
+               
+        }
+        
         if (find == "k") {
            test<-test_parameters(obj,clusters, fun=function(x) is.na(x$n),head="Please insert the number of cases for cluster:")
            test<-test_parameters(obj,clusters, fun=function(x) x$n<2,head="Minimum number of cases for a cluster is 2: Please correct `Cases` for cluster:")
+           .clusters<-clusters[1]
+           test<-test_parameters(obj,.clusters, fun=function(x) x$k>5,head="With aim=k (find # of clusters levels), the input cluster levels are used as starting point. Clusters:", fail = FALSE)
             }
      
       if (find == "n") { 
            test<-test_parameters(obj,clusters, fun=function(x) is.na(x$k),head="Please insert the number of levels for cluster:")
            test<-test_parameters(obj,clusters, fun=function(x) x$k<5,head="Minimum number of levels for a cluster is 5: Please correct `Levels` for cluster:")
-
+           test<-test_parameters(obj,clusters, fun=function(x) x$n>2,head="With aim=n (find # of cases per cluster), the input number of cases are used as starting point. Clusters:", fail = FALSE)
        }
       }
       if (obj$aim=="power") {
@@ -229,6 +239,8 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
     }
   }
   
+ 
+  
   varcor<-lapply(infomod$re,function(x) {
     diag(x=x$coefs,nrow=length(x$coefs))
   })
@@ -285,7 +297,6 @@ pamlmixed_onerun <- function(obj,n=NULL,k=NULL) {
   pow<-as.data.frame(do.call(cbind,pow))
   names(pow)<-c("df","df_error","F","p","power")
   pow$effect<-rownames(pow)
-  mark(attr(model,"n"))
   pow$n<-attr(model,"n")
   pow$k<-attr(model,"k")
   return(pow)
@@ -306,8 +317,13 @@ decompose_formula<-function(astring) {
              .rhs<-.s[[2]]
          } else
              .rhs<-.s
-         .coefs  <- as.numeric(unlist(regmatches(astring, gregexpr("\\d*\\.?\\d+(?=\\s*\\*)", astring, perl=TRUE))))
-         .terms   <- unlist(trimws(stringr::str_split_1(string=.rhs,pattern="\\+")))
+         ### handle negative numbers
+          # this was good only for positive pat<-"\\d*\\.?\\d+(?=\\s*\\*)"
+          #astring<-"y ~ 1 * 1 - 0.1 * x + 0.4 * zuzu - 4 * g "
+          astring<-gsub("\\s+", "", astring)
+          pat <- "-?\\s*\\d*\\.?\\d+(?=\\s*\\*)"
+         .coefs  <- as.numeric(unlist(regmatches(astring, gregexpr(pat, astring, perl=TRUE))))
+         .terms   <- unlist(trimws(stringr::str_split_1(string=.rhs,pattern="[\\+\\-]")))
           int<-stringr::str_split_1(astring,"\\+")[[1]]
           if (length(grep("1",int))==0) {
               warns$int<-TRUE
@@ -319,8 +335,8 @@ decompose_formula<-function(astring) {
                   .coefs<-c(0,.coefs)
                    warns$ivalue<-TRUE
           }
-          results$rhs<-gsub(" ","",.rhs)
-
+          results$rhs<-gsub("-","+",gsub(" ","",.rhs),fixed = T)
+         
           if (length(.coefs) != length(.terms))
                 warns$coefs=TRUE
           results$coefs   <-  .coefs

@@ -29,7 +29,7 @@ Runner <- R6::R6Class("Runner",
                                                         head="info")
                                    }
                                  }
-                                 
+                                
                                  
                                  if (!self$ok) return()
                                  jinfo("PAMLj: Runner: first estimation")
