@@ -30,7 +30,43 @@ const events = {
          update_model(ui);
 
     },
-    
+    f_changed: function(ui) {
+      console.log("f changed");
+      var old=ui.f.value();
+      if (old==="-")
+              return;
+      if (isNaN(old)) {
+        ui.f.setValue("-");
+        return;
+      }
+      if ( +old < 0.01) {
+          ui.f.setValue("-");
+          return;
+      }
+            
+      ui.eta.setValue("-");
+      update_convert(ui);
+        
+     },
+    eta_changed: function(ui) {
+      console.log("f changed");
+      var old=ui.eta.value();
+      
+      if (old==="-")
+              return;
+      if (isNaN(old)) {
+        ui.eta.setValue("-");
+        return;
+      }
+      if (+old > .99 || +old < 0.01) {
+          ui.eta.setValue("-");
+          return;
+      }
+      ui.f.setValue("-");
+      update_convert(ui);
+
+    },
+
     onChange_factors_list_change: function(ui) {
       console.log("list changed");
       update_df(ui);
@@ -70,17 +106,16 @@ module.exports = events;
 
 var update_z_value = function( ui ) {
   
-      ui.plot_z_value.$el.css("background-color","inherit");
-      ui.plot_z_value.$el.css("border","0");
-      ui.plot_z_value.$el.css("height","");
+      ui.plot_z_value.el.style.backgroundColor="inherit";
+      ui.plot_z_value.el.style.border="0";
+      ui.plot_z_value.el.style.height="";
  
       if (ui.plot_z_lines.value() < 6) {
-                 ui.plot_z_value.$el.css("display","contents");
+                 ui.plot_z_value.el.style.display="contents";
       } else {
-                 ui.plot_z_value.$el.css("display","block");
+                 ui.plot_z_value.el.style.display="block";
       }
-      ui.plot_z_value.$el.children().width("70px");
-
+      ui.plot_z_value.el.children.getBoundingClientRect().width="70px";
   
 }
 
@@ -91,32 +126,38 @@ var update_convert = function( ui) {
    } 
    ui.use.setValue("none")
    console.log("converting ES");
-   var eta = ui.eta.value();
-   if (eta === 0) {
-     ui.omega.setValue(0);
-     ui.epsilon.setValue(0);
-     ui.gpower.setValue(0);
-     ui.f2.setValue(0);
-     return
-   }
+   var eta_ui = ui.eta.value();
+   var f_ui = ui.f.value();
+   
    var df = ui.v_df_effect.value();
    if (df === 0) return
-   var df_model = ui.v_df_model.value();
    var df_error = ui.eta_df_error.value();
-   
    if (df_error === 0) return
+   
+   // we have info now check which source we use
+   
+   if (eta_ui !== "-") {
+     var eta= +eta_ui
+     var f = eta*df_error/((1-eta)*df)
+   }
+   if (f_ui !== "-") {
+     var f= +f_ui
+     var eta =  (f * df) / (f * df + df_error)
+   }
+   
+   var df_model = ui.v_df_model.value();
    // f is F-test computed from data 
-   var f = eta*df_error/((1-eta)*df)
    var omega = ((f - 1) * df)/( (f -1 ) * df + df_model + df_error + 1);
    var epsilon = ((f - 1) * df)/(f * df + df_error) ;
    var k = df+1
    var N = df_model + df_model + df_error + 1
    var gpower = eta*(k-N)/((eta*k)-N)
    var f2 = eta/(1-eta)
-   ui.omega.setValue(omega.toFixed(3));
-   ui.epsilon.setValue(epsilon.toFixed(3));
-   ui.gpower.setValue(gpower.toFixed(3));
-   ui.f2.setValue(f2.toFixed(3));
+   ui.omega.setValue(omega.toFixed(4));
+   ui.epsilon.setValue(epsilon.toFixed(4));
+   ui.gpower.setValue(gpower.toFixed(4));
+   ui.f2.setValue(f2.toFixed(4));
+  
 
 }
 
@@ -146,33 +187,35 @@ var update_use = function( ui ) {
 var update_structure = function( ui) {
        
         if (["beta","eta"].includes(ui.mode.value())) {
-          ui.convert_es.$el.hide() ;
+          ui.panel_effectsize.el.style.display='none' ;
           ui.use.setValue("none") ;
           if (ui.b_df_model.value() < 1) 
               ui.b_df_model.setValue(1);
         }
         if (ui.mode.value() === "peta") {
-          ui.convert_es.$el.show();
+          ui.panel_effectsize.el.style.display='' ;
           ui.use.setValue("none") ;        
-          ui.omega.$input.prop("readonly",true);
-          ui.omega.$input.css("background-color","#CFECEC");
-          ui.omega.$input.css("border-color","#5981b3");
+          console.log(ui.omega.input.style)
+          ui.omega.input.setAttribute("readonly",true);
+          ui.omega.input.style.backgroundColor="#CFECEC";
+          ui.omega.input.style.borderColor="#5981b3";
         
-          ui.epsilon.$input.prop("readonly",true);
-          ui.epsilon.$input.css("background-color","#CFECEC");
-          ui.epsilon.$input.css("border-color","#5981b3");
+          ui.epsilon.input.setAttribute("readonly",true);
+          ui.epsilon.input.style.backgroundColor="#CFECEC";
+          ui.epsilon.input.style.borderColor="#5981b3";
 
-          ui.gpower.$input.prop("readonly",true);
-          ui.gpower.$input.css("background-color","#CFECEC");
-          ui.gpower.$input.css("border-color","#5981b3");
+
+          ui.gpower.input.setAttribute("readonly",true);
+          ui.gpower.input.style.backgroundColor="#CFECEC";
+          ui.gpower.input.style.borderColor="#5981b3";
 
         }
         
         if (ui.mode.value() === "beta") {
-          ui.panel_correlations.$el.show()
+          ui.panel_correlations.el.style.display=''
           
         } else {
-          ui.panel_correlations.$el.hide()
+          ui.panel_correlations.el.style.display='none'
           
         }
 

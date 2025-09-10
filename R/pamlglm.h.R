@@ -34,7 +34,8 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             covs_order = NULL,
             factors_order = NULL,
             mixed_order = NULL,
-            eta = 0.2,
+            eta = "-",
+            f = "-",
             eta_df_error = 0,
             epsilon = 0,
             omega = 0,
@@ -219,10 +220,14 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "order2",
                     "order3",
                     "orderall"))
-            private$..eta <- jmvcore::OptionNumber$new(
+            private$..eta <- jmvcore::OptionString$new(
                 "eta",
                 eta,
-                default=0.2)
+                default="-")
+            private$..f <- jmvcore::OptionString$new(
+                "f",
+                f,
+                default="-")
             private$..eta_df_error <- jmvcore::OptionNumber$new(
                 "eta_df_error",
                 eta_df_error,
@@ -367,6 +372,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..factors_order)
             self$.addOption(private$..mixed_order)
             self$.addOption(private$..eta)
+            self$.addOption(private$..f)
             self$.addOption(private$..eta_df_error)
             self$.addOption(private$..epsilon)
             self$.addOption(private$..omega)
@@ -417,6 +423,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         factors_order = function() private$..factors_order$value,
         mixed_order = function() private$..mixed_order$value,
         eta = function() private$..eta$value,
+        f = function() private$..f$value,
         eta_df_error = function() private$..eta_df_error$value,
         epsilon = function() private$..epsilon$value,
         omega = function() private$..omega$value,
@@ -466,6 +473,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..factors_order = NA,
         ..mixed_order = NA,
         ..eta = NA,
+        ..f = NA,
         ..eta_df_error = NA,
         ..epsilon = NA,
         ..omega = NA,
@@ -842,6 +850,7 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param factors_order .
 #' @param mixed_order .
 #' @param eta .
+#' @param f .
 #' @param eta_df_error .
 #' @param epsilon .
 #' @param omega .
@@ -923,7 +932,8 @@ pamlglm <- function(
     covs_order,
     factors_order,
     mixed_order,
-    eta = 0.2,
+    eta = "-",
+    f = "-",
     eta_df_error = 0,
     epsilon = 0,
     omega = 0,
@@ -984,6 +994,7 @@ pamlglm <- function(
         factors_order = factors_order,
         mixed_order = mixed_order,
         eta = eta,
+        f = f,
         eta_df_error = eta_df_error,
         epsilon = epsilon,
         omega = omega,

@@ -1,4 +1,4 @@
-title: 'General Linear Model Power Analysis'
+title: General Linear Model Power Analysis
 name: pamlglm
 jus: '3.0'
 stage: 0
@@ -100,20 +100,19 @@ children:
       - type: Label
         label: Info
         children:
-                 - name: explain
-                   type: CheckBox
-            
+          - name: explain
+            type: CheckBox
   - type: CollapseBox
     label: Sensitivity Analysis
     name: panel_sensitivity
     collapsed: true
     stretchFactor: 1
     children:
-        - type: LayoutBox
-          children:
-            - type: LayoutBox
-              style: inline
-              children:
+      - type: LayoutBox
+        children:
+          - type: LayoutBox
+            style: inline
+            children:
               - type: Label
                 label: Plots
                 children:
@@ -130,9 +129,8 @@ children:
                     type: CheckBox
                   - type: ComboBox
                     name: plot_palette
-
   - type: CollapseBox
-    label: Power Parameters plot
+    label: Power Parameters Plot
     name: panel_customplot
     collapsed: true
     stretchFactor: 1
@@ -155,8 +153,8 @@ children:
               - type: Label
                 label: Results in table
                 children:
-                      - type: CheckBox
-                        name: plot_to_table
+                  - type: CheckBox
+                    name: plot_to_table
           - type: Label
             label: Plot X-axis
             children:
@@ -189,28 +187,26 @@ children:
                     enable: (!plot_z:none)
                     events:
                       change: ./common::plot_z_lines_changed
-                    
           - type: LayoutBox
             name: plot_lines_values
-            children: 
-             - type: Label
-               label: Values for each curves
-               name: plot_value_label
-               children:
-                - type: ListBox
-                  name: plot_z_value
-                  events:
-                     listItemAdded: ./common::onChange_value_added
-                     listItemRemoved: ./common::onChange_value_removed
-                  showColumnHeaders: false
-                  columns:
-                    - name: var
-                      label: Value
-                      template:
-                        type: TextBox
-
+            children:
+              - type: Label
+                label: Values for each curves
+                name: plot_value_label
+                children:
+                  - type: ListBox
+                    name: plot_z_value
+                    events:
+                      listItemAdded: ./common::onChange_value_added
+                      listItemRemoved: ./common::onChange_value_removed
+                    showColumnHeaders: false
+                    columns:
+                      - name: var
+                        label: Value
+                        template:
+                          type: TextBox
   - type: CollapseBox
-    label: Model definition
+    label: Model Definition
     name: panel_model
     collapsed: true
     stretchFactor: 1
@@ -270,29 +266,34 @@ children:
                 type: ComboBox
                 events:
                   change: ./pamlglm::onChange_factors_list_change
-
-  - type: CollapseBox
-    label: Correlations
-    name: panel_correlations
-    collapsed: true
-    stretchFactor: 1
-    children:
-      - name: correlationsupplier
-        type: VariableSupplier
-        persistentItems: false
-        stretchFactor: 1
-        children:
-          - type: TargetLayoutBox
-            children:
-              - type: VariablesListBox
-                name: rx
-                isTarget: true
-                events: 
-                  change: ./pamlglm::onChange_rx
-                  
   - type: CollapseBox
     label: Options
     name: panel_options
+    collapsed: true
+    stretchFactor: 1
+    children:
+      - type: LayoutBox
+        name: other_stuff
+        style: inline
+        children:
+          - type: Label
+            label: Non-Centrality Parameter (NCP)
+            children:
+              - name: ncp_type_model
+                type: RadioButton
+                optionName: ncp_type
+                optionPart: model
+              - name: ncp_type_liberal
+                type: RadioButton
+                optionName: ncp_type
+                optionPart: liberal
+              - name: ncp_type_strict
+                type: RadioButton
+                optionName: ncp_type
+                optionPart: strict
+  - type: CollapseBox
+    label: Effect Size Conversion
+    name: panel_effectsize
     collapsed: true
     stretchFactor: 1
     children:
@@ -305,14 +306,14 @@ children:
             children:
               - type: TextBox
                 name: eta
-                format: number
-                events:
-                  change: ./pamlglm::onChange_convert
+                format: string
+              - type: TextBox
+                name: f
+                format: string
               - type: TextBox
                 name: eta_df_error
                 format: number
-                events:
-                  change: ./pamlglm::onChange_convert
+
               - type: TextBox
                 name: omega
                 format: number
@@ -327,7 +328,6 @@ children:
                 format: number
                 events:
                   change: ./pamlglm::onChange_use
-
           - type: Label
             label: Use as effect size
             children:
@@ -359,22 +359,21 @@ children:
                 optionPart: f2
                 events:
                   change: ./pamlglm::onChange_use
-      - type: LayoutBox
-        name: other_stuff
-        style: inline
+  - type: CollapseBox
+    label: Correlations
+    name: panel_correlations
+    collapsed: true
+    stretchFactor: 1
+    children:
+      - name: correlationsupplier
+        type: VariableSupplier
+        persistentItems: false
+        stretchFactor: 1
         children:
-          - type: Label
-            label: Non-Centrality Parameter (NCP)
+          - type: TargetLayoutBox
             children:
-                 - name: ncp_type_model
-                   type: RadioButton
-                   optionName: ncp_type
-                   optionPart: model
-                 - name: ncp_type_liberal
-                   type: RadioButton
-                   optionName: ncp_type
-                   optionPart: liberal
-                 - name: ncp_type_strict
-                   type: RadioButton
-                   optionName: ncp_type
-                   optionPart: strict
+              - type: VariablesListBox
+                name: rx
+                isTarget: true
+                events:
+                  change: ./pamlglm::onChange_rx
