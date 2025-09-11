@@ -244,13 +244,13 @@ var update_model = function( ui) {
       var nfactors = ui.factors.value();
 
       if ( nfactors == 0) {
-        ui.factors_group.$el.hide();
+        ui.factors_group.el.style.display='none';
         ui.factors_list.setValue([]);
         return
         
       }
       
-      ui.factors_group.$el.show();
+      ui.factors_group.el.style.display='';
       var factors = ui.factors_list.value();   
       console.log(factors)
 

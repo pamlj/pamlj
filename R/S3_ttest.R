@@ -3,10 +3,10 @@
 ### check data ###
 
 .checkdata.ttestind <- function(obj) {
-
-      obj$data<-data.frame(es=obj$options$ttestind_es)
+      es<-as.numeric(obj$options$ttestind_es)
+      obj$data             <- data.frame(es=es)
       obj$data$n1          <- obj$options$ttestind_n
-      obj$data$n_ratio      <- obj$options$ttestind_nratio
+      obj$data$n_ratio     <- obj$options$ttestind_nratio
       obj$data$n2          <- obj$data$n1*obj$data$n_ratio
       obj$data$n           <- obj$data$n1+obj$data$n2
       obj$data$sig.level   <- obj$options$sig.level
@@ -40,7 +40,8 @@
 
 .checkdata.ttestpaired <- function(obj) {
 
-      obj$data<-data.frame(es=obj$options$ttestpaired_es)
+      es<-as.numeric(obj$options$ttestpaired_es)
+      obj$data             <- data.frame(es=es)
       obj$data$n           <- obj$options$ttestpaired_n
       obj$data$sig.level   <- obj$options$sig.level
       obj$data$power       <- obj$options$power
@@ -76,7 +77,8 @@
 
 .checkdata.ttestone <- function(obj) {
 
-      obj$data<-data.frame(es=obj$options$ttestone_es)
+      es<-as.numeric(obj$options$ttestind_es)
+      obj$data             <- data.frame(es=es)
       obj$data$n           <- obj$options$ttestone_n
       obj$data$sig.level   <- obj$options$sig.level
       obj$data$power       <- obj$options$power

@@ -55,7 +55,7 @@ options:
 #### this is for mode ttestpaired
 
     - name: ttestpaired_es
-      title: "Expected Cohen'a d (&delta;)"
+      title: "Expected Cohen'a d (d<sub>z</sub>)"
       type:  Number
       default: .5
 
@@ -246,6 +246,80 @@ options:
       type: String
       default: jamovi
       hidden: true
+
+
+#### effect size conversion
+### independent
+    - name: ttestind_ttest
+      title: "Observed t-test"
+      type: String
+      default: "-"
+    - name: ttestind_ngroup
+      title: "N per group"
+      type: Number
+      default: 0
+    - name: ttestind_d
+      title: "Cohen's d"
+      type: Number
+      default: 0
+    - name: ttestind_useit
+      title: Use it
+      type: Action
+
+### dependent
+    - name: ttestpaired_ttest
+      title: "Observed t-test"
+      type: String
+      default: "-"
+    - name: ttestpaired_obsn
+      title: "N"
+      type: Number
+      default: 0
+    - name: ttestpaired_d
+      title: "Cohen's d<sub>z</sub>"
+      type: Number
+      default: 0
+    - name: ttestpaired_useit
+      title: Use it
+      type: Action
+
+
+    - name: ttestpaired_dind
+      title: "Cohen's d (between)"
+      type: String
+      default: "-"
+    - name: ttestpaired_r
+      title: "Correlation"
+      type: Number
+      default: 0
+      min: -1
+      max: 1
+    - name: ttestpaired_dz
+      title: "Cohen's d<sub>z</sub>"
+      type: Number
+      default: 0
+    - name: ttestpaired_d_useit
+      title: Use it
+      type: Action
+
+### one sample
+
+    - name: ttestone_ttest
+      title: "Observed t-test"
+      type: String
+      default: "-"
+    - name: ttestone_obsn
+      title: "N"
+      type: Number
+      default: 0
+    - name: ttestone_d
+      title: "Cohen's d<sub>z</sub>"
+      type: Number
+      default: 0
+    - name: ttestone_useit
+      title: Use it
+      type: Action
+
 
 ...
 
