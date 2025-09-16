@@ -23,7 +23,12 @@ options:
           title: Power
         - name: es
           title: Effect Size
-
+      description:
+            R: |
+                The aim of the analysis: `n` for required N, `power` for estimated power and `es` for minimal detectable effect size
+            ui: |
+                The aim of the analysis: `N` for required N, `Power` for estimated power and `Effect Size` for minimal detectable effect size
+      
     - name: mode
       title: "T-Test type"
       type: List
@@ -41,16 +46,25 @@ options:
       title: "Expected Cohen's d (&delta;)"
       type:  Number
       default: .5
+      description:
+            R: |
+                Expected Cohe's d
 
     - name: ttestind_n
       title: "N of group 1"
       type:  Number
       default: 20
+      description:
+            R: |
+                Sample size per group
 
     - name: ttestind_nratio
       title: "Relatve size of groups"
       type:  Number
       default: 1
+      description:
+            R: |
+                Relative size of the two groups. 1 means group of equal size, `ratio`>1 means that one group is `ratio` times larger than the other.
 
 #### this is for mode ttestpaired
 
@@ -58,11 +72,17 @@ options:
       title: "Expected Cohen'a d (d<sub>z</sub>)"
       type:  Number
       default: .5
+      description:
+            R: |
+                Expected Cohe's d_z, defined as the mean difference divided by the standard deviation of the  difference score
 
     - name: ttestpaired_n
       title: "N"
       type:  Number
       default: 20
+      description:
+            R: |
+                Expected sample size (number of paires)
 
 #### this is for mode ttestone
 
@@ -70,11 +90,17 @@ options:
       title: "Expected Cohen'a d (&delta;)"
       type:  Number
       default: .5
+      description:
+            R: |
+                Expected Cohe's d
 
     - name: ttestone_n
       title: "N"
       type:  Number
       default: 20
+      description:
+            R: |
+                Expected sample size
 
 ## equivalence test
 
@@ -82,7 +108,13 @@ options:
       title: "Perform equivalence testing"
       type:  Bool
       default: false
+      description:
+            R: |
+                When `TRUE`, perform an equivalence test to show that a true effect is small enough to be considered practically negligible
+            ui: |
+                Perform an equivalence test to show that a true effect is small enough to be considered practically negligible
 
+            
     - name: equi_limit
       title: "Equivalence limit"
       type:  Number
@@ -94,11 +126,18 @@ options:
       title: Minimal desired power 
       type:  Number
       default: .90
+      description:
+            R: |
+                Minimal desired power (1-Beta)
 
     - name: sig.level
       title: Alpha (Type I rate)  
       type:  Number
       default: .05
+      description:
+
+            R: |
+                Critical alpha (significance level to be used in the analysis)
 
     - name: alternative
       title: Tails  
@@ -109,6 +148,11 @@ options:
           title: Two-tailed
         - name:  greater
           title: One-tailed
+      description:
+
+            R: |
+                Wheather the test is two-tailed (`two.sided`) or one-tailed (`greater`). 
+          
           
     - name: plot_contour
       title: Power contour plot
@@ -236,6 +280,10 @@ options:
       type: Bool
       title: "Explanatory text"
       default: false
+      description:
+          R: |
+             not used in R
+          ui: Produces some text to help interpreting the results
 
     - name: .caller
       type: String
@@ -254,53 +302,123 @@ options:
       title: "Observed t-test"
       type: String
       default: "-"
+      description:
+        R: |
+            not used in R
+        ui: |
+            The observed t-test value resulting an empirical study
+            
     - name: ttestind_ngroup
       title: "N per group"
       type: Number
       default: 0
+      description:
+        R: |
+            not used in R
+        ui: |
+            The observed t-test sample size per group
+
     - name: ttestind_d
       title: "Cohen's d"
       type: Number
       default: 0
+      description:
+        R: |
+            not used in R
+        ui: |
+            The resulting Cohen's d corresponding to the observed t-test and N per group
+
     - name: ttestind_useit
       title: Use it
       type: Action
+      description:
+          R: |
+            not used in R
+          ui: |
+             Copy the Cohen's d corresponding to the observed t-test to the effect size field to be used in the power analysis
 
-### dependent
+
+   ### dependent
     - name: ttestpaired_ttest
       title: "Observed t-test"
       type: String
       default: "-"
+      description:
+        R: |
+            not used in R
+        ui: |
+           The observed t-test
+
     - name: ttestpaired_obsn
       title: "N"
       type: Number
       default: 0
+      description:
+        R: |
+            not used in R
+        ui: |
+           The observed t-test sample size (number of pairs)
+
     - name: ttestpaired_d
       title: "Cohen's d<sub>z</sub>"
       type: Number
       default: 0
+      description:
+        R: |
+            not used in R
+        ui: |
+           The resulting d_z
+
     - name: ttestpaired_useit
       title: Use it
       type: Action
+      description:
+        R: |
+            not used in R
+        ui: |
+             Copy the Cohen's d_z to the effect size field to be used in the power analysis
 
 
     - name: ttestpaired_dind
       title: "Cohen's d (between)"
       type: String
       default: "-"
+      description:
+        R: |
+            not used in R
+        ui: |
+            Cohen's d uncorrected for pairs correlation
+
     - name: ttestpaired_r
       title: "Correlation"
       type: Number
       default: 0
       min: -1
       max: 1
+      description:
+        R: |
+            not used in R
+        ui: |
+            Correlation between repeated measures
+    
     - name: ttestpaired_dz
       title: "Cohen's d<sub>z</sub>"
       type: Number
       default: 0
+      description:
+        R: |
+            not used in R
+        ui: |
+            Resulting Cohen's d_z
+
     - name: ttestpaired_d_useit
       title: Use it
       type: Action
+      description:
+        R: |
+            not used in R
+        ui: |
+             Copy the Cohen's d_z to the effect size field to be used in the power analysis
 
 ### one sample
 
@@ -308,17 +426,40 @@ options:
       title: "Observed t-test"
       type: String
       default: "-"
+      description:
+        R: |
+            not used in R
+        ui: |
+             Observed t-test value
+
     - name: ttestone_obsn
       title: "N"
       type: Number
       default: 0
+      description:
+        R: |
+            not used in R
+        ui: |
+             Observed t-test sample size
+
     - name: ttestone_d
-      title: "Cohen's d<sub>z</sub>"
+      title: "Cohen's d"
       type: Number
       default: 0
+      description:
+        R: |
+            not used in R
+        ui: |
+             Resulting Cohen's d
+
     - name: ttestone_useit
       title: Use it
       type: Action
+      description:
+        R: |
+            not used in R
+        ui: |
+             Copy the resulting d as effect size indice in the power analysis
 
 
 ...

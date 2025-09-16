@@ -46,7 +46,7 @@ const events = {
         fixclusters(ui,newclusters);
 
         regex = /\*\s*(\w+)/g;
-    var vars=[];
+        var vars=[];
         while ((match = regex.exec(str)) !== null) {
               vars.push(match[1]); 
           }

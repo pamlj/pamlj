@@ -7,6 +7,7 @@ events:
   update: ./pamlttest::update
 children:
   - type: LayoutBox
+    name: box_aim
     margin: large
     children:
       - type: ComboBox
@@ -72,6 +73,7 @@ children:
                     enable: (!aim:n)
   - type: LayoutBox
     margin: large
+    name: box_parameters
     children:
       - type: Label
         label: Parameters
@@ -88,6 +90,7 @@ children:
           - type: ComboBox
             name: alternative
   - type: LayoutBox
+    name: box_equi_test
     margin: large
     style: inline
     children:

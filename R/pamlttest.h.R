@@ -622,20 +622,27 @@ pamlttestBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'
 #' Something here
 #' 
-#' @param aim .
+#' @param aim The aim of the analysis: \code{n} for required N, \code{power}
+#'   for estimated power and \code{es} for minimal detectable effect size
 #' @param mode .
-#' @param ttestind_es .
-#' @param ttestind_n .
-#' @param ttestind_nratio .
-#' @param ttestpaired_es .
-#' @param ttestpaired_n .
-#' @param ttestone_es .
-#' @param ttestone_n .
-#' @param is_equi .
+#' @param ttestind_es Expected Cohe's d
+#' @param ttestind_n Sample size per group
+#' @param ttestind_nratio Relative size of the two groups. 1 means group of
+#'   equal size, \code{ratio}>1 means that one group is \code{ratio} times
+#'   larger than the other.
+#' @param ttestpaired_es Expected Cohe's d_z, defined as the mean difference
+#'   divided by the standard deviation of the  difference score
+#' @param ttestpaired_n Expected sample size (number of paires)
+#' @param ttestone_es Expected Cohe's d
+#' @param ttestone_n Expected sample size
+#' @param is_equi When \code{TRUE}, perform an equivalence test to show that a
+#'   true effect is small enough to be considered practically negligible
 #' @param equi_limit .
-#' @param power .
-#' @param sig.level .
-#' @param alternative .
+#' @param power Minimal desired power (1-Beta)
+#' @param sig.level Critical alpha (significance level to be used in the
+#'   analysis)
+#' @param alternative Wheather the test is two-tailed (\code{two.sided}) or
+#'   one-tailed (\code{greater}).
 #' @param plot_contour .
 #' @param plot_escurve .
 #' @param plot_ncurve .
@@ -650,25 +657,25 @@ pamlttestBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param plot_z_lines .
 #' @param plot_z_value .
 #' @param plot_to_table .
-#' @param explain .
+#' @param explain not used in R
 #' @param .caller .
 #' @param .interface .
-#' @param ttestind_ttest .
-#' @param ttestind_ngroup .
-#' @param ttestind_d .
-#' @param ttestind_useit .
-#' @param ttestpaired_ttest .
-#' @param ttestpaired_obsn .
-#' @param ttestpaired_d .
-#' @param ttestpaired_useit .
-#' @param ttestpaired_dind .
-#' @param ttestpaired_r .
-#' @param ttestpaired_dz .
-#' @param ttestpaired_d_useit .
-#' @param ttestone_ttest .
-#' @param ttestone_obsn .
-#' @param ttestone_d .
-#' @param ttestone_useit .
+#' @param ttestind_ttest not used in R
+#' @param ttestind_ngroup not used in R
+#' @param ttestind_d not used in R
+#' @param ttestind_useit not used in R
+#' @param ttestpaired_ttest not used in R
+#' @param ttestpaired_obsn not used in R
+#' @param ttestpaired_d not used in R
+#' @param ttestpaired_useit not used in R
+#' @param ttestpaired_dind not used in R
+#' @param ttestpaired_r not used in R
+#' @param ttestpaired_dz not used in R
+#' @param ttestpaired_d_useit not used in R
+#' @param ttestone_ttest not used in R
+#' @param ttestone_obsn not used in R
+#' @param ttestone_d not used in R
+#' @param ttestone_useit not used in R
 #' @return A results object containing:
 #' \tabular{llllll}{
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr

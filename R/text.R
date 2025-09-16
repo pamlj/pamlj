@@ -38,7 +38,26 @@ sem_init <- "<p> Please select the aim of the analysis:</p>
                   </ul>
                   <p> In all cases, you can set the required Type I error rate (significance cut-off)</p>
                   "
-mix_init  <- "<p> This submodule is highly experimental. Please use it only for testing and debugging</p>"
+mix_init  <- "<p> <i>This submodule is highly experimental. Please use it only for testing and debugging</i></p>
+                  <p> Please select the aim of the analysis:</p>
+                  <ul>
+                  <li> <b> Calculate N</b> computes the required sample size given the  coefficients and <b> Minimum desire power</b>  
+                  <ul>
+                    <li><b> Find Number of clusters</b> given a within-cluster size, find the required number of clusters (groups)</li>
+                    <li><b> Find Cases within clusters </b> given a number of clusterts, find the required numbr of cases per cluster</li>
+                  </ul>
+                  </li>          
+                  
+                  <li> <b> Calculate power</b> computes the expected power given the number of clusters and cases within clusters  
+                  </ul>
+                  <p> In all cases, you can set the required Type I error rate (significance cut-off)</p>
+                  <p> To enter a model and its coefficients, please use R lme4 formula style, multiplying each term by
+                  the expected coefficients.
+                  </p>
+                  <center>y~1*1+.3*x+(1*1+.5*x| cluster)</center>
+                  <p> This model, for instance, speficy a random coefficients regression, with x fixed effect equal to .3, random intercepts with variance 1
+                  and random slopes for x with variance .5. </p>
+              "
 
 INFO<-list()
 
