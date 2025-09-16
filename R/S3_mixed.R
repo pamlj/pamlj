@@ -143,6 +143,11 @@
       obj$info$seed        <-  obj$options$seed 
       obj$info$parallel    <-  obj$options$parallel 
       obj$warning     <-  list(topic="initnotes",message="Monte Carlo method may take several minutes to estimate the results. Please be patient.", head="wait")
+      if (obj$info$R<1000)
+         obj$warning     <-  list(topic="issues",message="Simulations replications is set to " %+% obj$info$R %+% ". Please set a number greater than 1000 for more stable results.", head="info")
+      
+      obj$warning     <-  list(topic="initnotes",message="Monte Carlo method may take several minutes to estimate the results. Please be patient.", head="wait")
+      
       
       jinfo("Checking data for pamlmixed done")
 }
