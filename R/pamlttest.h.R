@@ -36,7 +36,23 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             plot_to_table = FALSE,
             explain = FALSE,
             .caller = "ttest",
-            .interface = "jamovi", ...) {
+            .interface = "jamovi",
+            ttestind_ttest = "-",
+            ttestind_ngroup = 0,
+            ttestind_d = 0,
+            ttestind_useit = NULL,
+            ttestpaired_ttest = "-",
+            ttestpaired_obsn = 0,
+            ttestpaired_d = 0,
+            ttestpaired_useit = NULL,
+            ttestpaired_dind = "-",
+            ttestpaired_r = 0,
+            ttestpaired_dz = 0,
+            ttestpaired_d_useit = NULL,
+            ttestone_ttest = "-",
+            ttestone_obsn = 0,
+            ttestone_d = 0,
+            ttestone_useit = NULL, ...) {
 
             super$initialize(
                 package="pamlj",
@@ -208,6 +224,68 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 .interface,
                 default="jamovi",
                 hidden=TRUE)
+            private$..ttestind_ttest <- jmvcore::OptionString$new(
+                "ttestind_ttest",
+                ttestind_ttest,
+                default="-")
+            private$..ttestind_ngroup <- jmvcore::OptionNumber$new(
+                "ttestind_ngroup",
+                ttestind_ngroup,
+                default=0)
+            private$..ttestind_d <- jmvcore::OptionNumber$new(
+                "ttestind_d",
+                ttestind_d,
+                default=0)
+            private$..ttestind_useit <- jmvcore::OptionAction$new(
+                "ttestind_useit",
+                ttestind_useit)
+            private$..ttestpaired_ttest <- jmvcore::OptionString$new(
+                "ttestpaired_ttest",
+                ttestpaired_ttest,
+                default="-")
+            private$..ttestpaired_obsn <- jmvcore::OptionNumber$new(
+                "ttestpaired_obsn",
+                ttestpaired_obsn,
+                default=0)
+            private$..ttestpaired_d <- jmvcore::OptionNumber$new(
+                "ttestpaired_d",
+                ttestpaired_d,
+                default=0)
+            private$..ttestpaired_useit <- jmvcore::OptionAction$new(
+                "ttestpaired_useit",
+                ttestpaired_useit)
+            private$..ttestpaired_dind <- jmvcore::OptionString$new(
+                "ttestpaired_dind",
+                ttestpaired_dind,
+                default="-")
+            private$..ttestpaired_r <- jmvcore::OptionNumber$new(
+                "ttestpaired_r",
+                ttestpaired_r,
+                default=0,
+                min=-1,
+                max=1)
+            private$..ttestpaired_dz <- jmvcore::OptionNumber$new(
+                "ttestpaired_dz",
+                ttestpaired_dz,
+                default=0)
+            private$..ttestpaired_d_useit <- jmvcore::OptionAction$new(
+                "ttestpaired_d_useit",
+                ttestpaired_d_useit)
+            private$..ttestone_ttest <- jmvcore::OptionString$new(
+                "ttestone_ttest",
+                ttestone_ttest,
+                default="-")
+            private$..ttestone_obsn <- jmvcore::OptionNumber$new(
+                "ttestone_obsn",
+                ttestone_obsn,
+                default=0)
+            private$..ttestone_d <- jmvcore::OptionNumber$new(
+                "ttestone_d",
+                ttestone_d,
+                default=0)
+            private$..ttestone_useit <- jmvcore::OptionAction$new(
+                "ttestone_useit",
+                ttestone_useit)
 
             self$.addOption(private$..aim)
             self$.addOption(private$..mode)
@@ -240,6 +318,22 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..explain)
             self$.addOption(private$...caller)
             self$.addOption(private$...interface)
+            self$.addOption(private$..ttestind_ttest)
+            self$.addOption(private$..ttestind_ngroup)
+            self$.addOption(private$..ttestind_d)
+            self$.addOption(private$..ttestind_useit)
+            self$.addOption(private$..ttestpaired_ttest)
+            self$.addOption(private$..ttestpaired_obsn)
+            self$.addOption(private$..ttestpaired_d)
+            self$.addOption(private$..ttestpaired_useit)
+            self$.addOption(private$..ttestpaired_dind)
+            self$.addOption(private$..ttestpaired_r)
+            self$.addOption(private$..ttestpaired_dz)
+            self$.addOption(private$..ttestpaired_d_useit)
+            self$.addOption(private$..ttestone_ttest)
+            self$.addOption(private$..ttestone_obsn)
+            self$.addOption(private$..ttestone_d)
+            self$.addOption(private$..ttestone_useit)
         }),
     active = list(
         aim = function() private$..aim$value,
@@ -272,7 +366,23 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         plot_to_table = function() private$..plot_to_table$value,
         explain = function() private$..explain$value,
         .caller = function() private$...caller$value,
-        .interface = function() private$...interface$value),
+        .interface = function() private$...interface$value,
+        ttestind_ttest = function() private$..ttestind_ttest$value,
+        ttestind_ngroup = function() private$..ttestind_ngroup$value,
+        ttestind_d = function() private$..ttestind_d$value,
+        ttestind_useit = function() private$..ttestind_useit$value,
+        ttestpaired_ttest = function() private$..ttestpaired_ttest$value,
+        ttestpaired_obsn = function() private$..ttestpaired_obsn$value,
+        ttestpaired_d = function() private$..ttestpaired_d$value,
+        ttestpaired_useit = function() private$..ttestpaired_useit$value,
+        ttestpaired_dind = function() private$..ttestpaired_dind$value,
+        ttestpaired_r = function() private$..ttestpaired_r$value,
+        ttestpaired_dz = function() private$..ttestpaired_dz$value,
+        ttestpaired_d_useit = function() private$..ttestpaired_d_useit$value,
+        ttestone_ttest = function() private$..ttestone_ttest$value,
+        ttestone_obsn = function() private$..ttestone_obsn$value,
+        ttestone_d = function() private$..ttestone_d$value,
+        ttestone_useit = function() private$..ttestone_useit$value),
     private = list(
         ..aim = NA,
         ..mode = NA,
@@ -304,7 +414,23 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..plot_to_table = NA,
         ..explain = NA,
         ...caller = NA,
-        ...interface = NA)
+        ...interface = NA,
+        ..ttestind_ttest = NA,
+        ..ttestind_ngroup = NA,
+        ..ttestind_d = NA,
+        ..ttestind_useit = NA,
+        ..ttestpaired_ttest = NA,
+        ..ttestpaired_obsn = NA,
+        ..ttestpaired_d = NA,
+        ..ttestpaired_useit = NA,
+        ..ttestpaired_dind = NA,
+        ..ttestpaired_r = NA,
+        ..ttestpaired_dz = NA,
+        ..ttestpaired_d_useit = NA,
+        ..ttestone_ttest = NA,
+        ..ttestone_obsn = NA,
+        ..ttestone_d = NA,
+        ..ttestone_useit = NA)
 )
 
 pamlttestResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
@@ -496,20 +622,27 @@ pamlttestBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'
 #' Something here
 #' 
-#' @param aim .
+#' @param aim The aim of the analysis: \code{n} for required N, \code{power}
+#'   for estimated power and \code{es} for minimal detectable effect size
 #' @param mode .
-#' @param ttestind_es .
-#' @param ttestind_n .
-#' @param ttestind_nratio .
-#' @param ttestpaired_es .
-#' @param ttestpaired_n .
-#' @param ttestone_es .
-#' @param ttestone_n .
-#' @param is_equi .
+#' @param ttestind_es Expected Cohe's d
+#' @param ttestind_n Sample size per group
+#' @param ttestind_nratio Relative size of the two groups. 1 means group of
+#'   equal size, \code{ratio}>1 means that one group is \code{ratio} times
+#'   larger than the other.
+#' @param ttestpaired_es Expected Cohe's d_z, defined as the mean difference
+#'   divided by the standard deviation of the  difference score
+#' @param ttestpaired_n Expected sample size (number of paires)
+#' @param ttestone_es Expected Cohe's d
+#' @param ttestone_n Expected sample size
+#' @param is_equi When \code{TRUE}, perform an equivalence test to show that a
+#'   true effect is small enough to be considered practically negligible
 #' @param equi_limit .
-#' @param power .
-#' @param sig.level .
-#' @param alternative .
+#' @param power Minimal desired power (1-Beta)
+#' @param sig.level Critical alpha (significance level to be used in the
+#'   analysis)
+#' @param alternative Wheather the test is two-tailed (\code{two.sided}) or
+#'   one-tailed (\code{greater}).
 #' @param plot_contour .
 #' @param plot_escurve .
 #' @param plot_ncurve .
@@ -524,9 +657,25 @@ pamlttestBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param plot_z_lines .
 #' @param plot_z_value .
 #' @param plot_to_table .
-#' @param explain .
+#' @param explain not used in R
 #' @param .caller .
 #' @param .interface .
+#' @param ttestind_ttest not used in R
+#' @param ttestind_ngroup not used in R
+#' @param ttestind_d not used in R
+#' @param ttestind_useit not used in R
+#' @param ttestpaired_ttest not used in R
+#' @param ttestpaired_obsn not used in R
+#' @param ttestpaired_d not used in R
+#' @param ttestpaired_useit not used in R
+#' @param ttestpaired_dind not used in R
+#' @param ttestpaired_r not used in R
+#' @param ttestpaired_dz not used in R
+#' @param ttestpaired_d_useit not used in R
+#' @param ttestone_ttest not used in R
+#' @param ttestone_obsn not used in R
+#' @param ttestone_d not used in R
+#' @param ttestone_useit not used in R
 #' @return A results object containing:
 #' \tabular{llllll}{
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
@@ -581,7 +730,23 @@ pamlttest <- function(
     plot_to_table = FALSE,
     explain = FALSE,
     .caller = "ttest",
-    .interface = "jamovi") {
+    .interface = "jamovi",
+    ttestind_ttest = "-",
+    ttestind_ngroup = 0,
+    ttestind_d = 0,
+    ttestind_useit,
+    ttestpaired_ttest = "-",
+    ttestpaired_obsn = 0,
+    ttestpaired_d = 0,
+    ttestpaired_useit,
+    ttestpaired_dind = "-",
+    ttestpaired_r = 0,
+    ttestpaired_dz = 0,
+    ttestpaired_d_useit,
+    ttestone_ttest = "-",
+    ttestone_obsn = 0,
+    ttestone_d = 0,
+    ttestone_useit) {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
         stop("pamlttest requires jmvcore to be installed (restart may be required)")
@@ -618,7 +783,23 @@ pamlttest <- function(
         plot_to_table = plot_to_table,
         explain = explain,
         .caller = .caller,
-        .interface = .interface)
+        .interface = .interface,
+        ttestind_ttest = ttestind_ttest,
+        ttestind_ngroup = ttestind_ngroup,
+        ttestind_d = ttestind_d,
+        ttestind_useit = ttestind_useit,
+        ttestpaired_ttest = ttestpaired_ttest,
+        ttestpaired_obsn = ttestpaired_obsn,
+        ttestpaired_d = ttestpaired_d,
+        ttestpaired_useit = ttestpaired_useit,
+        ttestpaired_dind = ttestpaired_dind,
+        ttestpaired_r = ttestpaired_r,
+        ttestpaired_dz = ttestpaired_dz,
+        ttestpaired_d_useit = ttestpaired_d_useit,
+        ttestone_ttest = ttestone_ttest,
+        ttestone_obsn = ttestone_obsn,
+        ttestone_d = ttestone_d,
+        ttestone_useit = ttestone_useit)
 
     analysis <- pamlttestClass$new(
         options = options,

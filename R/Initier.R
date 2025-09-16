@@ -51,6 +51,8 @@ Initer <- R6::R6Class(
           ## set the class of self so the S3 methods may dispatch to the right functions
           class(self)<-unique(c(self$mode,self$caller,class(self)))
           jinfo("PAMLj: Initializing",self$caller,self$mode)
+          
+          
           ## checkdata update the data depending on the type of test we are running (via S3 dispatch)
           checkdata(self)
           if (self$options$.interface=="jamovi") {
@@ -58,7 +60,8 @@ Initer <- R6::R6Class(
           }
           else
                   jmvobj$results$intro$setVisible(FALSE) 
-          ## some commands produce extra text information, passed here  
+          
+
 
 
   }, # here initialize ends
@@ -75,6 +78,7 @@ Initer <- R6::R6Class(
       for (cluster in info$clusters) ladd(tab)<-list(info="Clusters:",value=cluster)
       ladd(tab)<-list(info="Variables:",value=" ",specs=" ")
       for (var in info$variables) ladd(tab)<-list(info="Variables:",value=var$name,specs=var$type  )
+      ladd(tab)<-list(info="Residual Variance:",value=self$options$sigma,specs="Sigma"  )
       tab
     },
     init_powertab = function() {

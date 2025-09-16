@@ -7,6 +7,7 @@ events:
   update: ./pamlttest::update
 children:
   - type: LayoutBox
+    name: box_aim
     margin: large
     children:
       - type: ComboBox
@@ -72,6 +73,7 @@ children:
                     enable: (!aim:n)
   - type: LayoutBox
     margin: large
+    name: box_parameters
     children:
       - type: Label
         label: Parameters
@@ -88,6 +90,7 @@ children:
           - type: ComboBox
             name: alternative
   - type: LayoutBox
+    name: box_equi_test
     margin: large
     style: inline
     children:
@@ -211,3 +214,88 @@ children:
                       label: Value
                       template:
                         type: TextBox
+  - type: CollapseBox
+    label: Effect Size Conversion
+    name: panel_effectsize
+    collapsed: true
+    stretchFactor: 1
+    children:
+      - type: LayoutBox
+        name: convert_es_ttestind
+        style: inline
+        children:
+          - type: Label
+            label: Convert from t-test
+            children:
+              - type: TextBox
+                name: ttestind_ttest
+                format: string
+              - type: TextBox
+                name: ttestind_ngroup
+                format: number
+              - type: TextBox
+                name: ttestind_d
+                format: number
+              - type: ActionButton
+                name: ttestind_useit
+                events:
+                   change: ./pamlttest::ttestind_useit
+      - type: LayoutBox
+        name: convert_es_ttestpaired
+        style: inline
+        children:
+          - type: Label
+            label: Convert from t-test
+            children:
+              - type: TextBox
+                name: ttestpaired_ttest
+                format: string
+              - type: TextBox
+                name: ttestpaired_obsn
+                format: number
+              - type: TextBox
+                name: ttestpaired_d
+                format: number
+              - type: ActionButton
+                name: ttestpaired_useit
+                events:
+                   change: ./pamlttest::ttestpaired_useit
+                  
+          - type: Label
+            label: Convert d to d<sub>z</sub>
+            children:
+              - type: TextBox
+                name: ttestpaired_dind
+                format: string
+              - type: TextBox
+                name: ttestpaired_r
+                format: number
+              - type: TextBox
+                name: ttestpaired_dz
+                format: number
+              - type: ActionButton
+                name: ttestpaired_d_useit
+                events:
+                   change: ./pamlttest::ttestpaired_d_useit
+                   
+      - type: LayoutBox
+        name: convert_es_ttestone
+        style: inline
+        children:
+          - type: Label
+            label: Convert from t-test
+            children:
+              - type: TextBox
+                name: ttestone_ttest
+                format: string
+              - type: TextBox
+                name: ttestone_obsn
+                format: number
+              - type: TextBox
+                name: ttestone_d
+                format: number
+              - type: ActionButton
+                name: ttestone_useit
+                events:
+                   change: ./pamlttest::ttestone_useit
+                   

@@ -15,9 +15,14 @@
         return()
       }
       spsyntax   <-  strsplit(syntax,"\\R", perl=TRUE)[[1]]      
-#      mark(syntax,spsyntax)
+      # deal with negative coefficients
+      spsyntax<-gsub(
+        "(?<![eE])-\\s*((?:\\d*\\.\\d+|\\d+)(?:[eE][+-]?\\d+)?)","+start(-\\1)", spsyntax, perl = TRUE)
+      
+      mark(spsyntax)
       ### population model
       popModel   <-  gsub("\\*\\s*[A-Za-z]\\s*\\*", "\\*", spsyntax)
+      mark(popModel)
       keep       <-  grep("==|:=",popModel,invert=T)
       popModel   <-  popModel[keep]
       str_popModel   <-  paste(popModel,collapse="\n")
@@ -42,6 +47,8 @@
       model          <-  modelobj$obj
       obj$info$lvnames<-lavaan::lavNames(model,type="lv")
       obj$info$ovnames<-lavaan::lavNames(model,type="ov")
+
+  
       
       if (obj$options$standardized) {
         ### here comes the magic standardization :-)
@@ -53,7 +60,6 @@
         str_popModel   <-  paste(paste(str_popModel,"\n"),varstr,collapse="\n")
         lsigma         <-  diag(lavaan::inspect(model,"cov.lv"))
       
-  
         if (length(lsigma)>0) {
             exvar          <-  rep(2,length(lsigma))-lsigma
             exvar          <-  exvar[exvar!=1]

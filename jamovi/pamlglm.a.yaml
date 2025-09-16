@@ -75,7 +75,7 @@ options:
       min: 1
 
     - name: e_es
-      title: Expected partial Eta-squared (&eta;&sup2;)
+      title: Expected Eta-squared (&eta;&sup2;)
       type:  Number
       default: .2
 
@@ -227,8 +227,12 @@ options:
 
     - name: eta
       title: Observed Partial Eta-squared  
-      type:  Number
-      default: .2
+      type:  String
+      default: "-"
+    - name: f
+      title: Observed F-test  
+      type:  String
+      default: "-"
     - name: eta_df_error
       title: Observed residuals degrees of freedom  
       type:  Number

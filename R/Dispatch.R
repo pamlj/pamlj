@@ -56,7 +56,6 @@ Dispatch <- R6::R6Class(
                                 if (isFALSE(obj$message)) return()
                                 if (is.null(obj$topic)) stop("SCAFFOLD:  a message should have a topic (a table path)")
                                 path<-stringr::str_split(obj$topic,"_")[[1]]
-                                
                                 table<-private$.find_table(path)
                                 if (!is.something(table)) stop("SCAFFOLD: a message was sent to a non-existing result object: ",obj$topic)
                                 state<-as.list(table$state)

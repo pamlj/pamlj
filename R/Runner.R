@@ -19,6 +19,18 @@ Runner <- R6::R6Class("Runner",
                                  if (!self$filled) {
                                    self$ok<-FALSE
                                  }
+                                 
+                                 ## some commands are run only if the run button is pressed
+                                 if ("run" %in% names(self$options)) {
+                                   if (!self$option("run")) {
+                                     self$ok<-FALSE
+                                     self$warning<-list(topic="issues",
+                                                        message='Please press the <i>Run</i> button to execute the analysis' ,
+                                                        head="info")
+                                   }
+                                 }
+                                
+                                 
                                  if (!self$ok) return()
                                  jinfo("PAMLj: Runner: first estimation")
                                  

@@ -4,12 +4,12 @@ const events = {
 
  aim_changed: function(ui) {
  
-  fixclusters(ui, ui.clusterpars.value());  
+//  fixclusters(ui, ui.clusterpars.value());  
    
  },
  find_changed: function(ui) {
  
-  fixclusters(ui, ui.clusterpars.value());  
+//  fixclusters(ui, ui.clusterpars.value());  
    
  },
  
@@ -46,7 +46,7 @@ const events = {
         fixclusters(ui,newclusters);
 
         regex = /\*\s*(\w+)/g;
-    var vars=[];
+        var vars=[];
         while ((match = regex.exec(str)) !== null) {
               vars.push(match[1]); 
           }
@@ -94,7 +94,7 @@ const events = {
  clusterpars_changed:  function(ui) {
    
     var clusters =  utils.clone(ui.clusterpars.value(), []);  
- 
+    return;
     if (ui.aim.value() === "power") 
          return;
          

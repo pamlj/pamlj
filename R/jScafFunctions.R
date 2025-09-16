@@ -348,12 +348,18 @@ is.joption <- function(obj, option) {
 format5<-function(x) format(x,digits=5)
 
 
+### check that a a list of parameters passes a given function (default is.null())
+### the function passed as argument should handle NA's, otherwise are ignored
+#alist<-list(a=1,b=2,c=NA)
+#check_parameters(alist,fun = function(x) x>1)
+
 check_parameters <- function(values, fun=is.null, verbose = TRUE, head="Please fill in the required input:") {
   
       needed <- names(values)
       what   <- unlist(sapply(values,fun))
+      what   <- what[!is.na(what)]
       needed <- needed[what]
-      
+
       if (length(needed)>0) {
             if (verbose) {
             text <- "<p>" %+% head %+% "</p> <ul>" 
@@ -366,15 +372,18 @@ check_parameters <- function(values, fun=is.null, verbose = TRUE, head="Please f
       return()
 }
 
-test_parameters <- function(obj,values, fun=is.null, verbose = TRUE, head="Please fill in the required input:") {
+### check parameters and issue a warning to the issues widget if something is wrong
+test_parameters <- function(obj,values, fun=is.null, verbose = TRUE, head="Please fill in the required input:", fail=TRUE) {
   
   test<-check_parameters(values,fun=fun,verbose=verbose,head=head) 
  
   if (length(test)>0) {
-     obj$ok <-FALSE
-     obj$warning<-list(topic="issues",message=paste(test,collapse=", "), head="info") 
-     call <- rlang::expr(return()) 
-     rlang::eval_bare(call, env = parent.frame())
      
+     obj$warning<-list(topic="issues",message=paste(test,collapse=", "), head="info") 
+     if (fail) {
+       obj$ok <-FALSE
+       call <- rlang::expr(return()) 
+       rlang::eval_bare(call, env = parent.frame())
+     }
   }
 }

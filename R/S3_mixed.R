@@ -30,7 +30,7 @@
       }
 
       
-      ## amy cluster?
+      ## any cluster?
       if (!is.something(clusters)) {
         msg<-"<p>Please specify at least one clustering variable in the model with the syntax: </p> <p>+(1|cluster)</p>."
         obj$warning<-list(topic="issues",message=msg,head="info")
@@ -43,15 +43,25 @@
       
 
       if (obj$aim=="n") {
+        
+        if (length(clusters)>1) {
+               obj$warning<-list(topic="issues",message="Required N's are computed for the first cluster: " %+% names(clusters)[[1]], head="info")
+               .clusters<-clusters[-1]
+               test<-test_parameters(obj,.clusters, fun=function(x) (is.na(x$k) || x$k<5),head="Please insert the number of levels larger than 4 for cluster:")
+               
+        }
+        
         if (find == "k") {
            test<-test_parameters(obj,clusters, fun=function(x) is.na(x$n),head="Please insert the number of cases for cluster:")
            test<-test_parameters(obj,clusters, fun=function(x) x$n<2,head="Minimum number of cases for a cluster is 2: Please correct `Cases` for cluster:")
+           .clusters<-clusters[1]
+           test<-test_parameters(obj,.clusters, fun=function(x) x$k>5,head="With aim=k (find # of clusters levels), the input cluster levels are used as starting point. Clusters:", fail = FALSE)
             }
      
       if (find == "n") { 
            test<-test_parameters(obj,clusters, fun=function(x) is.na(x$k),head="Please insert the number of levels for cluster:")
            test<-test_parameters(obj,clusters, fun=function(x) x$k<5,head="Minimum number of levels for a cluster is 5: Please correct `Levels` for cluster:")
-
+           test<-test_parameters(obj,clusters, fun=function(x) x$n>2,head="With aim=n (find # of cases per cluster), the input number of cases are used as starting point. Clusters:", fail = FALSE)
        }
       }
       if (obj$aim=="power") {
@@ -103,7 +113,7 @@
          x$n<-as.numeric(x$n)
          if (is.na(x$n)) x$n<-2
          x$k<-as.numeric(x$k)
-         if (is.na(x$k)) x$k<-10
+         if (is.na(x$k)) x$k<-5
          x$coefs<-re$coefs
          x$terms<-re$terms
          x$name<-NULL
@@ -117,7 +127,7 @@
          paste("(",.terms,"|",x,")")
          }), collapse=" + ")
       model$formula<-paste(model$fixed$lhs,"~",paste(model$fixed$terms,collapse=" + "),"+",re,collapse=" + ")
-       
+      model$sigma <- obj$options$sigma 
 
       obj$data             <- data.frame(sig.level=obj$options$sig.level)
       obj$data$power       <- obj$options$power
@@ -133,6 +143,11 @@
       obj$info$seed        <-  obj$options$seed 
       obj$info$parallel    <-  obj$options$parallel 
       obj$warning     <-  list(topic="initnotes",message="Monte Carlo method may take several minutes to estimate the results. Please be patient.", head="wait")
+      if (obj$info$R<1000)
+         obj$warning     <-  list(topic="issues",message="Simulations replications is set to " %+% obj$info$R %+% ". Please set a number greater than 1000 for more stable results.", head="info")
+      
+      obj$warning     <-  list(topic="initnotes",message="Monte Carlo method may take several minutes to estimate the results. Please be patient.", head="wait")
+      
       
       jinfo("Checking data for pamlmixed done")
 }
@@ -151,19 +166,20 @@
   
   find<-obj$options$find
   
+
   if (obj$aim=="n") {
     if (find == "k") {
            n<-obj$info$model$re[[1]]$n
-           l <- 5
+           l <- obj$info$model$re[[1]]$k
            f<-function(int) {
-             pamlmixed_onerun(obj,n,int)
+             pamlmixed_onerun(obj,n=NULL,int)
            }
     }
     if (find == "n") {
            k<-obj$info$model$re[[1]]$k
-           l <- 2
+           l <- obj$info$model$re[[1]]$n
            f<-function(int) {
-             pamlmixed_onerun(obj,int,k)
+             pamlmixed_onerun(obj,int,k=NULL)
            }
     }
     .pow<-int_seek(f,"power",obj$info$power,lower=l,upper=2000)  
@@ -174,6 +190,7 @@
     
      pow<-pamlmixed_onerun(obj,obj$info$model$re[[1]]$n,obj$info$model$re[[1]]$k)
      obj$data<-pow
+     
   }
   
   return(pow)
@@ -186,20 +203,48 @@
 ###### local functions
 
 
-pamlmixed_makemodel <- function(obj,n,k) {
+pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
+  
   
   infomod<-obj$info$model
   fixed<-as.list(infomod$fixed$coefs)
-  data<-lme4::mkDataTemplate(as.formula(infomod$formula),nGrps=k,nPerGrp=n,rfunc=rnorm)
+#  data<-lme4::mkDataTemplate(as.formula(infomod$formula),nGrps=k,nPerGrp=n,rfunc=rnorm)
+  #mark(infomod)
+  #### cluster data
+  ks<-sapply(infomod$re, function(x) x$k)
+  if (is.something(k)) ks[[1]]<-k
+  levels<-lapply(ks,function(x) 1:x)
+  cdata<-as.data.frame(expand.grid(levels))
+  names(cdata)<-infomod$clusters
+  ### within data
+  ns<-sapply(infomod$re, function(x) x$n)
+  if (is.something(n)) ns[[1]]<-n
+  levels<-lapply(ns,function(x) 1:x)
+  wdata<-as.data.frame(expand.grid(levels))
+  names(wdata)<-paste0(".id.",1:length(levels))
+  ### put them together
+  ldata<-list()
+  for (i in seq_len(nrow(cdata))) {
+    one<-cbind(cdata[i,],wdata)
+    ldata[[length(ldata)+1]]<-one
+  }
+  jinfo("PAMLj: sample clusters:",paste(ks),"with ns:",paste(ns))
+  data<-do.call(rbind,ldata)
+  names(data)<-c(infomod$clusters,  names(wdata)<-paste0(".id.",1:length(levels)))
+  r<-nrow(data)
   for (i in seq_along(infomod$variables)) {
     x<-infomod$variables[[i]]
+    data[[x$name]]<-rnorm(r)
     if (x$type=="categorical") {
-      data[[x$name]]<-cut(data[[x$name]],breaks=x$levels,labels=1:x$levels)
+      rep<-round(r/x$levels)
+      data[[x$name]]<-factor(rep(1:x$levels,rep+100)[1:r])
       xcoefs<-fixed[[i]]
       if (x$levels>2) xcoefs<-c(fixed[[i]],rep(0,x$levels-2)) 
       fixed[[i]]<-xcoefs
     }
   }
+  
+ 
   
   varcor<-lapply(infomod$re,function(x) {
     diag(x=x$coefs,nrow=length(x$coefs))
@@ -210,19 +255,20 @@ pamlmixed_makemodel <- function(obj,n,k) {
                    data=data,
                    fixef=fixed,
                    VarCorr=varcor
-                   ,sigma=1)
+                   ,sigma=infomod$sigma)
   })
 
   if (!isFALSE(modelobj$error)) {
     obj$stop(modelobj$error)
   }
-  
-  return(modelobj$obj)
+  model<-modelobj$obj
+  attr(model,"n")<-ns[[1]]
+  attr(model,"k")<-ks[[1]]
+  return(model)
   
 } 
 
-
-pamlmixed_onerun <- function(obj,n,k) {
+pamlmixed_onerun <- function(obj,n=NULL,k=NULL) {
   
   
   model<-pamlmixed_makemodel(obj,n,k)
@@ -244,7 +290,6 @@ pamlmixed_onerun <- function(obj,n,k) {
     anov$name<-rownames(anov)
     anov 
   }
-  ## sims<-rbind,lapply(1:3,function(x) onefun())
   R<-obj$info$R
   if (obj$info$parallel)
     sims<-foreach::foreach(i = 1:R, .options.future = list(seed = TRUE)) %dofuture%  onefun()
@@ -256,9 +301,9 @@ pamlmixed_onerun <- function(obj,n,k) {
   pow<-lapply(c("NumDF", "DenDF","F value","Pr(>F)","power"), function(name) tapply(res[[name]],res$name,mean, na.rm=T))
   pow<-as.data.frame(do.call(cbind,pow))
   names(pow)<-c("df","df_error","F","p","power")
-  pow$n<-n
-  pow$k<-k
   pow$effect<-rownames(pow)
+  pow$n<-attr(model,"n")
+  pow$k<-attr(model,"k")
   return(pow)
                 
  }
@@ -277,8 +322,13 @@ decompose_formula<-function(astring) {
              .rhs<-.s[[2]]
          } else
              .rhs<-.s
-         .coefs  <- as.numeric(unlist(regmatches(astring, gregexpr("\\d*\\.?\\d+(?=\\s*\\*)", astring, perl=TRUE))))
-         .terms   <- unlist(trimws(stringr::str_split_1(string=.rhs,pattern="\\+")))
+         ### handle negative numbers
+          # this was good only for positive pat<-"\\d*\\.?\\d+(?=\\s*\\*)"
+          #astring<-"y ~ 1 * 1 - 0.1 * x + 0.4 * zuzu - 4 * g "
+          astring<-gsub("\\s+", "", astring)
+          pat <- "-?\\s*\\d*\\.?\\d+(?=\\s*\\*)"
+         .coefs  <- as.numeric(unlist(regmatches(astring, gregexpr(pat, astring, perl=TRUE))))
+         .terms   <- unlist(trimws(stringr::str_split_1(string=.rhs,pattern="[\\+\\-]")))
           int<-stringr::str_split_1(astring,"\\+")[[1]]
           if (length(grep("1",int))==0) {
               warns$int<-TRUE
@@ -290,8 +340,8 @@ decompose_formula<-function(astring) {
                   .coefs<-c(0,.coefs)
                    warns$ivalue<-TRUE
           }
-          results$rhs<-gsub(" ","",.rhs)
-
+          results$rhs<-gsub("-","+",gsub(" ","",.rhs),fixed = T)
+         
           if (length(.coefs) != length(.terms))
                 warns$coefs=TRUE
           results$coefs   <-  .coefs
@@ -391,3 +441,6 @@ int_seek <- function(f, value, t, lower = -Inf, upper = Inf,
     }
   }
 }
+
+
+
