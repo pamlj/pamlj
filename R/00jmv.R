@@ -12,8 +12,9 @@
         `type`="software", 
         `author`="Marcello Gallucci", 
         `year`=2024, 
-        `title`="pamlj: Power analysis in jamovi", 
-        `url`="https://pamlj.github.io/"), 
+        `title`="pamlj: Power analysis in jamovi (Version 0.7.2)", 
+        `url`="https://pamlj.github.io/", 
+        `versioning`="pamlj: Power analysis in jamovi"), 
     `jpower`=list(
         `type`="software", 
         `author`="Richard Morey, Ravi Selker", 
@@ -24,7 +25,7 @@
         `type`="software", 
         `title`="semPower: Power Analyses for SEM, R package version 2.1.1", 
         `author`="Morten Moshagen and Martina Bader,", 
-        `year`="2024,", 
+        `year`=".na.integer", 
         `url`="https://CRAN.R-project.org/package=semPower"), 
     `lavaan`=list(
         `type`="article", 

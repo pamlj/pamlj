@@ -5,18 +5,12 @@
 #' and print them in R style.
 
 #' @param object a pamlj results object of the class `pamlj`
-#' @param formula not used
-#' @param ... additional arguments passed to the pamlj3 estimation function
+#' @param ... additional arguments passed to the pamlj estimation function
 #' @return a list of table as data.frame
 #' @author Marcello Gallucci
 #' @examples
-#' data(fivegroups)
-#' fivegroups$Group<-factor(fivegroups$Group)
-#' gmod<-pamlj3::pamlj_lm(
-#'   formula = Score ~Group,
-#'   data = fivegroups)
-#' 
-#' summary(gmod)
+#' obj<-pamlj::pamlcorr(es=.1)
+#' summary(obj)
 #' @rdname s3methods
 #' 
 #' @export
