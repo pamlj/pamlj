@@ -69,8 +69,14 @@ Dispatch <- R6::R6Class(
                                 if (exists("fromb64")) obj$message<-fromb64(obj$message)
                                 
                                 if (inherits(table,"Html")) {
+                                  ### messaging in R and jamovi are very different
                                   if (self$interface=="R") {
-                                       warning(obj$message,call. = FALSE) 
+                                      if (obj$head=="wait")
+                                         return()
+                                       if (obj$head=="info")
+                                         message(private$.process_text(obj$message))
+                                       else
+                                           warning(obj$message,call. = FALSE) 
                                        return()
                                   } else {
                                        content<-private$.process_html(table$content,obj)
@@ -119,8 +125,12 @@ Dispatch <- R6::R6Class(
                                table<-private$.find_table(path)
                    
                               if (inherits(table,"Html")) {
-                                  obj$head<-"error"
-                                  table$setContent(private$.process_html(NULL,obj))
+                                if (self$interface=="R") 
+                                    table$setContent(private$.process_text(obj$message))
+                                  else {
+                                    obj$head<-"error"
+                                    table$setContent(private$.process_html(NULL,obj))
+                                  }
                               } else {
                                   table$setError(obj$message)
                               }
@@ -188,7 +198,13 @@ private = list(
                     }
                     return(content)
                 },
-                
+                .process_text=function(content) {
+                  
+                  clean <- gsub("<[^>]+>", "", content)
+                  clean <- "\n" %+% clean %+% "\n"
+                  return(clean)
+                  
+                },
                 .find_table = function(path) {
                     tableobj <- self$tables
                     found <- FALSE

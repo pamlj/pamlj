@@ -1,10 +1,10 @@
 Package: pamlj
 Type: Package
 Title: Power Analysis for linear models 
-Version: 0.7.2
+Version: 0.7.3
 Author: Marcello Gallucci
 Maintainer: Marcello Gallucci <mcfanda@gmail.com>
-Description:   (beta) A suite for power analysis for linear models. It allows for
+Description: A suite for power analysis for linear models. It allows for
                power analysis of Pearson correlation, the general linear model
                (t-test/Correlation/Anova/Regression/ANCOVA) and other statistical tests, such as
                mediation models, structural equations model, tests on proportions, and more.
@@ -13,6 +13,5 @@ Description:   (beta) A suite for power analysis for linear models. It allows fo
 License: GPL (>=2)
 Encoding: UTF-8
 LazyData: true
-Imports: jmvcore (>= 0.8.0), pwr,viridis,rlang, qgraph, foreach, doFuture, semPower, MASS, lavaan,
-         simr
-RoxygenNote: 7.3.0
+Imports: jmvcore (>= 0.8.0), pwr,viridis,rlang, qgraph, foreach, doFuture, semPower, MASS, lavaan, simr
+RoxygenNote: 7.3.2

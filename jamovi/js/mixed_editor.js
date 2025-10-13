@@ -25,6 +25,8 @@ const events = {
 		        <div id="toolbar">
 		            <div id="config" title="Configuration"></div>
 		            <div id="run" title="Run"></div>
+		            <div id="explore" title="Explore"></div>
+		            
 		        </div>
 		        <div id="editor"></div>
                 <div id="info">Ctrl + Shift + Enter to run</div>
@@ -43,10 +45,12 @@ const events = {
 
 		this.$editor = $contents.find('#editor');
 		this.$run = $contents.find('#run');
+		this.$explore = $contents.find('#explore');
 		this.$menu = $contents.find('#menu');
 
 		this.$run.on('click', () => this.run(ui));
-
+  	this.$explore.on('click', () => this.explore(ui));
+		
 		this.$fonts = $config.find('#fonts');
 
 		this.$fonts.on('change', (event) => {
@@ -130,6 +134,25 @@ const events = {
 
                 ui.view.model.options.endEdit();
 
+                this.editor.focus();
+            }
+        this.explore = (ui) => {
+          
+               console.log("mixed editor explore")
+            
+
+
+            let script = this.currentSession.getDocument().getValue();
+
+              ui.view.model.options.beginEdit();
+              ui.code.setValue(script);
+
+                // toggle toggle so the analysis *always* reruns
+                // even if nothing has changed
+                ui.toggle.setValue( ! ui.toggle.value());
+                // do not set the run to true, so options are passed to R but without the run ok
+                ui.run.setValue( false);
+                ui.view.model.options.endEdit();
                 this.editor.focus();
             }
     	

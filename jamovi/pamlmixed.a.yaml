@@ -4,7 +4,7 @@ title: Linear Mixed Models
 menuGroup: Power
 version: '0.5.0'
 jas: '1.2'
-export: true
+export: false
 completeWhenFilled: false
 description:
     main: |
@@ -188,7 +188,7 @@ options:
                   -     name: levels
                         type: String
 
-
+      
  
 ...
 

@@ -206,6 +206,7 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         initnotes = function() private$.items[["initnotes"]],
         infotab = function() private$.items[["infotab"]],
         powertab = function() private$.items[["powertab"]],
+        effectsizes = function() private$.items[["effectsizes"]],
         plotnotes = function() private$.items[["plotnotes"]]),
     private = list(),
     public=list(
@@ -289,10 +290,43 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `title`="\u03B1", 
                         `type`="number"),
                     list(
-                        `name`="conv", 
+                        `name`="converged", 
                         `title`="% converged", 
-                        `type`="number", 
-                        `visible`="(method:mc)"))))
+                        `type`="number"),
+                    list(
+                        `name`="singular", 
+                        `title`="% singular", 
+                        `type`="number"))))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="effectsizes",
+                title="Effect size indices",
+                rows=1,
+                columns=list(
+                    list(
+                        `name`="type", 
+                        `title`="Type", 
+                        `type`="text"),
+                    list(
+                        `name`="term", 
+                        `title`="Term", 
+                        `type`="text"),
+                    list(
+                        `name`="value", 
+                        `title`="Input", 
+                        `type`="number"),
+                    list(
+                        `name`="es", 
+                        `title`="ES", 
+                        `type`="number"),
+                    list(
+                        `name`="cluster", 
+                        `title`="Cluster", 
+                        `type`="text"),
+                    list(
+                        `name`="label", 
+                        `title`="ES label", 
+                        `type`="text"))))
             self$add(jmvcore::Html$new(
                 options=options,
                 name="plotnotes",
@@ -319,97 +353,4 @@ pamlmixedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 requiresMissings = FALSE,
                 weightsSupport = 'na')
         }))
-
-#' Linear Mixed Models
-#'
-#' Something here
-#' 
-#' @param aim The aim of the analysis: \code{n} (default) for sample size,
-#'   \code{power} to estimate power
-#' @param find The aim of the analysis: \code{n} (default) for sample size,
-#'   \code{power} to estimate power
-#' @param code .
-#' @param fonts .
-#' @param toggle .
-#' @param run .
-#' @param sigma Residual variance
-#' @param power Minimal desired power
-#' @param sig.level Type I error rate (significance cut-off or alpha)
-#' @param mcR Number of repetitions for Monte Carlo method
-#' @param parallel Logical: should parallel computing be used for the Monte
-#'   Carlo method
-#' @param set_seed not used in R
-#' @param seed not used in R
-#' @param .interface Used for internal purposes
-#' @param .caller Used for internal purposes
-#' @param clusterpars .
-#' @param var_type .
-#' @return A results object containing:
-#' \tabular{llllll}{
-#'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
-#'   \code{results$extrainfo} \tab \tab \tab \tab \tab a html \cr
-#'   \code{results$issues} \tab \tab \tab \tab \tab a html \cr
-#'   \code{results$initnotes} \tab \tab \tab \tab \tab a html \cr
-#'   \code{results$infotab} \tab \tab \tab \tab \tab a table \cr
-#'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
-#'   \code{results$plotnotes} \tab \tab \tab \tab \tab a html \cr
-#' }
-#'
-#' Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:
-#'
-#' \code{results$infotab$asDF}
-#'
-#' \code{as.data.frame(results$infotab)}
-#'
-#' @export
-pamlmixed <- function(
-    aim = "n",
-    find = "k",
-    code = "",
-    fonts = "small",
-    toggle = FALSE,
-    run,
-    sigma = 1,
-    power = 0.9,
-    sig.level = 0.05,
-    mcR = 500,
-    parallel = TRUE,
-    set_seed = FALSE,
-    seed = 42,
-    .interface = "jamovi",
-    .caller = "pamlmixed",
-    clusterpars = list(),
-    var_type = list()) {
-
-    if ( ! requireNamespace("jmvcore", quietly=TRUE))
-        stop("pamlmixed requires jmvcore to be installed (restart may be required)")
-
-
-    options <- pamlmixedOptions$new(
-        aim = aim,
-        find = find,
-        code = code,
-        fonts = fonts,
-        toggle = toggle,
-        run = run,
-        sigma = sigma,
-        power = power,
-        sig.level = sig.level,
-        mcR = mcR,
-        parallel = parallel,
-        set_seed = set_seed,
-        seed = seed,
-        .interface = .interface,
-        .caller = .caller,
-        clusterpars = clusterpars,
-        var_type = var_type)
-
-    analysis <- pamlmixedClass$new(
-        options = options,
-        data = data)
-
-    analysis$run()
-
-    analysis$results
-}
 

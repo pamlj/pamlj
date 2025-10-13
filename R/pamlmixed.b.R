@@ -30,7 +30,9 @@ pamlmixedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                  aSmartObj<-SmartTable$new(self$results$powertab,private$.runner)
                  ladd(private$.smartObjs)<-aSmartObj
 
-
+                 aSmartObj<-SmartTable$new(self$results$effectsizes,private$.runner)
+                 ladd(private$.smartObjs)<-aSmartObj
+                 
                  ### init all ####
                  for (tab in private$.smartObjs) {
                      tab$initTable()
@@ -54,39 +56,9 @@ pamlmixedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                  
 
         },
-      .plot_contour=function(image, ggtheme, theme, ...) {
-          
-          private$.plotter$plot_contour(image,ggtheme,theme)
-
-          TRUE
-          
-        },
-     .plot_ncurve=function(image, ggtheme, theme, ...) {
-
-          private$.plotter$plot_curve(image,ggtheme,theme)
-          return(TRUE)
-       },
-     .plot_escurve=function(image, ggtheme, theme, ...) {
-
-          private$.plotter$plot_curve(image,ggtheme,theme)
-          return(TRUE)
-       },
       .plot_custom=function(image, ggtheme, theme, ...) {
 
           private$.plotter$plot_custom(image,ggtheme,theme)
-       },
-       .plot_diagram=function(image, ggtheme, theme, ...) {
-           
-             if (is.null(image$state)) return()
-             state<-image$state
-             semPlot::semPaths(state$model,whatLabels="est",
-                               sizeLat = state$sizeLat,
-                               sizeLat2 = state$sizeLat2,
-                               sizeMan=state$sizeMan,
-                               sizeMan2=state$sizeMan2,
-                               edge.label.cex=state$edge.label.cex,
-                               residuals = FALSE) 
-             return(TRUE)
        }
 
 
