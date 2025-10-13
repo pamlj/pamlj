@@ -166,6 +166,7 @@ Initer <- R6::R6Class(
      init_effectsizes= function() {
        
        tab<-NULL
+       try_hard({
        fixed <- self$info$model$fixed$coefs
        terms <- self$info$model$fixed$terms
        terms[as.numeric(terms)==1]<-"(Intercept)"
@@ -173,7 +174,7 @@ Initer <- R6::R6Class(
        ftab<-data.frame(type="Fixed",term=terms,value=fixed,label=labs,cluster=NA,es=NA)
        random <- self$info$model$re
        re<-lapply(names(random), function(x) {
-                                             mark(random[[x]]$coefs)
+                                             
                                               data.frame(type="Random",
                                                         term=random[[x]]$terms,
                                                         value=random[[x]]$coefs,
@@ -183,8 +184,8 @@ Initer <- R6::R6Class(
                                                                )}) 
        ladd(re)<-ftab
        tab<-do.call(rbind,re)
-       mark(tab)
-      
+
+       })
        return(tab)
 
     

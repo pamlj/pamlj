@@ -30,7 +30,7 @@ const events = {
          update_model(ui);
 
     },
-    f_changed: function(ui) {
+      f_changed: function(ui) {
       console.log("f changed");
       var old=ui.f.value();
       if (old==="-")
@@ -66,7 +66,7 @@ const events = {
       update_convert(ui);
 
     },
-
+  
     onChange_factors_list_change: function(ui) {
       console.log("list changed");
       update_df(ui);
@@ -106,16 +106,17 @@ module.exports = events;
 
 var update_z_value = function( ui ) {
   
-      ui.plot_z_value.el.style.backgroundColor="inherit";
-      ui.plot_z_value.el.style.border="0";
-      ui.plot_z_value.el.style.height="";
+      ui.plot_z_value.$el.css("background-color","inherit");
+      ui.plot_z_value.$el.css("border","0");
+      ui.plot_z_value.$el.css("height","");
  
       if (ui.plot_z_lines.value() < 6) {
-                 ui.plot_z_value.el.style.display="contents";
+                 ui.plot_z_value.$el.css("display","contents");
       } else {
-                 ui.plot_z_value.el.style.display="block";
+                 ui.plot_z_value.$el.css("display","block");
       }
-      ui.plot_z_value.el.children.getBoundingClientRect().width="70px";
+      ui.plot_z_value.$el.children().width("70px");
+
   
 }
 
@@ -157,7 +158,6 @@ var update_convert = function( ui) {
    ui.epsilon.setValue(epsilon.toFixed(4));
    ui.gpower.setValue(gpower.toFixed(4));
    ui.f2.setValue(f2.toFixed(4));
-  
 
 }
 
@@ -186,36 +186,42 @@ var update_use = function( ui ) {
 }
 var update_structure = function( ui) {
        
-        if (["beta","eta"].includes(ui.mode.value())) {
+          if (["beta","eta"].includes(ui.mode.value())) {
           ui.panel_effectsize.el.style.display='none' ;
           ui.use.setValue("none") ;
           if (ui.b_df_model.value() < 1) 
               ui.b_df_model.setValue(1);
         }
+       
+       
+        if (["beta","eta"].includes(ui.mode.value())) {
+          ui.panel_effectsize.$el.hide() ;
+          ui.use.setValue("none") ;
+          if (ui.b_df_model.value() < 1) 
+              ui.b_df_model.setValue(1);
+        }
         if (ui.mode.value() === "peta") {
-          ui.panel_effectsize.el.style.display='' ;
+          ui.panel_effectsize.$el.show();
           ui.use.setValue("none") ;        
-          console.log(ui.omega.input.style)
-          ui.omega.input.setAttribute("readonly",true);
-          ui.omega.input.style.backgroundColor="#CFECEC";
-          ui.omega.input.style.borderColor="#5981b3";
+          ui.omega.$input.prop("readonly",true);
+          ui.omega.$input.css("background-color","#CFECEC");
+          ui.omega.$input.css("border-color","#5981b3");
         
-          ui.epsilon.input.setAttribute("readonly",true);
-          ui.epsilon.input.style.backgroundColor="#CFECEC";
-          ui.epsilon.input.style.borderColor="#5981b3";
+          ui.epsilon.$input.prop("readonly",true);
+          ui.epsilon.$input.css("background-color","#CFECEC");
+          ui.epsilon.$input.css("border-color","#5981b3");
 
-
-          ui.gpower.input.setAttribute("readonly",true);
-          ui.gpower.input.style.backgroundColor="#CFECEC";
-          ui.gpower.input.style.borderColor="#5981b3";
+          ui.gpower.$input.prop("readonly",true);
+          ui.gpower.$input.css("background-color","#CFECEC");
+          ui.gpower.$input.css("border-color","#5981b3");
 
         }
         
         if (ui.mode.value() === "beta") {
-          ui.panel_correlations.el.style.display=''
+          ui.panel_correlations.$el.show()
           
         } else {
-          ui.panel_correlations.el.style.display='none'
+          ui.panel_correlations.$el.hide()
           
         }
 
@@ -244,13 +250,13 @@ var update_model = function( ui) {
       var nfactors = ui.factors.value();
 
       if ( nfactors == 0) {
-        ui.factors_group.el.style.display='none';
+        ui.factors_group.$el.hide();
         ui.factors_list.setValue([]);
         return
         
       }
       
-      ui.factors_group.el.style.display='';
+      ui.factors_group.$el.show();
       var factors = ui.factors_list.value();   
       console.log(factors)
 

@@ -30,7 +30,7 @@ const css = `
     color: #333333 ;
 }
 
-#run, #config, #explore {
+#run, #config {
     width: 21px ;
     height: 21px ;
     border-radius: 2px ;
@@ -39,7 +39,7 @@ const css = `
     background-repeat: no-repeat ;
 }
 
-#run:hover, #config:hover, #explore:hover {
+#run:hover, #config:hover {
     background-color: #EEEEEE ;
 }
 
@@ -115,11 +115,6 @@ const css = `
 
 #run {
     background-image: url('data:image/svg+xml;base64,PHN2ZyBpZD0ic3ZnMiIgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGhlaWdodD0iMjQiIHdpZHRoPSIyNCIgdmVyc2lvbj0iMS4xIiB4bWxuczpjYz0iaHR0cDovL2NyZWF0aXZlY29tbW9ucy5vcmcvbnMjIiB4bWxuczpkYz0iaHR0cDovL3B1cmwub3JnL2RjL2VsZW1lbnRzLzEuMS8iIHZpZXdCb3g9IjAgMCAyNCAyNCI+PG1ldGFkYXRhIGlkPSJtZXRhZGF0YTEwIj48cmRmOlJERj48Y2M6V29yayByZGY6YWJvdXQ9IiI+PGRjOmZvcm1hdD5pbWFnZS9zdmcreG1sPC9kYzpmb3JtYXQ+PGRjOnR5cGUgcmRmOnJlc291cmNlPSJodHRwOi8vcHVybC5vcmcvZGMvZGNtaXR5cGUvU3RpbGxJbWFnZSIvPjxkYzp0aXRsZS8+PC9jYzpXb3JrPjwvcmRmOlJERj48L21ldGFkYXRhPjxwYXRoIGlkPSJwYXRoNCIgZmlsbD0iIzJhOGEyYSIgZD0ibTMgMjJ2LTIwbDE4IDEwLTE4IDEweiIvPjwvc3ZnPg==');
-}
-
-#explore {
-background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij4KICA8Y2lyY2xlIGN4PSIxMC41IiBjeT0iMTAuNSIgcj0iNyIgc3Ryb2tlPSIjY2NjY2NjIiBzdHJva2Utd2lkdGg9IjMiIGZpbGw9IiM5ZWVmZmYiLz4KICA8bGluZSB4MT0iMTYuOCIgeTE9IjE2LjgiIHgyPSIyMC41IiB5Mj0iMjAuNSIgc3Ryb2tlPSIjNDI4ZWZmIiBzdHJva2Utd2lkdGg9IjQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgo8L3N2Zz4=');
-
 }
 
 #config {

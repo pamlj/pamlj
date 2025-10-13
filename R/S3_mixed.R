@@ -211,7 +211,7 @@
      int<-.pow[[find]][[1]]
      out<-attr(.pow,"out")
      info("\nQuick search found " %+% find %+% "=" %+% .pow[[find]][[1]] %+% " with exit:" %+% out)
-     return(.pow)
+  
      if (!is.null(out) && out=="asymptote" && (obj$info$power-.pow$power)>.10) {
        pow<-.slow_onerun(obj,n=.pow$n,k=.pow$k)
        msg<-"Preliminary power calculation indicates that the input model would not achieve the desired power. Power remains around " %+%

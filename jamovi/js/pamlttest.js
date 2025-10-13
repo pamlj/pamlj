@@ -46,19 +46,19 @@ const events = {
       var self = ui.mode;
       switch (self.value()) {
         case 'ttestind':
-          ui.convert_es_ttestpaired.el.style.display='none';
-          ui.convert_es_ttestone.el.style.display='none';
-          ui.convert_es_ttestind.el.style.display='';
+          ui.convert_es_ttestpaired.$el.hide();
+          ui.convert_es_ttestone.$el.hide();
+          ui.convert_es_ttestind.$el.show();
           break;
         case 'ttestpaired':
-          ui.convert_es_ttestpaired.el.style.display='';
-          ui.convert_es_ttestone.el.style.display='none';
-          ui.convert_es_ttestind.el.style.display='none';
+          ui.convert_es_ttestpaired.$el.show();
+          ui.convert_es_ttestone.$el.hide();
+          ui.convert_es_ttestind.$el.hide();
           break;
         case 'ttestone':
-          ui.convert_es_ttestpaired.el.style.display='none';
-          ui.convert_es_ttestone.el.style.display='';
-          ui.convert_es_ttestind.el.style.display='none';
+          ui.convert_es_ttestpaired.$el.hide();
+          ui.convert_es_ttestone.$el.show();
+          ui.convert_es_ttestind.$el.hide();
           break;
       }
 
