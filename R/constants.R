@@ -39,6 +39,7 @@ letter_pomega2<-paste(greek_vector["omega"],'\u00B2',"p",sep="")
 letter_epsilon2<-paste(greek_vector["epsilon"],'\u00B2',sep="")
 letter_pepsilon2<-paste("p",greek_vector["epsilon"],'\u00B2',sep="")
 letter_beta      <- paste(greek_vector["beta"])
+letter_sigma2<-paste(greek_vector["sigma"],'\u00B2',sep="")
 
 ### subscript
 sub0<-"\U2080"

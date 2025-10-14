@@ -125,7 +125,7 @@
          paste("(",.re$rhs,"|",x,")")
          }), collapse=" + ")
       model$formula<-paste(model$fixed$lhs,"~",model$fixed$rhs,"+",re,collapse=" + ")
-      model$sigma <- sqrt(obj$options$sigma) 
+      model$sigma <- sqrt(obj$options$sigma2) 
 
       obj$data             <- data.frame(sig.level=obj$options$sig.level)
       obj$data$power       <- obj$options$power

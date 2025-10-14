@@ -12,7 +12,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             fonts = "small",
             toggle = FALSE,
             run = NULL,
-            sigma = 1,
+            sigma2 = 1,
             power = 0.9,
             sig.level = 0.05,
             mcR = 500,
@@ -63,9 +63,9 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "run",
                 run,
                 hidden=TRUE)
-            private$..sigma <- jmvcore::OptionNumber$new(
-                "sigma",
-                sigma,
+            private$..sigma2 <- jmvcore::OptionNumber$new(
+                "sigma2",
+                sigma2,
                 default=1)
             private$..power <- jmvcore::OptionNumber$new(
                 "power",
@@ -146,7 +146,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..fonts)
             self$.addOption(private$..toggle)
             self$.addOption(private$..run)
-            self$.addOption(private$..sigma)
+            self$.addOption(private$..sigma2)
             self$.addOption(private$..power)
             self$.addOption(private$..sig.level)
             self$.addOption(private$..mcR)
@@ -165,7 +165,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         fonts = function() private$..fonts$value,
         toggle = function() private$..toggle$value,
         run = function() private$..run$value,
-        sigma = function() private$..sigma$value,
+        sigma2 = function() private$..sigma2$value,
         power = function() private$..power$value,
         sig.level = function() private$..sig.level$value,
         mcR = function() private$..mcR$value,
@@ -183,7 +183,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..fonts = NA,
         ..toggle = NA,
         ..run = NA,
-        ..sigma = NA,
+        ..sigma2 = NA,
         ..power = NA,
         ..sig.level = NA,
         ..mcR = NA,

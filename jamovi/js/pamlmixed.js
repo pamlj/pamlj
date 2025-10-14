@@ -4,12 +4,12 @@ const events = {
 
  aim_changed: function(ui) {
  
-  fixclusters(ui, ui.clusterpars.value());  
+  //fixclusters(ui, ui.clusterpars.value());  
    
  },
  find_changed: function(ui) {
  
-  fixclusters(ui, ui.clusterpars.value());  
+  //fixclusters(ui, ui.clusterpars.value());  
    
  },
  
@@ -137,7 +137,7 @@ module.exports = events;
 
 var fixclusters = function(ui, clusters) {
   
-   console.log("fixclusters");
+ 
    if (clusters.length === 0) return;
 
    var value=ui.aim.value();

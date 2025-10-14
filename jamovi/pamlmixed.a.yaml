@@ -67,7 +67,7 @@ options:
       
 #####################      
       
-    - name: sigma
+    - name: sigma2
       title: Residual variance 
       type:  Number
       default: 1

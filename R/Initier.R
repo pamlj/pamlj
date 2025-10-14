@@ -79,7 +79,6 @@ Initer <- R6::R6Class(
       for (cluster in info$clusters) ladd(tab)<-list(info="Clusters:",value=cluster)
       ladd(tab)<-list(info="Variables:",value=" ",specs=" ")
       for (var in info$variables) ladd(tab)<-list(info="Variables:",value=var$name,specs=var$type  )
-      ladd(tab)<-list(info="Residual Variance:",value=self$options$sigma,specs="Sigma"  )
       tab
     },
     init_powertab = function() {
@@ -172,6 +171,7 @@ Initer <- R6::R6Class(
        terms[as.numeric(terms)==1]<-"(Intercept)"
        labs<-rep("Coefficient",length(fixed))
        ftab<-data.frame(type="Fixed",term=terms,value=fixed,label=labs,cluster=NA,es=NA)
+       sigma<-data.frame(type="Variance",term=letter_sigma2,value=self$info$model$sigma^2,label="Residual Variance",cluster=NA,es=NA)
        random <- self$info$model$re
        re<-lapply(names(random), function(x) {
                                              
@@ -183,6 +183,7 @@ Initer <- R6::R6Class(
                                                         label="ICC"
                                                                )}) 
        ladd(re)<-ftab
+       ladd(re)<-sigma
        tab<-do.call(rbind,re)
 
        })

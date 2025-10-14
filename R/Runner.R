@@ -30,11 +30,12 @@ Runner <- R6::R6Class("Runner",
                                    }
                                  }
 
-                                 jinfo("PAMLj: Runner: first estimation")
-                                 
+                               
+                               
+                                   
                                  rundata(self)
                                  if (!self$ok) return()
-
+                                 jinfo("PAMLj: Runner: first estimation")
                                  resobj <- try_hard(powervector(self,self$data) )
                                  if (!isFALSE(resobj$warning))
                                      warning(resobj$warning)
