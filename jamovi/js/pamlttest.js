@@ -61,7 +61,19 @@ const events = {
           ui.convert_es_ttestind.$el[0].style.display="none";
           break;
       }
-
+      // be sure the output fields are read only and blueish
+      var obj = ui.ttestpaired_d.$input[0]
+      obj.readOnly=true;
+      obj.style.backgroundColor = "#CFECEC";
+      obj = ui.ttestpaired_dz.$input[0]
+      obj.readOnly=true;
+      obj.style.backgroundColor = "#CFECEC";
+      obj = ui.ttestone_d.$input[0]
+      obj.readOnly=true;
+      obj.style.backgroundColor = "#CFECEC";
+      obj = ui.ttestind_d.$input[0]
+      obj.readOnly=true;
+      obj.style.backgroundColor = "#CFECEC";
       
     },
     ttestind_nratio_changed: function(ui) {
