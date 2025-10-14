@@ -187,7 +187,7 @@ var update_use = function( ui ) {
 var update_structure = function( ui) {
        
           if (["beta","eta"].includes(ui.mode.value())) {
-          ui.panel_effectsize.el.style.display='none' ;
+          ui.panel_effectsize.$el[0].style.display='none' ;
           ui.use.setValue("none") ;
           if (ui.b_df_model.value() < 1) 
               ui.b_df_model.setValue(1);
