@@ -42,23 +42,23 @@ const events = {
         
     },
     mode_changed: function(ui) {
-      
+      console.log("ttest mode changed");
       var self = ui.mode;
       switch (self.value()) {
         case 'ttestind':
-          ui.convert_es_ttestpaired.$el.hide();
-          ui.convert_es_ttestone.$el.hide();
-          ui.convert_es_ttestind.$el.show();
+          ui.convert_es_ttestpaired.$el[0].style.display="none";
+          ui.convert_es_ttestone.$el[0].style.display="none";
+          ui.convert_es_ttestind.$el[0].style.display="";
           break;
         case 'ttestpaired':
-          ui.convert_es_ttestpaired.$el.show();
-          ui.convert_es_ttestone.$el.hide();
-          ui.convert_es_ttestind.$el.hide();
+          ui.convert_es_ttestpaired.$el[0].style.display="";
+          ui.convert_es_ttestone.$el[0].style.display="none";
+          ui.convert_es_ttestind.$el[0].style.display="none";
           break;
         case 'ttestone':
-          ui.convert_es_ttestpaired.$el.hide();
-          ui.convert_es_ttestone.$el.show();
-          ui.convert_es_ttestind.$el.hide();
+          ui.convert_es_ttestpaired.$el[0].style.display="none";
+          ui.convert_es_ttestone.$el[0].style.display="";
+          ui.convert_es_ttestind.$el[0].style.display="none";
           break;
       }
 
