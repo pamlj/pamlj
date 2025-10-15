@@ -46,19 +46,19 @@ const events = {
       var self = ui.mode;
       switch (self.value()) {
         case 'ttestind':
-          ui.convert_es_ttestpaired.$el[0].style.display="none";
-          ui.convert_es_ttestone.$el[0].style.display="none";
-          ui.convert_es_ttestind.$el[0].style.display="";
+          fun.hide(ui.convert_es_ttestpaired);
+          fun.hide(ui.convert_es_ttestone);
+          fun.show(ui.convert_es_ttestind)
           break;
         case 'ttestpaired':
-          ui.convert_es_ttestpaired.$el[0].style.display="";
-          ui.convert_es_ttestone.$el[0].style.display="none";
-          ui.convert_es_ttestind.$el[0].style.display="none";
+          fun.show(ui.convert_es_ttestpaired);
+          fun.hide(ui.convert_es_ttestone);
+          fun.hide(ui.convert_es_ttestind)
           break;
         case 'ttestone':
-          ui.convert_es_ttestpaired.$el[0].style.display="none";
-          ui.convert_es_ttestone.$el[0].style.display="";
-          ui.convert_es_ttestind.$el[0].style.display="none";
+          fun.hide(ui.convert_es_ttestpaired);
+          fun.show(ui.convert_es_ttestone);
+          fun.hide(ui.convert_es_ttestind)
           break;
       }
       // be sure the output fields are read only and blueish

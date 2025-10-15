@@ -104,21 +104,6 @@ const events = {
 
 module.exports = events;
 
-var update_z_value = function( ui ) {
-  
-      ui.plot_z_value.$el.css("background-color","inherit");
-      ui.plot_z_value.$el.css("border","0");
-      ui.plot_z_value.$el.css("height","");
- 
-      if (ui.plot_z_lines.value() < 6) {
-                 ui.plot_z_value.$el.css("display","contents");
-      } else {
-                 ui.plot_z_value.$el.css("display","block");
-      }
-      ui.plot_z_value.$el.children().width("70px");
-
-  
-}
 
 var update_convert = function( ui) {
 

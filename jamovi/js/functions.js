@@ -32,15 +32,15 @@ const fun = {
      } 
 
       ui.plot_z_value.setValue(newvalues);
-      var el = get_el(ui.plot_z_value);
+      var el = this.get_el(ui.plot_z_value);
       el.style.backgroundColor="inherit";
       el.style.border="0";
       el.style.height="";
       for (const child of el.children)
               child.style.width = '70px';
       el.style.display="contents";
-      fun.show(ui.plot_lines_values);
-      fun.show(ui.plot_value_label);
+      this.show(ui.plot_lines_values);
+      this.show(ui.plot_value_label);
   
  },
  
@@ -64,20 +64,37 @@ const fun = {
  },
 
  make_readonly: function(obj) {
-    var input = get_input(obj);
+    var input = this.get_input(obj);
     input.readOnly=true;
     input.style.backgroundColor = "#CFECEC";
     input.style.borderColor = "#5981b3";
  },
 
  show: function(obj) {
-    el = get_el(obj);
+    el = this.get_el(obj);
     el.style.display = "";
  },
  hide: function(obj) {
-    el = get_el(obj);
+    el = this.get_el(obj);
     el.style.display = "none";
- }
+ },
+ 
+ get_el: function(obj) {
+    if (obj.el)                      // jamovi 2.7
+        return obj.el;
+    if (obj.$el && obj.$el[0])         // jamovi 2.6
+        return obj.$el[0];
+    return null;                   // never know
+},
+
+ get_input: function(obj) {
+    if (obj.input)                      // jamovi 2.7
+        return obj.input;
+    if (obj.$input && obj.$input[0])         // jamovi 2.6
+        return obj.$input[0];
+    return null;                   // never know
+}
+
  
 }
 
@@ -85,19 +102,4 @@ module.exports=fun
 
 
 
-var get_el=function(obj) {
-    if (obj.el)                      // jamovi 2.7
-        return obj.el;
-    if (obj.$el && obj.$el[0])         // jamovi 2.6
-        return obj.$el[0];
-    return null;                   // never know
-}
-
-var get_input=function(obj) {
-    if (obj.input)                      // jamovi 2.7
-        return obj.input;
-    if (obj.$input && obj.$input[0])         // jamovi 2.6
-        return obj.$input[0];
-    return null;                   // never know
-}
 
