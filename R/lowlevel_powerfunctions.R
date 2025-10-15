@@ -399,7 +399,7 @@ pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,
   
     RNGkind("L'Ecuyer-CMRG")
     future::plan(plan)
-    jinfo("We go parallel for R="  %+% R)
+    jinfo("MEDIATION MC goes parallel")
   }
   
   if (is.something(seed)) set.seed(seed)
