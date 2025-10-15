@@ -187,7 +187,7 @@ var update_use = function( ui ) {
 var update_structure = function( ui) {
        
           if (["beta","eta"].includes(ui.mode.value())) {
-          ui.panel_effectsize.$el[0].style.display='none' ;
+          fun.hide(ui.panel_effectsize);
           ui.use.setValue("none") ;
           if (ui.b_df_model.value() < 1) 
               ui.b_df_model.setValue(1);
@@ -195,34 +195,23 @@ var update_structure = function( ui) {
        
        
         if (["beta","eta"].includes(ui.mode.value())) {
-          ui.panel_effectsize.$el.hide() ;
+          fun.hide(ui.panel_effectsize) ;
           ui.use.setValue("none") ;
           if (ui.b_df_model.value() < 1) 
               ui.b_df_model.setValue(1);
         }
         if (ui.mode.value() === "peta") {
-          ui.panel_effectsize.$el.show();
-          ui.use.setValue("none") ;        
-          ui.omega.$input.prop("readonly",true);
-          ui.omega.$input.css("background-color","#CFECEC");
-          ui.omega.$input.css("border-color","#5981b3");
-        
-          ui.epsilon.$input.prop("readonly",true);
-          ui.epsilon.$input.css("background-color","#CFECEC");
-          ui.epsilon.$input.css("border-color","#5981b3");
-
-          ui.gpower.$input.prop("readonly",true);
-          ui.gpower.$input.css("background-color","#CFECEC");
-          ui.gpower.$input.css("border-color","#5981b3");
-
+          fun.show(ui.panel_effectsize);
+          ui.use.setValue("none") ;       
+          fun.make_readonly(ui.omega);
+          fun.make_readonly(ui.epsilon);
+          fun.make_readonly(ui.gpower);
         }
         
         if (ui.mode.value() === "beta") {
-          ui.panel_correlations.$el.show()
-          
+          fun.show(ui.panel_correlations);
         } else {
-          ui.panel_correlations.$el.hide()
-          
+          fun.hide(ui.panel_correlations);
         }
 
         
@@ -230,13 +219,12 @@ var update_structure = function( ui) {
           
           var z = ui.plot_z.value();
           if (z === "none") {
-            ui.plot_value_label.$el.hide();
+            fun.hide(ui.plot_value_label);
           }
           var zv = ui.plot_z_value.value();
           if (z === 0) {
-            ui.plot_value_label.$el.hide();
+            fun.hide(ui.plot_value_label);
           }
-          
         }
         
 
@@ -250,7 +238,7 @@ var update_model = function( ui) {
       var nfactors = ui.factors.value();
 
       if ( nfactors == 0) {
-        ui.factors_group.$el.hide();
+        fun.hide(ui.factors_group);
         ui.factors_list.setValue([]);
         return
         

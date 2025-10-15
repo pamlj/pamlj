@@ -62,19 +62,10 @@ const events = {
           break;
       }
       // be sure the output fields are read only and blueish
-      var obj = ui.ttestpaired_d.$input[0]
-      obj.readOnly=true;
-      obj.style.backgroundColor = "#CFECEC";
-      obj = ui.ttestpaired_dz.$input[0]
-      obj.readOnly=true;
-      obj.style.backgroundColor = "#CFECEC";
-      obj = ui.ttestone_d.$input[0]
-      obj.readOnly=true;
-      obj.style.backgroundColor = "#CFECEC";
-      obj = ui.ttestind_d.$input[0]
-      obj.readOnly=true;
-      obj.style.backgroundColor = "#CFECEC";
-      
+      fun.make_readonly(ui.ttestpaired_d);
+      fun.make_readonly(ui.ttestpaired_dz);
+      fun.make_readonly(ui.ttestone_d);
+      fun.make_readonly(ui.ttestind_d);
     },
     ttestind_nratio_changed: function(ui) {
       
