@@ -399,6 +399,7 @@ pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,
   
     RNGkind("L'Ecuyer-CMRG")
     future::plan(plan)
+    jinfo("We go parallel for R="  %+% R)
   }
   
   if (is.something(seed)) set.seed(seed)
@@ -449,12 +450,15 @@ pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,
            
                    se.betas   <- .sefun(n,r2s)
                    if (parallel) {
-                   pw<-mean(unlist(foreach::foreach(i = 1:R, .options.future = list(seed = TRUE)) %dofuture%  eval(p.mc )))
+                 
+                   pw<-mean(unlist(foreach::foreach(i = 1:R, 
+                                                    .options.future = list(seed = TRUE,
+                                                                           globals = structure(c("betas", "se.betas","p.mc","L","sig.level"),add=TRUE) 
+                                                                           )) %dofuture%  eval(p.mc )))
                    } else {
                                       
                    pw<-mean(unlist(sapply(1:R, function(i) eval(p.mc) ))) 
-                    }
-
+                   }
                    pw
              })
           
