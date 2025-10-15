@@ -64,19 +64,23 @@ const fun = {
  },
 
  make_readonly: function(obj) {
-    var input = this.get_input(obj);
-    input.readOnly=true;
-    input.style.backgroundColor = "#CFECEC";
-    input.style.borderColor = "#5981b3";
+    const input = this.get_input(obj);
+    if (input) {
+      input.readOnly=true;
+      input.style.backgroundColor = "#CFECEC";
+      input.style.borderColor = "#5981b3";
+    }
  },
 
  show: function(obj) {
-    el = this.get_el(obj);
-    el.style.display = "";
+    const el = this.get_el(obj);
+    if (el)
+        el.style.display = "";
  },
  hide: function(obj) {
-    el = this.get_el(obj);
-    el.style.display = "none";
+    const el = this.get_el(obj);
+    if (el)
+      el.style.display = "none";
  },
  
  get_el: function(obj) {
