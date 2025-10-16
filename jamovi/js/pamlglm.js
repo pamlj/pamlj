@@ -282,7 +282,6 @@ var update_df = function( ui) {
                var sel = inter.filter((obj) =>  obj.length < order);
                df3=  sel.map( (value) => value.reduce( (a,b) => a*b)).reduce( (a,b) => a+b);
       }
-    console.log(df3)
 
      var df = df1+df2+df3 ;
      if ( df > 0 ) {
