@@ -1,3 +1,4 @@
+// this should be ok for 2.6 and 2.7
 var fun=require('./functions');
 
 const events = {
