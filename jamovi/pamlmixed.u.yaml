@@ -95,7 +95,7 @@ children:
     name: power_parameters
     margin: large
     children:
-      - name: sigma
+      - name: sigma2
         type: TextBox
         label: Residual Variance
         format: number

@@ -25,18 +25,17 @@ Runner <- R6::R6Class("Runner",
                                    if (!self$option("run")) {
                                      self$ok<-FALSE
                                      self$warning<-list(topic="issues",
-                                                        message='Please press the <i>Run</i> button to execute the analysis' ,
+                                                        message='<br> <br> Please press the <i style="color:green">Run</i> button to execute the analysis' ,
                                                         head="info")
                                    }
                                  }
-                                
-                                 
-                                 if (!self$ok) return()
-                                 jinfo("PAMLj: Runner: first estimation")
-                                 
+
+                               
+                               
+                                   
                                  rundata(self)
                                  if (!self$ok) return()
-
+                                 jinfo("PAMLj: Runner: first estimation")
                                  resobj <- try_hard(powervector(self,self$data) )
                                  if (!isFALSE(resobj$warning))
                                      warning(resobj$warning)

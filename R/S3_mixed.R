@@ -10,27 +10,29 @@
       clustersopt<-obj$options$clusterpars
       find <- obj$options$find
     
-      syntax<-obj$options$code
-      spsyntax   <-  stringr::str_split_1(syntax,"\\n")  
-      spsyntax   <- spsyntax[grep("~",spsyntax)]
-
-      syntax<-stringr::str_remove_all(syntax," ")
-
+      suppressWarnings({
       clusters<-lapply(clustersopt, function(x) list(k=as.numeric(x$k),n=as.numeric(x$n)))
       names(clusters)<-unlist(sapply(clustersopt, function(x) x$name))                                              
       variables<-lapply(obj$options$var_type, function(x) list(name=x$name,type=x$type,levels=as.numeric(x$levels)))
       names(variables)<-unlist(lapply(variables,function(x) x$name))
-
+      })
       ## check input 
       ## any model
-      if (stringr::str_length(syntax)==0) {
+      if (stringr::str_length(obj$options$code)==0) {
         obj$ok<-FALSE
-        obj$warning<-list(topic="issues",message="Please input the linear mixed model in the syntax box (see info for details)", head="info")
+        obj$warning<-list(topic="issues",message="Please input the linear mixed model syntax", head="info")
         return()
       }
 
       
       ## any cluster?
+      if (!is.something(clustersopt)) {
+        msg<-"<p>Please specify at the cluster variable(s) parameters</p>."
+        obj$warning<-list(topic="issues",message=msg,head="info")
+        obj$ok<- FALSE
+        return()
+      }
+      
       if (!is.something(clusters)) {
         msg<-"<p>Please specify at least one clustering variable in the model with the syntax: </p> <p>+(1|cluster)</p>."
         obj$warning<-list(topic="issues",message=msg,head="info")
@@ -83,22 +85,23 @@
            
   
       #### now work on the syntax
-     
-      modelobj    <-  try_hard(decompose_mixed_formula(spsyntax))
+      syntax<-obj$options$code
+      ### we get the line with a model, if more than one, we get the first
+      model_line<-get_regression_lines(syntax)
+      if (length(model_line)==0) obj$stop("Please insert a linear mixed model in the syntax")
+      modelobj<-try_hard(decompose_mixed_formula(model_line, fix_intercept=TRUE, intercept_coef=0))
       if (!isFALSE(modelobj$error)) obj$stop("Model formula not correct:" %+% modelobj$error)
       model <- modelobj$obj
-      ## check the model syntax
+     
+      check_mixed_model(obj,model)
+      
       fixed<-model$fixed
-      check_mixed_model(obj,fixed,"Fixed")
-
-      re<-model$re
-      lapply(re, function(x) check_mixed_model(obj,x,"Random"))
       model$clusters<-unique(names(clusters))
-      .terms<-model$fixed$terms[-1]
+
       ### assess variables structure
       model$variables<- lapply(variables, function(x) {
          clusters<-unlist(lapply(model$clusters, function(z) {
-            if (length(grep(x$name,re[[z]]))>0)
+            if (length(grep(x$name,model$re[[z]]))>0)
                   return(z)
            }))
          if (length(clusters)>0)
@@ -106,28 +109,23 @@
          return(x)
       })
 
-      names(model$variables)<-.terms
+      names(model$variables)<-model$fixed$terms[-1]
       ### assess cluster size
       model$re<-lapply(obj$options$clusterpars, function(x) {
          re<-model$re[[x$name]]
-         x$n<-as.numeric(x$n)
-         if (is.na(x$n)) x$n<-2
-         x$k<-as.numeric(x$k)
-         if (is.na(x$k)) x$k<-5
-         x$coefs<-re$coefs
-         x$terms<-re$terms
-         x$name<-NULL
-         x
+         re$n<-as.numeric(x$n)
+         if (is.na(re$n)) re$n<-2
+         re$k<-as.numeric(x$k)
+         if (is.na(re$k)) re$k<-5
+         re
          })
       names(model$re)<-model$clusters
-    
       re<-paste(lapply(names(model$re), function(x) {
         .re<-model$re[[x]]
-        .terms <- paste(.re$terms,collapse=" + ")
-         paste("(",.terms,"|",x,")")
+         paste("(",.re$rhs,"|",x,")")
          }), collapse=" + ")
-      model$formula<-paste(model$fixed$lhs,"~",paste(model$fixed$terms,collapse=" + "),"+",re,collapse=" + ")
-      model$sigma <- obj$options$sigma 
+      model$formula<-paste(model$fixed$lhs,"~",model$fixed$rhs,"+",re,collapse=" + ")
+      model$sigma <- sqrt(obj$options$sigma2) 
 
       obj$data             <- data.frame(sig.level=obj$options$sig.level)
       obj$data$power       <- obj$options$power
@@ -137,10 +135,12 @@
       obj$info$esmin       <-  1e-06
       obj$info$nmin        <-  10
       obj$info$nochecks    <-  "es"
-      obj$plots$data       <- obj$data
+      obj$plots$data       <-  obj$data
       obj$info$R           <-  obj$options$mcR 
-      obj$info$set_seed    <-  obj$options$set_seed 
-      obj$info$seed        <-  obj$options$seed 
+      # the sim algorithm works much better with a seed. If the user passes a seed, we use it
+      # otherwise we generate a random seed that is used for one estimation run only
+      if(obj$options$set_seed) obj$info$seed <-  obj$options$seed else obj$info$seed <- as.integer(sample.int(.Machine$integer.max, 1L))
+
       obj$info$parallel    <-  obj$options$parallel 
       obj$warning     <-  list(topic="initnotes",message="Monte Carlo method may take several minutes to estimate the results. Please be patient.", head="wait")
       if (obj$info$R<1000)
@@ -155,12 +155,17 @@
 
 
 ## powervector must accept a runner object and a data.frame. It must return a data.frame with nrow() equal to the input data.frame
-## they are used across all table and plots to estimate parameters, so the input data.frame is not necessarily the 
+## they are used across all tables and plots to estimate parameters, so the input data.frame is not necessarily the 
 ## orginal input data of the user.
 ## Differently to other software, these functions cannot fail. They should return a value (possibly Inf or 0) in any case.
 ## For this to happen, input data must be checked for plausibility in checkdata()
 ## Functions  are always called but return different information
 ## depending to the analysis being carried out
+
+
+### here we take a quite strange path. The issue is that simulations are very slow, so slow that
+### regular users cannot phantom. So, we use a few tricks to speed up the process. Bear with me, please.
+### it's a bit crooked, but is still much less code and time than  chatgpt suggestions (that were all unbearable)
 
 .powervector.pamlmixed <- function(obj,data) {
   
@@ -169,26 +174,72 @@
 
   if (obj$aim=="n") {
     if (find == "k") {
+           what<-"number of clusters levels"  
            n<-obj$info$model$re[[1]]$n
            l <- obj$info$model$re[[1]]$k
-           f<-function(int) {
-             pamlmixed_onerun(obj,n=NULL,int)
+           info("Finding number of clusters\n")
+           ## we want f() to search for n
+           f1<-function(int) {
+             .fast_onerun(obj,n=NULL,k=int)
            }
+           f2<-function(int) {
+             .slow_onerun(obj,n=NULL,k=int)
+           }
+           
     }
     if (find == "n") {
+           what<-"number of cases"  
            k<-obj$info$model$re[[1]]$k
            l <- obj$info$model$re[[1]]$n
-           f<-function(int) {
-             pamlmixed_onerun(obj,int,k=NULL)
+           # if we have random slopes, start with n>2
+           if (l < 4 && length(obj$info$model$re[[1]]$terms) > 1) l<-4
+           info("Finding number of cases within clusters\n")
+           ## we want f() to search for k
+           f1<-function(int) {
+             .fast_onerun(obj,int,k=NULL)
            }
+           f2<-function(int) {
+             .slow_onerun(obj,int,k=NULL)
+           }
+           
     }
-    .pow<-int_seek(f,"power",obj$info$power,lower=l,upper=2000)  
-    pow<-.pow$f
-    obj$data<-pow
+    
+    ## first, we search for a reasonable solution with anova-on-model based .fast_onerun() function, embeed in f1()
+    ## then, we use .slow_onerun(), embedded in f2(), to find the more adequate solution
+    
+    .pow<-int_seek(f = f1,target_power = obj$info$power,n_start=l,memory = 10)  
+     int<-.pow[[find]][[1]]
+     out<-attr(.pow,"out")
+     info("\nQuick search found " %+% find %+% "=" %+% .pow[[find]][[1]] %+% " with exit:" %+% out)
+  
+     if (!is.null(out) && out=="asymptote" && (obj$info$power-.pow$power)>.10) {
+       pow<-.slow_onerun(obj,n=.pow$n,k=.pow$k)
+       msg<-"Preliminary power calculation indicates that the input model would not achieve the desired power. Power remains around " %+%
+             round(pow$power,5) %+% " when " %+% what %+%" > " %+% pow[[find]]
+       obj$warning<-list(topic="issues",message=msg,head="warning")
+       pow$sig.level<-obj$data$sig.level
+       obj$data<-pow
+       return(pow)
+     }
+     
+     pow<-int_seek(f = f2,target_power = obj$info$power,n_start=int, tol=.02,memory=3)  
+     out<-attr(pow,"out")
+     info("sims exit:", out)
+     if (!is.null(out) && out=="asymptote") {
+       msg<-"Power calculation indicates that the input model would not achieve the exact desired power. Power remains around " %+%
+         round(pow$power,5) %+% " when " %+% what %+%" > " %+% pow[[find]] 
+       msg <- msg %+% ". Larger starting points for " %+% what %+% " may find a more accurate solution."
+       obj$warning<-list(topic="issues",message=msg,head="warning")
+     }
+     pow$sig.level<-obj$data$sig.level
+     obj$data<-pow
   } 
   if (obj$aim=="power") {
-    
-     pow<-pamlmixed_onerun(obj,obj$info$model$re[[1]]$n,obj$info$model$re[[1]]$k)
+     # we use the first cluster parameters
+     n<-obj$info$model$re[[1]]$n
+     k<-obj$info$model$re[[1]]$k
+     pow<-.slow_onerun(obj,n=n,k=k)
+     pow$sig.level<-obj$data$sig.level
      obj$data<-pow
      
   }
@@ -228,23 +279,25 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
     one<-cbind(cdata[i,],wdata)
     ldata[[length(ldata)+1]]<-one
   }
-  jinfo("PAMLj: sample clusters:",paste(ks),"with ns:",paste(ns))
+  
+
   data<-do.call(rbind,ldata)
   names(data)<-c(infomod$clusters,  names(wdata)<-paste0(".id.",1:length(levels)))
   r<-nrow(data)
   for (i in seq_along(infomod$variables)) {
     x<-infomod$variables[[i]]
+    set.seed(obj$info$seed)
     data[[x$name]]<-rnorm(r)
     if (x$type=="categorical") {
       rep<-round(r/x$levels)
       data[[x$name]]<-factor(rep(1:x$levels,rep+100)[1:r])
+      contrast(data[[x$name]])<-contr.poly(x$levels)
       xcoefs<-fixed[[i]]
       if (x$levels>2) xcoefs<-c(fixed[[i]],rep(0,x$levels-2)) 
       fixed[[i]]<-xcoefs
     }
   }
   
- 
   
   varcor<-lapply(infomod$re,function(x) {
     diag(x=x$coefs,nrow=length(x$coefs))
@@ -268,178 +321,328 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
   
 } 
 
-pamlmixed_onerun <- function(obj,n=NULL,k=NULL) {
+
+.fast_onerun <- function(obj, n = NULL, k = NULL) {
   
+    model  <- pamlmixed_makemodel(obj, n, k)    
+    tab <- car::Anova(model, type = 3)
+    tab <- tab[-1,]
+    df  <- tab[, "Df"]
+    chisq <-tab[, "Chisq"]
+    crit  <- stats::qchisq(1 - obj$data$sig.level, df)
+    power <- 1 - stats::pchisq(crit, df = df, ncp = chisq)  
+    tab$F<-chisq/df
+    tab$power<-power
+    tab$n=attr(model,"n")
+    tab$k=attr(model,"k")
+    tab
+
+}
+
+.sim_fun <- function(model, tol_sing = 1e-4, include_warnings = TRUE) {
+  # 1) simulate new response
+  y <- stats::simulate(model)$sim_1
+  
+  # 2) fit while capturing warnings
+  warn_buf <- character(0)
+  fit <- withCallingHandlers(
+    expr = simr::doFit(y, model),
+    warning = function(w) {
+      warn_buf <<- c(warn_buf, conditionMessage(w))
+      invokeRestart("muffleWarning")
+    }
+  )
+  
+  # 3) cast to lmerTest
+  fit <- lmerTest::as_lmerModLmerTest(fit)
+  
+  # 4) derive convergence + singularity
+  #    (be defensive against optimizer variants)
+  optinfo <- fit@optinfo
+  # messages from lme4 and optimizer
+  msgs <- c(
+    tryCatch(optinfo$conv$lme4$messages, error = function(e) character(0)),
+    tryCatch(optinfo$conv$opt$messages,  error = function(e) character(0)),
+    warn_buf
+  )
+  msgs <- msgs[!is.na(msgs)]
+  
+  # optimizer code (0 means success for bobyqa/nlminb etc.)
+  opt <- tryCatch(optinfo$conv$opt, error = function(e) NULL)
+  code <- tryCatch(
+    if (is.null(opt)) NA_integer_
+    else if (is.list(opt) && !is.null(opt$code)) as.integer(opt$code)
+    else if (is.numeric(opt)) as.integer(opt)
+    else NA_integer_,
+    error = function(e) NA_integer_
+  )
+  
+  # heuristic: converged if no messages and (code is 0 or NA but no "failed"/"converge" warnings)
+  converged <- TRUE
+  if (length(msgs)) {
+    # any "failed to converge" / "converge" in messages → not converged
+    if (any(grepl("fail|converg", msgs, ignore.case = TRUE))) converged <- FALSE
+  }
+  if (!is.na(code)) {
+    converged <- converged && (code == 0L)
+  }
+  
+  singular <- lme4::isSingular(fit, tol = tol_sing)
+  
+  # 5) anova table + annotations
+  anov <- stats::anova(fit)
+  anov$name <- rownames(anov)
+  anov$converged <- rep(converged, nrow(anov))
+  anov$singular  <- rep(singular,  nrow(anov))
+  if (isTRUE(include_warnings)) {
+    anov$warnings <- rep(if (length(msgs)) paste(unique(msgs), collapse = " | ") else "", nrow(anov))
+  }
+  
+  anov
+}
+
+# .sim_fun<-function(model) {
+#   y<-stats::simulate(model)$sim_1
+#   fit<-simr::doFit(y,model)
+#   fit<-lmerTest::as_lmerModLmerTest(fit)
+#   anov<-anova(fit)
+#   anov$name<-rownames(anov)
+#   anov
+# }
+
+.slow_onerun <- function(obj,n=NULL,k=NULL) {
+  
+
+  master_seed<-obj$info$seed
   
   model<-pamlmixed_makemodel(obj,n,k)
-  
-  if (obj$info$parallel) {
-    if (Sys.info()['sysname'] == "Windows") 
-      plan<-future::multisession
-    else                 
-      plan<-future::multicore
-  }
-  RNGkind("L'Ecuyer-CMRG")
-  future::plan(plan)
-  lmodel<-lmerTest::as_lmerModLmerTest(model)
-  onefun<-function() {
-    y<-stats::simulate(lmodel)$sim_1
-    fit<-simr::doFit(y,lmodel)
-    fit<-lmerTest::as_lmerModLmerTest(fit)
-    anov<-stats::anova(fit)
-    anov$name<-rownames(anov)
-    anov 
-  }
-  R<-obj$info$R
-  if (obj$info$parallel)
-    sims<-foreach::foreach(i = 1:R, .options.future = list(seed = TRUE)) %dofuture%  onefun()
-  else
-    sims<-rbind(lapply(1:R,function(x) onefun()))
-                
+  R <- obj$info$R
+  base::RNGkind("L'Ecuyer-CMRG")
+    
+  if (isTRUE(obj$info$parallel)) {
+      plan <- if (Sys.info()[["sysname"]] == "Windows") future::multisession else future::multicore
+      future::plan(plan)
+      sims <- foreach::foreach(
+        i = seq_len(R),
+        .options.future = list(seed = master_seed)  # CRN: deterministic substream per i
+      ) %dofuture% {
+        .sim_fun(model)
+      }
+    } else {
+      # serial, still CRN: use per-rep substreams derived from the master seed
+      set.seed(master_seed, kind = "L'Ecuyer-CMRG")
+      sims <- lapply(seq_len(R), function(i) {
+        set.seed(master_seed + i, kind = "L'Ecuyer-CMRG")
+        .sim_fun(model)
+      })
+    }
+
   res<-as.data.frame(do.call(rbind,sims))
-  res$power<- (res[,6] < obj$info$sig.level)
-  pow<-lapply(c("NumDF", "DenDF","F value","Pr(>F)","power"), function(name) tapply(res[[name]],res$name,mean, na.rm=T))
+  res$power<- (res[,6] < obj$data$sig.level)
+  pow<-lapply(c("NumDF", "DenDF","F value","Pr(>F)","power","converged","singular"), function(name) tapply(res[[name]],res$name,mean, na.rm=T))
   pow<-as.data.frame(do.call(cbind,pow))
-  names(pow)<-c("df","df_error","F","p","power")
+  names(pow)<-c("df","df_error","F","p","power","converged","singular")
   pow$effect<-rownames(pow)
   pow$n<-attr(model,"n")
   pow$k<-attr(model,"k")
   return(pow)
                 
- }
-
-
-
-
-decompose_formula<-function(astring) {
-  
-          results<-list()
-          warns<-list(int=FALSE,ivalue=FALSE,coefs=FALSE)
-         .fixform<-gsub("\\d*\\.?\\d*\\s*\\*", "", astring)
-         .s<-stringr::str_split_1(.fixform,"~")
-         if (length(.s)>1) {
-             results$lhs<-trimws(.s[[1]])
-             .rhs<-.s[[2]]
-         } else
-             .rhs<-.s
-         ### handle negative numbers
-          # this was good only for positive pat<-"\\d*\\.?\\d+(?=\\s*\\*)"
-          #astring<-"y ~ 1 * 1 - 0.1 * x + 0.4 * zuzu - 4 * g "
-          astring<-gsub("\\s+", "", astring)
-          pat <- "-?\\s*\\d*\\.?\\d+(?=\\s*\\*)"
-         .coefs  <- as.numeric(unlist(regmatches(astring, gregexpr(pat, astring, perl=TRUE))))
-         .terms   <- unlist(trimws(stringr::str_split_1(string=.rhs,pattern="[\\+\\-]")))
-          int<-stringr::str_split_1(astring,"\\+")[[1]]
-          if (length(grep("1",int))==0) {
-              warns$int<-TRUE
-             .rhs <- paste("1 +",.rhs)
-             .coefs<-c(0,.coefs)
-             .terms   <- c("1",.terms)
-           }
-          if (length(grep("1",int))>0 && length(grep("\\*",int))==0 ) {
-                  .coefs<-c(0,.coefs)
-                   warns$ivalue<-TRUE
-          }
-          results$rhs<-gsub("-","+",gsub(" ","",.rhs),fixed = T)
-         
-          if (length(.coefs) != length(.terms))
-                warns$coefs=TRUE
-          results$coefs   <-  .coefs
-          results$terms   <- .terms
-          attr(results,"warnings")<-warns
-          return(results)
 }
 
 
-decompose_mixed_formula<-function(astring) {
+check_mixed_model<- function(obj,model) {
+  
+  
+  msg1 <- "<br>Intercept was not explicitly declared for %s " %+%
+          "It has been added to the model." %+%
+          "It's expected value has been set to 0 " %+%
+          "To remove this warning, please use <b><i>y~value*1+...</i></b> syntax " %+%
+          "where <b><i> value </i></b> is the expected value of the intercept, including zero values."
+  msg2 <- "<br>Intercept expected value was not explicitly declared for %s " %+%
+          "It has been set to zero. To remove this warning, please use <i><b>y~value*1+...</i></b>` syntax, " %+%
+          "where `value` is the expected value of the intercept, including zero values. "
+  msg3 <- "<br>Not all expected values have been declared for the %s." %+%
+          "Please input all the expected value using the syntax <b><i> ..value*x+..</i></b>, " %+% 
+          "where <b><i>value</i></b> is the expected effect size (expected value), including zero values."
+  
+  
+      fun <- function(asynlist,what) {
+      ### check the uniqueness
+      test<-attr(asynlist$terms,"unique")
+      if (!test) {
+        msg<-"The model syntax contains not unique variables" %+% paste(obj$terms,collapse = ",")
+        obj$stop(msg)
+      }
+      intadded<-FALSE
 
-          results<-list()
-          warns<-list()
-         ### handle fixed
-          .fixed <- deparse(lme4::nobars(as.formula(astring)))
-          .re    <- lme4::findbars(as.formula(astring))
-          if (is.null(.fixed)) stop("No fixed terms in the model, please refine the input model")
-          if (is.null(.re)) stop("No random coefficients in the model, please refine the input")
-          results$fixed<-decompose_formula(.fixed)
-          re<-lapply(.re, function(x) {
-                 .input<-deparse(x[[2]])
-                 .terms<-decompose_formula(.input)
-                 .terms
-          })
-          names(re)<-unlist(lapply(.re,function(x) as.character(x[[3]])))
-          results$re<-re
-          return(results)
+      if (attr(asynlist$terms,"intadded")) {
+        intadded <- TRUE
+        obj$warning<-list(topic="issues",message=sprintf(msg1,what), head="info")
+      }
+      if (!intadded && attr(asynlist$coefs,"intadded")) {
+        msg<- 
+          obj$warning<-list(topic="issues",message=sprintf(msg2,what), head="info")
+      }
+      if (any(is.na(asynlist$coefs))) {
+        obj$stop(sprintf(msg3,what))
+      }
+
+      }
+  
+      fun(model$fixed,"fixed effects")
+      for (n in names(model$re)) fun(model$re[[n]],"random coefficient across " %+% n)  
+      
+      
 }
 
-check_mixed_model<- function(obj,mmterms, type, cluster=NULL) {
-  
-      text<-ifelse(type=="Random","Variance for the random", "Fixed") 
-      .target<- ifelse(is.null(cluster),".","for cluster" %+% cluster %+% ".")
-      .attr<-attr(mmterms,"warnings")
-      if (.attr$int) {
-        msg<- type %+% " intercept was not explicitly declared" %+% .target %+%
-              " It has been added to the model." %+%
-              " It's expected value has been set to 0." %+%
-              " To remove this warning, please use <b><i>y~value*1+...</i></b> syntax," %+%
-              " where <b><i> value </i></b> is the expected value of the intercept, including zero values" %+%
-              " <br> See <b>Info</b> for details. <br> <br>"
-        obj$warning<-list(topic="issues",message=msg, head="info")
-      }
-      if (.attr$ivalue) {
-        msg<- text %+% " intercept expected value was not explicitly declared" %+%
-               .target %+%
-               " It has been set to zero. To remove this warning, please use `y~value*1+...` syntax," %+%
-               " where `value` is the expected value of the intercept, including zero values.  <br><br>"
-        obj$warning<-list(topic="issues",message=msg, head="info")
-      }
-      if (.attr$coefs) {
-        msg<- " Not all expected values have been declared for the " %+% tolower(type) %+% " effects." %+%
-              " Please input all the expected value using the syntax <b><i> ... value*x+..</i></b>, " %+%
-              " where <b><i>value</i></b> is the expected effect size (expected value), including zero values. <br> <br>"
-        obj$warning<-list(topic="issues",message=msg, head="info")
-      }
+# Integer search on f(n)$power (monotone increasing), starting at n_start.
+# f(n) must return a list with a numeric scalar `power`.
 
+int_seek<-function(fun,n_start,target_power=.90,tol=.01,step=150,lower=2, max_iter=100, memory=5) {
   
+  n<-n_start
+  steps<-0
+  chache<-new.env(parent = emptyenv())
+  ### we keep track of the results to check if gets stuck
+  chache$reslist<-list()
+  iter<-0
+  repeat{
+    iter<-iter+1
+    res<-fun(n)
+    pwr<-res$power
+    stopifnot(is.finite(pwr))
+    diff<-(pwr-target_power)
+    adiff<-abs(diff)
+    chache$reslist[[length(chache$reslist)+1]]<-adiff
+    rinfo(sprintf("n=%d, p=%.4f, diff=%.4f, steps=%d",n,pwr,adiff,steps))
+    if (adiff < tol) {
+      attr(res,"out")<-"found"
+      return(res)
+      
+    }
+    if (diff>0) dir<- -1 else dir<-1
+    steps<-round(adiff*step*dir)
+    n<- n+steps
+    if (n<lower) {
+      attr(res,"out")<-"tolow"
+      return(res)
+    }
+    ## if power is lower than target it may be stuck
+    if (length(chache$reslist) > memory && diff < 0) {
+      s<-sd(unlist(chache$reslist))
+      if (s<tol/2) {
+        attr(res,"out")<-"asymptote"
+        return(res)
+      }
+      chache$reslist[[1]]<-NULL
+    }
+    if (iter>max_iter) {
+      attr(res,"out")<-"maxiter"
+      return(res)
+    }
+    if (steps==0) {
+      attr(res,"out")<-"nosteps"
+      return(res)
+      
+    }
+    
+  }
   
 }
+
+
+
 
 ### a sort of uniroot for integers and lower checks
+# Integer binary search on f(n)$power against target_power
+int_seek2 <- function(f, what=min, target_power,
+                             lower, upper,
+                             tol = 0.001,
+                             max_iter = 50L,
+                             monotone = c("auto", "increasing", "decreasing"),
+                             verbose = TRUE) {
+  stopifnot(is.function(f),
+            is.finite(target_power), is.numeric(target_power),
+            is.finite(lower), is.finite(upper),
+            lower <= upper, tol > 0)
 
-# Integer-only proportional seeker
-# Assumes f is non-decreasing in n (important for termination).
-int_seek <- function(f, value, t, lower = -Inf, upper = Inf,
-                     s = 10,                 # proportionality factor (bigger => larger jumps)
-                     max_iter = 100L,         # safety cap
-                     tol = 0.01) {               # optional tolerance on the target
-  # normalize inputs
-  if (!is.finite(lower)) lower <- -.Machine$integer.max
-  if (!is.finite(upper)) upper <-  .Machine$integer.max
-  upper <- as.integer(upper)
-  n<-lower  
-  steps <- 0L
-  inc<- 0
-  repeat {
-    res <- f(n)
-    y<-min(res[[value]])
-    mark(paste("int_seek trying",n,"with result",y,"inc:",inc))
-    
-    if (y > t - tol) {
-      return(list(f=res, n = n, value = y, steps = steps, hit_upper = FALSE))
-    }
-    if (n >= upper) {
-      return(list(f=res, n = n, value = y, steps = steps, hit_upper = TRUE))
-    }
-    gap <- t - y                 # in [0,1]
-    inc <- as.integer(ceiling(s * gap))  # proportional to gap
+    ## fun() allows getting the power value we wish, min(), max() or some specific row
 
-    if (inc < 1L) inc <- 1L
-    if (n + inc > upper) inc <- upper - n
-    n <- n + inc
-    steps <- steps + 1L
-    if (steps >= max_iter) {
-      return(list(f=res, n = n, value = f(n), steps = steps, hit_upper = (n >= upper)))
+  fun<-what
+
+  monotone <- match.arg(monotone)
+  
+  # tiny memoizer
+  cache <- new.env(parent = emptyenv())
+  eval_f <- function(n) {
+    k <- as.character(as.integer(n))
+    if (exists(k, cache, inherits = FALSE)) {
+      get(k, cache, inherits = FALSE)
+    } else {
+      res <- f(as.integer(n))
+      pwr <- fun(res$power)
+      if (!is.numeric(pwr) || length(pwr) != 1L || !is.finite(pwr))
+        stop("f(n)$power must be a finite numeric scalar")
+      assign(k, res, envir = cache)
+      res
     }
   }
+  get_power <- function(res) fun(res$power)
+  
+  # evaluate bounds
+  if (verbose) rinfo(sprintf("int_seeker: evaluating lower bound: %d",as.integer(lower)))
+  resL <- eval_f(lower)
+  pL <- get_power(resL)
+  if (verbose) rinfo(sprintf("int_seeker: evaluating upper bound: %d",as.integer(upper)))
+  resU <- eval_f(upper)
+  pU <- get_power(resU)
+  
+  # detect monotonic direction if needed
+  dir <- switch(monotone,
+                auto = if (pU >= pL) "increasing" else "decreasing",
+                increasing = "increasing",
+                decreasing = "decreasing"
+  )
+  
+  # keep the best-so-far (closest to target), to return if tol unmet
+  best_res <- resL
+  best_diff <- abs(pL - target_power)
+  
+  update_best <- function(res) {
+    p <- get_power(res); d <- abs(p - target_power)
+    if (d < best_diff) { best_diff <<- d; best_res <<- res }
+  }
+  update_best(resU)
+  
+  if (verbose) rinfo(sprintf("init: n=[%d,%d], power=[%.4f,%.4f], dir=%s",
+                               as.integer(lower), as.integer(upper), pL, pU, dir))
+  
+  # main loop
+  iter <- 0L
+  while ((upper - lower) > 1L && iter < max_iter) {
+    mid <- (lower + upper) %/% 2L
+    if (verbose) info(sprintf("it%02d: evaluating n=%d",iter, mid))
+    
+    resM <- eval_f(mid); pM <- get_power(resM)
+    update_best(resM)
+    
+    if (verbose) rinfo(sprintf("it%02d: n=%d, power=%.4f, diff=%.4g",
+                                 iter, mid, pM, pM - target_power))
+    
+    # success criterion: return the *last* f() result when within tol
+    if (abs(pM - target_power) <= tol) return(resM)
+    
+    if (dir == "increasing") {
+      if (pM < target_power) lower <- mid else upper <- mid
+    } else { # decreasing
+      if (pM > target_power) lower <- mid else upper <- mid
+    }
+    iter <- iter + 1L
+  }
+  
+  # If we exit without meeting tol, return closest evaluated result
+  if (verbose) info("Tolerance not met; returning closest evaluated result.")
+  best_res
 }
 
 

@@ -24,8 +24,6 @@
 \item{...}{options passed to print()}
 
 \item{x}{a pamlj results object of the class `pamlj`}
-
-\item{formula}{not used}
 }
 \value{
 a list of table as data.frame
@@ -40,13 +38,8 @@ These functions extract all visible tables from a list of tables produced by pam
 and print them in R style.
 }
 \examples{
-data(fivegroups)
-fivegroups$Group<-factor(fivegroups$Group)
-gmod<-pamlj3::pamlj_lm(
-  formula = Score ~Group,
-  data = fivegroups)
-
-summary(gmod)
+obj<-pamlj::pamlcorr(es=.1)
+summary(obj)
 data(fivegroups)
 fivegroups$Group<-factor(fivegroups$Group)
 gmod<-pamlj3::pamlj_lm(

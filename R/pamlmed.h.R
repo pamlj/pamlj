@@ -33,7 +33,6 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             parallel = FALSE,
             set_seed = FALSE,
             seed = 42,
-            sim_ttest = FALSE,
             table_pwbyn = TRUE,
             plot_ncurve = FALSE,
             plot_log = FALSE,
@@ -185,10 +184,6 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "seed",
                 seed,
                 default=42)
-            private$..sim_ttest <- jmvcore::OptionBool$new(
-                "sim_ttest",
-                sim_ttest,
-                default=FALSE)
             private$..table_pwbyn <- jmvcore::OptionBool$new(
                 "table_pwbyn",
                 table_pwbyn,
@@ -314,7 +309,6 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..parallel)
             self$.addOption(private$..set_seed)
             self$.addOption(private$..seed)
-            self$.addOption(private$..sim_ttest)
             self$.addOption(private$..table_pwbyn)
             self$.addOption(private$..plot_ncurve)
             self$.addOption(private$..plot_log)
@@ -362,7 +356,6 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         parallel = function() private$..parallel$value,
         set_seed = function() private$..set_seed$value,
         seed = function() private$..seed$value,
-        sim_ttest = function() private$..sim_ttest$value,
         table_pwbyn = function() private$..table_pwbyn$value,
         plot_ncurve = function() private$..plot_ncurve$value,
         plot_log = function() private$..plot_log$value,
@@ -409,7 +402,6 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..parallel = NA,
         ..set_seed = NA,
         ..seed = NA,
-        ..sim_ttest = NA,
         ..table_pwbyn = NA,
         ..plot_ncurve = NA,
         ..plot_log = NA,
@@ -825,7 +817,6 @@ pamlmedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #' @param parallel .
 #' @param set_seed .
 #' @param seed .
-#' @param sim_ttest .
 #' @param table_pwbyn .
 #' @param plot_ncurve .
 #' @param plot_log .
@@ -897,7 +888,6 @@ pamlmed <- function(
     parallel = FALSE,
     set_seed = FALSE,
     seed = 42,
-    sim_ttest = FALSE,
     table_pwbyn = TRUE,
     plot_ncurve = FALSE,
     plot_log = FALSE,
@@ -949,7 +939,6 @@ pamlmed <- function(
         parallel = parallel,
         set_seed = set_seed,
         seed = seed,
-        sim_ttest = sim_ttest,
         table_pwbyn = table_pwbyn,
         plot_ncurve = plot_ncurve,
         plot_log = plot_log,

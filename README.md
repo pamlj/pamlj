@@ -22,6 +22,8 @@ Estimation power parameters (required sample size, expected power, minimal detec
 * F-test for factorial designs from partial eta-squared (between, within and mixed)
 * F-test for factorial designs from cells means and sd (between, within and mixed)
 * Mediation with Sobel, joint significance and Monte Carlo tests
+* Structural Equations Models 
+* Mixed Models (multilevel models)
 
 # Docs and help
 

@@ -69,11 +69,36 @@ items:
         - name: sig.level
           title: α
           type: number
-        - name: conv
+        - name: converged
           title: '% converged'
           type: number
-          visible: (method:mc)
-
+        - name: singular
+          title: '% singular'
+          type: number
+        
+    - name:  effectsizes
+      title: Effect size indices
+      type: Table
+      rows:  1
+      columns: 
+        - name: type
+          title: 'Type'
+          type: text
+        - name: term
+          title: 'Term'
+          type: text
+        - name: value
+          title: 'Input'
+          type: number
+        - name: es
+          title: 'ES'
+          type: number
+        - name: cluster
+          title: 'Cluster'
+          type: text
+        - name: label
+          title: 'ES label'
+          type: text
 
 
             

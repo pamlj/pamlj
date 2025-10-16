@@ -42,27 +42,30 @@ const events = {
         
     },
     mode_changed: function(ui) {
-      
+      console.log("ttest mode changed");
       var self = ui.mode;
       switch (self.value()) {
         case 'ttestind':
-          ui.convert_es_ttestpaired.el.style.display='none';
-          ui.convert_es_ttestone.el.style.display='none';
-          ui.convert_es_ttestind.el.style.display='';
+          fun.hide(ui.convert_es_ttestpaired);
+          fun.hide(ui.convert_es_ttestone);
+          fun.show(ui.convert_es_ttestind)
           break;
         case 'ttestpaired':
-          ui.convert_es_ttestpaired.el.style.display='';
-          ui.convert_es_ttestone.el.style.display='none';
-          ui.convert_es_ttestind.el.style.display='none';
+          fun.show(ui.convert_es_ttestpaired);
+          fun.hide(ui.convert_es_ttestone);
+          fun.hide(ui.convert_es_ttestind)
           break;
         case 'ttestone':
-          ui.convert_es_ttestpaired.el.style.display='none';
-          ui.convert_es_ttestone.el.style.display='';
-          ui.convert_es_ttestind.el.style.display='none';
+          fun.hide(ui.convert_es_ttestpaired);
+          fun.show(ui.convert_es_ttestone);
+          fun.hide(ui.convert_es_ttestind)
           break;
       }
-
-      
+      // be sure the output fields are read only and blueish
+      fun.make_readonly(ui.ttestpaired_d);
+      fun.make_readonly(ui.ttestpaired_dz);
+      fun.make_readonly(ui.ttestone_d);
+      fun.make_readonly(ui.ttestind_d);
     },
     ttestind_nratio_changed: function(ui) {
       

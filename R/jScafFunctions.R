@@ -1,5 +1,5 @@
-j_DEBUG = FALSE
-j_INFO = FALSE
+j_DEBUG = T
+j_INFO = T
 t_INFO  <- F
 
 
@@ -43,6 +43,22 @@ mark <- function(...) {
   if (length(items)>1)  cat("_____end_______\n\n")
   
 }
+
+
+rinfo <- function(...) {
+  items<-list(...)
+  info<-paste(items,collapse = " ")
+  cat(sprintf("%s", info), "\r", append = FALSE)
+  flush.console()
+}
+
+info <- function(...) {
+  items<-list(...)
+  info<-paste(items,collapse = " ")
+  cat(info, "\n")
+}
+
+
 
 is.something <- function(x, ...) UseMethod(".is.something")
 

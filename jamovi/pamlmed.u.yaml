@@ -307,8 +307,4 @@ children:
                         name: seed
                         format: number
                         enable: (set_seed)
-                  - type: LayoutBox
-                    margin: large
-                    children:
-                      - type: CheckBox
-                        name: sim_ttest
+   

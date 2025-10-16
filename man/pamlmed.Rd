@@ -168,6 +168,7 @@ A results object containing:
   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
   \code{results$extrainfo} \tab \tab \tab \tab \tab a html \cr
   \code{results$issues} \tab \tab \tab \tab \tab a html \cr
+  \code{results$initnotes} \tab \tab \tab \tab \tab a html \cr
   \code{results$diagram} \tab \tab \tab \tab \tab an image \cr
   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
   \code{results$effectsize} \tab \tab \tab \tab \tab a table \cr

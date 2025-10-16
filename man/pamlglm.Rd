@@ -33,7 +33,8 @@ pamlglm(
   covs_order,
   factors_order,
   mixed_order,
-  eta = 0.2,
+  eta = "-",
+  f = "-",
   eta_df_error = 0,
   epsilon = 0,
   omega = 0,
@@ -115,6 +116,8 @@ pamlglm(
 
 \item{eta}{.}
 
+\item{f}{.}
+
 \item{eta_df_error}{.}
 
 \item{epsilon}{.}
@@ -125,9 +128,15 @@ pamlglm(
 
 \item{f2}{.}
 
-\item{use}{.}
+\item{use}{not used in R}
 
-\item{ncp_type}{.}
+\item{ncp_type}{What type of non-centrality parameter (NCP) should be used.
+The effect size is always transformed into  a Cohen's \code{f2}, that is
+multiplied by the N to  which is estimated based on the degrees of freedom
+such that \code{N=df+edf+1}. \code{model} defines \code{df} as the model
+degrees of freedom. This is the method used by \code{G*Power} software.
+\code{liberal} uses the effect \code{df}. \code{strict} uses only the error
+df (df=0).}
 
 \item{rx}{a vector of strings naming the columns from \code{data}
 containing the correlations among independent variables}

@@ -35,37 +35,60 @@ pamlttest(
   plot_to_table = FALSE,
   explain = FALSE,
   .caller = "ttest",
-  .interface = "jamovi"
+  .interface = "jamovi",
+  ttestind_ttest = "-",
+  ttestind_ngroup = 0,
+  ttestind_d = 0,
+  ttestind_useit,
+  ttestpaired_ttest = "-",
+  ttestpaired_obsn = 0,
+  ttestpaired_d = 0,
+  ttestpaired_useit,
+  ttestpaired_dind = "-",
+  ttestpaired_r = 0,
+  ttestpaired_dz = 0,
+  ttestpaired_d_useit,
+  ttestone_ttest = "-",
+  ttestone_obsn = 0,
+  ttestone_d = 0,
+  ttestone_useit
 )
 }
 \arguments{
-\item{aim}{.}
+\item{aim}{The aim of the analysis: \code{n} for required N, \code{power}
+for estimated power and \code{es} for minimal detectable effect size}
 
 \item{mode}{.}
 
-\item{ttestind_es}{.}
+\item{ttestind_es}{Expected Cohe's d}
 
-\item{ttestind_n}{.}
+\item{ttestind_n}{Sample size per group}
 
-\item{ttestind_nratio}{.}
+\item{ttestind_nratio}{Relative size of the two groups. 1 means group of
+equal size, \code{ratio}>1 means that one group is \code{ratio} times
+larger than the other.}
 
-\item{ttestpaired_es}{.}
+\item{ttestpaired_es}{Expected Cohe's d_z, defined as the mean difference
+divided by the standard deviation of the  difference score}
 
-\item{ttestpaired_n}{.}
+\item{ttestpaired_n}{Expected sample size (number of paires)}
 
-\item{ttestone_es}{.}
+\item{ttestone_es}{Expected Cohe's d}
 
-\item{ttestone_n}{.}
+\item{ttestone_n}{Expected sample size}
 
-\item{is_equi}{.}
+\item{is_equi}{When \code{TRUE}, perform an equivalence test to show that a
+true effect is small enough to be considered practically negligible}
 
 \item{equi_limit}{.}
 
-\item{power}{.}
+\item{power}{Minimal desired power (1-Beta)}
 
-\item{sig.level}{.}
+\item{sig.level}{Critical alpha (significance level to be used in the
+analysis)}
 
-\item{alternative}{.}
+\item{alternative}{Wheather the test is two-tailed (\code{two.sided}) or
+one-tailed (\code{greater}).}
 
 \item{plot_contour}{.}
 
@@ -95,11 +118,43 @@ pamlttest(
 
 \item{plot_to_table}{.}
 
-\item{explain}{.}
+\item{explain}{not used in R}
 
 \item{.caller}{.}
 
 \item{.interface}{.}
+
+\item{ttestind_ttest}{not used in R}
+
+\item{ttestind_ngroup}{not used in R}
+
+\item{ttestind_d}{not used in R}
+
+\item{ttestind_useit}{not used in R}
+
+\item{ttestpaired_ttest}{not used in R}
+
+\item{ttestpaired_obsn}{not used in R}
+
+\item{ttestpaired_d}{not used in R}
+
+\item{ttestpaired_useit}{not used in R}
+
+\item{ttestpaired_dind}{not used in R}
+
+\item{ttestpaired_r}{not used in R}
+
+\item{ttestpaired_dz}{not used in R}
+
+\item{ttestpaired_d_useit}{not used in R}
+
+\item{ttestone_ttest}{not used in R}
+
+\item{ttestone_obsn}{not used in R}
+
+\item{ttestone_d}{not used in R}
+
+\item{ttestone_useit}{not used in R}
 }
 \value{
 A results object containing:

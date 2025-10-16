@@ -121,12 +121,11 @@ const events = {
 
               ui.view.model.options.beginEdit();
               ui.code.setValue(script);
+              ui.run.setValue(true);
 
                 // toggle toggle so the analysis *always* reruns
                 // even if nothing has changed
                 ui.toggle.setValue( ! ui.toggle.value());
-                // set run to true so the module known that play has been pressed
-                ui.run.setValue( true);
 
                 ui.view.model.options.endEdit();
 

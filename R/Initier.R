@@ -54,6 +54,7 @@ Initer <- R6::R6Class(
           
           
           ## checkdata update the data depending on the type of test we are running (via S3 dispatch)
+
           checkdata(self)
           if (self$options$.interface=="jamovi") {
                   jmvobj$results$intro$setContent(info_text(self))   
@@ -68,7 +69,7 @@ Initer <- R6::R6Class(
     #### init functions #####
   
     init_infotab = function() {
-       
+
       info<-self$info$model
       tab<- list(list(info="Model",value=info$formula, specs=""),
                  list(info="Fixed effects",value=info$fixed$rhs, specs=""),       
@@ -78,11 +79,10 @@ Initer <- R6::R6Class(
       for (cluster in info$clusters) ladd(tab)<-list(info="Clusters:",value=cluster)
       ladd(tab)<-list(info="Variables:",value=" ",specs=" ")
       for (var in info$variables) ladd(tab)<-list(info="Variables:",value=var$name,specs=var$type  )
-      ladd(tab)<-list(info="Residual Variance:",value=self$options$sigma,specs="Sigma"  )
       tab
     },
     init_powertab = function() {
-    
+
         powertab_init(self)
     },
     init_effectsize = function() {
@@ -161,7 +161,37 @@ Initer <- R6::R6Class(
         
         return(list(list(variable=".")))
       
-    }
+    },
+     init_effectsizes= function() {
+       
+       tab<-NULL
+       try_hard({
+       fixed <- self$info$model$fixed$coefs
+       terms <- self$info$model$fixed$terms
+       terms[as.numeric(terms)==1]<-"(Intercept)"
+       labs<-rep("Coefficient",length(fixed))
+       ftab<-data.frame(type="Fixed",term=terms,value=fixed,label=labs,cluster=NA,es=NA)
+       sigma<-data.frame(type="Variance",term=letter_sigma2,value=self$info$model$sigma^2,label="Residual Variance",cluster=NA,es=NA)
+       random <- self$info$model$re
+       re<-lapply(names(random), function(x) {
+                                             
+                                              data.frame(type="Random",
+                                                        term=random[[x]]$terms,
+                                                        value=random[[x]]$coefs,
+                                                        es=random[[x]]$coefs/(random[[x]]$coefs+self$info$model$sigma),
+                                                        cluster=x,
+                                                        label="ICC"
+                                                               )}) 
+       ladd(re)<-ftab
+       ladd(re)<-sigma
+       tab<-do.call(rbind,re)
+
+       })
+       return(tab)
+
+    
+   }
+  
   
 
 

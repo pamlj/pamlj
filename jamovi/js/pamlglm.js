@@ -1,3 +1,4 @@
+// thias should work in 2.6 and 2.7
 var fun=require('./functions');
 
 const events = {
@@ -30,7 +31,7 @@ const events = {
          update_model(ui);
 
     },
-    f_changed: function(ui) {
+      f_changed: function(ui) {
       console.log("f changed");
       var old=ui.f.value();
       if (old==="-")
@@ -66,7 +67,7 @@ const events = {
       update_convert(ui);
 
     },
-
+  
     onChange_factors_list_change: function(ui) {
       console.log("list changed");
       update_df(ui);
@@ -104,20 +105,6 @@ const events = {
 
 module.exports = events;
 
-var update_z_value = function( ui ) {
-  
-      ui.plot_z_value.$el[0].style.backgroundColor="inherit";
-      ui.plot_z_value.$el[0].style.border="0";
-      ui.plot_z_value.$el[0].style.height="";
- 
-      if (ui.plot_z_lines.value() < 6) {
-                 ui.plot_z_value.$el[0].style.display="contents";
-      } else {
-                 ui.plot_z_value.$el[0].style.display="block";
-      }
-      ui.plot_z_value.$el[0].children.getBoundingClientRect().width="70px";
-  
-}
 
 var update_convert = function( ui) {
 
@@ -157,7 +144,6 @@ var update_convert = function( ui) {
    ui.epsilon.setValue(epsilon.toFixed(4));
    ui.gpower.setValue(gpower.toFixed(4));
    ui.f2.setValue(f2.toFixed(4));
-  
 
 }
 
@@ -186,36 +172,32 @@ var update_use = function( ui ) {
 }
 var update_structure = function( ui) {
        
+          if (["beta","eta"].includes(ui.mode.value())) {
+          fun.hide(ui.panel_effectsize);
+          ui.use.setValue("none") ;
+          if (ui.b_df_model.value() < 1) 
+              ui.b_df_model.setValue(1);
+        }
+       
+       
         if (["beta","eta"].includes(ui.mode.value())) {
-          ui.panel_effectsize.$el[0].style.display='none' ;
+          fun.hide(ui.panel_effectsize) ;
           ui.use.setValue("none") ;
           if (ui.b_df_model.value() < 1) 
               ui.b_df_model.setValue(1);
         }
         if (ui.mode.value() === "peta") {
-          ui.panel_effectsize.$el[0].style.display='' ;
-          ui.use.setValue("none") ;
-          ui.omega.$input[0].setAttribute("readonly",true);
-          ui.omega.$input[0].style.backgroundColor="#CFECEC";
-          ui.omega.$input[0].style.borderColor="#5981b3";
-        
-          ui.epsilon.$input[0].setAttribute("readonly",true);
-          ui.epsilon.$input[0].style.backgroundColor="#CFECEC";
-          ui.epsilon.$input[0].style.borderColor="#5981b3";
-
-
-          ui.gpower.$input[0].setAttribute("readonly",true);
-          ui.gpower.$input[0].style.backgroundColor="#CFECEC";
-          ui.gpower.$input[0].style.borderColor="#5981b3";
-
+          fun.show(ui.panel_effectsize);
+          ui.use.setValue("none") ;       
+          fun.make_readonly(ui.omega);
+          fun.make_readonly(ui.epsilon);
+          fun.make_readonly(ui.gpower);
         }
         
         if (ui.mode.value() === "beta") {
-          ui.panel_correlations.$el[0].style.display=''
-          
+          fun.show(ui.panel_correlations);
         } else {
-          ui.panel_correlations.$el[0].style.display='none'
-          
+          fun.hide(ui.panel_correlations);
         }
 
         
@@ -223,13 +205,12 @@ var update_structure = function( ui) {
           
           var z = ui.plot_z.value();
           if (z === "none") {
-            ui.plot_value_label.$el.hide();
+            fun.hide(ui.plot_value_label);
           }
           var zv = ui.plot_z_value.value();
           if (z === 0) {
-            ui.plot_value_label.$el.hide();
+            fun.hide(ui.plot_value_label);
           }
-          
         }
         
 
@@ -243,13 +224,13 @@ var update_model = function( ui) {
       var nfactors = ui.factors.value();
 
       if ( nfactors == 0) {
-        ui.factors_group.$el[0].style.display='none';
+        fun.hide(ui.factors_group);
         ui.factors_list.setValue([]);
         return
         
       }
       
-      ui.factors_group.$el[0].style.display='';
+      ui.factors_group.$el.show();
       var factors = ui.factors_list.value();   
       console.log(factors)
 
