@@ -59,7 +59,7 @@ options:
                 Sample size per group
 
     - name: ttestind_nratio
-      title: "Relatve size of groups"
+      title: "Relative size of groups"
       type:  Number
       default: 1
       description:
