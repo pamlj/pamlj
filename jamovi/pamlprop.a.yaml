@@ -52,7 +52,7 @@ options:
       default: 20
 
     - name: propind_nratio
-      title: "Relatve size of groups"
+      title: "Relative size of groups"
       type:  Number
       default: 1
 
