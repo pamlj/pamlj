@@ -63,7 +63,7 @@ options:
 
     - name: run
       type: Action      
-      hidden: true
+     
       
 #####################      
       
@@ -112,6 +112,17 @@ options:
                 ui: |
                       Should parallel computing be used for the Monte Carlo method 
    
+    -   name: tol
+        title: Solution tollerance
+        type: Number
+        default: 0.01
+        description:
+                R: |
+                      Small epsilon for defing tollerance. A solution is proper if between required power +/- tol.
+                ui: |
+                      Tollerance to consider a solution found. 0.01, for instance, means that a power between .89 and .91 is 
+                      considered a solution for required power .90. 
+
     -   name: set_seed
         title: Use a seed
         type: Bool

@@ -9,6 +9,7 @@ split_syntax_text <- function(syntax) {
 }
 
 
+
 get_regression_lines <- function(syntax) {
   parts <- split_syntax_text(syntax)
   # detect tilde that's not part of ~~ or :=
@@ -16,6 +17,8 @@ get_regression_lines <- function(syntax) {
   keep <- grepl(formula_tilde, parts, perl = TRUE)
   parts[keep]
 }
+
+
 
 get_other_lines <- function(syntax) {
   parts <- split_syntax_text(syntax)
@@ -58,7 +61,7 @@ get_terms_signs<-function(rhs, named=FALSE) {
 
 get_terms_names<-function(rhs, named=FALSE) {
   
-  warns<-list(unique=TRUE)
+  warns<-list(unique=TRUE, error=FALSE)
   #pat <- "(?<=\\*)\\s*[[:alpha:]_.][[:alnum:]_.]*(?::[[:alpha:]_.][[:alnum:]_.]*)*(?=(?:\\s*[+-]|\\s*$))"
 #  pat <- "(?:^|[+-]|\\*)\\s*\\K[[:alpha:]_.][[:alnum:]_.]*(?::[[:alpha:]_.][[:alnum:]_.]*)*(?=(?:\\s*[+-]|\\s*$))"
   pat <- "(?<![[:alpha:]])[0-9]+(?:\\.[0-9]+)?(?=\\*)"
@@ -67,6 +70,7 @@ get_terms_names<-function(rhs, named=FALSE) {
   terms<-gsub("^[^*]*\\*","",terms)
   if (named) names(terms)<-terms
   if (length(unique(terms))!=length(terms)) warns$unique<-FALSE
+  if (any(terms=="")) warns$error=TRUE
   .attr(terms,warns)
 
 }

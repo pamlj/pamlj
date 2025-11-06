@@ -40,7 +40,7 @@ letter_epsilon2<-paste(greek_vector["epsilon"],'\u00B2',sep="")
 letter_pepsilon2<-paste("p",greek_vector["epsilon"],'\u00B2',sep="")
 letter_beta      <- paste(greek_vector["beta"])
 letter_sigma2<-paste(greek_vector["sigma"],'\u00B2',sep="")
-
+letter_play='<span style="color:green;">&#9654;</span>'
 ### subscript
 sub0<-"\U2080"
 sub1<-"\U2081"

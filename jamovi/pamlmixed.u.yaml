@@ -19,11 +19,22 @@ children:
           - type: ComboBox
             name: find
             enable: (aim:n)
-      - type: CustomControl
+      - type: Label
+        label: Model Syntax
+        name: model_syntax
+        margin: large
         stretchFactor: 1
-        name: syntax
-        events:
-          creating: ./mixed_editor::editor_creating
+        children:
+          - type: CustomControl
+            stretchFactor: 1
+            name: syntax
+            events:
+              creating: ./mixed_editor::editor_creating
+      - type: LayoutBox
+        margin: large
+        children:
+          - type: ActionButton
+            name: run
   - type: Label
     label: Model Structure
     name: model_structure
@@ -35,7 +46,7 @@ children:
         stretchFactor: 1
         children:
           - type: Label
-            label: Clusters
+            label: Clustering variables
             name: label_clusters
             stretchFactor: 1
             children:
@@ -53,12 +64,12 @@ children:
                       type: Label
                       stretchFactor: 2
                   - name: k
-                    label: Levels
+                    label: '# of clusters'
                     template:
                       type: TextBox
                       stretchFactor: 1
                   - name: 'n'
-                    label: Cases
+                    label: '# of cases'
                     template:
                       type: TextBox
                       stretchFactor: 1
@@ -99,7 +110,6 @@ children:
         type: TextBox
         label: Residual Variance
         format: number
-        
       - name: power
         type: TextBox
         label: Minimum desired power
@@ -142,3 +152,6 @@ children:
                         name: seed
                         format: number
                         enable: (set_seed)
+                      - type: TextBox
+                        name: tol
+                        format: number

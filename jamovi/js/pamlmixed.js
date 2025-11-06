@@ -2,6 +2,7 @@ var fun=require('./functions');
 
 const events = {
 
+ 
  aim_changed: function(ui) {
  
   //fixclusters(ui, ui.clusterpars.value());  

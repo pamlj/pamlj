@@ -38,7 +38,7 @@ sem_init <- "<p> Please select the aim of the analysis:</p>
                   </ul>
                   <p> In all cases, you can set the required Type I error rate (significance cut-off)</p>
                   "
-mix_init  <- "<p> <i>This submodule is highly experimental. Please use it only for testing and debugging</i></p>
+mixed_init  <- "<p> <i>This submodule is experimental. Please check the soundness of the results</i></p>
                   <p> Please select the aim of the analysis:</p>
                   <ul>
                   <li> <b> Calculate N</b> computes the required sample size given the  coefficients and <b> Minimum desire power</b>  
@@ -68,7 +68,7 @@ INFO[["proportions"]] <- common_init
 INFO[["factorial"]]   <- factorial_init
 INFO[["mediation"]]   <- mediation_init
 INFO[["pamlsem"]]     <- sem_init
-INFO[["pamlmixed"]]     <- mix_init
+INFO[["pamlmixed"]]     <- mixed_init
 
 
 INFO2<-list()
@@ -203,6 +203,9 @@ LINKS[["ttestpaired"]]<-"https://pamlj.github.io/ttest_paired.html"
 LINKS[["mediation"]]<-"https://pamlj.github.io/mediation.html"
 LINKS[["pamlsem"]]<-"https://pamlj.github.io/sem.html"
 LINKS[["mixed"]]<-"https://pamlj.github.io/mixed.html"
+
+TEXT<-list()
+TEXT["pressplay"]<-"<br> <br> Please press the run button " %+% letter_play %+% " to execute the analysis"
 
 
 ### here we define a nice widget to convey information

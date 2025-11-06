@@ -40,19 +40,15 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             ttestind_ttest = "-",
             ttestind_ngroup = 0,
             ttestind_d = 0,
-            ttestind_useit = NULL,
             ttestpaired_ttest = "-",
             ttestpaired_obsn = 0,
             ttestpaired_d = 0,
-            ttestpaired_useit = NULL,
             ttestpaired_dind = "-",
             ttestpaired_r = 0,
             ttestpaired_dz = 0,
-            ttestpaired_d_useit = NULL,
             ttestone_ttest = "-",
             ttestone_obsn = 0,
-            ttestone_d = 0,
-            ttestone_useit = NULL, ...) {
+            ttestone_d = 0, ...) {
 
             super$initialize(
                 package="pamlj",
@@ -238,7 +234,7 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 default=0)
             private$..ttestind_useit <- jmvcore::OptionAction$new(
                 "ttestind_useit",
-                ttestind_useit)
+                FALSE)
             private$..ttestpaired_ttest <- jmvcore::OptionString$new(
                 "ttestpaired_ttest",
                 ttestpaired_ttest,
@@ -253,7 +249,7 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 default=0)
             private$..ttestpaired_useit <- jmvcore::OptionAction$new(
                 "ttestpaired_useit",
-                ttestpaired_useit)
+                FALSE)
             private$..ttestpaired_dind <- jmvcore::OptionString$new(
                 "ttestpaired_dind",
                 ttestpaired_dind,
@@ -270,7 +266,7 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 default=0)
             private$..ttestpaired_d_useit <- jmvcore::OptionAction$new(
                 "ttestpaired_d_useit",
-                ttestpaired_d_useit)
+                FALSE)
             private$..ttestone_ttest <- jmvcore::OptionString$new(
                 "ttestone_ttest",
                 ttestone_ttest,
@@ -285,7 +281,7 @@ pamlttestOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 default=0)
             private$..ttestone_useit <- jmvcore::OptionAction$new(
                 "ttestone_useit",
-                ttestone_useit)
+                FALSE)
 
             self$.addOption(private$..aim)
             self$.addOption(private$..mode)
@@ -734,19 +730,15 @@ pamlttest <- function(
     ttestind_ttest = "-",
     ttestind_ngroup = 0,
     ttestind_d = 0,
-    ttestind_useit,
     ttestpaired_ttest = "-",
     ttestpaired_obsn = 0,
     ttestpaired_d = 0,
-    ttestpaired_useit,
     ttestpaired_dind = "-",
     ttestpaired_r = 0,
     ttestpaired_dz = 0,
-    ttestpaired_d_useit,
     ttestone_ttest = "-",
     ttestone_obsn = 0,
-    ttestone_d = 0,
-    ttestone_useit) {
+    ttestone_d = 0) {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
         stop("pamlttest requires jmvcore to be installed (restart may be required)")
@@ -787,19 +779,15 @@ pamlttest <- function(
         ttestind_ttest = ttestind_ttest,
         ttestind_ngroup = ttestind_ngroup,
         ttestind_d = ttestind_d,
-        ttestind_useit = ttestind_useit,
         ttestpaired_ttest = ttestpaired_ttest,
         ttestpaired_obsn = ttestpaired_obsn,
         ttestpaired_d = ttestpaired_d,
-        ttestpaired_useit = ttestpaired_useit,
         ttestpaired_dind = ttestpaired_dind,
         ttestpaired_r = ttestpaired_r,
         ttestpaired_dz = ttestpaired_dz,
-        ttestpaired_d_useit = ttestpaired_d_useit,
         ttestone_ttest = ttestone_ttest,
         ttestone_obsn = ttestone_obsn,
-        ttestone_d = ttestone_d,
-        ttestone_useit = ttestone_useit)
+        ttestone_d = ttestone_d)
 
     analysis <- pamlttestClass$new(
         options = options,

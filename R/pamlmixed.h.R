@@ -11,12 +11,12 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             code = "",
             fonts = "small",
             toggle = FALSE,
-            run = NULL,
             sigma2 = 1,
             power = 0.9,
             sig.level = 0.05,
             mcR = 500,
             parallel = TRUE,
+            tol = 0.01,
             set_seed = FALSE,
             seed = 42,
             .interface = "jamovi",
@@ -61,8 +61,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 hidden=TRUE)
             private$..run <- jmvcore::OptionAction$new(
                 "run",
-                run,
-                hidden=TRUE)
+                FALSE)
             private$..sigma2 <- jmvcore::OptionNumber$new(
                 "sigma2",
                 sigma2,
@@ -83,6 +82,10 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "parallel",
                 parallel,
                 default=TRUE)
+            private$..tol <- jmvcore::OptionNumber$new(
+                "tol",
+                tol,
+                default=0.01)
             private$..set_seed <- jmvcore::OptionBool$new(
                 "set_seed",
                 set_seed,
@@ -151,6 +154,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..sig.level)
             self$.addOption(private$..mcR)
             self$.addOption(private$..parallel)
+            self$.addOption(private$..tol)
             self$.addOption(private$..set_seed)
             self$.addOption(private$..seed)
             self$.addOption(private$...interface)
@@ -170,6 +174,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         sig.level = function() private$..sig.level$value,
         mcR = function() private$..mcR$value,
         parallel = function() private$..parallel$value,
+        tol = function() private$..tol$value,
         set_seed = function() private$..set_seed$value,
         seed = function() private$..seed$value,
         .interface = function() private$...interface$value,
@@ -188,6 +193,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..sig.level = NA,
         ..mcR = NA,
         ..parallel = NA,
+        ..tol = NA,
         ..set_seed = NA,
         ..seed = NA,
         ...interface = NA,
