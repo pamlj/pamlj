@@ -177,7 +177,7 @@
            what<-"number of clusters levels"  
            n<-obj$info$model$re[[1]]$n
            l <- obj$info$model$re[[1]]$k
-           info("Finding number of clusters\n")
+           rinfo("Finding number of clusters\n")
            ## we want f() to search for n
            f1<-function(int) {
              .fast_onerun(obj,n=NULL,k=int)
@@ -193,7 +193,7 @@
            l <- obj$info$model$re[[1]]$n
            # if we have random slopes, start with n>2
            if (l < 4 && length(obj$info$model$re[[1]]$terms) > 1) l<-4
-           info("Finding number of cases within clusters\n")
+           rinfo("Finding number of cases within clusters\n")
            ## we want f() to search for k
            f1<-function(int) {
              .fast_onerun(obj,int,k=NULL)
@@ -207,10 +207,10 @@
     ## first, we search for a reasonable solution with anova-on-model based .fast_onerun() function, embeed in f1()
     ## then, we use .slow_onerun(), embedded in f2(), to find the more adequate solution
     
-    .pow<-int_seek(f = f1,target_power = obj$info$power,n_start=l,memory = 10,tol=obj$options$tol/2)  
+    .pow<-int_seek(f = f1,target_power = obj$info$power,n_start=l,memory = 10,tol=obj$options$tol/2, stability=obj$options$stability)  
      int<-.pow[[find]][[1]]
      out<-attr(.pow,"out")
-     info("\nQuick search found " %+% find %+% "=" %+% .pow[[find]][[1]] %+% " with exit:" %+% out)
+     rinfo("\nQuick search found " %+% find %+% "=" %+% .pow[[find]][[1]] %+% " with exit:" %+% out %+% "\n")
   
      if (!is.null(out) && out=="asymptote" && (obj$info$power-.pow$power)>.10) {
        pow<-.slow_onerun(obj,n=.pow$n,k=.pow$k)
@@ -221,10 +221,10 @@
        obj$data<-pow
        return(pow)
      }
-     
-     pow<-int_seek(f = f2,target_power = obj$info$power,n_start=int,memory=3,tol=obj$options$tol)  
+    
+     pow<-int_seek(f = f2,target_power = obj$info$power,n_start=int,memory=3,tol=obj$options$tol,stability=obj$options$stability)  
      out<-attr(pow,"out")
-     info("\nMC search found " %+% find %+% "=" %+% pow[[find]][[1]] %+% " with exit:" %+% out)
+     rinfo("\nMC search found " %+% find %+% "=" %+% pow[[find]][[1]] %+% " with exit:" %+% out %+% "\n")
      if (!is.null(out) && out=="asymptote") {
        msg<-"Power calculation indicates that the input model would not achieve the exact desired power. Power remains around " %+%
          round(pow$power,5) %+% " when " %+% what %+%" > " %+% pow[[find]] 
@@ -256,7 +256,8 @@
 
 pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
 
-  set.seed(obj$info$seed)
+  if (obj$options$stability=="l1")
+      set.seed(obj$info$seed)
   
   
   infomod<-obj$info$model
@@ -431,7 +432,7 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
       future::plan(plan)
       sims <- foreach::foreach(
         i = seq_len(R),
-        .options.future = list(seed = master_seed)  # CRN: deterministic substream per i
+        .options.future = list(seed = master_seed)  # common random numbers CRN: deterministic substream per i
       ) %dofuture% {
         .sim_fun(model)
       }
@@ -508,51 +509,77 @@ check_mixed_model<- function(obj,model) {
       
 }
 
-# Integer search on f(n)$power (monotone increasing), starting at n_start.
+# Integer search on f(n)$power (assuming monotone increasing with m), starting at n_start.
 # f(n) must return a list with a numeric scalar `power`.
 
-int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=110,lower=2, max_iter=100, memory=5) {
+## The function works with any function f(n), but it is tailored for function using long simulations
+## First, it evaluated f(n) and compare the f($)$power with target_power
+## if abs(f($)$power - target_power ) < tol we found a solution and return it
+## the solution is not found n is changed based on steps=adiff*step*dir
+## adiff is the absolute difference between observed and target power
+## step is a multiplier passed as an argument (100 seems to work)
+## dir is the direction to go increase (dir=+1)  or descrease (dir=-1) n
+## However, when dealing with power simulations different things may go wrong, and a solution is not guaranteed, so
+## the search has different checks and possible outcomes.
+## 1) step is decreases every interation to reducing the bouncing up and down of n
+## 2) the boundaries of n are recorded so if the steps algorithm yield outside the boundaries it does not run a new simulation
+##    but simply changes the n. Boundaries are defined as the n that has yielded the minimum power larger than target and
+##    the n that yielded the maximal power lower than target. 
+##  3) because some mixed model would never give a required power for not incredibly huge n, the algorithm
+##     keeps track of the standard deviation of the last simulations (how many is decided my "memory" argument).
+##     if the sd goes below tolerance, it return the last result (it meant the algorithm got stuck in a loop or an asynthode).
+##  4) if the algorithm suggests no change in n it returns the results (this should no happen, so it's a extra check)
+##  5) if nothing works, max_iter makes sure that it does not go on forever
+
+int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,lower=2, max_iter=100, memory=5, stability="l1") {
   
   n<-n_start
   steps<-0
-  chache<-new.env(parent = emptyenv())
+  cache<-new.env(parent = emptyenv())
   ### we keep track of the results to check if gets stuck
-  chache$reslist<-list()
+  cache$reslist<-list()
+  cache$max<-list(n=100000,v=1)
+  cache$min<-list(n=0,v=0)
   iter<-0
   repeat{
+    rinfo("INT_SEEK: trying n=",n," with boundaries [",cache$min$n,",",cache$max$n,"] ")
     iter<-iter+1
     step<-step-1
     res<-fun(n)
+    oldn<-n
     pwr<-sel_fun(res$power)
     stopifnot(is.finite(pwr))
     diff<-(pwr-target_power)
     adiff<-abs(diff)
-    chache$reslist[[as.character(n)]]<-adiff
-    rinfo(sprintf("n=%d, p=%.4f, diff=%.4f, steps=%d",n,pwr,adiff,steps))
+    cache$reslist[[as.character(n)]]<-adiff
     if (adiff < tol) {
       attr(res,"out")<-"found"
       return(res)
       
     }
+    rinfo("obtained power =",round(pwr,5)," target=",target_power)
+    
     if (diff>0) dir<- -1 else dir<-1
     steps<-round(adiff*step*dir)
     n<- n+steps
-    if (as.character(n) %in% names(chache$reslist)) {
-      n<-n+dir
+    if (stability=="l1") {
+      if (as.character(n) %in% names(cache$reslist)) {
+       n<-n+dir
+      }
     }
-    
+ 
     if (n<lower) {
       attr(res,"out")<-"tolow"
       return(res)
     }
-    ## if power is lower than target it may be stuck
-    if (length(chache$reslist) > memory && diff < 0) {
-      s<-sd(unlist(chache$reslist))
+    ## if power is always lower than target it may be stuck
+    if (length(cache$reslist) > memory && diff < 0) {
+      s<-sd(unlist(cache$reslist))
       if (s<tol/2) {
         attr(res,"out")<-"asymptote"
         return(res)
       }
-      chache$reslist[[1]]<-NULL
+      cache$reslist[[1]]<-NULL
     }
     if (iter>max_iter) {
       attr(res,"out")<-"maxiter"
@@ -563,7 +590,23 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=110,low
       return(res)
       
     }
+    #### now we want to be sure that we do not try N outside what was proved too large or too small
+    if (pwr-2*tol > target_power) {
+      if (pwr < cache$max$v) 
+        cache$max<-list(n=oldn,v=pwr)
+    }
+    if (pwr+2*tol < target_power) {
+      if (pwr > cache$min$v) 
+        cache$min<-list(n=oldn,v=pwr)
+    }
+    if (n < cache$min$n)  n<-cache$min$n+1
+    if (n > cache$max$n)  n<-cache$max$n-1
     
+    # if max n and min n are the same or 1 unit apart, return
+    if ((cache$max$n-cache$min$n) < 1.1 ) {
+      attr(res,"out")<-"nosteps"
+      return(res)
+      }
   }
   
 }

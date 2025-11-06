@@ -113,7 +113,7 @@ options:
                       Should parallel computing be used for the Monte Carlo method 
    
     -   name: tol
-        title: Solution tollerance
+        title: Solution tolerance
         type: Number
         default: 0.01
         description:
@@ -145,6 +145,21 @@ options:
                 ui: |
                       What seed should we use for Monte Carlo method. Default is Life, the Universe and Everything
 
+    - name: stability
+      title: Results stability
+      type:  List
+      default: l1
+      options:
+        - name:  l1
+          title: Level 1
+        - name:  l2
+          title: Level 2
+
+      description:
+                R: |
+                        The aim of the analysis: `n` (default) for sample size, `power` to estimate power
+                ui: |
+                        The aim of the analysis: `N` (default) for sample size, `Power` to estimate power
 
 
     - name: .interface

@@ -152,6 +152,16 @@ children:
                         name: seed
                         format: number
                         enable: (set_seed)
+              - type: LayoutBox
+                style: inline
+                children:
+                  - type: Label
+                    label: Aim N search
+                    children:
                       - type: TextBox
                         name: tol
+                        enable: (aim:n)
                         format: number
+                      - type: ComboBox
+                        name: stability
+                        enable: (aim:n)

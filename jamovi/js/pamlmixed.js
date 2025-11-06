@@ -5,12 +5,12 @@ const events = {
  
  aim_changed: function(ui) {
  
-  //fixclusters(ui, ui.clusterpars.value());  
+  fixclusters(ui, ui.clusterpars.value());  
    
  },
  find_changed: function(ui) {
  
-  //fixclusters(ui, ui.clusterpars.value());  
+  fixclusters(ui, ui.clusterpars.value());  
    
  },
  
@@ -94,6 +94,9 @@ const events = {
  
  clusterpars_changed:  function(ui) {
    
+    return;
+    // i am not sure this is usefull, so let it out for now
+    console.log("Clusterpars changed");
     var clusters =  utils.clone(ui.clusterpars.value(), []);  
  
     if (ui.aim.value() === "power") 
@@ -104,8 +107,9 @@ const events = {
     var found = false;
     if (find === "k") {
         var clusters = clusters.map(item => {
-            if (item.k !== "---") {
-                   item.k = "---";
+            console.log(item.k);
+            if (item.k == '0' ) {
+                   item.k = "!";
                    found= true;
             }
             return(item)
@@ -113,8 +117,9 @@ const events = {
     }
     if (find === "n") {
         var clusters = clusters.map(item => {
-            if (item.n !== "---") {
-                   item.n = "---";
+            console.log(item.n);
+            if (item.n == "0") {
+                   item.n = "!";
                    found= true;
             }
             return(item)
@@ -150,21 +155,20 @@ var fixclusters = function(ui, clusters) {
    if (value  === "n") {
      if (find === "k" ) {
       newclusters = clusters.map(e => {
-        val1 = (e.n  === "---") ?  "?" : e.n
-        return({name: e.name, n : val1, k: "---"});
+        val1 = (e.n  == "0") ?  "?" : e.n
+        return({name: e.name, n : val1, k: e.k});
       });
      }
      if (find == "n" ) {
       newclusters = clusters.map(e => {
-        val1 = (e.k  === "---") ?  "?" : e.k
-        return({name: e.name, n : "---", k: val1});
+        val1 = (e.k  == "0") ?  "?" : e.k
+        return({name: e.name, n : e.n, k: val1});
       });
      }
    }  else {
         newclusters = clusters.map(e => {
-
-        val1 = (e.k  === "---") ?  "?" : e.k
-        val2 = (e.n  === "---") ?  "?" : e.n 
+        val1 = (e.k.trim() !== '' && isFinite(Number(e.k))) ? e.k:  "?" 
+        val2 = (e.n.trim() !== '' && isFinite(Number(e.n))) ? e.n:  "?" 
         return({name: e.name, k : val1, n: val2});
         });
    }
