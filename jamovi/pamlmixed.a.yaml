@@ -62,7 +62,8 @@ options:
       hidden: true
 
     - name: run
-      type: Action      
+      type: Action   
+      hidden: true
      
       
 #####################      

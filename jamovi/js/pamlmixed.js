@@ -146,30 +146,34 @@ var fixclusters = function(ui, clusters) {
  
    if (clusters.length === 0) return;
 
-   var value=ui.aim.value();
+   var aim=ui.aim.value();
    var find=ui.find.value();
  
    let newclusters ;
    let val1;
    let val2;
-   if (value  === "n") {
+   if (aim  === "n") {
      if (find === "k" ) {
       newclusters = clusters.map(e => {
-        val1 = (e.n  == "0") ?  "?" : e.n
-        return({name: e.name, n : val1, k: e.k});
+       val1 = (!isFinite(Number(e.n)) || e.n === null || e.n === undefined || e.n === '') ? "0" : e.n;
+       val2 = (!isFinite(Number(e.k)) || Number(e.k)  == 0 ) ?  "?" : e.k ;
+        return({name: e.name, n : val1, k: val2});
       });
      }
      if (find == "n" ) {
       newclusters = clusters.map(e => {
-        val1 = (e.k  == "0") ?  "?" : e.k
-        return({name: e.name, n : e.n, k: val1});
+        val1 = (!isFinite(Number(e.n)) || Number(e.n)  == 0  ) ?  "?" : e.n ;
+        val2 = (!isFinite(Number(e.k)) || e.k === null || e.k === undefined || e.k === '') ? "0" : e.k;
+        return({name: e.name, n : val1, k: val2});
       });
      }
    }  else {
         newclusters = clusters.map(e => {
-        val1 = (e.k.trim() !== '' && isFinite(Number(e.k))) ? e.k:  "?" 
-        val2 = (e.n.trim() !== '' && isFinite(Number(e.n))) ? e.n:  "?" 
-        return({name: e.name, k : val1, n: val2});
+         const kStr = (e.k !== undefined && e.k !== null) ? String(e.k).trim() : "";
+         const nStr = (e.n !== undefined && e.n !== null) ? String(e.n).trim() : "";
+         val1 = (kStr.trim() !== '' && isFinite(Number(e.k))) ? e.k:  "0" 
+         val2 = (nStr.trim() !== '' && isFinite(Number(e.n))) ? e.n:  "0" 
+         return({name: e.name, n : val1, k: val2});
         });
    }
    ui.clusterpars.setValue(newclusters);

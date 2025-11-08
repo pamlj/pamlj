@@ -30,11 +30,6 @@ children:
             name: syntax
             events:
               creating: ./mixed_editor::editor_creating
-      - type: LayoutBox
-        margin: large
-        children:
-          - type: ActionButton
-            name: run
   - type: Label
     label: Model Structure
     name: model_structure

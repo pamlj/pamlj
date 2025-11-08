@@ -215,7 +215,8 @@
      if (!is.null(out) && out=="asymptote" && (obj$info$power-.pow$power)>.10) {
        pow<-.slow_onerun(obj,n=.pow$n,k=.pow$k)
        msg<-"Preliminary power calculation indicates that the input model would not achieve the desired power. Power remains around " %+%
-             round(pow$power,5) %+% " when " %+% what %+%" > " %+% pow[[find]]
+             round(pow$power,5) %+% " when " %+% what %+%" > " %+% pow[[find]] %+% 
+            " with an average increase in power of " %+% round(attr(.pow,"sd"),5) %+% " per one unit increase in "  %+% what 
        obj$warning<-list(topic="issues",message=msg,head="warning")
        pow$sig.level<-obj$data$sig.level
        obj$data<-pow
@@ -225,10 +226,10 @@
      pow<-int_seek(f = f2,target_power = obj$info$power,n_start=int,memory=3,tol=obj$options$tol,stability=obj$options$stability)  
      out<-attr(pow,"out")
      rinfo("\nMC search found " %+% find %+% "=" %+% pow[[find]][[1]] %+% " with exit:" %+% out %+% "\n")
-     if (!is.null(out) && out=="asymptote") {
+     if (!is.null(out) && out=="asymptote" && (obj$info$power-.pow$power)> obj$options$tol) {
        msg<-"Power calculation indicates that the input model would not achieve the exact desired power. Power remains around " %+%
          round(pow$power,5) %+% " when " %+% what %+%" > " %+% pow[[find]] 
-       msg <- msg %+% ". Larger starting points for " %+% what %+% " may find a more accurate solution."
+       msg <- msg %+%  " with an average increase in power of " %+% round(attr(.pow,"sd"),5) %+% " per one unit increase in " %+% what 
        obj$warning<-list(topic="issues",message=msg,head="warning")
      }
      pow$sig.level<-obj$data$sig.level
@@ -290,7 +291,7 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
   r<-nrow(data)
   for (i in seq_along(infomod$variables)) {
     x<-infomod$variables[[i]]
-    data[[x$name]]<-rnorm(r)
+    data[[x$name]]<-as.numeric(scale(rnorm(r)))
     if (x$type=="categorical") {
       rep<-round(r/x$levels)
       data[[x$name]]<-factor(rep(1:x$levels,rep+100)[1:r])
@@ -537,7 +538,8 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
   steps<-0
   cache<-new.env(parent = emptyenv())
   ### we keep track of the results to check if gets stuck
-  cache$reslist<-list()
+  cache$reslist<-1:memory
+  cache$nlist<-c(lower)
   cache$max<-list(n=100000,v=1)
   cache$min<-list(n=0,v=0)
   iter<-0
@@ -551,19 +553,26 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
     stopifnot(is.finite(pwr))
     diff<-(pwr-target_power)
     adiff<-abs(diff)
-    cache$reslist[[as.character(n)]]<-adiff
+    l<-length(cache$reslist)
+    cache$reslist[[l+1]]<-adiff
+    cache$nlist[[length(cache$nlist)+1]]<-n
+    
+    cache$reslist<-cache$reslist[-1]
+    
     if (adiff < tol) {
       attr(res,"out")<-"found"
       return(res)
       
     }
-    rinfo("obtained power =",round(pwr,5)," target=",target_power)
     
     if (diff>0) dir<- -1 else dir<-1
     steps<-round(adiff*step*dir)
     n<- n+steps
+    s<-sd(unlist(cache$reslist))
+    attr(res,"sd")<-sd  
+    rinfo("obtained power =",round(pwr,5)," target=",target_power," next steps=",steps," sd=",s)
     if (stability=="l1") {
-      if (as.character(n) %in% names(cache$reslist)) {
+      if (n %in% cache$nlist) {
        n<-n+dir
       }
     }
@@ -573,14 +582,11 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
       return(res)
     }
     ## if power is always lower than target it may be stuck
-    if (length(cache$reslist) > memory && diff < 0) {
-      s<-sd(unlist(cache$reslist))
-      if (s<tol/2) {
-        attr(res,"out")<-"asymptote"
-        return(res)
-      }
-      cache$reslist[[1]]<-NULL
+    if (s<tol/4) {
+      attr(res,"out")<-"asymptote"
+      return(res)
     }
+    
     if (iter>max_iter) {
       attr(res,"out")<-"maxiter"
       return(res)
@@ -590,23 +596,28 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
       return(res)
       
     }
+    if (stability=="l1") p=1 else p=3
     #### now we want to be sure that we do not try N outside what was proved too large or too small
-    if (pwr-2*tol > target_power) {
+    if (pwr-p*tol > target_power) {
       if (pwr < cache$max$v) 
         cache$max<-list(n=oldn,v=pwr)
     }
-    if (pwr+2*tol < target_power) {
+    if (pwr+p*tol < target_power) {
       if (pwr > cache$min$v) 
         cache$min<-list(n=oldn,v=pwr)
     }
-    if (n < cache$min$n)  n<-cache$min$n+1
-    if (n > cache$max$n)  n<-cache$max$n-1
-    
     # if max n and min n are the same or 1 unit apart, return
-    if ((cache$max$n-cache$min$n) < 1.1 ) {
-      attr(res,"out")<-"nosteps"
+    if ((cache$max$n-cache$min$n) <= 1 ) {
+      attr(res,"out")<-"closed"
       return(res)
-      }
+    }
+    if ((cache$max$n-cache$min$n) == 2 && n==(cache$min$n+1)) {
+      attr(res,"out")<-"middle"
+      return(res)
+    }
+    if (n <= cache$min$n)  n<-cache$min$n+1
+    if (n >= cache$max$n)  n<-cache$max$n-1
+    
   }
   
 }

@@ -167,7 +167,6 @@ const events = {
 
     update(ui, event) {
         console.log("update ");
-        fun.hide(ui.run);
         let id = event.id;
         this.currentSession = this.editSessions[id];
 
