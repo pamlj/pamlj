@@ -59,12 +59,12 @@ children:
                       type: Label
                       stretchFactor: 2
                   - name: k
-                    label: '# of clusters'
+                    label: '# Cluster Levels'
                     template:
                       type: TextBox
                       stretchFactor: 1
                   - name: 'n'
-                    label: '# of cases'
+                    label: 'N per cluster'
                     template:
                       type: TextBox
                       stretchFactor: 1

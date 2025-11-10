@@ -234,6 +234,7 @@
      }
      pow$sig.level<-obj$data$sig.level
      obj$data<-pow
+     
   } 
   if (obj$aim=="power") {
      # we use the first cluster parameters
@@ -242,7 +243,6 @@
      pow<-.slow_onerun(obj,n=n,k=k)
      pow$sig.level<-obj$data$sig.level
      obj$data<-pow
-     
   }
   
   return(pow)
@@ -342,13 +342,15 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
     power <- 1 - stats::pchisq(crit, df = df, ncp = chisq)  
     tab$F<-chisq/df
     tab$power<-power
-    tab$n=attr(model,"n")
-    tab$k=attr(model,"k")
+    tab$n=n
+    tab$k=k
     tab
 
 }
 
 .sim_fun <- function(model, tol_sing = 1e-4, include_warnings = TRUE) {
+  
+ 
   # 1) simulate new response
   y <- stats::simulate(model)$sim_1
   
@@ -364,7 +366,6 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
   
   # 3) cast to lmerTest
   fit <- lmerTest::as_lmerModLmerTest(fit)
-  
   # 4) derive convergence + singularity
   #    (be defensive against optimizer variants)
   optinfo <- fit@optinfo
@@ -617,7 +618,6 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
     }
     if (n <= cache$min$n)  n<-cache$min$n+1
     if (n >= cache$max$n)  n<-cache$max$n-1
-    
   }
   
 }

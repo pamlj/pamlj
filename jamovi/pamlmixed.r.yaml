@@ -47,12 +47,13 @@ items:
         - name: effect
           title: 'Estimate'
           type: text
-        - name: n
-          title: 'N per cluster'
-          type: integer
         - name: k
           title: 'Cluster levels'
           type: integer
+        - name: n
+          title: 'N per cluster'
+          type: integer
+
         - name: power
           title: 'Power'
           type: number

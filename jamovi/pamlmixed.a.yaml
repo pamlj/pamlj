@@ -33,7 +33,7 @@ options:
       default: k
       options:
         - name:  k
-          title: Number of clusters
+          title: Number of cluster levels
         - name:  n
           title: Cases within clusters
 

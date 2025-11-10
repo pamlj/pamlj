@@ -169,10 +169,10 @@ var fixclusters = function(ui, clusters) {
      }
    }  else {
         newclusters = clusters.map(e => {
-         const kStr = (e.k !== undefined && e.k !== null) ? String(e.k).trim() : "";
          const nStr = (e.n !== undefined && e.n !== null) ? String(e.n).trim() : "";
-         val1 = (kStr.trim() !== '' && isFinite(Number(e.k))) ? e.k:  "0" 
-         val2 = (nStr.trim() !== '' && isFinite(Number(e.n))) ? e.n:  "0" 
+         val1 = (nStr.trim() !== '' && isFinite(Number(e.n))) ? e.n:  "0" 
+         const kStr = (e.k !== undefined && e.k !== null) ? String(e.k).trim() : "";
+         val2 = (kStr.trim() !== '' && isFinite(Number(e.k))) ? e.k:  "0" 
          return({name: e.name, n : val1, k: val2});
         });
    }

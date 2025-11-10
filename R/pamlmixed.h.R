@@ -280,12 +280,12 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `title`="Estimate", 
                         `type`="text"),
                     list(
-                        `name`="n", 
-                        `title`="N per cluster", 
-                        `type`="integer"),
-                    list(
                         `name`="k", 
                         `title`="Cluster levels", 
+                        `type`="integer"),
+                    list(
+                        `name`="n", 
+                        `title`="N per cluster", 
                         `type`="integer"),
                     list(
                         `name`="power", 
