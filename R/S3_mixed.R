@@ -74,15 +74,6 @@
       }
       
 
-      lapply(variables, function(x) {
-          if (x$type == "categorical") {
-           if (is.na(x$levels) || x$level<2)
-              obj$stop("Please insert number of levels larger than 2 for variable " %+% x$name )
-           if (x$level>2)
-              obj$warning<-list(topic="issues",message="Input coefficient for variable " %+% x$name %+% " is applied to the largest mean difference", head="info")
-          }
-      })
-           
   
       #### now work on the syntax
       syntax<-obj$options$code
@@ -120,11 +111,49 @@
          re
          })
       names(model$re)<-model$clusters
-      re<-paste(lapply(names(model$re), function(x) {
-        .re<-model$re[[x]]
-         paste("(",.re$rhs,"|",x,")")
-         }), collapse=" + ")
-      model$formula<-paste(model$fixed$lhs,"~",model$fixed$rhs,"+",re,collapse=" + ")
+      
+      #### check consistency of coefficients for categorical variables
+      for (x in variables) {
+        if (x$type == "categorical") {
+          
+          if (is.na(x$levels) || x$levels<2)
+            obj$stop("Please insert number of levels larger than 2 for variable " %+% x$name )
+          if (x$levels>2) {
+            what1<-NULL
+            what2<-NULL
+            w<-which(model$fixed$terms==x$name)
+            l<-length(model$fixed$coefslist[[w]])
+            if (l != (x$levels-1)) {
+            model$fixed$coefslist[[w]]<-rep(model$fixed$coefslist[[w]][1],(x$levels-1))
+            model$fixed$coefs<-unlist(model$fixed$coefslist)
+            what1<-"fixed"
+            }
+          
+          for (i in seq_along(model$re)) {
+            re<-model$re[[i]]
+            w<-which(re$terms==x$name)
+            l<-length(re$coefslist[[w]])
+            if (l != (x$levels-1)) {
+         
+              model$re[[i]]$coefslist[[w]]<-rep(model$re[[i]]$coefslist[[w]][1],(x$levels-1))
+              model$re[[i]]$coefs<-unlist(model$re[[i]]$coefslist)
+              what2<-"random"
+            }
+          }
+          if (!is.null(what1) || !is.null(what2))
+              obj$warning<-list(topic="issues",
+                              message="Input coefficients (" %+% paste(what1,what2,sep=", ",collapse = ", ")    
+                              %+% ") for categorical variable " %+% x$name 
+                              %+% " are different than the number of required contrasts (# "
+                              %+%  (x$levels-1) 
+                              %+%  "). The first coefficient is applied to all the contrasts variables."
+                              %+%  " Please use the <i>[1,2,3]*x</i> syntax to input coefficients for each contrast.",
+                              head="warning")
+            
+          }
+        }
+      }
+     
       model$sigma <- sqrt(obj$options$sigma2) 
 
       obj$data             <- data.frame(sig.level=obj$options$sig.level)
@@ -246,9 +275,6 @@
   }
   
   return(pow)
-  
-           
-  
 }
 
 
@@ -262,7 +288,6 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
   
   
   infomod<-obj$info$model
-  fixed<-as.list(infomod$fixed$coefs)
 #  data<-lme4::mkDataTemplate(as.formula(infomod$formula),nGrps=k,nPerGrp=n,rfunc=rnorm)
   #mark(infomod)
   #### cluster data
@@ -285,7 +310,6 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
   }
 
   data<-do.call(rbind,ldata)
-  
   names(data)<-c(infomod$clusters,names(wdata))
   
   r<-nrow(data)
@@ -295,10 +319,7 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
     if (x$type=="categorical") {
       rep<-round(r/x$levels)
       data[[x$name]]<-factor(rep(1:x$levels,rep+100)[1:r])
-      contrasts(data[[x$name]])<-contr.poly(x$levels)
-      xcoefs<-fixed[[i]]
-      if (x$levels>2) xcoefs<-c(fixed[[i]],rep(0,x$levels-2)) 
-      fixed[[i]]<-xcoefs
+      contrasts(data[[x$name]])<-contr.sum(x$levels)
     }
   }
 
@@ -308,12 +329,11 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
   varcor<-lapply(infomod$re,function(x) {
     diag(x=x$coefs,nrow=length(x$coefs))
   })
-  fixed<-unlist(fixed)
 
+  fixed<-infomod$fixed$coefs
   names(data) <- trimws(make.names(names(data), unique = TRUE))
-  form <- as.formula(infomod$formula)
   modelobj<-try_hard({
-    simr::makeLmer(formula=form,
+    simr::makeLmer(formula=as.formula(infomod$formula),
                    fixef=fixed,
                    VarCorr=varcor,
                    sigma=infomod$sigma,
@@ -422,9 +442,7 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
 
 .slow_onerun <- function(obj,n=NULL,k=NULL) {
   
-
   master_seed<-obj$info$seed
-  
   model<-pamlmixed_makemodel(obj,n,k)
   R <- obj$info$R
   base::RNGkind("L'Ecuyer-CMRG")
@@ -477,6 +495,7 @@ check_mixed_model<- function(obj,model) {
   
   
       fun <- function(asynlist,what) {
+        print(asynlist)
       ### check the uniqueness
       test<-attr(asynlist$terms,"unique")
       if (!test) {
@@ -484,29 +503,28 @@ check_mixed_model<- function(obj,model) {
         obj$stop(msg)
       }
       test<-attr(asynlist$terms,"error")
-
       if (test) {
-        msg<-"Model syntax error in fixed effects"
+        msg<-"Model syntax error in" %+% what
         obj$stop(msg)
       }
-      intadded<-FALSE
-
+    
+      test<-attr(asynlist$coefs,"error")
+      if (test) {
+        msg<-"Coefficients error in" %+% what
+        obj$stop(msg)
+      }
+      
       if (attr(asynlist$terms,"intadded")) {
         intadded <- TRUE
         obj$warning<-list(topic="issues",message=sprintf(msg1,what), head="info")
-      }
-      if (!intadded && attr(asynlist$coefs,"intadded")) {
-        msg<- 
-          obj$warning<-list(topic="issues",message=sprintf(msg2,what), head="info")
-      }
-      if (any(is.na(asynlist$coefs))) {
-        obj$stop(sprintf(msg3,what))
       }
 
       }
       
       fun(model$fixed,"fixed effects")
       for (n in names(model$re)) fun(model$re[[n]],"random coefficient across " %+% n)  
+      
+     
       
       
 }
@@ -578,10 +596,7 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
       }
     }
  
-    if (n<lower) {
-      attr(res,"out")<-"tolow"
-      return(res)
-    }
+
     ## if power is always lower than target it may be stuck
     if (s<tol/4) {
       attr(res,"out")<-"asymptote"
@@ -618,6 +633,16 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
     }
     if (n <= cache$min$n)  n<-cache$min$n+1
     if (n >= cache$max$n)  n<-cache$max$n-1
+    
+    if (n<lower) {
+      if (lower %in% cache$nlist) {
+        steps<-round(steps/2)
+        n <- lower + 1
+      } else
+        n <- lower
+    }
+    
+    
   }
   
 }

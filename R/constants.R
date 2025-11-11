@@ -1,6 +1,7 @@
 ERROR_TABLE <-"issues"
 TRANS_WARNS <-list()
 TRANS_WARNS[[1]]<-list(original="end points not of opposite sign",new="Power parameters cannot be for the combination of input parameters")
+TRANS_WARNS[[2]]<-list(original="theta size",new="Number of input coefficients is not correct")
 
 
 ### SEM

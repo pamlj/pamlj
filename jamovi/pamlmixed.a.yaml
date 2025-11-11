@@ -39,9 +39,9 @@ options:
 
       description:
                 R: |
-                        The aim of the analysis: `n` (default) for sample size, `power` to estimate power
-                ui: |
-                        The aim of the analysis: `N` (default) for sample size, `Power` to estimate power
+                        Search for N algorithm stability across launches. `level1` algorithm is faster and more stable with a run,
+                        but may yield different results across different runs. `level2` algorithm is slower and more stochastic,
+                        but (may) yield results more similar across different runs
 
 
 ### syntax stuff

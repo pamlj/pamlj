@@ -268,11 +268,13 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     list(
                         `name`="specs", 
                         `title`="", 
-                        `type`="text"))))
+                        `type`="text")),
+                refs=list(
+                    "pamlj")))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="powertab",
-                title="A Priori Power Analysis",
+                title="Power Parameters",
                 rows=1,
                 columns=list(
                     list(

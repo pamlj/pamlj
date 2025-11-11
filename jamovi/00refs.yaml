@@ -22,7 +22,7 @@ refs:
         type: software
         title: 'semPower: Power Analyses for SEM, R package version 2.1.1'
         author: Morten Moshagen and Martina Bader,
-        year: .na.integer
+        year: 2024
         url: https://CRAN.R-project.org/package=semPower
     lavaan:
         type: article

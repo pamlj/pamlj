@@ -37,10 +37,10 @@ items:
         - name: specs
           title: ''
           type: text
-
-
+      refs:
+          - pamlj
     - name:  powertab
-      title: A Priori Power Analysis
+      title: Power Parameters
       type: Table
       rows:  1
       columns: 

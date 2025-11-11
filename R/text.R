@@ -202,7 +202,7 @@ LINKS[["ttestpone"]]<-"https://pamlj.github.io/ttest_one.html"
 LINKS[["ttestpaired"]]<-"https://pamlj.github.io/ttest_paired.html"
 LINKS[["mediation"]]<-"https://pamlj.github.io/mediation.html"
 LINKS[["pamlsem"]]<-"https://pamlj.github.io/sem.html"
-LINKS[["mixed"]]<-"https://pamlj.github.io/mixed.html"
+LINKS[["pamlmixed"]]<-"https://pamlj.github.io/mixed.html"
 
 TEXT<-list()
 TEXT["pressplay"]<-"<br> <br> Please press the run button " %+% letter_play %+% " to execute the analysis"
