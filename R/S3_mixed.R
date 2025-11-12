@@ -122,6 +122,7 @@
             what1<-NULL
             what2<-NULL
             w<-which(model$fixed$terms==x$name)
+            if (length(w)==0) next
             l<-length(model$fixed$coefslist[[w]])
             if (l != (x$levels-1)) {
             model$fixed$coefslist[[w]]<-rep(model$fixed$coefslist[[w]][1],(x$levels-1))
@@ -132,9 +133,9 @@
           for (i in seq_along(model$re)) {
             re<-model$re[[i]]
             w<-which(re$terms==x$name)
+            if (length(w)==0) next
             l<-length(re$coefslist[[w]])
             if (l != (x$levels-1)) {
-         
               model$re[[i]]$coefslist[[w]]<-rep(model$re[[i]]$coefslist[[w]][1],(x$levels-1))
               model$re[[i]]$coefs<-unlist(model$re[[i]]$coefslist)
               what2<-"random"
@@ -616,7 +617,7 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
       return(res)
       
     }
-    if (stability=="l1") p=2 else p=4
+    if (stability=="l1") p=1 else p=2
     #### now we want to be sure that we do not try N outside what was proved too large or too small
     if (pwr-p*tol > target_power) {
       if (pwr < cache$max$v) 
