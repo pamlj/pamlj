@@ -237,10 +237,10 @@ decompose_formula<-function(s, fix_intercept=FALSE,intercept_coef=0) {
   ## make a formula
   rhs<-paste0(terms,collapse = "+")
   coefs<-unlist(coefslist)
-  
   attributes(coefs)<-attributes(coefslist)
   attr(coefs,"error")<-FALSE
   if (any(is.na(coefs))) attr(coefs,"error")<-TRUE
+  
   results<-list(terms=terms,coefslist=coefslist,coefs=coefs,symbs=symbs,rhs=rhs,lhs=lhs)
   results
 }

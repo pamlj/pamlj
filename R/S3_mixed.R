@@ -100,7 +100,7 @@
          return(x)
       })
 
-      names(model$variables)<-model$fixed$terms[-1]
+      names(model$variables)<-sapply(model$variables,function(x) x$name)
       ### assess cluster size
       model$re<-lapply(obj$options$clusterpars, function(x) {
          re<-model$re[[x$name]]
@@ -239,9 +239,10 @@
     .pow<-int_seek(f = f1,target_power = obj$info$power,n_start=l,memory = 10,tol=obj$options$tol/2, stability=obj$options$stability)  
      int<-.pow[[find]][[1]]
      out<-attr(.pow,"out")
+     pwr<-attr(.pow,"power")
      rinfo("\nQuick search found " %+% find %+% "=" %+% .pow[[find]][[1]] %+% " with exit:" %+% out %+% "\n")
-  
-     if (!is.null(out) && out=="asymptote" && (obj$info$power-.pow$power)>.10) {
+ 
+     if (!is.null(out) && out=="asymptote" && (obj$info$power-pwr)>.10) {
        pow<-.slow_onerun(obj,n=.pow$n,k=.pow$k)
        msg<-"Preliminary power calculation indicates that the input model would not achieve the desired power. Power remains around " %+%
              round(pow$power,5) %+% " when " %+% what %+%" > " %+% pow[[find]] %+% 
@@ -254,8 +255,9 @@
     
      pow<-int_seek(f = f2,target_power = obj$info$power,n_start=int,memory=3,tol=obj$options$tol,stability=obj$options$stability)  
      out<-attr(pow,"out")
+     pwr<-attr(.pow,"power")
      rinfo("\nMC search found " %+% find %+% "=" %+% pow[[find]][[1]] %+% " with exit:" %+% out %+% "\n")
-     if (!is.null(out) && out=="asymptote" && (obj$info$power-.pow$power)> obj$options$tol) {
+     if (!is.null(out) && out=="asymptote" && (obj$info$power-pwr)> obj$options$tol) {
        msg<-"Power calculation indicates that the input model would not achieve the exact desired power. Power remains around " %+%
          round(pow$power,5) %+% " when " %+% what %+%" > " %+% pow[[find]] 
        msg <- msg %+%  " with an average increase in power of " %+% round(attr(.pow,"sd"),5) %+% " per one unit increase in " %+% what 
@@ -313,6 +315,7 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
   names(data)<-c(infomod$clusters,names(wdata))
   
   r<-nrow(data)
+
   for (i in seq_along(infomod$variables)) {
     x<-infomod$variables[[i]]
     data[[x$name]]<-as.numeric(scale(rnorm(r)))
@@ -495,7 +498,7 @@ check_mixed_model<- function(obj,model) {
   
   
       fun <- function(asynlist,what) {
-        print(asynlist)
+ 
       ### check the uniqueness
       test<-attr(asynlist$terms,"unique")
       if (!test) {
@@ -504,13 +507,13 @@ check_mixed_model<- function(obj,model) {
       }
       test<-attr(asynlist$terms,"error")
       if (test) {
-        msg<-"Model syntax error in" %+% what
+        msg<-"Model syntax error in " %+% what
         obj$stop(msg)
       }
     
       test<-attr(asynlist$coefs,"error")
       if (test) {
-        msg<-"Coefficients error in" %+% what
+        msg<-"Coefficients error in " %+% what
         obj$stop(msg)
       }
       
@@ -569,6 +572,7 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
     res<-fun(n)
     oldn<-n
     pwr<-sel_fun(res$power)
+    attr(res,"power")<-pwr
     stopifnot(is.finite(pwr))
     diff<-(pwr-target_power)
     adiff<-abs(diff)
@@ -612,7 +616,7 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
       return(res)
       
     }
-    if (stability=="l1") p=1 else p=3
+    if (stability=="l1") p=2 else p=4
     #### now we want to be sure that we do not try N outside what was proved too large or too small
     if (pwr-p*tol > target_power) {
       if (pwr < cache$max$v) 
