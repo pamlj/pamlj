@@ -13,19 +13,20 @@ Runner <- R6::R6Class("Runner",
                                  # it produces the basic estimation required for all tables and plots
                                  # it fills self$data with all power parameters
                                  jinfo("PAMLj: Runner: checking data")
-                                
+                                 
                                  checkdata(self)
                                  commonchecks(self)
                                  if (!self$filled) {
                                    self$ok<-FALSE
                                  }
+                               
                                  
                                  ## some commands are run only if the run button is pressed
                                  if ("run" %in% names(self$options)) {
                                    if (!self$option("run")) {
                                      self$ok<-FALSE
                                      self$warning<-list(topic="issues",
-                                                        message='<br> <br> Please press the <i style="color:green">Run</i> button to execute the analysis' ,
+                                                        message=TEXT["pressplay"],
                                                         head="info")
                                    }
                                  }

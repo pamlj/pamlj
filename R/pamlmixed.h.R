@@ -11,14 +11,15 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             code = "",
             fonts = "small",
             toggle = FALSE,
-            run = NULL,
             sigma2 = 1,
             power = 0.9,
             sig.level = 0.05,
             mcR = 500,
             parallel = TRUE,
+            tol = 0.01,
             set_seed = FALSE,
             seed = 42,
+            stability = "l1",
             .interface = "jamovi",
             .caller = "pamlmixed",
             clusterpars = list(),
@@ -61,7 +62,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 hidden=TRUE)
             private$..run <- jmvcore::OptionAction$new(
                 "run",
-                run,
+                FALSE,
                 hidden=TRUE)
             private$..sigma2 <- jmvcore::OptionNumber$new(
                 "sigma2",
@@ -83,6 +84,10 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "parallel",
                 parallel,
                 default=TRUE)
+            private$..tol <- jmvcore::OptionNumber$new(
+                "tol",
+                tol,
+                default=0.01)
             private$..set_seed <- jmvcore::OptionBool$new(
                 "set_seed",
                 set_seed,
@@ -91,6 +96,13 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "seed",
                 seed,
                 default=42)
+            private$..stability <- jmvcore::OptionList$new(
+                "stability",
+                stability,
+                default="l1",
+                options=list(
+                    "l1",
+                    "l2"))
             private$...interface <- jmvcore::OptionString$new(
                 ".interface",
                 .interface,
@@ -151,8 +163,10 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..sig.level)
             self$.addOption(private$..mcR)
             self$.addOption(private$..parallel)
+            self$.addOption(private$..tol)
             self$.addOption(private$..set_seed)
             self$.addOption(private$..seed)
+            self$.addOption(private$..stability)
             self$.addOption(private$...interface)
             self$.addOption(private$...caller)
             self$.addOption(private$..clusterpars)
@@ -170,8 +184,10 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         sig.level = function() private$..sig.level$value,
         mcR = function() private$..mcR$value,
         parallel = function() private$..parallel$value,
+        tol = function() private$..tol$value,
         set_seed = function() private$..set_seed$value,
         seed = function() private$..seed$value,
+        stability = function() private$..stability$value,
         .interface = function() private$...interface$value,
         .caller = function() private$...caller$value,
         clusterpars = function() private$..clusterpars$value,
@@ -188,8 +204,10 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..sig.level = NA,
         ..mcR = NA,
         ..parallel = NA,
+        ..tol = NA,
         ..set_seed = NA,
         ..seed = NA,
+        ..stability = NA,
         ...interface = NA,
         ...caller = NA,
         ..clusterpars = NA,
@@ -250,11 +268,13 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     list(
                         `name`="specs", 
                         `title`="", 
-                        `type`="text"))))
+                        `type`="text")),
+                refs=list(
+                    "pamlj")))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="powertab",
-                title="A Priori Power Analysis",
+                title="Power Parameters",
                 rows=1,
                 columns=list(
                     list(
@@ -262,12 +282,12 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `title`="Estimate", 
                         `type`="text"),
                     list(
-                        `name`="n", 
-                        `title`="N per cluster", 
-                        `type`="integer"),
-                    list(
                         `name`="k", 
                         `title`="Cluster levels", 
+                        `type`="integer"),
+                    list(
+                        `name`="n", 
+                        `title`="N per cluster", 
                         `type`="integer"),
                     list(
                         `name`="power", 

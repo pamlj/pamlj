@@ -1,6 +1,7 @@
 ERROR_TABLE <-"issues"
 TRANS_WARNS <-list()
 TRANS_WARNS[[1]]<-list(original="end points not of opposite sign",new="Power parameters cannot be for the combination of input parameters")
+TRANS_WARNS[[2]]<-list(original="theta size",new="Number of input coefficients is not correct")
 
 
 ### SEM
@@ -40,7 +41,7 @@ letter_epsilon2<-paste(greek_vector["epsilon"],'\u00B2',sep="")
 letter_pepsilon2<-paste("p",greek_vector["epsilon"],'\u00B2',sep="")
 letter_beta      <- paste(greek_vector["beta"])
 letter_sigma2<-paste(greek_vector["sigma"],'\u00B2',sep="")
-
+letter_play='<span style="color:green;">&#9654;</span>'
 ### subscript
 sub0<-"\U2080"
 sub1<-"\U2081"
@@ -50,6 +51,7 @@ sub4<-"\U2084"
 sub5<-"\U2085"
 sub6<-"\U2086"
 
+subz<-"\U1DBB"
 
 ##########################
 

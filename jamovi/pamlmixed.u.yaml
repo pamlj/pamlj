@@ -19,11 +19,17 @@ children:
           - type: ComboBox
             name: find
             enable: (aim:n)
-      - type: CustomControl
+      - type: Label
+        label: Model Syntax
+        name: model_syntax
+        margin: large
         stretchFactor: 1
-        name: syntax
-        events:
-          creating: ./mixed_editor::editor_creating
+        children:
+          - type: CustomControl
+            stretchFactor: 1
+            name: syntax
+            events:
+              creating: ./mixed_editor::editor_creating
   - type: Label
     label: Model Structure
     name: model_structure
@@ -35,7 +41,7 @@ children:
         stretchFactor: 1
         children:
           - type: Label
-            label: Clusters
+            label: Clustering variables
             name: label_clusters
             stretchFactor: 1
             children:
@@ -53,12 +59,12 @@ children:
                       type: Label
                       stretchFactor: 2
                   - name: k
-                    label: Levels
+                    label: '# Cluster Levels'
                     template:
                       type: TextBox
                       stretchFactor: 1
                   - name: 'n'
-                    label: Cases
+                    label: 'N per cluster'
                     template:
                       type: TextBox
                       stretchFactor: 1
@@ -99,7 +105,6 @@ children:
         type: TextBox
         label: Residual Variance
         format: number
-        
       - name: power
         type: TextBox
         label: Minimum desired power
@@ -142,3 +147,16 @@ children:
                         name: seed
                         format: number
                         enable: (set_seed)
+              - type: LayoutBox
+                style: inline
+                children:
+                  - type: Label
+                    label: Aim N search
+                    children:
+                      - type: TextBox
+                        name: tol
+                        enable: (aim:n)
+                        format: number
+                      - type: ComboBox
+                        name: stability
+                        enable: (aim:n)

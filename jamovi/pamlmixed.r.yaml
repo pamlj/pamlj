@@ -37,22 +37,23 @@ items:
         - name: specs
           title: ''
           type: text
-
-
+      refs:
+          - pamlj
     - name:  powertab
-      title: A Priori Power Analysis
+      title: Power Parameters
       type: Table
       rows:  1
       columns: 
         - name: effect
           title: 'Estimate'
           type: text
-        - name: n
-          title: 'N per cluster'
-          type: integer
         - name: k
           title: 'Cluster levels'
           type: integer
+        - name: n
+          title: 'N per cluster'
+          type: integer
+
         - name: power
           title: 'Power'
           type: number

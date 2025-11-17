@@ -33,15 +33,15 @@ options:
       default: k
       options:
         - name:  k
-          title: Number of clusters
+          title: Number of cluster levels
         - name:  n
           title: Cases within clusters
 
       description:
                 R: |
-                        The aim of the analysis: `n` (default) for sample size, `power` to estimate power
-                ui: |
-                        The aim of the analysis: `N` (default) for sample size, `Power` to estimate power
+                        Search for N algorithm stability across launches. `level1` algorithm is faster and more stable with a run,
+                        but may yield different results across different runs. `level2` algorithm is slower and more stochastic,
+                        but (may) yield results more similar across different runs
 
 
 ### syntax stuff
@@ -62,8 +62,9 @@ options:
       hidden: true
 
     - name: run
-      type: Action      
+      type: Action   
       hidden: true
+     
       
 #####################      
       
@@ -112,6 +113,17 @@ options:
                 ui: |
                       Should parallel computing be used for the Monte Carlo method 
    
+    -   name: tol
+        title: Solution tolerance
+        type: Number
+        default: 0.01
+        description:
+                R: |
+                      Small epsilon for defing tollerance. A solution is proper if between required power +/- tol.
+                ui: |
+                      Tollerance to consider a solution found. 0.01, for instance, means that a power between .89 and .91 is 
+                      considered a solution for required power .90. 
+
     -   name: set_seed
         title: Use a seed
         type: Bool
@@ -134,6 +146,21 @@ options:
                 ui: |
                       What seed should we use for Monte Carlo method. Default is Life, the Universe and Everything
 
+    - name: stability
+      title: Results stability
+      type:  List
+      default: l1
+      options:
+        - name:  l1
+          title: Level 1
+        - name:  l2
+          title: Level 2
+
+      description:
+                R: |
+                        The aim of the analysis: `n` (default) for sample size, `power` to estimate power
+                ui: |
+                        The aim of the analysis: `N` (default) for sample size, `Power` to estimate power
 
 
     - name: .interface

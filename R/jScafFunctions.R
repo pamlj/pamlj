@@ -48,15 +48,10 @@ mark <- function(...) {
 rinfo <- function(...) {
   items<-list(...)
   info<-paste(items,collapse = " ")
-  cat(sprintf("%s", info), "\r", append = FALSE)
-  flush.console()
+  cat(info,"\n")
 }
 
-info <- function(...) {
-  items<-list(...)
-  info<-paste(items,collapse = " ")
-  cat(info, "\n")
-}
+
 
 
 

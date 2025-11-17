@@ -4,8 +4,8 @@ const ace = require('brace');
 
 require('brace/mode/r');
 require('brace/ext/language_tools');
-
 require('./mixed_editor_css');
+var fun=require('./functions');
 
 const events = {
     	editor_creating(ui) {

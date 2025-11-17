@@ -164,38 +164,35 @@ Initer <- R6::R6Class(
     },
      init_effectsizes= function() {
        
-       tab<-NULL
-       try_hard({
-       fixed <- self$info$model$fixed$coefs
+     try_hard({
        terms <- self$info$model$fixed$terms
+       coefs <-  self$info$model$fixed$coefslist
        terms[as.numeric(terms)==1]<-"(Intercept)"
-       labs<-rep("Coefficient",length(fixed))
-       ftab<-data.frame(type="Fixed",term=terms,value=fixed,label=labs,cluster=NA,es=NA)
-       sigma<-data.frame(type="Variance",term=letter_sigma2,value=self$info$model$sigma^2,label="Residual Variance",cluster=NA,es=NA)
-       random <- self$info$model$re
-       re<-lapply(names(random), function(x) {
-                                             
-                                              data.frame(type="Random",
-                                                        term=random[[x]]$terms,
-                                                        value=random[[x]]$coefs,
-                                                        es=random[[x]]$coefs/(random[[x]]$coefs+self$info$model$sigma),
-                                                        cluster=x,
-                                                        label="ICC"
-                                                               )}) 
-       ladd(re)<-ftab
-       ladd(re)<-sigma
-       tab<-do.call(rbind,re)
-
-       })
-       return(tab)
-
-    
-   }
-  
-  
-
-
+       results<-list()
+       for (i in seq_along(terms)){
+         for (j in seq_along(coefs[[i]]))
+             ladd(results)<-list(type="Fixed",term=terms[[i]],value=coefs[[i]][j],cluster=NA,es=NA,label=NA)
+       } 
+         
       
+       random <- self$info$model$re
+       for (name in names(random)) {
+         re<-random[[name]]
+         for (i in seq_along(random[[name]]$terms))
+              for (j in seq_along(re$coefslist[[i]])) {
+                              value<-re$coefslist[[i]][j]
+                              ladd(results)<-list(type="Random",
+                                                  term=re$terms[[i]],
+                                                  value=value,
+                                                  es=value/(value+self$info$model$sigma^2),
+                                                  cluster=name,
+                                                  label="ICC")
+              }
+       }
+       ladd(results)<-list(type="Variance",term=letter_sigma2,value=self$info$model$sigma^2,label="Residual Variance",cluster=NA,es=NA)
+     })
+     return(results)
+   }
     
   ),   # End public
   

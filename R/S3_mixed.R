@@ -74,15 +74,6 @@
       }
       
 
-      lapply(variables, function(x) {
-          if (x$type == "categorical") {
-           if (is.na(x$levels) || x$level<2)
-              obj$stop("Please insert number of levels larger than 2 for variable " %+% x$name )
-           if (x$level>2)
-              obj$warning<-list(topic="issues",message="Input coefficient for variable " %+% x$name %+% " is applied to the largest mean difference", head="info")
-          }
-      })
-           
   
       #### now work on the syntax
       syntax<-obj$options$code
@@ -94,7 +85,7 @@
       model <- modelobj$obj
      
       check_mixed_model(obj,model)
-      
+      if (!obj$ok) return()
       fixed<-model$fixed
       model$clusters<-unique(names(clusters))
 
@@ -109,7 +100,7 @@
          return(x)
       })
 
-      names(model$variables)<-model$fixed$terms[-1]
+      names(model$variables)<-sapply(model$variables,function(x) x$name)
       ### assess cluster size
       model$re<-lapply(obj$options$clusterpars, function(x) {
          re<-model$re[[x$name]]
@@ -120,11 +111,50 @@
          re
          })
       names(model$re)<-model$clusters
-      re<-paste(lapply(names(model$re), function(x) {
-        .re<-model$re[[x]]
-         paste("(",.re$rhs,"|",x,")")
-         }), collapse=" + ")
-      model$formula<-paste(model$fixed$lhs,"~",model$fixed$rhs,"+",re,collapse=" + ")
+      
+      #### check consistency of coefficients for categorical variables
+      for (x in variables) {
+        if (x$type == "categorical") {
+          
+          if (is.na(x$levels) || x$levels<2)
+            obj$stop("Please insert number of levels larger than 2 for variable " %+% x$name )
+          if (x$levels>2) {
+            what1<-NULL
+            what2<-NULL
+            w<-which(model$fixed$terms==x$name)
+            if (length(w)==0) next
+            l<-length(model$fixed$coefslist[[w]])
+            if (l != (x$levels-1)) {
+            model$fixed$coefslist[[w]]<-rep(model$fixed$coefslist[[w]][1],(x$levels-1))
+            model$fixed$coefs<-unlist(model$fixed$coefslist)
+            what1<-"fixed"
+            }
+          
+          for (i in seq_along(model$re)) {
+            re<-model$re[[i]]
+            w<-which(re$terms==x$name)
+            if (length(w)==0) next
+            l<-length(re$coefslist[[w]])
+            if (l != (x$levels-1)) {
+              model$re[[i]]$coefslist[[w]]<-rep(model$re[[i]]$coefslist[[w]][1],(x$levels-1))
+              model$re[[i]]$coefs<-unlist(model$re[[i]]$coefslist)
+              what2<-"random"
+            }
+          }
+          if (!is.null(what1) || !is.null(what2))
+              obj$warning<-list(topic="issues",
+                              message="Input coefficients (" %+% paste(what1,what2,sep=", ",collapse = ", ")    
+                              %+% ") for categorical variable " %+% x$name 
+                              %+% " are different than the number of required contrasts (# "
+                              %+%  (x$levels-1) 
+                              %+%  "). The first coefficient is applied to all the contrasts variables."
+                              %+%  " Please use the <i>[1,2,3]*x</i> syntax to input coefficients for each contrast.",
+                              head="warning")
+            
+          }
+        }
+      }
+     
       model$sigma <- sqrt(obj$options$sigma2) 
 
       obj$data             <- data.frame(sig.level=obj$options$sig.level)
@@ -177,7 +207,7 @@
            what<-"number of clusters levels"  
            n<-obj$info$model$re[[1]]$n
            l <- obj$info$model$re[[1]]$k
-           info("Finding number of clusters\n")
+           rinfo("Finding number of clusters\n")
            ## we want f() to search for n
            f1<-function(int) {
              .fast_onerun(obj,n=NULL,k=int)
@@ -193,7 +223,7 @@
            l <- obj$info$model$re[[1]]$n
            # if we have random slopes, start with n>2
            if (l < 4 && length(obj$info$model$re[[1]]$terms) > 1) l<-4
-           info("Finding number of cases within clusters\n")
+           rinfo("Finding number of cases within clusters\n")
            ## we want f() to search for k
            f1<-function(int) {
              .fast_onerun(obj,int,k=NULL)
@@ -207,32 +237,36 @@
     ## first, we search for a reasonable solution with anova-on-model based .fast_onerun() function, embeed in f1()
     ## then, we use .slow_onerun(), embedded in f2(), to find the more adequate solution
     
-    .pow<-int_seek(f = f1,target_power = obj$info$power,n_start=l,memory = 10)  
+    .pow<-int_seek(f = f1,target_power = obj$info$power,n_start=l,memory = 10,tol=obj$options$tol/2, stability=obj$options$stability)  
      int<-.pow[[find]][[1]]
      out<-attr(.pow,"out")
-     info("\nQuick search found " %+% find %+% "=" %+% .pow[[find]][[1]] %+% " with exit:" %+% out)
-  
-     if (!is.null(out) && out=="asymptote" && (obj$info$power-.pow$power)>.10) {
+     pwr<-attr(.pow,"power")
+     rinfo("\nQuick search found " %+% find %+% "=" %+% .pow[[find]][[1]] %+% " with exit:" %+% out %+% "\n")
+ 
+     if (!is.null(out) && out=="asymptote" && (obj$info$power-pwr)>.10) {
        pow<-.slow_onerun(obj,n=.pow$n,k=.pow$k)
        msg<-"Preliminary power calculation indicates that the input model would not achieve the desired power. Power remains around " %+%
-             round(pow$power,5) %+% " when " %+% what %+%" > " %+% pow[[find]]
+             round(pow$power,5) %+% " when " %+% what %+%" > " %+% pow[[find]] %+% 
+            " with an average increase in power of " %+% round(attr(.pow,"sd"),5) %+% " per one unit increase in "  %+% what 
        obj$warning<-list(topic="issues",message=msg,head="warning")
        pow$sig.level<-obj$data$sig.level
        obj$data<-pow
        return(pow)
      }
-     
-     pow<-int_seek(f = f2,target_power = obj$info$power,n_start=int, tol=.02,memory=3)  
+    
+     pow<-int_seek(f = f2,target_power = obj$info$power,n_start=int,memory=3,tol=obj$options$tol,stability=obj$options$stability)  
      out<-attr(pow,"out")
-     info("sims exit:", out)
-     if (!is.null(out) && out=="asymptote") {
+     pwr<-attr(.pow,"power")
+     rinfo("\nMC search found " %+% find %+% "=" %+% pow[[find]][[1]] %+% " with exit:" %+% out %+% "\n")
+     if (!is.null(out) && out=="asymptote" && (obj$info$power-pwr)> obj$options$tol) {
        msg<-"Power calculation indicates that the input model would not achieve the exact desired power. Power remains around " %+%
          round(pow$power,5) %+% " when " %+% what %+%" > " %+% pow[[find]] 
-       msg <- msg %+% ". Larger starting points for " %+% what %+% " may find a more accurate solution."
+       msg <- msg %+%  " with an average increase in power of " %+% round(attr(.pow,"sd"),5) %+% " per one unit increase in " %+% what 
        obj$warning<-list(topic="issues",message=msg,head="warning")
      }
      pow$sig.level<-obj$data$sig.level
      obj$data<-pow
+     
   } 
   if (obj$aim=="power") {
      # we use the first cluster parameters
@@ -241,13 +275,9 @@
      pow<-.slow_onerun(obj,n=n,k=k)
      pow$sig.level<-obj$data$sig.level
      obj$data<-pow
-     
   }
   
   return(pow)
-  
-           
-  
 }
 
 
@@ -255,10 +285,12 @@
 
 
 pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
+
+  if (obj$options$stability=="l1")
+      set.seed(obj$info$seed)
   
   
   infomod<-obj$info$model
-  fixed<-as.list(infomod$fixed$coefs)
 #  data<-lme4::mkDataTemplate(as.formula(infomod$formula),nGrps=k,nPerGrp=n,rfunc=rnorm)
   #mark(infomod)
   #### cluster data
@@ -272,45 +304,46 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
   if (is.something(n)) ns[[1]]<-n
   levels<-lapply(ns,function(x) 1:x)
   wdata<-as.data.frame(expand.grid(levels))
-  names(wdata)<-paste0(".id.",1:length(levels))
+  names(wdata)<-paste0("inter_id",1:length(levels))
   ### put them together
   ldata<-list()
   for (i in seq_len(nrow(cdata))) {
     one<-cbind(cdata[i,],wdata)
     ldata[[length(ldata)+1]]<-one
   }
-  
 
   data<-do.call(rbind,ldata)
-  names(data)<-c(infomod$clusters,  names(wdata)<-paste0(".id.",1:length(levels)))
+  names(data)<-c(infomod$clusters,names(wdata))
+  
   r<-nrow(data)
+
   for (i in seq_along(infomod$variables)) {
     x<-infomod$variables[[i]]
-    set.seed(obj$info$seed)
-    data[[x$name]]<-rnorm(r)
+    data[[x$name]]<-as.numeric(scale(rnorm(r)))
     if (x$type=="categorical") {
       rep<-round(r/x$levels)
       data[[x$name]]<-factor(rep(1:x$levels,rep+100)[1:r])
-      contrast(data[[x$name]])<-contr.poly(x$levels)
-      xcoefs<-fixed[[i]]
-      if (x$levels>2) xcoefs<-c(fixed[[i]],rep(0,x$levels-2)) 
-      fixed[[i]]<-xcoefs
+      contrasts(data[[x$name]])<-contr.sum(x$levels)
     }
   }
-  
-  
+
+  ## dependent 
+  data[[infomod$fixed$lhs]]<-rnorm(r)
+  ###
   varcor<-lapply(infomod$re,function(x) {
     diag(x=x$coefs,nrow=length(x$coefs))
   })
-  fixed<-unlist(fixed)
-  modelobj<-try_hard({
-    simr::makeLmer(as.formula(infomod$formula),
-                   data=data,
-                   fixef=fixed,
-                   VarCorr=varcor
-                   ,sigma=infomod$sigma)
-  })
 
+  fixed<-infomod$fixed$coefs
+  names(data) <- trimws(make.names(names(data), unique = TRUE))
+  modelobj<-try_hard({
+    simr::makeLmer(formula=as.formula(infomod$formula),
+                   fixef=fixed,
+                   VarCorr=varcor,
+                   sigma=infomod$sigma,
+                   data=data
+                   )
+  })
   if (!isFALSE(modelobj$error)) {
     obj$stop(modelobj$error)
   }
@@ -333,13 +366,15 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
     power <- 1 - stats::pchisq(crit, df = df, ncp = chisq)  
     tab$F<-chisq/df
     tab$power<-power
-    tab$n=attr(model,"n")
-    tab$k=attr(model,"k")
+    tab$n=n
+    tab$k=k
     tab
 
 }
 
 .sim_fun <- function(model, tol_sing = 1e-4, include_warnings = TRUE) {
+  
+ 
   # 1) simulate new response
   y <- stats::simulate(model)$sim_1
   
@@ -355,7 +390,6 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
   
   # 3) cast to lmerTest
   fit <- lmerTest::as_lmerModLmerTest(fit)
-  
   # 4) derive convergence + singularity
   #    (be defensive against optimizer variants)
   optinfo <- fit@optinfo
@@ -412,9 +446,7 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
 
 .slow_onerun <- function(obj,n=NULL,k=NULL) {
   
-
   master_seed<-obj$info$seed
-  
   model<-pamlmixed_makemodel(obj,n,k)
   R <- obj$info$R
   base::RNGkind("L'Ecuyer-CMRG")
@@ -424,7 +456,7 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
       future::plan(plan)
       sims <- foreach::foreach(
         i = seq_len(R),
-        .options.future = list(seed = master_seed)  # CRN: deterministic substream per i
+        .options.future = list(seed = master_seed)  # common random numbers CRN: deterministic substream per i
       ) %dofuture% {
         .sim_fun(model)
       }
@@ -467,75 +499,115 @@ check_mixed_model<- function(obj,model) {
   
   
       fun <- function(asynlist,what) {
+ 
       ### check the uniqueness
       test<-attr(asynlist$terms,"unique")
       if (!test) {
         msg<-"The model syntax contains not unique variables" %+% paste(obj$terms,collapse = ",")
         obj$stop(msg)
       }
-      intadded<-FALSE
-
+      test<-attr(asynlist$terms,"error")
+      if (test) {
+        msg<-"Model syntax error in " %+% what
+        obj$stop(msg)
+      }
+    
+      test<-attr(asynlist$coefs,"error")
+      if (test) {
+        msg<-"Coefficients error in " %+% what
+        obj$stop(msg)
+      }
+      
       if (attr(asynlist$terms,"intadded")) {
         intadded <- TRUE
         obj$warning<-list(topic="issues",message=sprintf(msg1,what), head="info")
       }
-      if (!intadded && attr(asynlist$coefs,"intadded")) {
-        msg<- 
-          obj$warning<-list(topic="issues",message=sprintf(msg2,what), head="info")
-      }
-      if (any(is.na(asynlist$coefs))) {
-        obj$stop(sprintf(msg3,what))
-      }
 
       }
-  
+      
       fun(model$fixed,"fixed effects")
       for (n in names(model$re)) fun(model$re[[n]],"random coefficient across " %+% n)  
+      
+     
       
       
 }
 
-# Integer search on f(n)$power (monotone increasing), starting at n_start.
+# Integer search on f(n)$power (assuming monotone increasing with m), starting at n_start.
 # f(n) must return a list with a numeric scalar `power`.
 
-int_seek<-function(fun,n_start,target_power=.90,tol=.01,step=150,lower=2, max_iter=100, memory=5) {
+## The function works with any function f(n), but it is tailored for function using long simulations
+## First, it evaluated f(n) and compare the f($)$power with target_power
+## if abs(f($)$power - target_power ) < tol we found a solution and return it
+## the solution is not found n is changed based on steps=adiff*step*dir
+## adiff is the absolute difference between observed and target power
+## step is a multiplier passed as an argument (100 seems to work)
+## dir is the direction to go increase (dir=+1)  or descrease (dir=-1) n
+## However, when dealing with power simulations different things may go wrong, and a solution is not guaranteed, so
+## the search has different checks and possible outcomes.
+## 1) step is decreases every interation to reducing the bouncing up and down of n
+## 2) the boundaries of n are recorded so if the steps algorithm yield outside the boundaries it does not run a new simulation
+##    but simply changes the n. Boundaries are defined as the n that has yielded the minimum power larger than target and
+##    the n that yielded the maximal power lower than target. 
+##  3) because some mixed model would never give a required power for not incredibly huge n, the algorithm
+##     keeps track of the standard deviation of the last simulations (how many is decided my "memory" argument).
+##     if the sd goes below tolerance, it return the last result (it meant the algorithm got stuck in a loop or an asynthode).
+##  4) if the algorithm suggests no change in n it returns the results (this should no happen, so it's a extra check)
+##  5) if nothing works, max_iter makes sure that it does not go on forever
+
+int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,lower=2, max_iter=100, memory=5, stability="l1") {
   
   n<-n_start
   steps<-0
-  chache<-new.env(parent = emptyenv())
+  cache<-new.env(parent = emptyenv())
   ### we keep track of the results to check if gets stuck
-  chache$reslist<-list()
+  cache$reslist<-1:memory
+  cache$nlist<-c(lower)
+  cache$max<-list(n=100000,v=1)
+  cache$min<-list(n=0,v=0)
   iter<-0
   repeat{
+    rinfo("INT_SEEK: trying n=",n," with boundaries [",cache$min$n,",",cache$max$n,"] ")
     iter<-iter+1
+    step<-step-1
     res<-fun(n)
-    pwr<-res$power
+    oldn<-n
+    pwr<-sel_fun(res$power)
+    attr(res,"power")<-pwr
     stopifnot(is.finite(pwr))
     diff<-(pwr-target_power)
     adiff<-abs(diff)
-    chache$reslist[[length(chache$reslist)+1]]<-adiff
-    rinfo(sprintf("n=%d, p=%.4f, diff=%.4f, steps=%d",n,pwr,adiff,steps))
+    l<-length(cache$reslist)
+    cache$reslist[[l+1]]<-adiff
+    cache$nlist[[length(cache$nlist)+1]]<-n
+    
+    cache$reslist<-cache$reslist[-1]
+    
     if (adiff < tol) {
       attr(res,"out")<-"found"
       return(res)
       
     }
+    
     if (diff>0) dir<- -1 else dir<-1
     steps<-round(adiff*step*dir)
     n<- n+steps
-    if (n<lower) {
-      attr(res,"out")<-"tolow"
+    s<-sd(unlist(cache$reslist))
+    attr(res,"sd")<-sd  
+    rinfo("obtained power =",round(pwr,5)," target=",target_power," next steps=",steps," sd=",s)
+    if (stability=="l1") {
+      if (n %in% cache$nlist) {
+       n<-n+dir
+      }
+    }
+ 
+
+    ## if power is always lower than target it may be stuck
+    if (s<tol/4) {
+      attr(res,"out")<-"asymptote"
       return(res)
     }
-    ## if power is lower than target it may be stuck
-    if (length(chache$reslist) > memory && diff < 0) {
-      s<-sd(unlist(chache$reslist))
-      if (s<tol/2) {
-        attr(res,"out")<-"asymptote"
-        return(res)
-      }
-      chache$reslist[[1]]<-NULL
-    }
+    
     if (iter>max_iter) {
       attr(res,"out")<-"maxiter"
       return(res)
@@ -545,6 +617,36 @@ int_seek<-function(fun,n_start,target_power=.90,tol=.01,step=150,lower=2, max_it
       return(res)
       
     }
+    if (stability=="l1") p=1 else p=2
+    #### now we want to be sure that we do not try N outside what was proved too large or too small
+    if (pwr-p*tol > target_power) {
+      if (pwr < cache$max$v) 
+        cache$max<-list(n=oldn,v=pwr)
+    }
+    if (pwr+p*tol < target_power) {
+      if (pwr > cache$min$v) 
+        cache$min<-list(n=oldn,v=pwr)
+    }
+    # if max n and min n are the same or 1 unit apart, return
+    if ((cache$max$n-cache$min$n) <= 1 ) {
+      attr(res,"out")<-"closed"
+      return(res)
+    }
+    if ((cache$max$n-cache$min$n) == 2 && n==(cache$min$n+1)) {
+      attr(res,"out")<-"middle"
+      return(res)
+    }
+    if (n <= cache$min$n)  n<-cache$min$n+1
+    if (n >= cache$max$n)  n<-cache$max$n-1
+    
+    if (n<lower) {
+      if (lower %in% cache$nlist) {
+        steps<-round(steps/2)
+        n <- lower + 1
+      } else
+        n <- lower
+    }
+    
     
   }
   
@@ -552,98 +654,6 @@ int_seek<-function(fun,n_start,target_power=.90,tol=.01,step=150,lower=2, max_it
 
 
 
-
-### a sort of uniroot for integers and lower checks
-# Integer binary search on f(n)$power against target_power
-int_seek2 <- function(f, what=min, target_power,
-                             lower, upper,
-                             tol = 0.001,
-                             max_iter = 50L,
-                             monotone = c("auto", "increasing", "decreasing"),
-                             verbose = TRUE) {
-  stopifnot(is.function(f),
-            is.finite(target_power), is.numeric(target_power),
-            is.finite(lower), is.finite(upper),
-            lower <= upper, tol > 0)
-
-    ## fun() allows getting the power value we wish, min(), max() or some specific row
-
-  fun<-what
-
-  monotone <- match.arg(monotone)
-  
-  # tiny memoizer
-  cache <- new.env(parent = emptyenv())
-  eval_f <- function(n) {
-    k <- as.character(as.integer(n))
-    if (exists(k, cache, inherits = FALSE)) {
-      get(k, cache, inherits = FALSE)
-    } else {
-      res <- f(as.integer(n))
-      pwr <- fun(res$power)
-      if (!is.numeric(pwr) || length(pwr) != 1L || !is.finite(pwr))
-        stop("f(n)$power must be a finite numeric scalar")
-      assign(k, res, envir = cache)
-      res
-    }
-  }
-  get_power <- function(res) fun(res$power)
-  
-  # evaluate bounds
-  if (verbose) rinfo(sprintf("int_seeker: evaluating lower bound: %d",as.integer(lower)))
-  resL <- eval_f(lower)
-  pL <- get_power(resL)
-  if (verbose) rinfo(sprintf("int_seeker: evaluating upper bound: %d",as.integer(upper)))
-  resU <- eval_f(upper)
-  pU <- get_power(resU)
-  
-  # detect monotonic direction if needed
-  dir <- switch(monotone,
-                auto = if (pU >= pL) "increasing" else "decreasing",
-                increasing = "increasing",
-                decreasing = "decreasing"
-  )
-  
-  # keep the best-so-far (closest to target), to return if tol unmet
-  best_res <- resL
-  best_diff <- abs(pL - target_power)
-  
-  update_best <- function(res) {
-    p <- get_power(res); d <- abs(p - target_power)
-    if (d < best_diff) { best_diff <<- d; best_res <<- res }
-  }
-  update_best(resU)
-  
-  if (verbose) rinfo(sprintf("init: n=[%d,%d], power=[%.4f,%.4f], dir=%s",
-                               as.integer(lower), as.integer(upper), pL, pU, dir))
-  
-  # main loop
-  iter <- 0L
-  while ((upper - lower) > 1L && iter < max_iter) {
-    mid <- (lower + upper) %/% 2L
-    if (verbose) info(sprintf("it%02d: evaluating n=%d",iter, mid))
-    
-    resM <- eval_f(mid); pM <- get_power(resM)
-    update_best(resM)
-    
-    if (verbose) rinfo(sprintf("it%02d: n=%d, power=%.4f, diff=%.4g",
-                                 iter, mid, pM, pM - target_power))
-    
-    # success criterion: return the *last* f() result when within tol
-    if (abs(pM - target_power) <= tol) return(resM)
-    
-    if (dir == "increasing") {
-      if (pM < target_power) lower <- mid else upper <- mid
-    } else { # decreasing
-      if (pM > target_power) lower <- mid else upper <- mid
-    }
-    iter <- iter + 1L
-  }
-  
-  # If we exit without meeting tol, return closest evaluated result
-  if (verbose) info("Tolerance not met; returning closest evaluated result.")
-  best_res
-}
 
 
 
