@@ -69,7 +69,7 @@ options:
 #### this is for mode ttestpaired
 
     - name: ttestpaired_es
-      title: "Expected Cohen'a d (d<sub>z</sub>)"
+      title: "Expected Cohen' d (dz)"
       type:  Number
       default: .5
       description:
@@ -360,7 +360,7 @@ options:
            The observed t-test sample size (number of pairs)
 
     - name: ttestpaired_d
-      title: "Cohen's d<sub>z</sub>"
+      title: "Cohen's dz"
       type: Number
       default: 0
       description:
@@ -402,7 +402,7 @@ options:
             Correlation between repeated measures
     
     - name: ttestpaired_dz
-      title: "Cohen's d<sub>z</sub>"
+      title: "Cohen's dz"
       type: Number
       default: 0
       description:
