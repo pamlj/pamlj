@@ -32,7 +32,6 @@ pamlmed(
   parallel = FALSE,
   set_seed = FALSE,
   seed = 42,
-  sim_ttest = FALSE,
   table_pwbyn = TRUE,
   plot_ncurve = FALSE,
   plot_log = FALSE,
@@ -123,8 +122,6 @@ on the mediator}
 \item{set_seed}{.}
 
 \item{seed}{.}
-
-\item{sim_ttest}{.}
 
 \item{table_pwbyn}{.}
 

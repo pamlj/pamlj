@@ -4,7 +4,9 @@ title: Mixed Models Power analysis
 jrs:   "1.1"
 
 items:
-
+    - name: info
+      type: Property
+      
     - name: intro
       title: Introduction
       type: Html

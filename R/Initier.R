@@ -54,7 +54,10 @@ Initer <- R6::R6Class(
           
           
           ## checkdata update the data depending on the type of test we are running (via S3 dispatch)
+          if (self$option(".run")) 
+             self$ok<-self$option(".run")
 
+          
           checkdata(self)
           if (self$options$.interface=="jamovi") {
                   jmvobj$results$intro$setContent(info_text(self))   
@@ -63,6 +66,8 @@ Initer <- R6::R6Class(
                   jmvobj$results$intro$setVisible(FALSE) 
           
 
+          if (self$option(".info")) 
+                   jmvobj$results$.setInfo(self$info)
 
 
   }, # here initialize ends

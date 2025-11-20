@@ -183,3 +183,32 @@ plot.pamlj <- function(x, ...) {
 }
 
 
+#'  Generate mixed model data
+#'
+#' This function generate a sample for a mixed model. 
+#' 
+#' @param syntax a pamlj model syntax 
+#' @param clusterpars a pamlj syntax model
+#' @param categorical named list of categorical variables with number of levels in the form `list(varname=x)` where x is the number of levels
+#' @param ... currently not used
+#' @return an dataframe
+#' @author Marcello Gallucci
+#' @examples
+#' \dontrun{
+#'  df<-pamlj::make_mixed_model("y~1*1+1*x+(1*1|clusters)",clusterpars=list(clusters0(n=4,k=10)))
+#'  df
+#' }
+#' @rdname plot
+#' @export
+
+make_mixed_model <- function(syntax, clusterpars, categorical=list(),...) {
+  mod<-try_hard({
+      pamlmixed(syntax = syntax,clusterpars = clusterpars,categorical = categorical,run=FALSE,.info=TRUE,algo="raw")
+  })
+  if (!isFALSE(mod$error))
+      stop(mod$error)
+  msgfun<-function(list) cat(list$message,"\n")
+  results<-list(options=mod$obj$options,info=mod$obj$info,stop=stop,warning=msgfun)
+  pamlmixed_makemodel(results)
+}
+

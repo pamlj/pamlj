@@ -2,6 +2,7 @@
 
 .checkdata.pamlmixed <- function(obj) {
 
+
       if (is.something(obj$data)) 
         return()
       jinfo("Checking data for pamlmixed")
@@ -11,10 +12,10 @@
       find <- obj$options$find
     
       suppressWarnings({
-      clusters<-lapply(clustersopt, function(x) list(k=as.numeric(x$k),n=as.numeric(x$n)))
-      names(clusters)<-unlist(sapply(clustersopt, function(x) x$name))                                              
-      variables<-lapply(obj$options$var_type, function(x) list(name=x$name,type=x$type,levels=as.numeric(x$levels)))
-      names(variables)<-unlist(lapply(variables,function(x) x$name))
+        clusters<-lapply(clustersopt, function(x) list(k=as.numeric(x$k),n=as.numeric(x$n)))
+        names(clusters)<-unlist(sapply(clustersopt, function(x) x$name))                                              
+        variables<-lapply(obj$options$var_type, function(x) list(name=x$name,type=x$type,levels=as.numeric(x$levels)))
+        names(variables)<-unlist(lapply(variables,function(x) x$name))
       })
       ## check input 
       ## any model
@@ -55,7 +56,7 @@
         
         if (find == "k") {
            test<-test_parameters(obj,clusters, fun=function(x) is.na(x$n),head="Please insert the number of cases for cluster:")
-           test<-test_parameters(obj,clusters, fun=function(x) x$n<2,head="Minimum number of cases for a cluster is 2: Please correct `Cases` for cluster:")
+           test<-test_parameters(obj,clusters, fun=function(x) x$n<1,head="Minimum number of cases for a cluster is 1: Please correct `Cases` for cluster:")
            .clusters<-clusters[1]
            test<-test_parameters(obj,.clusters, fun=function(x) x$k>5,head="With aim=k (find # of clusters levels), the input cluster levels are used as starting point. Clusters:", fail = FALSE)
             }
@@ -63,12 +64,12 @@
       if (find == "n") { 
            test<-test_parameters(obj,clusters, fun=function(x) is.na(x$k),head="Please insert the number of levels for cluster:")
            test<-test_parameters(obj,clusters, fun=function(x) x$k<5,head="Minimum number of levels for a cluster is 5: Please correct `Levels` for cluster:")
-           test<-test_parameters(obj,clusters, fun=function(x) x$n>2,head="With aim=n (find # of cases per cluster), the input number of cases are used as starting point. Clusters:", fail = FALSE)
+           test<-test_parameters(obj,clusters, fun=function(x) x$n>0,head="With aim=n (find # of cases per cluster), the input number of cases are used as starting point. Clusters:", fail = FALSE)
        }
       }
       if (obj$aim=="power") {
            test<-test_parameters(obj,clusters, fun=function(x) is.na(x$n),head="Please insert the number of cases for cluster:")
-           test<-test_parameters(obj,clusters, fun=function(x) x$n<2,head="Minimum number of cases for a cluster is 2: Please correct `Cases` for cluster:")
+           test<-test_parameters(obj,clusters, fun=function(x) x$n<1,head="Minimum number of cases for a cluster is 1: Please correct `Cases` for cluster:")
            test<-test_parameters(obj,clusters, fun=function(x) is.na(x$k),head="Please insert the number of levels for cluster:")
            test<-test_parameters(obj,clusters, fun=function(x) x$k<5,head="Minimum number of levels for a cluster is 5: Please correct `Levels` for cluster:")
       }
@@ -102,15 +103,16 @@
 
       names(model$variables)<-sapply(model$variables,function(x) x$name)
       ### assess cluster size
-      model$re<-lapply(obj$options$clusterpars, function(x) {
-         re<-model$re[[x$name]]
-         re$n<-as.numeric(x$n)
-         if (is.na(re$n)) re$n<-2
-         re$k<-as.numeric(x$k)
-         if (is.na(re$k)) re$k<-5
-         re
+
+
+      model$cluster_info<-lapply(obj$options$clusterpars, function(x) {
+         x$n<-as.numeric(x$n)
+         if (is.na(x$n)) x$n<-2
+         x$k<-as.numeric(x$k)
+         if (is.na(x$k)) re$k<-5
+         x
          })
-      names(model$re)<-model$clusters
+      names(model$cluster_info)<-model$clusters
       
       #### check consistency of coefficients for categorical variables
       for (x in variables) {
@@ -156,7 +158,6 @@
       }
      
       model$sigma <- sqrt(obj$options$sigma2) 
-
       obj$data             <- data.frame(sig.level=obj$options$sig.level)
       obj$data$power       <- obj$options$power
       obj$info$model       <- model
@@ -171,13 +172,14 @@
       # otherwise we generate a random seed that is used for one estimation run only
       if(obj$options$set_seed) obj$info$seed <-  obj$options$seed else obj$info$seed <- as.integer(sample.int(.Machine$integer.max, 1L))
 
-      obj$info$parallel    <-  obj$options$parallel 
-      obj$warning     <-  list(topic="initnotes",message="Monte Carlo method may take several minutes to estimate the results. Please be patient.", head="wait")
-      if (obj$info$R<1000)
-         obj$warning     <-  list(topic="issues",message="Simulations replications is set to " %+% obj$info$R %+% ". Please set a number greater than 1000 for more stable results.", head="info")
+      if (obj$options$algo=="mc" && obj$ok) {
+        obj$info$parallel    <-  obj$options$parallel 
+        obj$warning     <-  list(topic="initnotes",message="Monte Carlo method may take several minutes to estimate the results. Please be patient.", head="wait")
+        if (obj$info$R<1000)
+           obj$warning     <-  list(topic="issues",message="Simulations replications is set to " %+% obj$info$R %+% ". Please set a number greater than 1000 for more stable results.", head="info")
       
-      obj$warning     <-  list(topic="initnotes",message="Monte Carlo method may take several minutes to estimate the results. Please be patient.", head="wait")
-      
+        obj$warning     <-  list(topic="initnotes",message="Monte Carlo method may take several minutes to estimate the results. Please be patient.", head="wait")
+        }    
       
       jinfo("Checking data for pamlmixed done")
 }
@@ -200,8 +202,6 @@
 .powervector.pamlmixed <- function(obj,data) {
   
   find<-obj$options$find
-  
-
   if (obj$aim=="n") {
     if (find == "k") {
            what<-"number of clusters levels"  
@@ -243,40 +243,53 @@
      pwr<-attr(.pow,"power")
      rinfo("\nQuick search found " %+% find %+% "=" %+% .pow[[find]][[1]] %+% " with exit:" %+% out %+% "\n")
  
-     if (!is.null(out) && out=="asymptote" && (obj$info$power-pwr)>.10) {
+     if (!is.null(out) && out=="asymptote" && abs(obj$info$power-pwr)>.10 && obj$options$algo=="mc") {
        pow<-.slow_onerun(obj,n=.pow$n,k=.pow$k)
        msg<-"Preliminary power calculation indicates that the input model would not achieve the desired power. Power remains around " %+%
-             round(pow$power,5) %+% " when " %+% what %+%" > " %+% pow[[find]] %+% 
-            " with an average increase in power of " %+% round(attr(.pow,"sd"),5) %+% " per one unit increase in "  %+% what 
+             round(pow$power,5) %+% " when " %+% what %+%" > " %+% pow[[find]] 
+       if (is.something(attr(.pow,"sd")))
+            msg <- msg %+% " with an average increase in power of " %+% round(attr(.pow,"sd"),5) %+% " per one unit increase in "  %+% what 
        obj$warning<-list(topic="issues",message=msg,head="warning")
        pow$sig.level<-obj$data$sig.level
        obj$data<-pow
        return(pow)
      }
+     if (obj$options$algo=="mc") {
     
-     pow<-int_seek(f = f2,target_power = obj$info$power,n_start=int,memory=3,tol=obj$options$tol,stability=obj$options$stability)  
-     out<-attr(pow,"out")
-     pwr<-attr(.pow,"power")
-     rinfo("\nMC search found " %+% find %+% "=" %+% pow[[find]][[1]] %+% " with exit:" %+% out %+% "\n")
-     if (!is.null(out) && out=="asymptote" && (obj$info$power-pwr)> obj$options$tol) {
-       msg<-"Power calculation indicates that the input model would not achieve the exact desired power. Power remains around " %+%
-         round(pow$power,5) %+% " when " %+% what %+%" > " %+% pow[[find]] 
-       msg <- msg %+%  " with an average increase in power of " %+% round(attr(.pow,"sd"),5) %+% " per one unit increase in " %+% what 
-       obj$warning<-list(topic="issues",message=msg,head="warning")
+         pow<-int_seek(f = f2,target_power = obj$info$power,n_start=int,memory=5,tol=obj$options$tol,stability=obj$options$stability)  
+         out<-attr(pow,"out")
+         pwr<-attr(pow,"power")
+
+         rinfo("\nMC search found " %+% find %+% "=" %+% pow[[find]][[1]] %+% " with exit:" %+% out %+% "\n")
+         if (!is.null(out) && out=="asymptote" && abs(obj$info$power-pwr)> obj$options$tol) {
+               msg<-"Power calculation indicates that the input model would not achieve the exact desired power. Power remains around " %+%
+               round(pow$power,5) %+% " when " %+% what %+%" > " %+% pow[[find]] 
+               if (attr(pow,"dir")==1)
+                   dir <- "increase"
+               else 
+                   dir <- "decrease"
+               msg <- msg %+%  " with an average " %+% dir %+% " in power of " %+% round(attr(pow,"sd"),5) %+% " per one unit " %+% dir %+% " in " %+% what 
+              obj$warning<-list(topic="issues",message=msg,head="warning")
+         }
+     } else {
+       pow <- .pow
      }
      pow$sig.level<-obj$data$sig.level
      obj$data<-pow
      
   } 
   if (obj$aim=="power") {
+     if (obj$options$algo=="mc")
+         .fun<-.slow_onerun
+     else
+         .fun<-.fast_onerun
      # we use the first cluster parameters
      n<-obj$info$model$re[[1]]$n
      k<-obj$info$model$re[[1]]$k
-     pow<-.slow_onerun(obj,n=n,k=k)
+     pow<-.fun(obj,n=n,k=k)
      pow$sig.level<-obj$data$sig.level
      obj$data<-pow
   }
-  
   return(pow)
 }
 
@@ -288,35 +301,36 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
 
   if (obj$options$stability=="l1")
       set.seed(obj$info$seed)
-  
-  
+ mark(obj$info)
   infomod<-obj$info$model
-#  data<-lme4::mkDataTemplate(as.formula(infomod$formula),nGrps=k,nPerGrp=n,rfunc=rnorm)
-  #mark(infomod)
   #### cluster data
-  ks<-sapply(infomod$re, function(x) x$k)
+  ks<-sapply(infomod$cluster_info, function(x) x$k)
   if (is.something(k)) ks[[1]]<-k
   levels<-lapply(ks,function(x) 1:x)
-  cdata<-as.data.frame(expand.grid(levels))
-  names(cdata)<-infomod$clusters
+  cdata<-as.data.frame(expand.grid(rev(levels)))  
+  names(cdata)<-rev(infomod$clusters)
+  cdata<-cdata[,infomod$clusters]
   ### within data
-  ns<-sapply(infomod$re, function(x) x$n)
+  ns<-sapply(infomod$cluster_info, function(x) x$n)
   if (is.something(n)) ns[[1]]<-n
   levels<-lapply(ns,function(x) 1:x)
   wdata<-as.data.frame(expand.grid(levels))
   names(wdata)<-paste0("inter_id",1:length(levels))
+  
   ### put them together
   ldata<-list()
-  for (i in seq_len(nrow(cdata))) {
-    one<-cbind(cdata[i,],wdata)
-    ldata[[length(ldata)+1]]<-one
+  ### we capture warning because it may complain about rownames
+  try_hard({
+   for (i in seq_len(nrow(cdata))) {
+     one<-cbind(cdata[i,],wdata)
+     ldata[[length(ldata)+1]]<-one
   }
-
+  }) #try
+  
   data<-do.call(rbind,ldata)
   names(data)<-c(infomod$clusters,names(wdata))
   
   r<-nrow(data)
-
   for (i in seq_along(infomod$variables)) {
     x<-infomod$variables[[i]]
     data[[x$name]]<-as.numeric(scale(rnorm(r)))
@@ -326,24 +340,28 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
       contrasts(data[[x$name]])<-contr.sum(x$levels)
     }
   }
-
+  
   ## dependent 
   data[[infomod$fixed$lhs]]<-rnorm(r)
   ###
+
   varcor<-lapply(infomod$re,function(x) {
     diag(x=x$coefs,nrow=length(x$coefs))
   })
-
+  
   fixed<-infomod$fixed$coefs
   names(data) <- trimws(make.names(names(data), unique = TRUE))
+
+mark(infomod$formula,head(data))
   modelobj<-try_hard({
-    simr::makeLmer(formula=as.formula(infomod$formula),
+             simr::makeLmer(formula=as.formula(infomod$formula),
                    fixef=fixed,
                    VarCorr=varcor,
                    sigma=infomod$sigma,
                    data=data
                    )
   })
+ 
   if (!isFALSE(modelobj$error)) {
     obj$stop(modelobj$error)
   }
@@ -356,7 +374,6 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
 
 
 .fast_onerun <- function(obj, n = NULL, k = NULL) {
-  
     model  <- pamlmixed_makemodel(obj, n, k)    
     tab <- car::Anova(model, type = 3)
     tab <- tab[-1,]
@@ -367,7 +384,12 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
     tab$F<-chisq/df
     tab$power<-power
     tab$n=n
+    if (is.null(n)) tab$n<-attr(model,"n")
     tab$k=k
+    if (is.null(k)) tab$k<-attr(model,"k")
+    tab$df=df
+    tab$effect<-rownames(tab)
+
     tab
 
 }
@@ -579,31 +601,32 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
     adiff<-abs(diff)
     l<-length(cache$reslist)
     cache$reslist[[l+1]]<-adiff
+    cache$reslist<-cache$reslist[-1]
     cache$nlist[[length(cache$nlist)+1]]<-n
     
-    cache$reslist<-cache$reslist[-1]
     
-    if (adiff < tol) {
-      attr(res,"out")<-"found"
-      return(res)
-      
-    }
-    
+  
     if (diff>0) dir<- -1 else dir<-1
     steps<-round(adiff*step*dir)
     n<- n+steps
     s<-sd(unlist(cache$reslist))
-    attr(res,"sd")<-sd  
+    attr(res,"sd")<-s  
+    attr(res,"dir")<-dir
     rinfo("obtained power =",round(pwr,5)," target=",target_power," next steps=",steps," sd=",s)
     if (stability=="l1") {
       if (n %in% cache$nlist) {
        n<-n+dir
       }
     }
- 
+    if (adiff < tol) {
+      attr(res,"out")<-"found"
+      return(res)
+      
+    }
+
 
     ## if power is always lower than target it may be stuck
-    if (s<tol/4) {
+    if (s<(tol/4)) {
       attr(res,"out")<-"asymptote"
       return(res)
     }
@@ -651,7 +674,6 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
   }
   
 }
-
 
 
 

@@ -30,6 +30,7 @@ rundata <- function(obj, ...) UseMethod(".rundata")
 
 .rundata.default <- function(obj) return()
 
+
 ## powervector must accept a runner object and a data.frame. It must return a data.frame with nrow() equal to the input data.frame
 ## they are used across all table and plots to estimate parameters, so the input data.frame is not necessarely the 
 ## orginal input data of the user.

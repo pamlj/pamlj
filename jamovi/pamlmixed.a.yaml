@@ -162,7 +162,7 @@ options:
                 ui: |
                         The aim of the analysis: `N` (default) for sample size, `Power` to estimate power
 
-
+## tech stuff
     - name: .interface
       type: String
       default: jamovi
@@ -179,6 +179,20 @@ options:
                 R: |
                         Used for internal purposes 
 
+    - name: .info
+      type: Bool
+      default: false
+      hidden: true
+      description:
+                R: |
+                        Used for internal purposes 
+    - name: .run
+      type: Bool
+      default: true
+      hidden: true
+      description:
+                R: |
+                        Used for internal purposes 
 
 ### specifics
 
@@ -215,7 +229,23 @@ options:
                   -     name: levels
                         type: String
 
-      
+ 
+    - name: algo
+      title: Algorithm
+      type:  List
+      default: mc
+      options:
+        - name:  mc
+          title: Monte Carlo
+        - name:  raw
+          title: Raw approximation
+
+      description:
+                R: |
+                        The algorithm to use: `mc` (default) for Monte Carlo simulation, `raw` for raw approximation based on Chi-squared (fast but not very accurate)
+                ui: |
+                        The algorithm to use: `Monte Carlo` (default) for Monte Carlo simulation, `Raw approximation` for raw approximation based on plausible Chi-squared (fast but not very accurate)
+     
  
 ...
 
