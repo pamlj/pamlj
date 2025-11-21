@@ -36,7 +36,6 @@ pamlmixedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                  aSmartObj<-SmartTable$new(self$results$showdata,private$.runner)
                  aSmartObj$expandOnInit <- TRUE
                  aSmartObj$expandFrom <- 2
-                 aSmartObj$debug <- T
                  ladd(private$.smartObjs)<-aSmartObj
                  
                  ### init all ####

@@ -50,10 +50,10 @@ items:
           title: 'Estimate'
           type: text
         - name: k
-          title: 'Cluster levels'
+          title: 'Cluster levels (k)'
           type: integer
         - name: n
-          title: 'N per cluster'
+          title: 'N per cluster (n)'
           type: integer
 
         - name: power

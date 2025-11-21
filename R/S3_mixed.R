@@ -275,6 +275,16 @@
        pow <- .pow
      }
      pow$sig.level<-obj$data$sig.level
+     if (length(obj$info$model$clusters)>1) {
+       info<-obj$info$model$cluster_info[-1]
+       hm<-unlist(lapply(names(info), function(x) {
+         cluster<-info[[x]]
+         paste("cluster variable ",cluster$name, "with n=",cluster$n," and k=",cluster$k)
+         }))
+       msg<-"Power parameters are computed for " %+% paste(hm, collapse = ", ")
+       obj$warning<-list(topic="powertab",message=msg)
+     }
+        
      obj$data<-pow
      
   } 
