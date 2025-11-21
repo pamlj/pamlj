@@ -308,6 +308,8 @@
   
   n<-obj$data$n
   k<-obj$data$k
+  if (n>30) n<-30
+  if (k>30) k<-30
   model<-pamlmixed_makemodel(obj,n,k)
   data<-model@frame
   if (nrow(data)>30) {
@@ -606,6 +608,7 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
   
   n<-n_start
   steps<-0
+  astep<-step
   cache<-new.env(parent = emptyenv())
   ### we keep track of the results to check if gets stuck
   cache$reslist<-1:memory
@@ -616,7 +619,6 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
   repeat{
     rinfo("INT_SEEK: trying n=",n," with boundaries [",cache$min$n,",",cache$max$n,"] ")
     iter<-iter+1
-    step<-step-1
     res<-fun(n)
     oldn<-n
     pwr<-sel_fun(res$power)
@@ -630,9 +632,8 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
     cache$nlist[[length(cache$nlist)+1]]<-n
     
     
-  
     if (diff>0) dir<- -1 else dir<-1
-    steps<-round(adiff*step*dir)
+    steps<-round(adiff*astep*dir)
     n<- n+steps
     s<-sd(unlist(cache$reslist))
     attr(res,"sd")<-s  
@@ -665,6 +666,9 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
       return(res)
       
     }
+    ## if we hit power=1 try the lowest possible n, otherwise it may get stuck
+    if (pwr==1) n<-lower
+    
     if (stability=="l1") p=1 else p=2
     #### now we want to be sure that we do not try N outside what was proved too large or too small
     if (pwr-p*tol > target_power) {
