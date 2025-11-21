@@ -1,4 +1,4 @@
-j_DEBUG = T
+j_DEBUG = FALSE
 j_INFO = FALSE
 t_INFO  <- F
 

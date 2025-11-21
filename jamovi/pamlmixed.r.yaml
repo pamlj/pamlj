@@ -103,8 +103,14 @@ items:
           title: 'ES label'
           type: text
 
-
-            
+    - name: showdata
+      visible: (showdata)
+      title: Data structure
+      type: Table
+      columns: 
+        - name: row
+          title: 'Row'
+          type: number
     - name: plotnotes
       title: Plot notes
       type: Html

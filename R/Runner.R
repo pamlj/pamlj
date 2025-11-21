@@ -186,6 +186,13 @@ Runner <- R6::R6Class("Runner",
                                 tab
                                 
                               },
+                              run_showdata=function() {
+                             
+                                if (!self$option("showdata"))
+                                  return()
+                                showdata(self)
+                                 
+                              },
                                                             
                           endrun = function() {
                             

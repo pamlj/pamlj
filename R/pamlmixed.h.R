@@ -26,7 +26,8 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             .run = TRUE,
             clusterpars = list(),
             var_type = list(),
-            algo = "mc", ...) {
+            algo = "mc",
+            showdata = FALSE, ...) {
 
             super$initialize(
                 package="pamlj",
@@ -171,6 +172,10 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=list(
                     "mc",
                     "raw"))
+            private$..showdata <- jmvcore::OptionBool$new(
+                "showdata",
+                showdata,
+                default=FALSE)
 
             self$.addOption(private$..aim)
             self$.addOption(private$..find)
@@ -194,6 +199,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..clusterpars)
             self$.addOption(private$..var_type)
             self$.addOption(private$..algo)
+            self$.addOption(private$..showdata)
         }),
     active = list(
         aim = function() private$..aim$value,
@@ -217,7 +223,8 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         .run = function() private$...run$value,
         clusterpars = function() private$..clusterpars$value,
         var_type = function() private$..var_type$value,
-        algo = function() private$..algo$value),
+        algo = function() private$..algo$value,
+        showdata = function() private$..showdata$value),
     private = list(
         ..aim = NA,
         ..find = NA,
@@ -240,7 +247,8 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ...run = NA,
         ..clusterpars = NA,
         ..var_type = NA,
-        ..algo = NA)
+        ..algo = NA,
+        ..showdata = NA)
 )
 
 pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
@@ -255,6 +263,7 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         infotab = function() private$.items[["infotab"]],
         powertab = function() private$.items[["powertab"]],
         effectsizes = function() private$.items[["effectsizes"]],
+        showdata = function() private$.items[["showdata"]],
         plotnotes = function() private$.items[["plotnotes"]]),
     private = list(
         ..info = NA),
@@ -379,6 +388,16 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `name`="label", 
                         `title`="ES label", 
                         `type`="text"))))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="showdata",
+                visible="(showdata)",
+                title="Data structure",
+                columns=list(
+                    list(
+                        `name`="row", 
+                        `title`="Row", 
+                        `type`="number"))))
             self$add(jmvcore::Html$new(
                 options=options,
                 name="plotnotes",

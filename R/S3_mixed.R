@@ -109,7 +109,7 @@
          x$n<-as.numeric(x$n)
          if (is.na(x$n)) x$n<-2
          x$k<-as.numeric(x$k)
-         if (is.na(x$k)) re$k<-5
+         if (is.na(x$k)) x$k<-5
          x
          })
       names(model$cluster_info)<-model$clusters
@@ -205,8 +205,8 @@
   if (obj$aim=="n") {
     if (find == "k") {
            what<-"number of clusters levels"  
-           n<-obj$info$model$re[[1]]$n
-           l <- obj$info$model$re[[1]]$k
+           n<-obj$info$model$cluster_info[[1]]$n
+           l <- obj$info$model$cluster_info[[1]]$k
            rinfo("Finding number of clusters\n")
            ## we want f() to search for n
            f1<-function(int) {
@@ -219,8 +219,8 @@
     }
     if (find == "n") {
            what<-"number of cases"  
-           k<-obj$info$model$re[[1]]$k
-           l <- obj$info$model$re[[1]]$n
+           k<-obj$info$model$cluster_info[[1]]$k
+           l <- obj$info$model$cluster_info[[1]]$n
            # if we have random slopes, start with n>2
            if (l < 4 && length(obj$info$model$re[[1]]$terms) > 1) l<-4
            rinfo("Finding number of cases within clusters\n")
@@ -294,6 +294,22 @@
 }
 
 
+.showdata.pamlmixed<-function(obj) {
+  
+  n<-obj$data$n
+  k<-obj$data$k
+  model<-pamlmixed_makemodel(obj,n,k)
+  data<-model@frame
+  if (nrow(data)>30) {
+     data<-data[1:30,]
+     warning("Only the first 30 observations are shown")
+  }
+  
+  data$row<-1:nrow(data)
+  return(data)
+  
+}
+
 ###### local functions
 
 
@@ -301,7 +317,7 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
 
   if (obj$options$stability=="l1")
       set.seed(obj$info$seed)
- mark(obj$info)
+
   infomod<-obj$info$model
   #### cluster data
   ks<-sapply(infomod$cluster_info, function(x) x$k)
@@ -309,14 +325,14 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
   levels<-lapply(ks,function(x) 1:x)
   cdata<-as.data.frame(expand.grid(rev(levels)))  
   names(cdata)<-rev(infomod$clusters)
-  cdata<-cdata[,infomod$clusters]
+  cdata<-cdata[,infomod$clusters,  drop = FALSE]
   ### within data
   ns<-sapply(infomod$cluster_info, function(x) x$n)
   if (is.something(n)) ns[[1]]<-n
   levels<-lapply(ns,function(x) 1:x)
+
   wdata<-as.data.frame(expand.grid(levels))
   names(wdata)<-paste0("inter_id",1:length(levels))
-  
   ### put them together
   ldata<-list()
   ### we capture warning because it may complain about rownames
@@ -352,7 +368,6 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
   fixed<-infomod$fixed$coefs
   names(data) <- trimws(make.names(names(data), unique = TRUE))
 
-mark(infomod$formula,head(data))
   modelobj<-try_hard({
              simr::makeLmer(formula=as.formula(infomod$formula),
                    fixef=fixed,

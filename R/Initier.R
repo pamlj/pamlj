@@ -197,7 +197,15 @@ Initer <- R6::R6Class(
        ladd(results)<-list(type="Variance",term=letter_sigma2,value=self$info$model$sigma^2,label="Residual Variance",cluster=NA,es=NA)
      })
      return(results)
-   }
+   },
+  
+  init_showdata=function(){
+
+    vars<-c(names(self$info$model$variables),self$info$model$clusters)
+    df<-as.data.frame(matrix(NA,ncol=length(vars),nrow=1))
+    names(df)<-vars
+    return(df)
+  }
     
   ),   # End public
   

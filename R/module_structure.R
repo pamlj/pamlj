@@ -124,6 +124,14 @@ extrainfo <- function(obj, ...) UseMethod(".extrainfo")
 
 .extrainfo.default <-function(obj) return()
 
+### this function show some data produced by the analysis (simulated samples or other stuff)
+
+showdata <- function(obj, ...) UseMethod(".showdata")
+
+.showdata.default <-function(obj,...) {
+  mark("no showdata for class ",class(oj)) 
+  return()
+}
 
 ### some sub.module requires additional effect size to be computed. They go into the effectsize table
 ### _init prepares the table, _run fills in it 

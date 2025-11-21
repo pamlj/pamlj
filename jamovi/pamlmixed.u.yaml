@@ -125,23 +125,38 @@ children:
     collapsed: true
     stretchFactor: 1
     children:
-      - type: Label
-        name: algo_label
-        label: Algorithm
+      - type: LayoutBox
+        style: inline
         children:
-            - type: LayoutBox
-              name: algo_layout
-              style: inline
-              children:
-                 - name: algo_mc
-                   type: RadioButton
-                   optionName: algo
-                   optionPart: mc
-                 - name: algo_raw
-                   type: RadioButton
-                   optionName: algo
-                   optionPart: raw
-    
+
+          - type: Label
+            name: algo_label
+            label: Algorithm
+            children:
+                - type: LayoutBox
+                  name: algo_layout
+                  style: list
+                  children:
+                     - name: algo_mc
+                       type: RadioButton
+                       optionName: algo
+                       optionPart: mc
+                     - name: algo_raw
+                       type: RadioButton
+                       optionName: algo
+                       optionPart: raw
+
+          - type: Label
+            name: out_label
+            label: Output
+            children:
+                - type: LayoutBox
+                  name: out_layout
+                  style: list
+                  children:
+                     - name: showdata
+                       type: CheckBox
+
       - type: LayoutBox
         style: inline
         children:

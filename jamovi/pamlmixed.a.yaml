@@ -246,6 +246,15 @@ options:
                 ui: |
                         The algorithm to use: `Monte Carlo` (default) for Monte Carlo simulation, `Raw approximation` for raw approximation based on plausible Chi-squared (fast but not very accurate)
      
+    - name: showdata
+      type: Bool
+      title: Data structure
+      default: false
+      description:
+                R: |
+                        not used
+                gui: |
+                      Show the first rows of an example of generated data
  
 ...
 
