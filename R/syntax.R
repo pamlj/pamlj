@@ -245,10 +245,39 @@ decompose_formula<-function(s, fix_intercept=FALSE,intercept_coef=0) {
   results
 }
 
+# .findbars <- function(s) {
+#   rx <- "\\([^()]*\\)"
+#   hits <- regmatches(s, gregexpr(rx, s, perl = TRUE))[[1]]
+#   if (length(hits) == 0) return(setNames(character(0), character(0)))
+#   
+#   # remove outer parens
+#   contents <- trimws(sub("^\\(|\\)$", "", hits, perl = TRUE))
+#   
+#   # keep only blocks that contain a '|'
+#   has_bar <- grepl("\\|", contents, perl = TRUE)
+#   contents <- contents[has_bar]
+#   
+#   # split into left (before |) and right (after |)
+#   left  <- trimws(sub("\\|.*$", "", contents, perl = TRUE))
+#   right <- trimws(sub("^.*?\\|", "", contents, perl = TRUE))
+#   
+#   # sanitize names: drop any parentheses and surrounding spaces
+#   names_clean <- trimws(gsub("[()]", "", right, perl = TRUE))
+#   
+#   out <- left
+#   names(out) <- make.unique(names_clean, sep = "..")
+#   out
+# }
+
 .findbars <- function(s) {
+  
+  if (grepl("\\|\\|", s))
+    stop("The '||' syntax (uncorrelated random effects) is not supported. Please use '|' instead.")
+  
   rx <- "\\([^()]*\\)"
   hits <- regmatches(s, gregexpr(rx, s, perl = TRUE))[[1]]
-  if (length(hits) == 0) return(setNames(character(0), character(0)))
+  if (length(hits) == 0)
+    return(setNames(character(0), character(0)))
   
   # remove outer parens
   contents <- trimws(sub("^\\(|\\)$", "", hits, perl = TRUE))
@@ -256,6 +285,8 @@ decompose_formula<-function(s, fix_intercept=FALSE,intercept_coef=0) {
   # keep only blocks that contain a '|'
   has_bar <- grepl("\\|", contents, perl = TRUE)
   contents <- contents[has_bar]
+  if (!length(contents))
+    return(setNames(character(0), character(0)))
   
   # split into left (before |) and right (after |)
   left  <- trimws(sub("\\|.*$", "", contents, perl = TRUE))
@@ -264,9 +295,56 @@ decompose_formula<-function(s, fix_intercept=FALSE,intercept_coef=0) {
   # sanitize names: drop any parentheses and surrounding spaces
   names_clean <- trimws(gsub("[()]", "", right, perl = TRUE))
   
-  out <- left
-  names(out) <- make.unique(names_clean, sep = "..")
+  ## ---- expand grouping factors with "/" (nesting) ----
+  out_left  <- character(0)
+  out_names <- character(0)
+  
+  for (i in seq_along(names_clean)) {
+    g <- names_clean[i]   # e.g. "cluster1/cluster2"
+    l <- left[i]          # e.g. "1" or "1 + x"
+    
+    if (grepl("/", g, fixed = TRUE)) {
+      # split by "/", remove empty pieces, trim
+      parts <- strsplit(g, "/", fixed = TRUE)[[1]]
+      parts <- trimws(parts[nzchar(parts)])
+      
+      if (length(parts) >= 1) {
+        # first-level grouping factor: "cluster1"
+        out_left  <- c(out_left,  l)
+        out_names <- c(out_names, parts[1])
+      }
+      if (length(parts) >= 2) {
+        # cumulative interactions: "cluster1:cluster2", "cluster1:cluster2:cluster3", ...
+        for (k in 2:length(parts)) {
+          gf_name  <- paste(parts[1:k], collapse = ":")
+          out_left  <- c(out_left,  l)
+          out_names <- c(out_names, gf_name)
+        }
+      }
+    } else {
+      # no nesting: keep as is
+      out_left  <- c(out_left,  l)
+      out_names <- c(out_names, g)
+    }
+  }
+  
+  out <- out_left
+  names(out) <- make.unique(out_names, sep = "..")
   out
+}
+
+.extract_cluster_vars_from_re <- function(re_vec) {
+  # re_vec is the output of .findbars(s), i.e. named char vector
+  gfs <- names(re_vec)
+  if (length(gfs) == 0)
+    return(character(0))
+  
+  # split on ":" or "/" to get primitive variables
+  parts <- strsplit(gfs, "[/:]", perl = TRUE)
+  vars  <- trimws(unlist(parts))
+  vars  <- vars[nzchar(vars)]   # drop empty strings, just in case
+  
+  unique(vars)
 }
 
 
@@ -310,7 +388,7 @@ decompose_mixed_formula<-function(s, fix_intercept=FALSE,intercept_coef=0) {
   .re<-paste0("(",.re,")",collapse = "+")
   .formula<-paste0(results$fixed$lhs,"~",results$fixed$rhs,"+",.re)
   results$formula<-.formula
-
+  results$cluster<-.extract_cluster_vars_from_re(re) 
   return(results)
 }
 

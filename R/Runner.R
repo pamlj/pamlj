@@ -20,9 +20,9 @@ Runner <- R6::R6Class("Runner",
                                    self$ok<-FALSE
                                  }
                                
-                                 
+                               
                                  ## some commands are run only if the run button is pressed
-                                 if ("run" %in% names(self$options)) {
+                                 if ((self$options$.interface=="jamovi") && ("run" %in% names(self$options))) {
                                    if (!self$option("run")) {
                                      self$ok<-FALSE
                                      self$warning<-list(topic="issues",
@@ -31,9 +31,6 @@ Runner <- R6::R6Class("Runner",
                                    }
                                  }
 
-                               
-                               
-                                   
                                  rundata(self)
                                  if (!self$ok) return()
                                  jinfo("PAMLj: Runner: first estimation")
@@ -188,6 +185,13 @@ Runner <- R6::R6Class("Runner",
                                 tab$variable<-names(tab)
                                 tab
                                 
+                              },
+                              run_showdata=function() {
+                             
+                                if (!self$option("showdata"))
+                                  return()
+                                showdata(self)
+                                 
                               },
                                                             
                           endrun = function() {

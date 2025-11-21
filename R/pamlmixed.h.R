@@ -22,8 +22,12 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             stability = "l1",
             .interface = "jamovi",
             .caller = "pamlmixed",
+            .info = FALSE,
+            .run = TRUE,
             clusterpars = list(),
-            var_type = list(), ...) {
+            var_type = list(),
+            algo = "mc",
+            showdata = FALSE, ...) {
 
             super$initialize(
                 package="pamlj",
@@ -113,6 +117,16 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 .caller,
                 default="pamlmixed",
                 hidden=TRUE)
+            private$...info <- jmvcore::OptionBool$new(
+                ".info",
+                .info,
+                default=FALSE,
+                hidden=TRUE)
+            private$...run <- jmvcore::OptionBool$new(
+                ".run",
+                .run,
+                default=TRUE,
+                hidden=TRUE)
             private$..clusterpars <- jmvcore::OptionArray$new(
                 "clusterpars",
                 clusterpars,
@@ -151,6 +165,17 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         jmvcore::OptionString$new(
                             "levels",
                             NULL))))
+            private$..algo <- jmvcore::OptionList$new(
+                "algo",
+                algo,
+                default="mc",
+                options=list(
+                    "mc",
+                    "raw"))
+            private$..showdata <- jmvcore::OptionBool$new(
+                "showdata",
+                showdata,
+                default=FALSE)
 
             self$.addOption(private$..aim)
             self$.addOption(private$..find)
@@ -169,8 +194,12 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..stability)
             self$.addOption(private$...interface)
             self$.addOption(private$...caller)
+            self$.addOption(private$...info)
+            self$.addOption(private$...run)
             self$.addOption(private$..clusterpars)
             self$.addOption(private$..var_type)
+            self$.addOption(private$..algo)
+            self$.addOption(private$..showdata)
         }),
     active = list(
         aim = function() private$..aim$value,
@@ -190,8 +219,12 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         stability = function() private$..stability$value,
         .interface = function() private$...interface$value,
         .caller = function() private$...caller$value,
+        .info = function() private$...info$value,
+        .run = function() private$...run$value,
         clusterpars = function() private$..clusterpars$value,
-        var_type = function() private$..var_type$value),
+        var_type = function() private$..var_type$value,
+        algo = function() private$..algo$value,
+        showdata = function() private$..showdata$value),
     private = list(
         ..aim = NA,
         ..find = NA,
@@ -210,14 +243,19 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..stability = NA,
         ...interface = NA,
         ...caller = NA,
+        ...info = NA,
+        ...run = NA,
         ..clusterpars = NA,
-        ..var_type = NA)
+        ..var_type = NA,
+        ..algo = NA,
+        ..showdata = NA)
 )
 
 pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     "pamlmixedResults",
     inherit = jmvcore::Group,
     active = list(
+        info = function() private$..info,
         intro = function() private$.items[["intro"]],
         extrainfo = function() private$.items[["extrainfo"]],
         issues = function() private$.items[["issues"]],
@@ -225,14 +263,17 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         infotab = function() private$.items[["infotab"]],
         powertab = function() private$.items[["powertab"]],
         effectsizes = function() private$.items[["effectsizes"]],
+        showdata = function() private$.items[["showdata"]],
         plotnotes = function() private$.items[["plotnotes"]]),
-    private = list(),
+    private = list(
+        ..info = NA),
     public=list(
         initialize=function(options) {
             super$initialize(
                 options=options,
                 name="",
                 title="Mixed Models Power analysis")
+            private$..info <- NULL
             self$add(jmvcore::Html$new(
                 options=options,
                 name="intro",
@@ -283,11 +324,11 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `type`="text"),
                     list(
                         `name`="k", 
-                        `title`="Cluster levels", 
+                        `title`="Cluster levels (k)", 
                         `type`="integer"),
                     list(
                         `name`="n", 
-                        `title`="N per cluster", 
+                        `title`="N per cluster (n)", 
                         `type`="integer"),
                     list(
                         `name`="power", 
@@ -347,11 +388,22 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `name`="label", 
                         `title`="ES label", 
                         `type`="text"))))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="showdata",
+                visible="(showdata)",
+                title="Data structure",
+                columns=list(
+                    list(
+                        `name`="row", 
+                        `title`="Row", 
+                        `type`="number"))))
             self$add(jmvcore::Html$new(
                 options=options,
                 name="plotnotes",
                 title="Plot notes",
-                visible=FALSE))}))
+                visible=FALSE))},
+        .setInfo=function(x) private$..info <- x))
 
 pamlmixedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     "pamlmixedBase",

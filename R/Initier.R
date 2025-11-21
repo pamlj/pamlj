@@ -54,7 +54,10 @@ Initer <- R6::R6Class(
           
           
           ## checkdata update the data depending on the type of test we are running (via S3 dispatch)
+          if (self$option(".run")) 
+             self$ok<-self$option(".run")
 
+          
           checkdata(self)
           if (self$options$.interface=="jamovi") {
                   jmvobj$results$intro$setContent(info_text(self))   
@@ -63,6 +66,8 @@ Initer <- R6::R6Class(
                   jmvobj$results$intro$setVisible(FALSE) 
           
 
+          if (self$option(".info")) 
+                   jmvobj$results$.setInfo(self$info)
 
 
   }, # here initialize ends
@@ -192,7 +197,15 @@ Initer <- R6::R6Class(
        ladd(results)<-list(type="Variance",term=letter_sigma2,value=self$info$model$sigma^2,label="Residual Variance",cluster=NA,es=NA)
      })
      return(results)
-   }
+   },
+  
+  init_showdata=function(){
+
+    vars<-c(names(self$info$model$variables),self$info$model$clusters)
+    df<-as.data.frame(matrix(NA,ncol=length(vars),nrow=1))
+    names(df)<-vars
+    return(df)
+  }
     
   ),   # End public
   

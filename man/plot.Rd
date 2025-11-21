@@ -3,24 +3,37 @@
 \name{plots}
 \alias{plots}
 \alias{plot.pamlj}
+\alias{make_mixed_model}
 \title{pamlj plots}
 \usage{
 plots(x, ...)
 
 \method{plot}{pamlj}(x, ...)
+
+make_mixed_model(syntax, clusterpars, ...)
 }
 \arguments{
 \item{x}{a pamlj results object of the class `pamlj`}
+
+\item{...}{currently not used}
+
+\item{syntax}{a pamlj model syntax}
+
+\item{clusterpars}{a pamlj syntax model}
 }
 \value{
 an object of class ggplot or a list of ggplot objects
 
 an object of class ggplot or a list of ggplot objects
+
+an dataframe
 }
 \description{
 This function extract plots from a pamlj object and return them as a list
 
 This function extract plots from a pamlj object.
+
+This function generate a sample for a mixed model.
 }
 \examples{
 obj<-pamlj::pamlcorr(es=.1,.interface="R",plot_contour=T,plot_x="n",plot_y="es",plot_x_from=10,plot_x_to=100)
@@ -29,6 +42,10 @@ lapply(results,class)
 \dontrun{
 obj<-pamlj::pamlcorr(es=.1,.interface="R",plot_contour=T,plot_x="n",plot_y="es",plot_x_from=10,plot_x_to=100)
 plot(obj)
+}
+\dontrun{
+ df<-pamlj::make_mixed_model("y~1*1+1*x+(1*1|clusters)",clusterpars=list(clusters0(n=4,k=10)))
+ df
 }
 }
 \author{

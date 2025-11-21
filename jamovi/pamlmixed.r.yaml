@@ -4,7 +4,9 @@ title: Mixed Models Power analysis
 jrs:   "1.1"
 
 items:
-
+    - name: info
+      type: Property
+      
     - name: intro
       title: Introduction
       type: Html
@@ -48,10 +50,10 @@ items:
           title: 'Estimate'
           type: text
         - name: k
-          title: 'Cluster levels'
+          title: 'Cluster levels (k)'
           type: integer
         - name: n
-          title: 'N per cluster'
+          title: 'N per cluster (n)'
           type: integer
 
         - name: power
@@ -101,8 +103,14 @@ items:
           title: 'ES label'
           type: text
 
-
-            
+    - name: showdata
+      visible: (showdata)
+      title: Data structure
+      type: Table
+      columns: 
+        - name: row
+          title: 'Row'
+          type: number
     - name: plotnotes
       title: Plot notes
       type: Html

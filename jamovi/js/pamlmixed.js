@@ -14,61 +14,86 @@ const events = {
    
  },
  
- code_changed: function(ui) {
-   
-   console.log("code changed")
-   var clusters= ui.clusterpars.value();
-   var code= ui.code.value();
-   code = code.split("\n");
-   code = code.filter(str => !/^#/.test(str));
-   var str = code.filter(str =>str.includes("~"));
-   str = str[0]
-  
-   var regex = /\|\s*(\w+)/g;
-   let matches = [];
-   let match;
-   while ((match = regex.exec(str)) !== null) {
-        matches.push(match[1]); 
-   }
-   matches = [...new Set(matches)];
-   if (matches.length === 0) {
-     ui.clusterpars.setValue([]);
-   };
-   
-   var newclusters= matches.map(element => {
-       if (clusters.length > 0) {
-          match = clusters.find(item => item.name === element);
-          if (match !== undefined)
-               return(match);
+
+code_changed: function(ui) {
+
+    console.log("code changed");
+
+    var clusters = ui.clusterpars.value();
+    var code = ui.code.value();
+
+    // keep only non-comment lines
+    code = code.split("\n");
+    code = code.filter(str => !/^#/.test(str));
+
+    // take the first line containing "~" as the model formula
+    var str = code.filter(str => str.includes("~"));
+    str = str[0];
+
+    // --- RANDOM CLUSTERS PART -----------------------------------
+    // capture what comes after "|" up to space, "+", "(" or ")"
+    // e.g. "| cluster1/cluster2)"  ->  "cluster1/cluster2"
+    //      "| cluster1:cluster2)"  ->  "cluster1:cluster2"
+    //      "| cluster2)"           ->  "cluster2"
+    var regex = /\|\s*([^\s\+\)\(]+)/g;
+    var rawGroups = [];
+    var match;
+
+    while ((match = regex.exec(str)) !== null) {
+        rawGroups.push(match[1]);
+    }
+
+    // split on "/" and ":" to get primitive cluster variables
+    // "cluster1/cluster2"   -> ["cluster1", "cluster2"]
+    // "cluster1:cluster2"   -> ["cluster1", "cluster2"]
+    // "cluster2"            -> ["cluster2"]
+    var uniq = [];
+    rawGroups.forEach(g => {
+        g.split(/[/:]/).forEach(part => {
+            part = part.trim();
+            if (part && !uniq.includes(part))
+                uniq.push(part);
+        });
+    });
+
+    if (uniq.length === 0) {
+        ui.clusterpars.setValue([]);
+        // you can return here if you want to skip the rest
+        // return;
+    }
+
+    // preserve existing k,n where possible
+    var newclusters = uniq.map(element => {
+        if (clusters.length > 0) {
+            var found = clusters.find(item => item.name === element);
+            if (found !== undefined)
+                return found;
         }
-       return({name: element, k: 0 , n: 0})
-   });
- 
-        fixclusters(ui,newclusters);
+        return { name: element, k: 0, n: 0 };
+    });
 
-        regex = /\*\s*(\w+)/g;
-    var vars=[];
-        while ((match = regex.exec(str)) !== null) {
-              vars.push(match[1]); 
-          }
-        vars = [...new Set(vars)];          
-        
-//        if (!vars.some(element => element === "1"))
-//            return;
-        vars = vars.filter(element => element !== "1");
+    fixclusters(ui, newclusters);
+    // --- END RANDOM CLUSTERS PART -------------------------------
+    // --- FIXED EFFECT VARIABLES PART (unchanged except for indent) ---
+    regex = /\*\s*(\w+)/g;
+    var vars = [];
+    while ((match = regex.exec(str)) !== null) {
+        vars.push(match[1]);
+    }
+    vars = [...new Set(vars)];
+    vars = vars.filter(element => element !== "1");
 
-    var vartype = ui.var_type.value();        
-    let found;
-    var newvartype= vars.map(item => {
-                      found = vartype.filter(element => element.name === item)
-                      if (found.length === 0)
-                            return({name: item, type: "continuous", levels: "---"})
-                      else 
-                            return(found[0])  
-                   });
-        ui.var_type.setValue(newvartype);               
- },
- 
+    var vartype = ui.var_type.value();
+    var newvartype = vars.map(item => {
+        var found = vartype.filter(element => element.name === item);
+        if (found.length === 0)
+            return { name: item, type: "continuous", levels: "---" };
+        else
+            return found[0];
+    });
+    ui.var_type.setValue(newvartype);
+  },
+
  var_type_changed: function(ui) {
    
     var vartype =  utils.clone(ui.var_type.value(), []);  

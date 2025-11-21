@@ -39,19 +39,15 @@ pamlttest(
   ttestind_ttest = "-",
   ttestind_ngroup = 0,
   ttestind_d = 0,
-  ttestind_useit,
   ttestpaired_ttest = "-",
   ttestpaired_obsn = 0,
   ttestpaired_d = 0,
-  ttestpaired_useit,
   ttestpaired_dind = "-",
   ttestpaired_r = 0,
   ttestpaired_dz = 0,
-  ttestpaired_d_useit,
   ttestone_ttest = "-",
   ttestone_obsn = 0,
-  ttestone_d = 0,
-  ttestone_useit
+  ttestone_d = 0
 )
 }
 \arguments{
@@ -130,15 +126,11 @@ one-tailed (\code{greater}).}
 
 \item{ttestind_d}{not used in R}
 
-\item{ttestind_useit}{not used in R}
-
 \item{ttestpaired_ttest}{not used in R}
 
 \item{ttestpaired_obsn}{not used in R}
 
 \item{ttestpaired_d}{not used in R}
-
-\item{ttestpaired_useit}{not used in R}
 
 \item{ttestpaired_dind}{not used in R}
 
@@ -146,13 +138,17 @@ one-tailed (\code{greater}).}
 
 \item{ttestpaired_dz}{not used in R}
 
-\item{ttestpaired_d_useit}{not used in R}
-
 \item{ttestone_ttest}{not used in R}
 
 \item{ttestone_obsn}{not used in R}
 
 \item{ttestone_d}{not used in R}
+
+\item{ttestind_useit}{not used in R}
+
+\item{ttestpaired_useit}{not used in R}
+
+\item{ttestpaired_d_useit}{not used in R}
 
 \item{ttestone_useit}{not used in R}
 }
