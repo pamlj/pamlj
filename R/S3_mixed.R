@@ -80,16 +80,16 @@
       syntax<-obj$options$code
       ### we get the line with a model, if more than one, we get the first
       model_line<-get_regression_lines(syntax)
+      other_lines<-get_other_lines(syntax)
       if (length(model_line)==0) obj$stop("Please insert a linear mixed model in the syntax")
       modelobj<-try_hard(decompose_mixed_formula(model_line, fix_intercept=TRUE, intercept_coef=0))
       if (!isFALSE(modelobj$error)) obj$stop("Model formula not correct:" %+% modelobj$error)
       model <- modelobj$obj
-     
       check_mixed_model(obj,model)
       if (!obj$ok) return()
       fixed<-model$fixed
       model$clusters<-unique(names(clusters))
-
+mark(model)
       ### assess variables structure
       model$variables<- lapply(variables, function(x) {
          clusters<-unlist(lapply(model$clusters, function(z) {
@@ -181,6 +181,13 @@
         obj$warning     <-  list(topic="initnotes",message="Monte Carlo method may take several minutes to estimate the results. Please be patient.", head="wait")
         }    
       
+      other_syntax<-digest_other_lines(get_other_lines(syntax))
+      obj$info$sel_fun<-min
+      if ("test" %in% names(other_syntax)) {
+        w<-which(obj$info$model$fixed$symbs==other_syntax$test)
+        obj$info$sel_fun<-function(x) x[[w-1]]
+        
+      }
       jinfo("Checking data for pamlmixed done")
 }
 
@@ -237,7 +244,14 @@
     ## first, we search for a reasonable solution with anova-on-model based .fast_onerun() function, embeed in f1()
     ## then, we use .slow_onerun(), embedded in f2(), to find the more adequate solution
     
-    .pow<-int_seek(f = f1,target_power = obj$info$power,n_start=l,memory = 10,tol=obj$options$tol/2, stability=obj$options$stability)  
+   
+    .pow<-int_seek(f = f1,
+                   target_power = obj$info$power,
+                   n_start=l,
+                   memory = 10,
+                   tol=obj$options$tol/2, 
+                   stability=obj$options$stability,
+                   sel_fun = obj$info$sel_fun)  
      int<-.pow[[find]][[1]]
      out<-attr(.pow,"out")
      pwr<-attr(.pow,"power")
@@ -284,7 +298,9 @@
        msg<-"Power parameters are computed for " %+% paste(hm, collapse = ", ")
        obj$warning<-list(topic="powertab",message=msg)
      }
-        
+     pow<-as.data.frame(pow,stringsAsFactors = FALSE)
+     pow$tested<-as.character("Est.")
+     pow$tested[pow$power == obj$info$sel_fun(pow$power)] <- "Tested"
      obj$data<-pow
      
   } 

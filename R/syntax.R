@@ -18,14 +18,6 @@ get_regression_lines <- function(syntax) {
 
 
 
-get_other_lines <- function(syntax) {
-  parts <- split_syntax_text(syntax)
-  # detect tilde that's not part of ~~ or :=
-  formula_tilde <- "(?<![~:])\\s*~\\s*(?![~=])"
-  
-  keep <- grepl(formula_tilde, parts, perl = TRUE)
-  parts[!keep]
-}
 
 
 ## text formula manipulation 
@@ -162,6 +154,25 @@ get_coefs_symb<-function(rhs,named=FALSE) {
       .attr(symbs,warns)
 }
 
+extract_vars <- function(terms) {
+  # split interaction terms
+  parts <- strsplit(terms, ":")
+  
+  # flatten
+  vars <- unlist(parts, use.names = FALSE)
+  
+  # trim spaces just in case
+  vars <- gsub("^\\s+|\\s+$", "", vars)
+  
+  # drop empty
+  vars <- vars[nzchar(vars)]
+  
+  # drop pure numeric tokens (including "1")
+  vars <- vars[!grepl("^\\d+(\\.\\d+)?$", vars)]
+  
+  # unique
+  unique(vars)
+}
 
 fix_intercept<-function(rhs,intercept_coef=0) {
 
@@ -241,7 +252,7 @@ decompose_formula<-function(s, fix_intercept=FALSE,intercept_coef=0) {
   attr(coefs,"error")<-FALSE
   if (any(is.na(coefs))) attr(coefs,"error")<-TRUE
   
-  results<-list(terms=terms,coefslist=coefslist,coefs=coefs,symbs=symbs,rhs=rhs,lhs=lhs)
+  results<-list(vars=extract_vars(terms),terms=terms,coefslist=coefslist,coefs=coefs,symbs=symbs,rhs=rhs,lhs=lhs)
   results
 }
 
@@ -399,4 +410,25 @@ decompose_mixed_formula<-function(s, fix_intercept=FALSE,intercept_coef=0) {
     obj
 }
 
+#### other lines 
 
+get_other_lines <- function(syntax) {
+  parts <- split_syntax_text(syntax)
+  # detect tilde that's not part of ~~ or :=
+  formula_tilde <- "(?<![~:])\\s*~\\s*(?![~=])"
+  keep <- grepl(formula_tilde, parts, perl = TRUE)
+  trimws(parts[!keep])
+}
+
+
+digest_other_lines <- function(lines) {
+  results<-list()
+  for (l in lines) {
+    t<-grep("test:",l,fixed = T)
+    if (length(t)>0) {
+      r<-stringr::str_split(l,":")[[1]]
+      results$test<-trimws(r[[2]])
+    }
+  }
+  return(results)
+}

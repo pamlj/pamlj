@@ -335,9 +335,9 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `title`="Power", 
                         `type`="number"),
                     list(
-                        `name`="F", 
-                        `title`="F", 
-                        `type`="number"),
+                        `name`="tested", 
+                        `title`="Role", 
+                        `type`="text"),
                     list(
                         `name`="df", 
                         `title`="df", 

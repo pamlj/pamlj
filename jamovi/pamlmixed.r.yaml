@@ -59,9 +59,9 @@ items:
         - name: power
           title: 'Power'
           type: number
-        - name: F
-          title: 'F'
-          type: number
+        - name: tested
+          title: 'Role'
+          type: text
         - name: df
           title: 'df'
           type: number
