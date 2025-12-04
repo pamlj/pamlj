@@ -262,7 +262,7 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         initnotes = function() private$.items[["initnotes"]],
         infotab = function() private$.items[["infotab"]],
         powertab = function() private$.items[["powertab"]],
-        effectsizes = function() private$.items[["effectsizes"]],
+        effectsize = function() private$.items[["effectsize"]],
         showdata = function() private$.items[["showdata"]],
         plotnotes = function() private$.items[["plotnotes"]]),
     private = list(
@@ -360,7 +360,7 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `type`="number"))))
             self$add(jmvcore::Table$new(
                 options=options,
-                name="effectsizes",
+                name="effectsize",
                 title="Effect size indices",
                 rows=1,
                 columns=list(

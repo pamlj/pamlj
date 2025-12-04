@@ -36,12 +36,11 @@ options:
           title: Number of cluster levels
         - name:  n
           title: Cases within clusters
-
       description:
                 R: |
-                        Search for N algorithm stability across launches. `level1` algorithm is faster and more stable with a run,
-                        but may yield different results across different runs. `level2` algorithm is slower and more stochastic,
-                        but (may) yield results more similar across different runs
+                        The sub-aim of the analysis for aim=`n`: `k` (default) for find number of clusters (number of groups), `n` for cluster size (observations per cluster)
+                ui: |
+                        The sub-aim of the analysis for aim=`n`: `Number of clustersì levels` (default) for find number of clusters (number of groups), `N per cluster` for cluster size (observations in each cluster)
 
 
 ### syntax stuff
@@ -155,12 +154,12 @@ options:
           title: Level 1
         - name:  l2
           title: Level 2
-
       description:
                 R: |
-                        The aim of the analysis: `n` (default) for sample size, `power` to estimate power
-                ui: |
-                        The aim of the analysis: `N` (default) for sample size, `Power` to estimate power
+                        Search for N algorithm stability across launches. `level1` algorithm is faster and more stable with a run,
+                        but may yield different results across different runs. `level2` algorithm is slower and more stochastic,
+                        but (tend to) yield results more similar across different runs
+
 
 ## tech stuff
     - name: .interface
@@ -242,9 +241,9 @@ options:
 
       description:
                 R: |
-                        The algorithm to use: `mc` (default) for Monte Carlo simulation, `raw` for raw approximation based on Chi-squared (fast but not very accurate)
+                        The algorithm to use: `mc` (default) for Monte Carlo simulation, `raw` for raw approximation based on Chi-squared (fast but slightly optimistic)
                 ui: |
-                        The algorithm to use: `Monte Carlo` (default) for Monte Carlo simulation, `Raw approximation` for raw approximation based on plausible Chi-squared (fast but not very accurate)
+                        The algorithm to use: `Monte Carlo` (default) for Monte Carlo simulation, `Raw approximation` for raw approximation based on plausible Chi-squared (fast but slightly optimistic)
      
     - name: showdata
       type: Bool

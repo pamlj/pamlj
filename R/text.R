@@ -57,6 +57,7 @@ mixed_init  <- "<p> <i>This submodule is experimental. Please check the soundnes
                   <center>y~1*1+.3*x+(1*1+.5*x| cluster)</center>
                   <p> This model, for instance, speficy a random coefficients regression, with x fixed effect equal to .3, random intercepts with variance 1
                   and random slopes for x with variance .5. </p>
+                  <p> Interactions are always indicated by `x:z` syntax, never by `x*z`</p>
               "
 
 INFO<-list()

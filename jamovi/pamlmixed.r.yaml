@@ -79,7 +79,7 @@ items:
           title: '% singular'
           type: number
         
-    - name:  effectsizes
+    - name:  effectsize
       title: Effect size indices
       type: Table
       rows:  1
