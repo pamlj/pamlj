@@ -129,6 +129,7 @@ var update_facpeta = function(ui) {
       } else {
         ui.panel_repeated.$el.hide();
         ui.facmeans_options.$el.hide();
+        ui.esos.setValue(false);
       }
       
 

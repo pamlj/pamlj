@@ -9,6 +9,8 @@
 ## checkdata:       (required) this prepares all the info required to estimate the power parameters
 ## rundata :       (not required) process input before running powervector in run phase
 ## powervector:     (required) pass the data, with adjutment, to the lowerlevel power functions 
+## infotab_init:   (not required) this function produces or format the info table, infotab, before running
+## infotab:        (not required) this function produces or format the main table, infotab, after running
 ## powertab_init:   (not required) this function produces or format the main table, powertab, before running
 ## powertab:        (not required) this function produces or format the main table, powertab, after running
 ## powerbyes:       this function produces or format the powerbyes table , after the estimation is done
@@ -78,6 +80,7 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
             suppressWarnings(dd<-as.data.frame(cbind(power,data)))
             dd$es<-NULL
             res<-powervector(obj,dd)
+            mark(res)
             probs_es<-format(res$es,digits=3)
             check<-which(is.na(res$es))
            
@@ -144,6 +147,16 @@ effectsize_run <- function(obj, ...) UseMethod(".effectsize_run")
 
 .effectsize_run.default <- function(obj) return()
 
+### some sub.modules have an infotab to init and run
+### NO REQUIRED
+
+infotab_init <- function(obj, ...) UseMethod(".infotab_init")
+
+.infotab_init.default <- function(obj) return()
+
+infotab_run <- function(obj, ...) UseMethod(".infotab_run")
+
+.infotab_run.default <- function(obj) return()
 
 
 ### find parameters is usually ok for any sub.module, but we may need to specialize it

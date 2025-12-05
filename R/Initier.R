@@ -47,6 +47,7 @@ Initer <- R6::R6Class(
           ### some specs for plots
           self$plots$esrange<-3
           self$plots$sensitivity<-TRUE
+          self$info$sensitivity<-TRUE
           
           ## set the class of self so the S3 methods may dispatch to the right functions
           class(self)<-unique(c(self$mode,self$caller,class(self)))
@@ -74,22 +75,8 @@ Initer <- R6::R6Class(
     #### init functions #####
   
     init_infotab = function() {
-
-      model<-self$info$model
-      tab<- list(list(info="Model",value=model$formula, specs=""),
-                 list(info="Fixed effects",value=model$rhs, specs=""),       
-                 coefs<-gsub(")","]",gsub("c(","[",paste(model$coefs, collapse=", "),fixed=T), fixed=T),
-                 list(info="Fixed coefs",value=coefs, specs=""),       
-                 list(info="Clusters:",value=" ",specs=" ")
-            )
-      for (cluster in model$clusterS) ladd(tab)<-list(info="Clusters:",value=cluster)
-      ladd(tab)<-list(info="Variables:",value=" ",specs=" ")
-      for (var in model$variable_info) ladd(tab)<-list(info="Variables:",value=var$name,specs=var$type  )
-      tab
-    },
-    init_powertab = function() {
-
-        powertab_init(self)
+      ## this is S3 dispactched for every pamlj class in S3*.R files
+      infotab_init(self)
     },
     init_effectsize = function() {
           tab<-effectsize_init(self)

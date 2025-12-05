@@ -7,7 +7,6 @@
         return()
       jinfo("Checking data for pamlmixed")
 
-      mark(str(obj$options$code))
       ### first we take all information from the syntax
       syntaxobj<-try_hard(syntax_digest(obj$options$code))
       if (!isFALSE(syntaxobj$error)) obj$stop("Model formula not correct:" %+% syntaxobj$error)
@@ -713,4 +712,20 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
   return(results)
 }
 
+### S3 dispactchable table filling functions
+
+.infotab_init.pamlmixed<- function(obj) {
+  
+      model<-obj$info$model
+      tab<- list(list(info="Model",value=model$formula, specs=""),
+             list(info="Fixed effects",value=model$rhs, specs=""),       
+             coefs<-gsub(")","]",gsub("c(","[",paste(model$coefs, collapse=", "),fixed=T), fixed=T),
+             list(info="Fixed coefs",value=coefs, specs=""),       
+            list(info="Clusters:",value=" ",specs=" ")
+            )
+            for (cluster in model$clusterS) ladd(tab)<-list(info="Clusters:",value=cluster)
+            ladd(tab)<-list(info="Variables:",value=" ",specs=" ")
+            for (var in model$variable_info) ladd(tab)<-list(info="Variables:",value=var$name,specs=var$type  )
+            tab
+}
 

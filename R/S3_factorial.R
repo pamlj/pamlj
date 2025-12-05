@@ -33,20 +33,35 @@
       if (is.null(sds))     return()
       if (is.null(factors)) return()
 
+      means   <- make.names(means)
+      sds     <- make.names(sds)
+      factors <- make.names(factors)[order(make.names(factors))]
       exdata  <-obj$analysis$data
+      names(exdata)<-make.names(names(exdata))
       obj$ok <- TRUE
       form<-paste("means~",paste(factors,collapse="*"))
       obj$info$terms<-attr(terms(as.formula(form)),"term.labels")
+      
 
-      
+
       if (nrow(stats::na.omit(exdata)) != nrow(obj$analysis$data))
-        obj$stop("Dataset cannot contain missing values")
+        obj$warning<-list(topic="issues",message="Missing values were removed from the data. Please check that the design is as intended",head="warning")
       
+      exdata<-stats::na.omit(exdata)
       obj$extradata<-exdata
       
-      within  <- unlist(obj$options$within)
-      between <- setdiff(factors,within)
-
+      within  <- make.names(unlist(obj$options$within))
+      between <- make.names(setdiff(factors,within))
+      obj$info$design<-list(
+        means=means,
+        sds  =sds,
+        factors=factors,
+        formula=form
+      )
+      
+      obj$info$design$within<-lapply(seq_along(within), function(i) list(name=within[i],levels=nlevels(exdata[[within[i]]])))
+      obj$info$design$between<-lapply(seq_along(between), function(i) list(name=between[i],levels=nlevels(exdata[[between[i]]])))
+      
       if (!is.something(within))       obj$info$r <- 0 
          
       if (nrow(exdata) > 0) {
@@ -130,20 +145,32 @@
                  obj$extradata<-res
                  obj$extradata[[obj$aim]]<-NULL
                  obj$extradata$id<-1:nrow(obj$extradata)
-
-                 pwr<-powervector(obj,obj$extradata)
+                 
          ## we select the effect to focus on
+
+                 ### we first compute a preliminary power assessment
+                 pwr<-powervector(obj,obj$extradata)
+                 pwr<-pwr[pwr$method!="nmax",]
+                 if (nrow(pwr)==0) {
+                   obj$warning<-list(topic="powerbyes",message="No effect allows running a sensitivity analysis")
+                   obj$data <- subset( obj$extradata, obj$extradata$id== 1)
+                   obj$plots$sensitivity<-FALSE
+                   obj$info$sensitivity<-FALSE
+                   
+                 } else {
                  if (obj$aim=="n") 
                      w<-which.max(pwr$n)
                  else
                      w<-which.min(pwr$es)
                  w<-w[1]
+                 term<-trimws(rownames(pwr)[w])
                  if (length(obj$info$terms)>1)
-                       obj$warning<-list(topic="powerbyes",message="Sensitivity analysis is done on the smallest effect (" %+% obj$info$terms[w] %+% ")")
-                 obj$data <- subset( obj$extradata, obj$extradata$id==w)
+                       obj$warning<-list(topic="powerbyes",message="Sensitivity analysis is done on the effect (" %+% term %+% ")")
+                 obj$data <- subset( obj$extradata, obj$extradata$source==term)
+                 }
+        # at least one parameter should be empty for parameters estimation
                  obj$data[[obj$aim]]<-NULL
                  obj$info$nmin <- obj$data$df_model + 10  
-        # at least one parameter should be empty for parameters estimation
                  obj$ok <- TRUE
                  } else {
                   form<-as.formula(paste(means,"~",paste(factors,collapse="*")))
@@ -215,22 +242,31 @@
                 else
                     data[["v"]]<- data$edfw*(data$n-data$edfb-1)
                  results<-lapply(1:nrow(data),function(i) {
-                   one<-data[i,]
-                   if (one$type=="w" && obj$options$ncp_type=="model") ncp<-"strict"
-                   else ncp<-obj$options$ncp_type
+                                  one<-data[i,]
+                                  if (one$type=="w" && obj$options$ncp_type=="model") ncp<-"strict"
+                                  else ncp<-obj$options$ncp_type
 
-                   pamlj.glm(u=one$df_effect,
-                             v=one$v,
-                             f2=one$f2,
-                             power=one$power,
-                              sig.level=one$sig.level,
-                              df_model=one$df_model,
-                              ncp_type=ncp,
-                              alternative=as.character(obj$info$alternative)
-                              )
-                    
+                                   tryobj<-try_hard(pamlj.glm(u=one$df_effect,
+                                           v=one$v,
+                                           f2=one$f2,
+                                           power=one$power,
+                                           sig.level=one$sig.level,
+                                            df_model=one$df_model,
+                                            ncp_type=ncp,
+                                            alternative=as.character(obj$info$alternative)
+                                  ), silent=TRUE)
+                                  out<-tryobj$obj 
+                                   
+                                  if (!isFALSE(tryobj$error)) {
+                                      mark("Factorial powervector:",tryobj$error)
+                                    v<-one$v
+                                    if (obj$aim=="n")
+                                        v<-Inf
+                                     out<-list(u=one$df_effect,v=v,f2=one$f2,sig.level=one$sig.level,power=one$power,n=NA,encp=Inf,method="nmax")
+                                  }
+                                  out 
                     })
-                 
+
                  results<-as.data.frame(do.call("rbind",results))
                  for (i in seq_len(ncol(results))) results[[i]]<-unlist(results[[i]])
                  results$es<-obj$info$fromaes(results$f2)
@@ -243,6 +279,7 @@
                  k<- data$edfb+1
                  n = n + k/2;
                  results$bn = (n - (n%%k))/k;
+               
                 return(results)
 }
 
@@ -267,9 +304,38 @@
    if (any(tab$n!=tab$nb))
                     warning("N per group (N-group) is adjusted to obtain a balanced design.")
    warning("Model df=",tab$df_model[1])
+   mark(tab)
    return(tab)
 }
 
+## infotab_init:   (not required) this function produces or format the info table, infotab, before running
+
+.infotab_init.factorial <-function(obj) {
+   jinfo("PAMJj Initer S3: Factorial infotab")
+  design<-obj$info$design
+   tab<-list(
+     list(info="Model",value=design$formula)
+   )
+   if (is.something(design$between)) {
+       ladd(tab)<-list(info="Factors Between:",value="",specs="")
+       for (f in design$between) 
+          ladd(tab)<-list(info="",value=f$name,specs=paste0("Levels: ",f$levels))
+   }
+   if (is.something(design$within)) {
+         ladd(tab)<-list(info="Factors Within:",value="",specs="")
+         for (f in design$within) 
+            ladd(tab)<-list(info="",value=f$name,specs=paste0("Levels: ",f$levels))
+   }
+   ladd(tab)<-list(info="Data:",value="",specs="")
+   ladd(tab)<-list(info="means:",value=design$means,specs="")
+   ladd(tab)<-list(info="SD:",value=design$sds,specs="")
+   
+   tab
+}
+## infotab:        (not required) this function produces or format the main table, infotab, after running
+
+
+.infotab_init.factorial
 
 ## powerbyes:       this function produces or format the powerbyes table , after the estimation is done
 ## NO NEED

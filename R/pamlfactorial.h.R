@@ -362,6 +362,7 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
         intro = function() private$.items[["intro"]],
         extrainfo = function() private$.items[["extrainfo"]],
         issues = function() private$.items[["issues"]],
+        infotab = function() private$.items[["infotab"]],
         powertab = function() private$.items[["powertab"]],
         powerbyes = function() private$.items[["powerbyes"]],
         means = function() private$.items[["means"]],
@@ -393,6 +394,27 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                 name="issues",
                 title="Issues",
                 visible=FALSE))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="infotab",
+                title="Model Information",
+                visible="(mode:facmeans)",
+                columns=list(
+                    list(
+                        `name`="info", 
+                        `title`="Info", 
+                        `type`="text", 
+                        `combineBelow`=TRUE),
+                    list(
+                        `name`="value", 
+                        `title`="", 
+                        `type`="text"),
+                    list(
+                        `name`="specs", 
+                        `title`="", 
+                        `type`="text")),
+                refs=list(
+                    "pamlj")))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="powertab",
@@ -661,6 +683,7 @@ pamlfactorialBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$extrainfo} \tab \tab \tab \tab \tab a html \cr
 #'   \code{results$issues} \tab \tab \tab \tab \tab a html \cr
+#'   \code{results$infotab} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$powerbyes} \tab \tab \tab \tab \tab a table \cr
 #'   \code{results$means} \tab \tab \tab \tab \tab an array of predicted means tables \cr
@@ -675,9 +698,9 @@ pamlfactorialBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 #'
 #' Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:
 #'
-#' \code{results$powertab$asDF}
+#' \code{results$infotab$asDF}
 #'
-#' \code{as.data.frame(results$powertab)}
+#' \code{as.data.frame(results$infotab)}
 #'
 #' @export
 pamlfactorial <- function(

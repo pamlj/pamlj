@@ -44,6 +44,7 @@ Runner <- R6::R6Class("Runner",
                                  }
                                  # everything went well, so fill self$data
                                  self$data<-resobj$obj
+                             
                               #   postchecks(self)
                                   extrainfo(self)
 
@@ -65,7 +66,11 @@ Runner <- R6::R6Class("Runner",
                               run_powerbyes = function() {
                                 
                                      jinfo("PAMLj: Runner: powerbyes")
-                                
+                                mark(self$info$sensitivity)
+                                     if (!self$info$sensitivity) {
+                                       
+                                       return() 
+                                     }
                                      tab <- powerbyes(self)
                                      warning("Estimated for N=",round(self$data$n))
                                      return(tab)
@@ -170,7 +175,7 @@ Runner <- R6::R6Class("Runner",
 
                               run_implied_betas= function() {
                               
-                                mark("PAMLj SEM: implied std betas run")
+                                jinfo("PAMLj SEM: implied std betas run")
                                 model<-lavaan::sem(self$data$modelPop)
                                 res<-lavaan::inspect(model,"std")
                                 if (!("beta" %in% names(res))) {

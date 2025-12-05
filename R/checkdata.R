@@ -63,7 +63,14 @@ commonchecks <- function(obj) {
 
 
          if ( any(abs(obj$data[["es"]]) < abs(esmin))) {
-                   message<-       "The effect size (" %+% obj$info$letter %+% " = " %+% es %+% ") is smaller than the effect size (" %+%
+                   s <-"The "
+                   v <- " is "
+                   if (length(obj$data[["es"]])) {
+                      s<-"Some "
+                      v<-" are "
+                   }
+                   
+                   message<-      s %+% " effect size (" %+% obj$info$letter %+% " = " %+% es %+% ")" %+% v %+%  "smaller than the effect size (" %+%
                                     obj$info$letter %+% " = " %+% fesmin %+% ")" %+%
                                    " that requires around " %+% obj$info$nmax_spell %+% " cases (N=" %+% obj$info$nmax %+% ")  to obtain a power of " %+%
                                     obj$data$power %+% ". Results are shown for " %+% obj$info$letter %+% " = " %+% esmin %+%". " %+%

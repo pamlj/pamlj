@@ -224,6 +224,7 @@ Plotter <- R6::R6Class(
       nmax<-powervector(obj,.data)$n
       .data$es<-esmax*1.1
       .data$n<-NULL
+      mark(.data)
       nmin<-powervector(obj,.data)$n
 
        if (nmin > data$n) {
@@ -422,10 +423,9 @@ Plotter <- R6::R6Class(
         }
          jinfo("PLOTTER: init  custom plot")
          image<-private$.results$powerCustom
-         z_values<-private$.test_z()
          y <- self$options$plot_y
          x <- self$options$plot_x
-         image$setState(list(y=y, x=x, z=z_values))
+         image$setState(list(y=y, x=x))
        
      },
      .prepareCustom = function() {
@@ -441,6 +441,7 @@ Plotter <- R6::R6Class(
         jinfo("PLOTTER: preparing custom plot")
 
         what<-self$options$plot_x
+      
         data[[what]]<-NULL
         ### check in values make sense ###
         xmin<-self$options$plot_x_from
@@ -500,7 +501,7 @@ Plotter <- R6::R6Class(
           names(data)[1]<-self$options$plot_z
         }
         data[[self$options$plot_y]]<-NULL
-        
+      
         tryobj<-try_hard(powervector(private$.operator,data))
 
         if (!isFALSE(tryobj$error)) {
