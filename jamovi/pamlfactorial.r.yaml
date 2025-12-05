@@ -18,6 +18,23 @@ items:
       title: Issues
       type: Html
       visible: false
+    - name:  infotab
+      title: Model Information
+      type: Table
+      visible: (mode:facmeans)
+      columns: 
+        - name: info
+          title: 'Info'
+          type: text
+          combineBelow: true
+        - name: value
+          title: ''
+          type: text
+        - name: specs
+          title: ''
+          type: text
+      refs:
+          - pamlj
  
     - name:  powertab
       title: A Priori Power Analysis

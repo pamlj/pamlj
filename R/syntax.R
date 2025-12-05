@@ -1,6 +1,91 @@
 ### text manipulation
 
-split_syntax_text <- function(syntax) {
+syntax_digest<-function(s) {
+  
+  warning<-list(unique_symb=TRUE)
+  # first, get the regression lines
+  regressions<-.get_regression_lines(s)
+  
+  alist<-lapply(regressions, function(line) {
+    .re    <- .findbars(line)
+    if (length(.re)==0) {
+      results<-decompose_formula(.nobars(line))
+    } else {
+      results<-decompose_formula(.nobars(line))
+      results$random<-lapply(.re,function(x) {
+        r<-decompose_formula(x)
+        r
+      })
+      results$original<-s
+      results$original_fixed<-results$original_rhs
+      results$original_rhs<-stringr::str_split(s,"\\~")[[1]][2] 
+      results$clusters<-unique(unlist(stringr::str_split(names(.re),"\\:")))
+      .random<-unlist(lapply(results$random,function(x) x$rhs))
+      .random<-paste(.random,names(.random),sep="|")
+      .random<-paste0("(",.random,")",collapse = "+")   
+      results$formula<-paste0(results$formula,"+",.random)
+    }
+    results
+  })
+  if (length(alist)==1) alist<-alist[[1]]
+  alist$commands<-digest_other_lines(get_other_lines(s))
+  alist
+}
+
+decompose_formula<-function(line) {
+  breaks<-stringr::str_split(line,"\\~")[[1]]
+  if (length(breaks)==1) {
+    lhs<-NULL
+    rhs<-breaks
+  } else {
+    lhs<-breaks[[1]]
+    rhs<-breaks[[2]]
+  }
+  termsigns<-.get_terms_signs(rhs)
+  clean<-attr(termsigns,"clean")
+  attr(termsigns,"clean")<-NULL
+  
+  names<-get_terms_names(clean)
+  termlist<-as.list(stringr::str_split(clean,stringr::fixed("+"))[[1]])
+  lapply(termlist,.has_bad_terms)
+  resultobj<-list(
+    termlist=termlist,
+    termsigns=termsigns,
+    terms=names)
+  resultobj$coef_symbs<-get_coefs_symb(rhs)
+  resultobj$rhs<-paste0(names,collapse = "+")
+  resultobj$lhs<-lhs
+  resultobj$formula<-paste0(lhs,"~",paste(names,collapse = "+"))
+  resultobj$coefs<-get_coefs_num(resultobj)
+  resultobj$varnames<-extract_vars(resultobj$terms)
+  resultobj$original<-line
+  resultobj$original_rhs<-rhs
+  resultobj$original_lhs<-lhs
+  structure(resultobj,class="syntax_formula")
+}
+
+fix_intercept<-function(obj,avalue=NULL) {
+  
+  if (! "syntax_formula" %in% class(obj)) stop("Object is not syntax_class") 
+  attr(obj,"fix_intercept")<-FALSE
+  test<-any(sapply(obj$terms,function(x) (x=="1" || x=="0")))  
+  if (!test) {
+    coef<-ifelse(is.null(avalue),"",paste0(avalue,"*"))
+    line<-paste0(obj$lhs,"~",coef,"1+",obj$original_rhs)
+    obj<-syntax_digest(line)
+    attr(obj,"fix_intercept")<-TRUE
+  }
+  if (!is.null(obj$random))
+    for (i in seq_along(obj$random)) {
+      obj$random[[i]]<-fix_intercept(obj$random[[i]],avalue)
+    } 
+  obj
+}
+
+
+### helper functions - internal
+
+.split_syntax_text <- function(syntax) {
   # split on either any line break OR semicolon
   parts <- trimws(unlist(strsplit(syntax, "(?:\\R|;)", perl = TRUE)))
   parts <- sub("#.*$", "", parts)   # remove inline comments
@@ -8,89 +93,56 @@ split_syntax_text <- function(syntax) {
 
 }
 
-get_regression_lines <- function(syntax) {
-  parts <- split_syntax_text(syntax)
+.get_regression_lines <- function(syntax) {
+  parts <- .split_syntax_text(syntax)
   # detect tilde that's not part of ~~ or :=
   formula_tilde <- "(?<![~:])\\s*~\\s*(?![~=])"
   keep <- grepl(formula_tilde, parts, perl = TRUE)
   parts[keep]
 }
 
-
-
-get_other_lines <- function(syntax) {
-  parts <- split_syntax_text(syntax)
-  # detect tilde that's not part of ~~ or :=
-  formula_tilde <- "(?<![~:])\\s*~\\s*(?![~=])"
+## check that no crazy grammar is used for categorical variables
+.has_bad_terms<- function(formula_string) {
   
-  keep <- grepl(formula_tilde, parts, perl = TRUE)
-  parts[!keep]
+  is_bad_term <- function(term) {
+    # any word-like token immediately before "* ["
+    grepl("\\b[A-Za-z]\\w*\\s*\\*\\s*\\[", term, perl = TRUE)
+  }
+  rhs <- strsplit(formula_string, "~", fixed = TRUE)[[1]][2]
+  terms <- strsplit(rhs, "\\+")[[1]]
+  terms <- trimws(terms)
+  bad <- vapply(terms, is_bad_term, logical(1))
+  if (bad) stop("Syntax for categorical variables not correct")
 }
 
 
-## text formula manipulation 
-
-replace_num_blocks <- function(s, letters = LETTERS) {
-  rx <- "\\[\\s*[0-9eE+\\-.,\\s]+\\s*\\]"  # bracketed numeric list(s)
-  
-  m <- gregexpr(rx, s, perl = TRUE)
-  hits <- regmatches(s, m)[[1]]
-  
-  if (length(hits) == 0) {
-    return(list(text = s, blocks_raw = character(0), blocks_num = list()))
-  }
-  
-  # strip brackets and split to numeric vectors
-  strip_brackets <- function(x) sub("^\\s*\\[(.*)\\]\\s*$", "\\1", x, perl = TRUE)
-  blocks_raw <- trimws(vapply(hits, strip_brackets, "", USE.NAMES = FALSE)) 
-  to_num <- function(x) {
-    parts <- strsplit(x, ",", fixed = TRUE)[[1]]
-    parts <- trimws(parts)
-    parts <- parts[nzchar(parts)]
-    as.numeric(parts)
-  }
-  blocks_num <- lapply(blocks_raw, to_num)
-  
-  n <- length(hits)
-  used<-get_coefs_symb(s)
-  l <- setdiff(letters,used)
-  repl <- if (n <= length(l)) {
-    l[seq_len(n)]
-  } else {
-    stop("formula to big")
-  }
-  
-  # perform the replacement
-  tmp <- s
-  regmatches(tmp, m)[[1]] <- repl
-  
-  list(
-    text = tmp,         # string with [ ... ] replaced by letters
-    blocks_raw = blocks_raw,   # character blocks without brackets
-    blocks_num = blocks_num,   # parsed numeric vectors
-    tokens = repl              # the letters used, in order
-  )
-}
-
-
-signed_terms<-function(rhs) {
+.signed_terms<-function(rhs) {
   if (!grepl("^[+-]", rhs)) rhs <- paste0("+", rhs)
+  
+  m <- gregexpr("\\[[^]]*\\]", rhs)
+  # get the matched substrings
+  blocks <- regmatches(rhs, m)
+  # in each block, replace "-" with "$"
+  blocks <- lapply(blocks, function(z) gsub("-", "\\$", z))
+  # put modified blocks back into the string
+  regmatches(rhs, m) <- blocks
   regmatches(rhs, gregexpr("[+-][^+-]*", rhs))[[1]]
 }
 
 
 raw_terms<-function(rhs) {
   
-  gsub("[+-]","",signed_terms(rhs))
+  gsub("[+-]","",.signed_terms(rhs))
   
 }
 
-get_terms_signs<-function(rhs, named=FALSE) {
+.get_terms_signs<-function(rhs, named=FALSE) {
   
   ## first, get the signs of each term
-  sign_terms<-signed_terms(rhs)
+  sign_terms<-.signed_terms(rhs)
   signs <- substr(sign_terms,1,1)
   new_form<-paste0(gsub("[-+]","",sign_terms),collapse = "+")
+  new_form<-gsub("$","-",new_form,fixed = T)
   attr(signs,"clean")<-new_form
   if (named) names(signs)<-get_terms_names(rhs)
   signs
@@ -99,7 +151,7 @@ get_terms_signs<-function(rhs, named=FALSE) {
 
 get_terms_names<-function(rhs, named=FALSE) {
   
-  warns<-list(unique=TRUE, error=FALSE)
+  warns<-list(unique=TRUE, error=NULL)
   pat <- "(?<![[:alpha:]])[0-9]+(?:\\.[0-9]+)?(?=\\*)"
   terms<-raw_terms(rhs)
   terms<-gsub("^\\*","",gsub(pat, "", terms, perl = TRUE))
@@ -107,25 +159,45 @@ get_terms_names<-function(rhs, named=FALSE) {
   terms<-gsub("^[^*]*\\*","",terms)
   if (named) names(terms)<-terms
   if (length(unique(terms))!=length(terms)) warns$unique<-FALSE
-  if (any(terms=="")) warns$error=TRUE
+  if (any(terms=="")) warns$error="Some terms are not well-defined"
   ## .attr returns the object with the warns as attributes
   .attr(terms,warns)
   
 }
 
-# get_coefs_num<-function(rhs,named=FALSE) {
-#   
-#     pat <- "(?:\\d*\\.\\d+|\\d+)(?=\\s*\\*)"
-#     res<-regmatches(raw_terms(rhs), gregexpr(pat, raw_terms(rhs), perl = TRUE))
-#     res[unlist(!as.logical(sapply(res,length)))]<-NA
-#     res<-as.numeric(unlist(res))
-#     coefs<-res*as.numeric(paste0(get_terms_signs(rhs),1))
-#     if (named) names(coefs)<-get_terms_names(rhs)
-#     coefs
-# }
+get_coefs_num<-function(obj) {
+  
+  ### function to use 
+  to_num <- function(x) {
+    parts <- strsplit(x, ",", fixed = TRUE)[[1]]
+    parts <- trimws(parts)
+    parts <- parts[nzchar(parts)]
+    as.numeric(parts)
+  }
+  # traverse the list of terms
+  coefs<-lapply(obj$termlist, function(x) {
+    rx <- "\\[\\s*[0-9eE+\\-.,\\s]+\\s*\\]"  # bracketed numeric list(s)
+    m <- gregexpr(rx, x, perl = TRUE)
+    hits <- regmatches(x, m)[[1]]
+    if (length(hits)>0) {
+      strip_brackets <- function(x) sub("^\\s*\\[(.*)\\]\\s*$", "\\1", x, perl = TRUE)
+      blocks_raw <- trimws(vapply(hits, strip_brackets, "", USE.NAMES = FALSE)) 
+      coef <- to_num(blocks_raw)
+    } else {
+      coef<-.get_coefs_num(x)[[1]]
+    }
+    coef
+  })
+  
+  signs<-as.numeric(paste0(obj$termsigns,1))
+  for (i in seq_along(coefs)) coefs[[i]]<-coefs[[i]]*signs[[i]]
+  names(coefs)<-obj$termnames
+  if (any(is.na(coefs))) attr(coefs,"error")<-"All terms should have a coefficient"
+  coefs
+}
 
 
-get_coefs_num <- function(s,named=FALSE) {
+.get_coefs_num <- function(s,named=FALSE) {
   
   warns<-list(error=TRUE)
   # keep only RHS and remove spaces
@@ -162,112 +234,33 @@ get_coefs_symb<-function(rhs,named=FALSE) {
       .attr(symbs,warns)
 }
 
+### this is taken from jmvcore
 
-fix_intercept<-function(rhs,intercept_coef=0) {
 
-  warns<-list(intadded=FALSE) 
-  test<-grepl("(?<![[:alpha:]])1$", raw_terms(rhs),perl = TRUE)
-  if (all(!test)) {
-    rhs<-paste0(intercept_coef,"*1+",rhs)
-    rhs<-gsub("+-","-",rhs, fixed = T)
-    warns$intadded<-TRUE
-  }
-  terms <- strsplit(rhs, "\\+", fixed = FALSE)[[1]]
-  first <- sub("\\+.*$", "", rhs) 
-  test<-identical(first, "1")
-  if (test) {
-    rhs<-paste0(intercept_coef,"*",rhs)
-    warns$intadded<-TRUE
-  }
-  .attr(rhs,warns)
-}
-
-fix_intercept_coef<-function(rhs, coef=0, named=FALSE) {
- 
-  warns<-list(intadded=FALSE) 
-  new_rhs<-fix_intercept(rhs)
-  coefs<-get_coefs_num(new_rhs,named = T)
-  if (is.na(coefs[["1"]])) {
-    coefs[["1"]]<-coef
-    warns$intadded<-TRUE
-  }
-  if (!named) names(coefs)<-NULL
-  .attr(coefs,warns)
+extract_vars <- function(terms) {
+  # split interaction terms
+  parts <- strsplit(terms, ":")
+  
+  # flatten
+  vars <- unlist(parts, use.names = FALSE)
+  
+  # trim spaces just in case
+  vars <- gsub("^\\s+|\\s+$", "", vars)
+  
+  # drop empty
+  vars <- vars[nzchar(vars)]
+  
+  # drop pure numeric tokens (including "1")
+  vars <- vars[!grepl("^\\d+(\\.\\d+)?$", vars)]
+  
+  # unique
+  unique(vars)
 }
 
 
-decompose_formula<-function(s, fix_intercept=FALSE,intercept_coef=0) {
-  
-  if (length(s)>1) return(lapply(s,decompose_formula, fix_intercept, intercept_coef))
 
-  int_added<-FALSE
-  rhs <- gsub("\\s+", "", sub(".*~", "", s))
-  lhs <- gsub("\\s+", "", sub("~.*", "", s))
-  if (lhs==s) lhs<-NA
 
-  rhsobj<-replace_num_blocks(rhs)
-  rhs <- rhsobj$text
-  if (fix_intercept) {
-    rhs<-fix_intercept(rhs,intercept_coef)  
-    if (attr(rhs,"intadded")) int_added<-TRUE
-  }
-  ## first, get the signs of each term
-  signs <- get_terms_signs(rhs)
-  ## now we get the numeric coefficients
- 
-  coefslist<-  get_coefs_num(attr(signs,"clean"))
-  coefs_att<-attributes(coefslist)
-  coefslist<-lapply(seq_along(coefslist),function(i) coefslist[[i]]*as.numeric(paste0(signs[[i]],"1")))
-  
-#  if (is.something(intercept_coef)) {
-#    coefslist<-fix_intercept_coef(rhs)
-#  }
- 
- 
-  ### now we extract symbolic coefficients
-  symbs<- get_coefs_symb(rhs)
-  
-  for (i in seq_along(rhsobj$tokens)) {
-     w <- which(symbs==rhsobj$tokens[[i]])
-     coefslist[[w]]<-rhsobj$blocks_num[[i]]
-  }
-  # now the formula terms
-  terms<-get_terms_names(rhs)
-  attr(terms,"intadded")<-int_added
-  ## make a formula
-  rhs<-paste0(terms,collapse = "+")
-  coefs<-unlist(coefslist)
-  attributes(coefs)<-attributes(coefslist)
-  attr(coefs,"error")<-FALSE
-  if (any(is.na(coefs))) attr(coefs,"error")<-TRUE
-  
-  results<-list(terms=terms,coefslist=coefslist,coefs=coefs,symbs=symbs,rhs=rhs,lhs=lhs)
-  results
-}
 
-# .findbars <- function(s) {
-#   rx <- "\\([^()]*\\)"
-#   hits <- regmatches(s, gregexpr(rx, s, perl = TRUE))[[1]]
-#   if (length(hits) == 0) return(setNames(character(0), character(0)))
-#   
-#   # remove outer parens
-#   contents <- trimws(sub("^\\(|\\)$", "", hits, perl = TRUE))
-#   
-#   # keep only blocks that contain a '|'
-#   has_bar <- grepl("\\|", contents, perl = TRUE)
-#   contents <- contents[has_bar]
-#   
-#   # split into left (before |) and right (after |)
-#   left  <- trimws(sub("\\|.*$", "", contents, perl = TRUE))
-#   right <- trimws(sub("^.*?\\|", "", contents, perl = TRUE))
-#   
-#   # sanitize names: drop any parentheses and surrounding spaces
-#   names_clean <- trimws(gsub("[()]", "", right, perl = TRUE))
-#   
-#   out <- left
-#   names(out) <- make.unique(names_clean, sep = "..")
-#   out
-# }
 
 .findbars <- function(s) {
   
@@ -363,34 +356,6 @@ decompose_formula<-function(s, fix_intercept=FALSE,intercept_coef=0) {
 
 
 
-decompose_mixed_formula<-function(s, fix_intercept=FALSE,intercept_coef=0) {
-  
-  if (length(s)>1) return(lapply(s,decompose_mixed_formula,fix_intercept,intercept_coef))
-  
-  results<-list()
-  warns<-list()
-  ### handle fixed
-  .fixed <- .nobars(s)
-  .re    <- .findbars(s)
-  if (is.null(.fixed)) stop("No fixed terms in the model, please refine the input model")
-  if (is.null(.re)) stop("No random coefficients in the model, please refine the input")
-  results$fixed<-decompose_formula(.fixed,fix_intercept = fix_intercept ,intercept_coef=intercept_coef)
-  re<-lapply(.re, function(x) {
-    .terms<-decompose_formula(x,fix_intercept = fix_intercept,intercept_coef=intercept_coef)
-    .coefs<-unlist(lapply(.terms$coefs,function(x) x))
-    .terms
-  })
-#  names(re)<-unlist(lapply(.re,function(x) as.character(x[[3]])))
-  results$re<-re
-  ## create a R formula
-  .re<-unlist(lapply(re,function(x) x$rhs))
-  .re<-paste(.re,names(.re),sep="|")
-  .re<-paste0("(",.re,")",collapse = "+")
-  .formula<-paste0(results$fixed$lhs,"~",results$fixed$rhs,"+",.re)
-  results$formula<-.formula
-  results$cluster<-.extract_cluster_vars_from_re(re) 
-  return(results)
-}
 
 
 .attr<-function(obj,warns) {
@@ -399,4 +364,27 @@ decompose_mixed_formula<-function(s, fix_intercept=FALSE,intercept_coef=0) {
     obj
 }
 
+#### other lines 
 
+get_other_lines <- function(syntax) {
+  parts <- .split_syntax_text(syntax)
+  # detect tilde that's not part of ~~ or :=
+  formula_tilde <- "(?<![~:])\\s*~\\s*(?![~=])"
+  keep <- grepl(formula_tilde, parts, perl = TRUE)
+  trimws(parts[!keep])
+}
+
+
+digest_other_lines <- function(lines) {
+  results<-list()
+  for (l in lines) {
+    t<-grep("test:",l,fixed = T)
+    if (length(t)>0) {
+      r<-stringr::str_split(l,":")[[1]]
+      results$test<-trimws(r[[2]])
+    }
+  }
+  return(results)
+}
+
+coef.syntax_formula<-function(obj) unlist(obj$coefs)

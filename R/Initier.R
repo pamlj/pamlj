@@ -47,6 +47,7 @@ Initer <- R6::R6Class(
           ### some specs for plots
           self$plots$esrange<-3
           self$plots$sensitivity<-TRUE
+          self$info$sensitivity<-TRUE
           
           ## set the class of self so the S3 methods may dispatch to the right functions
           class(self)<-unique(c(self$mode,self$caller,class(self)))
@@ -74,21 +75,8 @@ Initer <- R6::R6Class(
     #### init functions #####
   
     init_infotab = function() {
-
-      info<-self$info$model
-      tab<- list(list(info="Model",value=info$formula, specs=""),
-                 list(info="Fixed effects",value=info$fixed$rhs, specs=""),       
-                 list(info="Fixed coefs",value=paste(info$fixed$coefs, collapse=", "), specs=""),       
-                 list(info="Clusters:",value=" ",specs=" ")
-            )
-      for (cluster in info$clusters) ladd(tab)<-list(info="Clusters:",value=cluster)
-      ladd(tab)<-list(info="Variables:",value=" ",specs=" ")
-      for (var in info$variables) ladd(tab)<-list(info="Variables:",value=var$name,specs=var$type  )
-      tab
-    },
-    init_powertab = function() {
-
-        powertab_init(self)
+      ## this is S3 dispactched for every pamlj class in S3*.R files
+      infotab_init(self)
     },
     init_effectsize = function() {
           tab<-effectsize_init(self)
@@ -167,37 +155,6 @@ Initer <- R6::R6Class(
         return(list(list(variable=".")))
       
     },
-     init_effectsizes= function() {
-       
-     try_hard({
-       terms <- self$info$model$fixed$terms
-       coefs <-  self$info$model$fixed$coefslist
-       terms[as.numeric(terms)==1]<-"(Intercept)"
-       results<-list()
-       for (i in seq_along(terms)){
-         for (j in seq_along(coefs[[i]]))
-             ladd(results)<-list(type="Fixed",term=terms[[i]],value=coefs[[i]][j],cluster=NA,es=NA,label=NA)
-       } 
-         
-      
-       random <- self$info$model$re
-       for (name in names(random)) {
-         re<-random[[name]]
-         for (i in seq_along(random[[name]]$terms))
-              for (j in seq_along(re$coefslist[[i]])) {
-                              value<-re$coefslist[[i]][j]
-                              ladd(results)<-list(type="Random",
-                                                  term=re$terms[[i]],
-                                                  value=value,
-                                                  es=value/(value+self$info$model$sigma^2),
-                                                  cluster=name,
-                                                  label="ICC")
-              }
-       }
-       ladd(results)<-list(type="Variance",term=letter_sigma2,value=self$info$model$sigma^2,label="Residual Variance",cluster=NA,es=NA)
-     })
-     return(results)
-   },
   
   init_showdata=function(){
 

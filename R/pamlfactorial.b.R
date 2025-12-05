@@ -26,11 +26,13 @@ pamlfactorialClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class
                  private$.plotter$initPlots()
       
       ### info table ###
+                 aSmartObj<-SmartTable$new(self$results$infotab,private$.runner)
+                 ladd(private$.smartObjs)<-aSmartObj
+                 
                  aSmartObj<-SmartTable$new(self$results$powertab,private$.runner)
                  ladd(private$.smartObjs)<-aSmartObj
 
                  aSmartObj<-SmartTable$new(self$results$powerbyes,private$.runner)
-                 aSmartObj$debug <- TRUE
                  ladd(private$.smartObjs)<-aSmartObj
 
                  aSmartObj<-SmartArray$new(self$results$means,private$.runner)

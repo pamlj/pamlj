@@ -65,17 +65,14 @@ pamlmixed <- function(
      stop("Please speficy a model with expected coefficient with the parameter `syntax`")
 
   ## get some info to pass to   pamlmixedClass
-  model_line <- get_regression_lines(syntax)[[1]]
-  modelobj    <-  try_hard(decompose_mixed_formula(model_line))
+  modelobj    <-  try_hard(syntax_digest(syntax))
   if (!isFALSE(modelobj$error)) stop("Model formula not correct:" %+% modelobj$error)
-  .model <- modelobj$obj
+  model <- modelobj$obj
   ## check the model syntax, functions used are in S3_mixed.R
-  fixed<-.model$fixed
-  vars<-fixed$terms[fixed$terms!="1"]
 
   ### build var_type out of defaults and categorical option (which is not in jamovi)
-  var_type<-lapply(vars, function(x) list(name=x,type="continuous",levels="---"))
-  names(var_type)<-vars
+  var_type<-lapply(model$varnames, function(x) list(name=x,type="continuous",levels="---"))
+  names(var_type)<-model$varnames
   for (x in names(categorical)) var_type[[x]]<-list(name=x,type="categorical",levels=categorical[[x]])
 
   # fix clusterpars that in jamovi has a name element

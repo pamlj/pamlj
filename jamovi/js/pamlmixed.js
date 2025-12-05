@@ -15,84 +15,33 @@ const events = {
  },
  
 
-code_changed: function(ui) {
+ code_changed: function(ui) {
 
     console.log("code changed");
 
     var clusters = ui.clusterpars.value();
-    var code = ui.code.value();
+    var code     = ui.code.value();
+    var vartype  = ui.var_type.value();
 
-    // keep only non-comment lines
-    code = code.split("\n");
-    code = code.filter(str => !/^#/.test(str));
-
-    // take the first line containing "~" as the model formula
-    var str = code.filter(str => str.includes("~"));
-    str = str[0];
+    // get model formula line
+    var str = getFormulaLine(code);
+    if (!str) {
+        // nothing to do if no formula line
+        ui.clusterpars.setValue([]);
+        ui.var_type.setValue([]);
+        return;
+    }
 
     // --- RANDOM CLUSTERS PART -----------------------------------
-    // capture what comes after "|" up to space, "+", "(" or ")"
-    // e.g. "| cluster1/cluster2)"  ->  "cluster1/cluster2"
-    //      "| cluster1:cluster2)"  ->  "cluster1:cluster2"
-    //      "| cluster2)"           ->  "cluster2"
-    var regex = /\|\s*([^\s\+\)\(]+)/g;
-    var rawGroups = [];
-    var match;
+    var newclusters = computeRandomClusters(str, clusters);
+    ui.clusterpars.setValue(newclusters);
+    if (newclusters.length > 0)
+        fixclusters(ui, newclusters);   // keep your existing helper
 
-    while ((match = regex.exec(str)) !== null) {
-        rawGroups.push(match[1]);
-    }
-
-    // split on "/" and ":" to get primitive cluster variables
-    // "cluster1/cluster2"   -> ["cluster1", "cluster2"]
-    // "cluster1:cluster2"   -> ["cluster1", "cluster2"]
-    // "cluster2"            -> ["cluster2"]
-    var uniq = [];
-    rawGroups.forEach(g => {
-        g.split(/[/:]/).forEach(part => {
-            part = part.trim();
-            if (part && !uniq.includes(part))
-                uniq.push(part);
-        });
-    });
-
-    if (uniq.length === 0) {
-        ui.clusterpars.setValue([]);
-        // you can return here if you want to skip the rest
-        // return;
-    }
-
-    // preserve existing k,n where possible
-    var newclusters = uniq.map(element => {
-        if (clusters.length > 0) {
-            var found = clusters.find(item => item.name === element);
-            if (found !== undefined)
-                return found;
-        }
-        return { name: element, k: 0, n: 0 };
-    });
-
-    fixclusters(ui, newclusters);
-    // --- END RANDOM CLUSTERS PART -------------------------------
-    // --- FIXED EFFECT VARIABLES PART (unchanged except for indent) ---
-    regex = /\*\s*(\w+)/g;
-    var vars = [];
-    while ((match = regex.exec(str)) !== null) {
-        vars.push(match[1]);
-    }
-    vars = [...new Set(vars)];
-    vars = vars.filter(element => element !== "1");
-
-    var vartype = ui.var_type.value();
-    var newvartype = vars.map(item => {
-        var found = vartype.filter(element => element.name === item);
-        if (found.length === 0)
-            return { name: item, type: "continuous", levels: "---" };
-        else
-            return found[0];
-    });
+    // --- FIXED EFFECT VARIABLES PART ----------------------------
+    var newvartype = computeVarTypes(str, vartype);
     ui.var_type.setValue(newvartype);
-  },
+},
 
  var_type_changed: function(ui) {
    
@@ -155,12 +104,7 @@ code_changed: function(ui) {
           ui.clusterpars.setValue(clusters);
      }
    
- },
-  lav_diagram_changed:  function(ui) {
-   
-   console.log("diagram changed");
  }
-
 
 };
 
@@ -203,4 +147,110 @@ var fixclusters = function(ui, clusters) {
    }
    ui.clusterpars.setValue(newclusters);
 
+}
+
+
+// Get first non-comment line containing "~"
+function getFormulaLine(code) {
+    var lines = code.split("\n");
+    // drop comment lines
+    lines = lines.filter(str => !/^#/.test(str));
+    // take first line with "~"
+    var formulaLines = lines.filter(str => str.includes("~"));
+    return formulaLines.length > 0 ? formulaLines[0] : "";
+}
+
+
+// Extract random cluster specs and preserve existing k,n when possible
+function computeRandomClusters(str, clusters) {
+
+    // capture what comes after "|" up to space, "+", "(" or ")"
+    // e.g. "| cluster1/cluster2)"  ->  "cluster1/cluster2"
+    //      "| cluster1:cluster2)"  ->  "cluster1:cluster2"
+    //      "| cluster2)"           ->  "cluster2"
+    var regex = /\|\s*([^\s\+\)\(]+)/g;
+    var rawGroups = [];
+    var match;
+
+    while ((match = regex.exec(str)) !== null) {
+        rawGroups.push(match[1]);
+    }
+
+    // split on "/" and ":" to get primitive cluster variables
+    // "cluster1/cluster2"   -> ["cluster1", "cluster2"]
+    // "cluster1:cluster2"   -> ["cluster1", "cluster2"]
+    // "cluster2"            -> ["cluster2"]
+    var uniq = [];
+    rawGroups.forEach(g => {
+        g.split(/[/:]/).forEach(part => {
+            part = part.trim();
+            if (part && !uniq.includes(part))
+                uniq.push(part);
+        });
+    });
+
+    if (uniq.length === 0)
+        return [];
+
+    // preserve existing k,n where possible
+    var newclusters = uniq.map(element => {
+        if (clusters && clusters.length > 0) {
+            var found = clusters.find(item => item.name === element);
+            if (found !== undefined)
+                return found;
+        }
+        return { name: element, k: 0, n: 0 };
+    });
+
+    return newclusters;
+}
+
+
+function computeVarTypes(str, vartype) {
+
+    // 1. Remove random-effect parts: anything like (...|...)
+    //    so "(1*1|cluster/school)" disappears entirely.
+    var s = str.replace(/\([^()]*\|[^()]*\)/g, "");
+
+    // 2. Work only on RHS (everything after "~")
+    var tildeIndex = s.indexOf("~");
+    if (tildeIndex === -1)
+        return [];
+
+    var rhs = s.slice(tildeIndex + 1);
+
+    // 3. Scan RHS for word tokens and skip those followed by "*"
+    var tokenRegex = /[A-Za-z_]\w*/g;
+    var varsSet = new Set();
+    var match;
+
+    while ((match = tokenRegex.exec(rhs)) !== null) {
+        var name = match[0];
+
+        // Look ahead from end of this token to the next non-space char
+        var i = match.index + name.length;
+        while (i < rhs.length && /\s/.test(rhs[i]))
+            i++;
+
+        // If next non-space char is "*", treat this as a coefficient and skip
+        if (rhs[i] === "*")
+            continue;
+
+        varsSet.add(name);
+    }
+
+    var vars = Array.from(varsSet);
+
+    // 4. Preserve existing type info where possible
+    var newvartype = vars.map(function(item) {
+        var found = vartype.filter(function(element) {
+            return element.name === item;
+        });
+        if (found.length === 0)
+            return { name: item, type: "continuous", levels: "---" };
+        else
+            return found[0];
+    });
+
+    return newvartype;
 }
