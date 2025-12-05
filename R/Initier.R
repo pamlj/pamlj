@@ -77,11 +77,12 @@ Initer <- R6::R6Class(
 
       model<-self$info$model
       tab<- list(list(info="Model",value=model$formula, specs=""),
-                 list(info="Fixed effects",value=model$fixed$rhs, specs=""),       
-                 list(info="Fixed coefs",value=paste(model$fixed$coefs, collapse=", "), specs=""),       
+                 list(info="Fixed effects",value=model$rhs, specs=""),       
+                 coefs<-gsub(")","]",gsub("c(","[",paste(model$coefs, collapse=", "),fixed=T), fixed=T),
+                 list(info="Fixed coefs",value=coefs, specs=""),       
                  list(info="Clusters:",value=" ",specs=" ")
             )
-      for (cluster in model$cluster) ladd(tab)<-list(info="Clusters:",value=cluster)
+      for (cluster in model$clusterS) ladd(tab)<-list(info="Clusters:",value=cluster)
       ladd(tab)<-list(info="Variables:",value=" ",specs=" ")
       for (var in model$variable_info) ladd(tab)<-list(info="Variables:",value=var$name,specs=var$type  )
       tab

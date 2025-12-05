@@ -222,7 +222,12 @@
      }
      if (obj$options$algo=="mc") {
     
-         pow<-int_seek(f = f2,target_power = obj$info$power,n_start=int,memory=5,tol=obj$options$tol,stability=obj$options$stability)  
+         pow<-int_seek(f = f2,
+                       target_power = obj$info$power,
+                       n_start=int,memory=5,
+                       tol=obj$options$tol,
+                       stability=obj$options$stability,
+                       sel_fun = obj$info$sel_fun)  
          out<-attr(pow,"out")
          pwr<-attr(pow,"power")
 
