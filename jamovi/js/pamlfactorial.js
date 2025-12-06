@@ -85,12 +85,9 @@ const events = {
      console.log("within_changed");
         let values = ui.within.value();
         if (values.length>0) {
-          if (ui.ncp_type.value()=="gpower") {
-             ui.ncp_type.setValue("liberal"); 
-            }
-         }
-         else {
-           ui.ncp_type.setValue("gpower"); 
+             ui.ncp_type.setValue("strict"); 
+         } else {
+           ui.ncp_type.setValue("model"); 
        }
      
      var within_values=utils.clone(ui.within.value(),[]);
