@@ -56,11 +56,22 @@
       
       model$variable_info<-lapply(model$varnames, function(x) {
         .var<-.vars_info[[x]]
-        if (is.null(.var)) return(name=x,type="continuous")
+        if (is.null(.var)) return(name=x,type="continuous",levels=2)
+        if (.var$type=="continuous") .var$levels<-2
         if (.var$type=="categorical") .var$levels<-as.numeric(.var$levels)
         .var
       })
       names(model$variable_info)<-names(.vars_info)
+      
+      ### check number of coefficients
+      test<-check_coefs_length(model,model$variable_info)
+      if (!isTRUE(test)) obj$stop("Fixed effects: " %+% test)
+      for (random in model$random)  {
+        test<-check_coefs_length(random,model$variable_info)
+        if (!isTRUE(test)) obj$stop("Random coefficients: " %+% test)
+        
+      }
+
       
       ## model should be completed now
     
@@ -353,6 +364,7 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
   fixed<-unlist(infomod$coefs)
   names(data) <- trimws(make.names(names(data), unique = TRUE))
 
+
   modelobj<-try_hard({
              simr::makeLmer(formula=as.formula(infomod$formula),
                    fixef=fixed,
@@ -549,10 +561,22 @@ check_mixed_model<- function(obj,model) {
       fun(model,"fixed effects")
       for (n in names(model$random)) fun(model$random[[n]],"random coefficient across " %+% n)  
       
-     
-      
-      
 }
+
+check_coefs_length<-function(model,variable_info) {
+
+  for (i in seq_along(model$terms)) {
+    tlist<-jmvcore::decomposeTerm(model$terms[[i]])
+    l<-1
+    for (t in tlist) {
+      v<-variable_info[[t]]
+      l<-l*(v$levels-1)
+    }
+    if(is.something(l) && l != length(model$coefs[[i]])) return("Number of coefficients for term " %+% model$terms[[i]] %+% " not correct")
+    }
+  return(TRUE)
+}
+
 
 # Integer search on f(n)$power (assuming monotone increasing with m), starting at n_start.
 # f(n) must return a list with a numeric scalar `power`.

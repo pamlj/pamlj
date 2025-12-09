@@ -22,7 +22,7 @@ Runner <- R6::R6Class("Runner",
                                
                                
                                  ## some commands are run only if the run button is pressed
-                                 if ((self$options$.interface=="jamovi") && ("run" %in% names(self$options))) {
+                                 if ((self$ok && self$options$.interface=="jamovi") && ("run" %in% names(self$options))) {
                                    if (!self$option("run")) {
                                      self$ok<-FALSE
                                      self$warning<-list(topic="issues",
