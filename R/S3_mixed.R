@@ -22,6 +22,7 @@
       check_mixed_model(obj,model)
       if (!obj$ok) return()
       
+      
       #### model syntax should be all digested at this point
       
       ## now we fill the info regarding the clusters
@@ -72,7 +73,9 @@
         
       }
 
+      ## digest additional commands
       
+      model<-extract_syntax_commands(model)
       ## model should be completed now
     
       ## set the sub-aim  
@@ -109,10 +112,6 @@
            test<-test_parameters(obj,model$cluster_info, fun=function(x) is.na(x$k),head="Please insert the number of levels for cluster:")
            test<-test_parameters(obj,model$cluster_info, fun=function(x) x$k<5,head="Minimum number of levels for a cluster is 5: Please correct `Levels` for cluster:")
       }
-      
-
-      
-      #### check consistency of coefficients for categorical variables
       
 
      
@@ -288,9 +287,9 @@
 
 
 .showdata.pamlmixed<-function(obj) {
-  
-  n<-obj$data$n
-  k<-obj$data$k
+
+  n<-obj$data$n[1]
+  k<-obj$data$k[1]
   if (n>30) n<-30
   if (k>30) k<-30
   model<-pamlmixed_makemodel(obj,n,k)
@@ -299,7 +298,6 @@
      data<-data[1:30,]
      warning("Only the first 30 observations are shown")
   }
-  
   data$row<-1:nrow(data)
   return(data)
   
@@ -340,18 +338,24 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
   }) #try
   data<-do.call(rbind,ldata)
   names(data)<-c(infomod$clusters,names(wdata))
-
   r<-nrow(data)
   for (i in seq_along(infomod$variable_info)) {
     x<-infomod$variable_info[[i]]
     data[[x$name]]<-as.numeric(scale(rnorm(r)))
+    if (is.something(x$within)) {
+       data<-standardize_within(data,x$name,x$within)
+    }
+    if (is.something(x$between)) {
+      data<-standardize_between(data,x$name,x$between)
+    }
+    
     if (x$type=="categorical") {
       rep<-round(r/x$levels)
       data[[x$name]]<-factor(rep(1:x$levels,rep+100)[1:r])
       contrasts(data[[x$name]])<-contr.sum(x$levels)
     }
   }
-  
+
   ## dependent 
   data[[infomod$lhs]]<-rnorm(r)
   ###
@@ -363,7 +367,6 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
   
   fixed<-unlist(infomod$coefs)
   names(data) <- trimws(make.names(names(data), unique = TRUE))
-
 
   modelobj<-try_hard({
              simr::makeLmer(formula=as.formula(infomod$formula),
@@ -401,7 +404,6 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
     if (is.null(k)) tab$k<-attr(model,"k")
     tab$df=df
     tab$effect<-rownames(tab)
-
     tab
 
 }
@@ -577,6 +579,24 @@ check_coefs_length<-function(model,variable_info) {
   return(TRUE)
 }
 
+extract_syntax_commands<-function(model) {
+  
+  cmd<-model$commands
+  if ("bet" %in% names(cmd)) {
+    for (x in cmd$bet) {
+      str<-stringr::str_split(x,"\\|")[[1]]
+      model$variable_info[[str[[1]]]]$between=str[[2]]
+    }
+  }
+  if ("wit" %in% names(cmd)) {
+    for (x in cmd$wit) {
+      str<-stringr::str_split(x,"\\|")[[1]]
+      model$variable_info[[str[[1]]]]$within=str[[2]]
+    }
+  }
+  
+  return(model)
+}
 
 # Integer search on f(n)$power (assuming monotone increasing with m), starting at n_start.
 # f(n) must return a list with a numeric scalar `power`.
@@ -700,6 +720,45 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
   
 }
 
+standardize_within <- function(data, x, cluster) {
+  x      <- as.character(x)
+  cluster <- as.character(cluster)
+  
+  # compute mean and sd per cluster
+  means <- tapply(data[[x]], data[[cluster]], mean, na.rm = TRUE)
+  sds   <- tapply(data[[x]], data[[cluster]], sd,   na.rm = TRUE)
+  
+  # build standardized vector
+  z <- (data[[x]] - means[data[[cluster]]]) / sds[data[[cluster]]]
+  
+  # return data with new column
+  data[[x]] <- z
+  data
+}
+
+
+standardize_between <- function(data, x, cluster) {
+  x       <- as.character(x)
+  cluster <- as.character(cluster)
+  
+  # 1. cluster means of x
+  cl_means <- tapply(data[[x]], data[[cluster]], mean, na.rm = TRUE)
+  # cl_means is named by cluster levels
+  
+  # 2. standardize those means across clusters
+  mu  <- mean(cl_means, na.rm = TRUE)
+  sdx <- sd(cl_means,   na.rm = TRUE)
+  
+  z_cl <- (cl_means - mu) / sdx   # one z per cluster
+  
+  # 3. assign the same value to all rows in a cluster
+  z_vec <- z_cl[ data[[cluster]] ]
+  
+  # 4. store in data
+  new_name <- paste0(x, "_between_z")
+  data[[x]] <- z_vec
+  data
+}
 
 
 ######### output functions 

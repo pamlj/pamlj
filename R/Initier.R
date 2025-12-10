@@ -158,7 +158,7 @@ Initer <- R6::R6Class(
   
   init_showdata=function(){
 
-    vars<-c(names(self$info$model$variables),self$info$model$clusters)
+    vars<-c(self$info$model$varnames,self$info$model$clusters)
     df<-as.data.frame(matrix(NA,ncol=length(vars),nrow=1))
     names(df)<-vars
     return(df)

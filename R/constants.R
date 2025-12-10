@@ -9,6 +9,9 @@ TRANS_WARNS[[2]]<-list(original="theta size",new="Number of input coefficients i
 TRANS_WARNS[[1]]<-list(original="positive-definite",new="Input parameters imply correlations among observed variables that are not feasable. Please revise the input. ")
 
 
+### SYNTAX COMMANDS
+SYNTAX_CMD=c("test","bet","wit")
+
 
 ########### Greek Letters  ###############
 
