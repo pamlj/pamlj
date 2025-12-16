@@ -103,8 +103,8 @@ items:
           title: 'ES label'
           type: text
 
-    - name: showdata
-      visible: (showdata)
+    - name: showvars
+      visible: (show_vars)
       title: Variables parameters (one sample)
       type: Table
       columns: 

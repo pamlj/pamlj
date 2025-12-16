@@ -154,7 +154,9 @@ children:
                   name: out_layout
                   style: list
                   children:
-                     - name: showdata
+                     - name: show_vars
+                       type: CheckBox
+                     - name: show_data
                        type: CheckBox
 
       - type: LayoutBox
