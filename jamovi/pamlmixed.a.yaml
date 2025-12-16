@@ -224,7 +224,6 @@ options:
                         options:
                           - categorical
                           - continuous
-                        default: continuous
                   -     name: levels
                         type: String
 

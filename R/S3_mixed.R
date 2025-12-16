@@ -54,7 +54,6 @@
       .vars_info<-obj$options$var_type
       names(.vars_info)<-sapply(.vars_info,function(x) x$name)
       issue<-list()
-      
       model$variable_info<-lapply(model$varnames, function(x) {
         .var<-.vars_info[[x]]
         if (is.null(.var)) return(name=x,type="continuous",levels=2)
@@ -63,7 +62,7 @@
         .var
       })
       names(model$variable_info)<-names(.vars_info)
-      
+
       ### check number of coefficients
       test<-check_coefs_length(model,model$variable_info)
       if (!isTRUE(test)) obj$stop("Fixed effects: " %+% test)
@@ -75,7 +74,7 @@
 
       ## digest additional commands
       
-      model<-extract_syntax_commands(model)
+      model<-extract_syntax_commands(obj,model)
       ## model should be completed now
     
       ## set the sub-aim  
@@ -113,8 +112,12 @@
            test<-test_parameters(obj,model$cluster_info, fun=function(x) x$k<5,head="Minimum number of levels for a cluster is 5: Please correct `Levels` for cluster:")
       }
       
+      #check cat vars are well-defined
 
-     
+      test<-test_parameters(obj,model$variable_info, fun=function(x) x$type=="categorical" && is.na(x$levels),head="Please insert the number of levels for categorical variable: ")
+      
+      ### check on vars ok
+      
       model$sigma <- sqrt(obj$options$sigma2) 
       obj$data             <- data.frame(sig.level=obj$options$sig.level)
       obj$data$power       <- obj$options$power
@@ -294,6 +297,36 @@
   if (k>30) k<-30
   model<-pamlmixed_makemodel(obj,n,k)
   data<-model@frame
+  model<-obj$info$model
+  results<-list()
+  for (v in model$variable_info) {
+    for (cl in model$clusters) {
+      
+     if (v$type=="continuous") {
+        res<-mean(tapply(data[[v$name]],list(data[[cl]]),sd))
+        res<-mean(tapply(data[[v$name]],list(data[[cl]]),sd))
+        ev<-round(res,2)
+        if (res>.9  & res<1) ev<-1
+        if (res<.1) ev<-0
+        ladd(results)<-list(var=v$name,cluster=cl,what="SD within",value=round(res,3),evalue=ev)
+        res<-sd(tapply(data[[v$name]],list(data[[cl]]),mean))
+        ev<-round(res,2)
+        if (res>.9) ev<-1
+        if (res<.1) ev<-0
+        ladd(results)<-list(var=v$name,cluster=cl,what="SD between",value=round(res,3),evalue=ev)
+      }
+      else {
+           fun<-function(x) length(unique(x))
+           res<-mean(tapply(data[[v$name]],list(data[[cl]]),fun))
+           ev<-"mixed"
+           if (v$levels==res) ev<-"within"
+            if (round(res,0)==1) ev<-"between"
+           ladd(results)<-list(var=v$name,cluster=cl,what="Levels within",value=round(res,3),evalue=ev)
+       }
+    }
+  }
+  return(results)
+
   if (nrow(data)>30) {
      data<-data[1:30,]
      warning("Only the first 30 observations are shown")
@@ -351,7 +384,11 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
     
     if (x$type=="categorical") {
       rep<-round(r/x$levels)
-      data[[x$name]]<-factor(rep(1:x$levels,rep+100)[1:r])
+      if (is.something(x$between)) 
+        data[[x$name]]<-factor(rep(1:x$levels,each=rep)[1:r])
+      else
+        data[[x$name]]<-factor(rep(1:x$levels,rep+100)[1:r])
+      
       contrasts(data[[x$name]])<-contr.sum(x$levels)
     }
   }
@@ -574,12 +611,13 @@ check_coefs_length<-function(model,variable_info) {
       v<-variable_info[[t]]
       l<-l*(v$levels-1)
     }
-    if(is.something(l) && l != length(model$coefs[[i]])) return("Number of coefficients for term " %+% model$terms[[i]] %+% " not correct")
+
+    if(is.something(l) && !is.na(l) && l != length(model$coefs[[i]])) return("Number of coefficients for term " %+% model$terms[[i]] %+% " not correct")
     }
   return(TRUE)
 }
 
-extract_syntax_commands<-function(model) {
+extract_syntax_commands<-function(obj,model) {
   
   cmd<-model$commands
   if ("bet" %in% names(cmd)) {
@@ -594,7 +632,14 @@ extract_syntax_commands<-function(model) {
       model$variable_info[[str[[1]]]]$within=str[[2]]
     }
   }
-  
+  for (v in names(model$variable_info)) {
+    if (any(c("within","between") %in% names(model$variable_inf[[v]]))) {
+      test1<-(model$variable_info[[v]]$within==model$variable_info[[v]]$between)
+      test2<-(is.something(model$variable_info[[v]]$within) && is.something(model$variable_info[[v]]$between))
+      if (any(test1,test2))
+        obj$warning<-list(topic="issues",message="Variable " %+% v %+% " defined as both between and within clusters. It is modelled as between.", head="warning")
+    }
+  }
   return(model)
 }
 
@@ -800,13 +845,14 @@ standardize_between <- function(data, x, cluster) {
 .infotab_init.pamlmixed<- function(obj) {
   
       model<-obj$info$model
+      coefs<-gsub(")","]",gsub("c(","[",paste(model$coefs, collapse=", "),fixed=T), fixed=T)
+      
       tab<- list(list(info="Model",value=model$formula, specs=""),
              list(info="Fixed effects",value=model$rhs, specs=""),       
-             coefs<-gsub(")","]",gsub("c(","[",paste(model$coefs, collapse=", "),fixed=T), fixed=T),
-             list(info="Fixed coefs",value=coefs, specs=""),       
+             list(info="Fixed coefs",value=coefs, specs=" "),       
             list(info="Clusters:",value=" ",specs=" ")
             )
-            for (cluster in model$clusterS) ladd(tab)<-list(info="Clusters:",value=cluster)
+            for (cluster in model$clusters) ladd(tab)<-list(info="Clusters:",value=cluster)
             ladd(tab)<-list(info="Variables:",value=" ",specs=" ")
             for (var in model$variable_info) ladd(tab)<-list(info="Variables:",value=var$name,specs=var$type  )
             tab

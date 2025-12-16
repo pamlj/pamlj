@@ -160,8 +160,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                             NULL,
                             options=list(
                                 "categorical",
-                                "continuous"),
-                            default="continuous"),
+                                "continuous")),
                         jmvcore::OptionString$new(
                             "levels",
                             NULL))))
@@ -392,11 +391,27 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=options,
                 name="showdata",
                 visible="(showdata)",
-                title="Data structure",
+                title="Variables parameters (one sample)",
                 columns=list(
                     list(
-                        `name`="row", 
-                        `title`="Row", 
+                        `name`="what", 
+                        `title`="Param", 
+                        `type`="text"),
+                    list(
+                        `name`="var", 
+                        `title`="Variablle", 
+                        `type`="text"),
+                    list(
+                        `name`="cluster", 
+                        `title`="Cluster", 
+                        `type`="text"),
+                    list(
+                        `name`="value", 
+                        `title`="Value", 
+                        `type`="number"),
+                    list(
+                        `name`="evalue", 
+                        `title`="Expected", 
                         `type`="number"))))
             self$add(jmvcore::Html$new(
                 options=options,

@@ -178,7 +178,6 @@ const events = {
         }
         this.$editor.css("font-size",ui.fonts.value());
         this.$fonts.val(ui.fonts.value());
-
         this.editor.setSession(this.currentSession);
     },
 };

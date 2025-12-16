@@ -105,12 +105,26 @@ items:
 
     - name: showdata
       visible: (showdata)
-      title: Data structure
+      title: Variables parameters (one sample)
       type: Table
       columns: 
-        - name: row
-          title: 'Row'
+        - name: what
+          title: 'Param'
+          type: text
+        - name: var
+          title: 'Variablle'
+          type: text
+        - name: cluster
+          title: 'Cluster'
+          type: text
+        - name: value
+          title: 'Value'
           type: number
+        - name: evalue
+          title: 'Expected'
+          type: number
+          
+
     - name: plotnotes
       title: Plot notes
       type: Html
