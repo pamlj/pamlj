@@ -413,10 +413,15 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
                    data=data
                    )
   })
- 
   if (!isFALSE(modelobj$error)) {
+    mark(obj)
     obj$stop("Model cannot be simulated. Please check your input syntax")
   }
+  if (!isFALSE(modelobj$message)) {
+    if (grep("rank",modelobj$message,fixed = TRUE)>0)
+         obj$stop("Model cannot be simulated. Please check your input model")
+  }
+  
   model<-modelobj$obj
   attr(model,"n")<-ns[[1]]
   attr(model,"k")<-ks[[1]]
