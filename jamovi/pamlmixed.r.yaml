@@ -132,10 +132,6 @@ items:
         - name: row
           title: 'Row'
           type: number
-    - name: plotnotes
-      title: Plot notes
-      type: Html
-      visible: false
 
     - name: plotnotes
       title: Plot notes

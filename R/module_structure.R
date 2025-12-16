@@ -132,7 +132,14 @@ extrainfo <- function(obj, ...) UseMethod(".extrainfo")
 showdata <- function(obj, ...) UseMethod(".showdata")
 
 .showdata.default <-function(obj,...) {
-  mark("no showdata for class ",class(oj)) 
+  mark("no showdata for class ",class(obj)) 
+  return()
+}
+
+showvars <- function(obj, ...) UseMethod(".showdata")
+
+.showvars.default <-function(obj,...) {
+  mark("no showvars for class ",class(obj)) 
   return()
 }
 

@@ -289,7 +289,7 @@
 }
 
 
-.showdata.pamlmixed<-function(obj) {
+.showvars.pamlmixed<-function(obj) {
 
   n<-obj$data$n[1]
   k<-obj$data$k[1]
@@ -327,14 +327,9 @@
   }
   return(results)
 
-  if (nrow(data)>30) {
-     data<-data[1:30,]
-     warning("Only the first 30 observations are shown")
-  }
-  data$row<-1:nrow(data)
-  return(data)
-  
 }
+
+
 
 ###### local functions
 

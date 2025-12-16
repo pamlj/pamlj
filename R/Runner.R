@@ -192,13 +192,16 @@ Runner <- R6::R6Class("Runner",
                                 
                               },
                               run_showdata=function() {
-                             
-                                if (!self$option("showdata"))
+                                if (!self$option("show_data"))
                                   return()
                                 showdata(self)
-                                 
                               },
-                                                            
+                              run_showvars=function() {
+                                if (!self$option("show_vars"))
+                                  return()
+                                showvars(self)
+                              },
+                              
                           endrun = function() {
                             
                             self$analysis$results$initnotes$setContent(" ")
