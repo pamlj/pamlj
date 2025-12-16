@@ -124,6 +124,18 @@ items:
           title: 'Expected'
           type: number
           
+    - name: showdata
+      visible: (show_data)
+      title: Data structure
+      type: Table
+      columns: 
+        - name: row
+          title: 'Row'
+          type: number
+    - name: plotnotes
+      title: Plot notes
+      type: Html
+      visible: false
 
     - name: plotnotes
       title: Plot notes
