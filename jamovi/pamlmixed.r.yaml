@@ -121,7 +121,7 @@ items:
           title: 'Value'
           type: number
         - name: evalue
-          title: 'Expected'
+          title: 'Level'
           type: number
           
     - name: showdata

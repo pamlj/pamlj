@@ -27,7 +27,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             clusterpars = list(),
             var_type = list(),
             algo = "mc",
-            show_vars = FALSE,
+            show_vars = TRUE,
             show_data = FALSE, ...) {
 
             super$initialize(
@@ -175,7 +175,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..show_vars <- jmvcore::OptionBool$new(
                 "show_vars",
                 show_vars,
-                default=FALSE)
+                default=TRUE)
             private$..show_data <- jmvcore::OptionBool$new(
                 "show_data",
                 show_data,
@@ -420,7 +420,7 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `type`="number"),
                     list(
                         `name`="evalue", 
-                        `title`="Expected", 
+                        `title`="Level", 
                         `type`="number"))))
             self$add(jmvcore::Table$new(
                 options=options,

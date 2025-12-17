@@ -136,7 +136,7 @@ showdata <- function(obj, ...) UseMethod(".showdata")
   return()
 }
 
-showvars <- function(obj, ...) UseMethod(".showdata")
+showvars <- function(obj, ...) UseMethod(".showvars")
 
 .showvars.default <-function(obj,...) {
   mark("no showvars for class ",class(obj)) 

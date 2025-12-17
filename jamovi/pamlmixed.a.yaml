@@ -247,7 +247,7 @@ options:
     - name: show_vars
       type: Bool
       title: Variables structure
-      default: false
+      default: true
       description:
                 R: |
                         not used
