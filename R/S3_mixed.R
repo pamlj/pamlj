@@ -155,6 +155,7 @@
       }
       
       obj$info$model  <- model
+#      dat<-.make_data(obj,k=100)
       jinfo("Checking data for pamlmixed done")
 }
 
@@ -314,7 +315,7 @@
 
   n<-obj$data$n[1]
   k<-obj$data$k[1]
-  if (n>30) n<-30
+  if (n>1000) n<-1000
   if (k>30) k<-30
   model<-pamlmixed_makemodel(obj,n,k)
   data<-model@frame
@@ -345,6 +346,20 @@
        }
     }
   }
+
+  ## freq of observations within cluster. Recall clusters can be cluster1:cluster2 or cluster
+  for(term in names(model$random)) {
+    vars<-strsplit(term,":",fixed=TRUE)[[1]]
+    vars <- trimws(vars)
+    vars <- vars[nzchar(vars)]
+    mark(vars)
+    idata<-data[,vars,drop=FALSE]
+    for (var in vars)
+         idata<-idata[idata[[var]]==levels(idata[[var]])[1],, drop=FALSE]
+    mark(idata)
+    value<-dim(idata)[1]
+    ladd(results)<-list(var="  ",cluster=term,what="N observations",value=value,evalue="within")
+  }
   return(results)
 
 }
@@ -358,16 +373,16 @@
   if (obj$options$stability=="l1")
     set.seed(obj$info$seed)
   
-  infomod<-obj$info$model
+  model<-obj$info$model
   #### cluster data
-  ks<-sapply(infomod$cluster_info, function(x) x$k)
+  ks<-sapply(model$cluster_info, function(x) x$k)
   if (is.something(k)) ks[[1]]<-k
   levels<-lapply(ks,function(x) 1:x)
   cdata<-as.data.frame(expand.grid(rev(levels)))  
-  names(cdata)<-rev(infomod$clusters)
-  cdata<-cdata[,infomod$clusters,  drop = FALSE]
+  names(cdata)<-rev(model$clusters)
+  cdata<-cdata[,model$clusters,  drop = FALSE]
   ### within data
-  ns<-sapply(infomod$cluster_info, function(x) x$n)
+  ns<-sapply(model$cluster_info, function(x) x$n)
   if (is.something(n)) ns[[1]]<-n
   levels<-lapply(ns,function(x) 1:x)
   
@@ -383,59 +398,67 @@
     }
   }) #try
   data<-do.call(rbind,ldata)
-  names(data)<-c(infomod$clusters,names(wdata))
+  names(data)<-c(model$clusters,names(wdata))
 
   ## first we deal with categorical within (default)
   ## the code is weired and ugly, but it handles a lot of different combinations of designs
   
   ## first, we select the categorcial variables
-  cats<-lapply(infomod$variable_info,function(x) if (x$type=="categorical") return(x))
+  cats<-lapply(model$variable_info,function(x) if (x$type=="categorical") return(x))
   cats<-cats[sapply(cats,function(x) !is.null(x))]
-  cats_within<-lapply(cats,function(x) if (is.null(x$between)) return(x))
-  cats_within<-cats_within[sapply(cats_within,function(x) !is.null(x))]
-  levels<-lapply(cats_within,function(x) 1:x$level)
+  if (length(cats)>0) {
+  
+    cats_within<-lapply(cats,function(x) if (is.null(x$between)) return(x))
+    cats_within<-cats_within[sapply(cats_within,function(x) !is.null(x))]
+    levels<-lapply(cats_within,function(x) 1:x$level)
   # since they are not between, we prepare their factorial combinations
-  catdata<-as.data.frame(expand.grid(levels))
-  nr<-nrow(catdata)
-  datalist<-list()
+    catdata<-as.data.frame(expand.grid(levels))
+    nr<-nrow(catdata)
+    datalist<-list()
   ## now, for each combination of clusters levels, we build the within factorial design
-  for (i in seq_len(nrow(cdata))) {
-    onelist<-lapply(cats_within, function(v) {
+    for (i in seq_len(nrow(cdata))) {
+      onelist<-lapply(cats_within, function(v) {
        ## we replicate their value within their cluster or (default) the combinations of clusters levels
-       if (is.something(v$within)) cols<-v$within
-       else cols<-infomod$clusters
-       one<-merge(data,cdata[i,cols,drop=FALSE],by=cols)
-       one<-cbind(one,.recycle_df(catdata[,v$name,drop=FALSE],nrow(one)))
-       if (nrow(one)<nr) obj$stop("N per cluster too small for the planned design")
-       one
-      })
+         if (is.something(v$within)) cols<-v$within
+         else cols<-model$clusters
+         one<-merge(data,cdata[i,cols,drop=FALSE],by=cols)
+         one<-cbind(one,.recycle_df(catdata[,v$name,drop=FALSE],nrow(one)))
+         if (nrow(one)<nr) obj$stop("N per cluster too small for the planned design")
+         one
+        })
       # here we have one case (whatever it means)
-      onedata<-.cbind_unique(onelist)
-      ladd(datalist)<-onedata
-  }
-  if (length(datalist)>0)
-      data<-as.data.frame(do.call(rbind,datalist))
+        onedata<-.cbind_unique(onelist)
+        ladd(datalist)<-onedata
+    }
+    if (length(datalist)>0)
+        data<-as.data.frame(do.call(rbind,datalist))
 
   ### now we handle categorical between
-  cats_between<-lapply(cats,function(x) if (!is.null(x$between)) return(x))
-  cats_between<-cats_between[sapply(cats_between,function(x) !is.null(x))]
-  for (x in cats_between) {
-    cluster<-x$between
-    cluster_info<-infomod$cluster_info[[cluster]]
-    data[[x$name]]<-as.numeric(scale(rnorm(nrow(data))))
-    data<-standardize_between(data,x$name,x$between)
-    qs <- quantile(data[[x$name]], probs = seq(0, 1, length.out = x$levels + 1), na.rm = TRUE, type = 7)
-    qs <- unique(qs)  
-    data[[x$name]]<-cut(data[[x$name]], breaks = qs, include.lowest = TRUE)
-    levels(data[[x$name]])<-letters[1:x$levels]
-  }  
+    cats_between<-lapply(cats,function(x) if (!is.null(x$between)) return(x))
+    cats_between<-cats_between[sapply(cats_between,function(x) !is.null(x))]
+    for (x in cats_between) {
+      cluster<-x$between
+      cluster_info<-model$cluster_info[[cluster]]
+      data[[x$name]]<-as.numeric(scale(rnorm(nrow(data))))
+      data<-standardize_between(data,x$name,x$between)
+      qs <- quantile(data[[x$name]], probs = seq(0, 1, length.out = x$levels + 1), na.rm = TRUE, type = 7)
+      qs <- unique(qs)  
+      data[[x$name]]<-cut(data[[x$name]], breaks = qs, include.lowest = TRUE)
+      levels(data[[x$name]])<-letters[1:x$levels]
+    }  
   ### at this point, we can factor the categorical variables and give them a contrast
-  for (x in cats) {
+    for (x in cats) {
+      data[[x$name]]<-factor(data[[x$name]])
+      contrasts(data[[x$name]])<-contr.sum(x$levels)
+    }
+  } ### end of factors
+  
+  for (x in model$cluster_info) {
     data[[x$name]]<-factor(data[[x$name]])
-    contrasts(data[[x$name]])<-contr.sum(x$levels)
   } 
+  
   ## now we deal with numeric variables 
-  nums_vars<-lapply(infomod$variable_info,function(x) if (x$type=="continuous") return(x))
+  nums_vars<-lapply(model$variable_info,function(x) if (x$type=="continuous") return(x))
   nums_vars<-nums_vars[sapply(nums_vars,function(x) !is.null(x))]
   
   for (i in seq_along(nums_vars)) {
@@ -450,7 +473,7 @@
   }
     
   ## dependent 
-  data[[infomod$lhs]]<-rnorm(nrow(data))
+  data[[model$lhs]]<-rnorm(nrow(data))
   ###
   names(data) <- trimws(make.names(names(data), unique = TRUE))
   attr(data,"n")<-ns[[1]]
@@ -697,16 +720,18 @@ check_coefs_length<-function(model,variable_info) {
   return(TRUE)
 }
 
+
+
 extract_syntax_commands<-function(obj,model) {
   
   cmd<-model$commands
-  if ("bet" %in% names(cmd)) {
+  if (any(c("bet","between") %in% names(cmd))) {
     for (x in cmd$bet) {
       str<-stringr::str_split(x,"\\|")[[1]]
       model$variable_info[[str[[1]]]]$between=str[[2]]
     }
   }
-  if ("wit" %in% names(cmd)) {
+  if (any(c("wit","within") %in% names(cmd))) {
     for (x in cmd$wit) {
       str<-stringr::str_split(x,"\\|")[[1]]
       model$variable_info[[str[[1]]]]$within=str[[2]]
