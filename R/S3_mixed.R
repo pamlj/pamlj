@@ -42,15 +42,15 @@
         acluster
       })
       names(model$cluster_info)<-sapply(obj$options$clusterpars, function(x) x$name)
-      
+      model$expand<-model$clusters[1]
       ### Here we handle the variables
       
       ### var in cluster?
-      test<-intersect(model$cluster,model$fixed$vars)
+      test<-intersect(model$clusters,model$fixed$vars)
       if (is.something(test)) obj$stop("Variable " %+% paste(test,collapse=", ") %+% " cannot be a term and a cluster variable")
 
       ### actual variables that will be in the generated data
-      model$variables<-c(model$fixed$vars,model$cluster)
+      model$variables<-c(model$fixed$vars,model$clusters)
       .vars_info<-obj$options$var_type
       names(.vars_info)<-sapply(.vars_info,function(x) x$name)
       issue<-list()
@@ -87,7 +87,7 @@
         
         if (length(model$cluster)>1) {
                obj$warning<-list(topic="issues",message="Required N's are computed for the first cluster: " %+% names(clusters)[[1]], head="info")
-               .clusters<-model$cluster[-1]
+               .clusters<-model$clusters[-1]
                test<-test_parameters(obj,.clusters, fun=function(x) (is.na(x$k) || x$k<5),head="Please insert the number of levels larger than 4 for cluster:")
                
         }
@@ -263,19 +263,21 @@
      }
      pow$sig.level<-obj$data$sig.level
      if (length(obj$info$model$clusters)>1) {
-       info<-obj$info$model$cluster_info[-1]
+       w<-which(names(obj$info$model$cluster_info)==obj$info$model$expand)
+       target<-obj$info$model$cluster_info[[w]]
+       info<-obj$info$model$cluster_info[-w]
        hm<-unlist(lapply(names(info), function(x) {
          cluster<-info[[x]]
-         paste("cluster variable ",cluster$name, "with n=",cluster$n," and k=",cluster$k)
+         paste("cluster variable <b>",cluster$name, "</b> with n=",cluster$n," and k=",cluster$k)
          }))
-       msg<-"Power parameters are computed for " %+% paste(hm, collapse = ", ")
+       msg<-"Power parameters are computed for cluster variable <b>" %+% target$name %+% "</b>, setting " %+% paste(hm, collapse = ", ")
        obj$warning<-list(topic="powertab",message=msg)
      }
      pow<-as.data.frame(pow,stringsAsFactors = FALSE)
      pow$tested<-as.character("Est.")
      pow$tested[pow$power == obj$info$sel_fun(pow$power)] <- "Tested"
      obj$data<-pow
-     
+
   } 
   if (obj$aim=="power") {
      if (obj$options$algo=="mc")
@@ -315,6 +317,7 @@
 
   n<-obj$data$n[1]
   k<-obj$data$k[1]
+  mark(obj$data)
   if (n>1000) n<-1000
   if (k>30) k<-30
   model<-pamlmixed_makemodel(obj,n,k)
@@ -352,11 +355,9 @@
     vars<-strsplit(term,":",fixed=TRUE)[[1]]
     vars <- trimws(vars)
     vars <- vars[nzchar(vars)]
-    mark(vars)
     idata<-data[,vars,drop=FALSE]
     for (var in vars)
          idata<-idata[idata[[var]]==levels(idata[[var]])[1],, drop=FALSE]
-    mark(idata)
     value<-dim(idata)[1]
     ladd(results)<-list(var="  ",cluster=term,what="N observations",value=value,evalue="within")
   }
@@ -376,14 +377,16 @@
   model<-obj$info$model
   #### cluster data
   ks<-sapply(model$cluster_info, function(x) x$k)
-  if (is.something(k)) ks[[1]]<-k
+  ## here we decide which cluster to expand
+  w<-which(names(model$cluster_info)==model$expand)
+  if (is.something(k)) ks[[w]]<-k
   levels<-lapply(ks,function(x) 1:x)
   cdata<-as.data.frame(expand.grid(rev(levels)))  
   names(cdata)<-rev(model$clusters)
   cdata<-cdata[,model$clusters,  drop = FALSE]
   ### within data
   ns<-sapply(model$cluster_info, function(x) x$n)
-  if (is.something(n)) ns[[1]]<-n
+  if (is.something(n)) ns[[w]]<-n
   levels<-lapply(ns,function(x) 1:x)
   
   wdata<-as.data.frame(expand.grid(levels))
@@ -413,7 +416,9 @@
     levels<-lapply(cats_within,function(x) 1:x$level)
   # since they are not between, we prepare their factorial combinations
     catdata<-as.data.frame(expand.grid(levels))
+  
     nr<-nrow(catdata)
+    
     datalist<-list()
   ## now, for each combination of clusters levels, we build the within factorial design
     for (i in seq_len(nrow(cdata))) {
@@ -423,7 +428,9 @@
          else cols<-model$clusters
          one<-merge(data,cdata[i,cols,drop=FALSE],by=cols)
          one<-cbind(one,.recycle_df(catdata[,v$name,drop=FALSE],nrow(one)))
-         if (nrow(one)<nr) obj$stop("N per cluster too small for the planned design")
+         if (nrow(one)<nr) {
+           obj$stop("N per cluster too small for the planned design")
+         }
          one
         })
       # here we have one case (whatever it means)
@@ -476,8 +483,8 @@
   data[[model$lhs]]<-rnorm(nrow(data))
   ###
   names(data) <- trimws(make.names(names(data), unique = TRUE))
-  attr(data,"n")<-ns[[1]]
-  attr(data,"k")<-ks[[1]]
+  attr(data,"n")<-ns[[w]]
+  attr(data,"k")<-ks[[w]]
   data
   
 }
@@ -745,6 +752,11 @@ extract_syntax_commands<-function(obj,model) {
         obj$warning<-list(topic="issues",message="Variable " %+% v %+% " defined as both between and within clusters. It is modelled as between.", head="warning")
     }
   }
+  if ("expand" %in% names(cmd)) {
+     model$expand<-cmd$expand[[1]]
+  }
+    
+    
   return(model)
 }
 
