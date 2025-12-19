@@ -288,20 +288,12 @@
     msg<-"Power parameters are computed for cluster variable <b>" %+% target$name %+% "</b>, setting " %+% paste(hm, collapse = ", ")
     obj$warning<-list(topic="powertab",message=msg)
   }
-  
-  
-  
   return(pow)
 }
 
 .showdata.pamlmixed<-function(obj) {
   
-  n<-obj$data$n[[1]]
-  k<-obj$data$k[[1]]
-  if (n>30) n<-30
-  if (k>30) k<-30
-  model<-pamlmixed_makemodel(obj,n,k)
-  data<-model@frame
+  data<-  data<-obj$info$estimated$frame
   if (nrow(data)>30) {
     data<-data[1:30,]
     warning("Only the first 30 observations are shown")
@@ -315,13 +307,7 @@
 
 .showvars.pamlmixed<-function(obj) {
 
-  n<-obj$data$n[1]
-  k<-obj$data$k[1]
-
-  if (n>1000) n<-1000
-  if (k>100) k<-100
-  model<-pamlmixed_makemodel(obj,n,k)
-  data<-model@frame
+  data<-obj$info$estimated$frame
   model<-obj$info$model
   results<-list()
   for (v in model$variable_info) {
@@ -540,6 +526,7 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
   model<-modelobj$obj
   attr(model,"n")<-attr(data,"n")
   attr(model,"k")<-attr(data,"k")
+  obj$info$estimated<-model
   return(model)
   
 } 
