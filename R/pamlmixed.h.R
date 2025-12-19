@@ -363,11 +363,13 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     list(
                         `name`="converged", 
                         `title`="% converged", 
-                        `type`="number"),
+                        `type`="number", 
+                        `visible`="(algo:mc)"),
                     list(
                         `name`="singular", 
                         `title`="% singular", 
-                        `type`="number"))))
+                        `type`="number", 
+                        `visible`="(algo:mc)"))))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="effectsize",

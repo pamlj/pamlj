@@ -318,7 +318,7 @@
   k<-obj$data$k[1]
   mark(obj$data)
   if (n>1000) n<-1000
-  if (k>30) k<-30
+  if (k>100) k<-100
   model<-pamlmixed_makemodel(obj,n,k)
   data<-model@frame
   model<-obj$info$model
@@ -360,6 +360,9 @@
     value<-dim(idata)[1]
     ladd(results)<-list(var="  ",cluster=term,what="N observations",value=value,evalue="within")
   }
+  ## last, number of observations in general
+  ladd(results)<-list(var="  ",cluster="Sample",what="N observations",value=dim(data)[1],evalue="total")
+  
   return(results)
 
 }
