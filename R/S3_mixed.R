@@ -293,7 +293,7 @@
 
 .showdata.pamlmixed<-function(obj) {
   
-  data<-  data<-obj$info$estimated$frame
+  data<-  data<-obj$info$estimated@frame
   if (nrow(data)>30) {
     data<-data[1:30,]
     warning("Only the first 30 observations are shown")
@@ -307,7 +307,7 @@
 
 .showvars.pamlmixed<-function(obj) {
 
-  data<-obj$info$estimated$frame
+  data<-obj$info$estimated@frame
   model<-obj$info$model
   results<-list()
   for (v in model$variable_info) {
