@@ -224,7 +224,6 @@ Plotter <- R6::R6Class(
       nmax<-powervector(obj,.data)$n
       .data$es<-esmax*1.1
       .data$n<-NULL
-      mark(.data)
       nmin<-powervector(obj,.data)$n
 
        if (nmin > data$n) {

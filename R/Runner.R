@@ -66,7 +66,6 @@ Runner <- R6::R6Class("Runner",
                               run_powerbyes = function() {
                                 
                                      jinfo("PAMLj: Runner: powerbyes")
-                                mark(self$info$sensitivity)
                                      if (!self$info$sensitivity) {
                                        
                                        return() 
@@ -153,7 +152,6 @@ Runner <- R6::R6Class("Runner",
 
                               run_implied_covs= function() {
                               
-                                mark("PAMLj SEM: implied covs run")
                                 model<-lavaan::sem(self$data$modelPop)
                                 tab<-lavaan::inspect(model,"implied")
                                 return(as.data.frame(tab$cov))
@@ -161,7 +159,6 @@ Runner <- R6::R6Class("Runner",
                               },
                               run_implied_lvcovs= function() {
                               
-                                mark("PAMLj SEM: implied latent covs run")
                                 if (length(self$info$lvnames)==0) {
                                     self$warning<-list(topic="implied_lvcovs",message="No latent variables in the model")
                                     return()

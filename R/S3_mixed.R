@@ -148,6 +148,7 @@
       }
       
       obj$info$model  <- model
+     
 #      dat<-.make_data(obj,k=100)
       jinfo("Checking data for pamlmixed done")
 }
@@ -316,7 +317,7 @@
 
   n<-obj$data$n[1]
   k<-obj$data$k[1]
-  mark(obj$data)
+
   if (n>1000) n<-1000
   if (k>100) k<-100
   model<-pamlmixed_makemodel(obj,n,k)
