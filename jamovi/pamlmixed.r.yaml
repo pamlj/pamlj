@@ -62,22 +62,25 @@ items:
         - name: tested
           title: 'Role'
           type: text
+          visible: (aim:n)
         - name: df
           title: 'df'
           type: number
         - name: df_error
           title: 'df_error'
           type: number
-
+          visible: (algo:mc)
         - name: sig.level
           title: α
           type: number
         - name: converged
           title: '% converged'
           type: number
+          visible: (algo:mc)
         - name: singular
           title: '% singular'
           type: number
+          visible: (algo:mc)
         
     - name:  effectsize
       title: Effect size indices

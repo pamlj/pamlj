@@ -345,7 +345,8 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     list(
                         `name`="tested", 
                         `title`="Role", 
-                        `type`="text"),
+                        `type`="text", 
+                        `visible`="(aim:n)"),
                     list(
                         `name`="df", 
                         `title`="df", 
@@ -353,7 +354,8 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     list(
                         `name`="df_error", 
                         `title`="df_error", 
-                        `type`="number"),
+                        `type`="number", 
+                        `visible`="(algo:mc)"),
                     list(
                         `name`="sig.level", 
                         `title`="\u03B1", 

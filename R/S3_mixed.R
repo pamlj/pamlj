@@ -85,13 +85,6 @@
 
       if (obj$aim=="n") {
         
-        if (length(model$cluster)>1) {
-               obj$warning<-list(topic="issues",message="Required N's are computed for the first cluster: " %+% names(clusters)[[1]], head="info")
-               .clusters<-model$clusters[-1]
-               test<-test_parameters(obj,.clusters, fun=function(x) (is.na(x$k) || x$k<5),head="Please insert the number of levels larger than 4 for cluster:")
-               
-        }
-        
         if (find == "k") {
            test<-test_parameters(obj,model$cluster_info, fun=function(x) is.na(x$n),head="Please insert the number of cases for cluster:")
            test<-test_parameters(obj,model$cluster_info, fun=function(x) x$n<1,head="Minimum number of cases for a cluster is 1: Please correct `Cases` for cluster:")
@@ -262,17 +255,6 @@
        pow <- .pow
      }
      pow$sig.level<-obj$data$sig.level
-     if (length(obj$info$model$clusters)>1) {
-       w<-which(names(obj$info$model$cluster_info)==obj$info$model$expand)
-       target<-obj$info$model$cluster_info[[w]]
-       info<-obj$info$model$cluster_info[-w]
-       hm<-unlist(lapply(names(info), function(x) {
-         cluster<-info[[x]]
-         paste("cluster variable <b>",cluster$name, "</b> with n=",cluster$n," and k=",cluster$k)
-         }))
-       msg<-"Power parameters are computed for cluster variable <b>" %+% target$name %+% "</b>, setting " %+% paste(hm, collapse = ", ")
-       obj$warning<-list(topic="powertab",message=msg)
-     }
      pow<-as.data.frame(pow,stringsAsFactors = FALSE)
      pow$tested<-as.character("Est.")
      pow$tested[pow$power == obj$info$sel_fun(pow$power)] <- "Tested"
@@ -291,6 +273,23 @@
      pow$sig.level<-obj$data$sig.level
      obj$data<-pow
   }
+  
+  ### some info for multi-clusters
+  
+  if (length(obj$info$model$clusters)>1) {
+    w<-which(names(obj$info$model$cluster_info)==obj$info$model$expand)
+    target<-obj$info$model$cluster_info[[w]]
+    info<-obj$info$model$cluster_info[-w]
+    hm<-unlist(lapply(names(info), function(x) {
+      cluster<-info[[x]]
+      paste("cluster variable <b>",cluster$name, "</b> with n=",cluster$n," and k=",cluster$k)
+    }))
+    msg<-"Power parameters are computed for cluster variable <b>" %+% target$name %+% "</b>, setting " %+% paste(hm, collapse = ", ")
+    obj$warning<-list(topic="powertab",message=msg)
+  }
+  
+  
+  
   return(pow)
 }
 
