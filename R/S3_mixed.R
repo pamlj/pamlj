@@ -170,6 +170,7 @@
 
 .powervector.pamlmixed <- function(obj,data) {
   
+  jinfo("PAMLj: S3: pamlmixed powervector")
   find<-obj$options$find
   if (obj$aim=="n") {
     if (find == "k") {
@@ -288,6 +289,8 @@
     msg<-"Power parameters are computed for cluster variable <b>" %+% target$name %+% "</b>, setting " %+% paste(hm, collapse = ", ")
     obj$warning<-list(topic="powertab",message=msg)
   }
+  jinfo("PAMLj: S3: pamlmixed powervector:done")
+  
   return(pow)
 }
 
@@ -335,7 +338,7 @@
   model<-obj$info$model
   results<-list()
   termobj<-model$cluster_info
-  
+  mark(attributes(model))
   ## freq of observations within cluster. Recall clusters can be cluster1:cluster2 or cluster
   for(term in names(model$random)) {
   

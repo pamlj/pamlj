@@ -44,6 +44,7 @@ Runner <- R6::R6Class("Runner",
                                  }
                                  # everything went well, so fill self$data
                                  self$data<-resobj$obj
+                                 jinfo("PAMLj: Runner: first estimation: done")
                              
                               #   postchecks(self)
                                   extrainfo(self)
