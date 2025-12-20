@@ -250,9 +250,15 @@ options:
       default: true
       description:
                 R: |
-                        not used
-                gui: |
-                      Show the first rows of an example of generated data
+                     Show variables structure in output
+
+    - name: show_clusters
+      type: Bool
+      title: Variables structure
+      default: true
+      description:
+                R: |
+                     Show clusters structure in output
 
     - name: show_data
       type: Bool

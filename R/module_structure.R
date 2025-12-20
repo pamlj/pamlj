@@ -128,18 +128,34 @@ extrainfo <- function(obj, ...) UseMethod(".extrainfo")
 .extrainfo.default <-function(obj) return()
 
 ### this function show some data produced by the analysis (simulated samples or other stuff)
+### different models requires different tables to show data structure. The idea is to have 
+### different table named structure_showdata*, where * can be 1, 2 etc. so far we need up do 4
 
-showdata <- function(obj, ...) UseMethod(".showdata")
+showdata1 <- function(obj, ...) UseMethod(".showdata1")
 
-.showdata.default <-function(obj,...) {
-  mark("no showdata for class ",class(obj)) 
+.showdata1.default <-function(obj,...) {
+  mark("no showdata1 for class ",class(obj)) 
   return()
 }
 
-showvars <- function(obj, ...) UseMethod(".showvars")
+showdata2 <- function(obj, ...) UseMethod(".showdata2")
 
-.showvars.default <-function(obj,...) {
-  mark("no showvars for class ",class(obj)) 
+.showdata2.default <-function(obj,...) {
+  mark("no showdata2 for class ",class(obj)) 
+  return()
+}
+
+showdata3 <- function(obj, ...) UseMethod(".showdata3")
+
+.showdata3.default <-function(obj,...) {
+  mark("no showdata3 for class ",class(obj)) 
+  return()
+}
+
+showdata4 <- function(obj, ...) UseMethod(".showdata4")
+
+.showdata4.default <-function(obj,...) {
+  mark("no showdata4 for class ",class(obj)) 
   return()
 }
 

@@ -81,61 +81,85 @@ items:
           title: '% singular'
           type: number
           visible: (algo:mc)
-        
-    - name:  effectsize
-      title: Effect size indices
-      type: Table
-      rows:  1
-      columns: 
-        - name: type
-          title: 'Type'
-          type: text
-        - name: term
-          title: 'Term'
-          type: text
-        - name: value
-          title: 'Input'
-          type: number
-        - name: es
-          title: 'ES'
-          type: number
-        - name: cluster
-          title: 'Cluster'
-          type: text
-        - name: label
-          title: 'ES label'
-          type: text
-
-    - name: showvars
-      visible: (show_vars)
-      title: Variables parameters (one sample)
-      type: Table
-      columns: 
-        - name: what
-          title: 'Param'
-          type: text
-        - name: var
-          title: 'Variablle'
-          type: text
-        - name: cluster
-          title: 'Cluster'
-          type: text
-        - name: value
-          title: 'Value'
-          type: number
-        - name: evalue
-          title: 'Level'
-          type: number
           
-    - name: showdata
-      visible: (show_data)
-      title: Data structure
-      type: Table
-      columns: 
-        - name: row
-          title: 'Row'
-          type: number
+          
+    -   name: structure
+        type: Group
+        title: Model Structure
+        visible: (show_vars || show_data || show_clusters)
+        items:
+              - name:  effectsize
+                title: Effect size indices
+                type: Table
+                rows:  1
+                columns: 
+                  - name: type
+                    title: 'Type'
+                    type: text
+                  - name: term
+                    title: 'Term'
+                    type: text
+                  - name: value
+                    title: 'Input'
+                    type: number
+                  - name: es
+                    title: 'ES'
+                    type: number
+                  - name: cluster
+                    title: 'Cluster'
+                    type: text
+                  - name: label
+                    title: 'ES label'
+                    type: text
 
+              - name: showdata2
+                visible: (show_vars)
+                title: Variables parameters (one sample)
+                type: Table
+                columns: 
+                  - name: what
+                    title: 'Param'
+                    type: text
+                  - name: var
+                    title: 'Variablle'
+                    type: text
+                  - name: cluster
+                    title: 'Cluster'
+                    type: text
+                  - name: value
+                    title: 'Value'
+                    type: number
+                  - name: evalue
+                    title: 'Level'
+                    type: number
+
+              - name: showdata3
+                visible: (show_clusters)
+                title: Clusters parameters (one sample)
+                type: Table
+                columns: 
+                  - name: cluster
+                    title: 'Cluster'
+                    type: text
+                  - name: k
+                    title: 'Levels (k)'
+                    type: integer
+                  - name: n
+                    title: 'N per cluster (n)'
+                    type: integer
+                  - name: obs
+                    title: 'N within'
+                    type: integer
+
+              - name: showdata4
+                visible: (show_data)
+                title: Data structure
+                type: Table
+                columns: 
+                  - name: row
+                    title: 'Row'
+                    type: integer
+                    
     - name: plotnotes
       title: Plot notes
       type: Html

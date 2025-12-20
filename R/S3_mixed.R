@@ -291,21 +291,10 @@
   return(pow)
 }
 
-.showdata.pamlmixed<-function(obj) {
-  
-  data<-  data<-obj$info$estimated@frame
-  if (nrow(data)>30) {
-    data<-data[1:30,]
-    warning("Only the first 30 observations are shown")
-  }
-  
-  data$row<-1:nrow(data)
-  return(data)
-  
-}
 
+## show variables structure
 
-.showvars.pamlmixed<-function(obj) {
+.showdata2.pamlmixed<-function(obj) {
 
   data<-obj$info$estimated@frame
   model<-obj$info$model
@@ -335,26 +324,55 @@
        }
     }
   }
-
-  ## freq of observations within cluster. Recall clusters can be cluster1:cluster2 or cluster
-  for(term in names(model$random)) {
-    vars<-strsplit(term,":",fixed=TRUE)[[1]]
-    vars <- trimws(vars)
-    vars <- vars[nzchar(vars)]
-    idata<-data[,vars,drop=FALSE]
-    for (var in vars)
-         idata<-idata[idata[[var]]==levels(idata[[var]])[1],, drop=FALSE]
-    value<-dim(idata)[1]
-    ladd(results)<-list(var="  ",cluster=term,what="N observations",value=value,evalue="within")
-  }
-  ## last, number of observations in general
-  ladd(results)<-list(var="  ",cluster="Sample",what="N observations",value=dim(data)[1],evalue="total")
-  
   return(results)
 
 }
 
+## show clusters structure
+.showdata3.pamlmixed<-function(obj) {
+  
+  data<-obj$info$estimated@frame
+  model<-obj$info$model
+  results<-list()
+  termobj<-model$cluster_info
+  
+  ## freq of observations within cluster. Recall clusters can be cluster1:cluster2 or cluster
+  for(term in names(model$random)) {
+  
+    vars<-strsplit(term,":",fixed=TRUE)[[1]]
+    vars <- trimws(vars)
+    vars <- vars[nzchar(vars)]
+    idata<-data[,vars,drop=FALSE]
+    k<-1
+    n<-1
+    for (var in vars) {
+      varobj<-termobj[[var]]
+      k<-k*varobj$k
+      n<-n*varobj$n
+      idata<-idata[idata[[var]]==levels(idata[[var]])[1],, drop=FALSE]
+    }
+    value<-dim(idata)[1]
+    ladd(results)<-list(cluster=term,k=k,n=n,obs=value)
+  }
+  ## last, number of observations in general
+  ladd(results)<-list(cluster="Total observations",k=NA,n=NA,obs=dim(data)[1])
+  
+  return(results)
+  
+}
 
+### show raw data
+.showdata4.pamlmixed<-function(obj) {
+  
+  data<-  data<-obj$info$estimated@frame
+  if (nrow(data)>30) {
+    data<-data[1:30,]
+    warning("Only the first 30 observations are shown")
+  }
+  
+  data$row<-1:nrow(data)
+  return(data)
+}
 
 ###### local functions
 

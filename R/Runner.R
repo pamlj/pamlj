@@ -62,7 +62,10 @@ Runner <- R6::R6Class("Runner",
                                      return(effectsize_run(self))
                                     
                                },
-
+                              run_modelstructure_effectsize = function() {
+                                return(effectsize_run(self))
+                              },
+                              
                               run_powerbyes = function() {
                                 
                                      jinfo("PAMLj: Runner: powerbyes")
@@ -188,15 +191,14 @@ Runner <- R6::R6Class("Runner",
                                 tab
                                 
                               },
-                              run_showdata=function() {
-                                if (!self$option("show_data"))
-                                  return()
-                                showdata(self)
+                              run_structure_showdata2=function() {
+                                showdata2(self)
                               },
-                              run_showvars=function() {
-                                if (!self$option("show_vars"))
-                                  return()
-                                showvars(self)
+                              run_structure_showdata3=function() {
+                                showdata3(self)
+                              },
+                              run_structure_showdata4=function() {
+                                showdata4(self)
                               },
                               
                           endrun = function() {

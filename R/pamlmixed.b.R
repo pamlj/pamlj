@@ -30,13 +30,17 @@ pamlmixedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                  aSmartObj<-SmartTable$new(self$results$powertab,private$.runner)
                  ladd(private$.smartObjs)<-aSmartObj
 
-                 aSmartObj<-SmartTable$new(self$results$effectsize,private$.runner)
+                 aSmartObj<-SmartTable$new(self$results$structure$effectsize,private$.runner)
                  ladd(private$.smartObjs)<-aSmartObj
-
-                 aSmartObj<-SmartTable$new(self$results$showvars,private$.runner)
+                 ## this is variables structure
+                 aSmartObj<-SmartTable$new(self$results$structure$showdata2,private$.runner)
                  ladd(private$.smartObjs)<-aSmartObj
                  
-                 aSmartObj<-SmartTable$new(self$results$showdata,private$.runner)
+                 ## this is cluster structure
+                 aSmartObj<-SmartTable$new(self$results$structure$showdata3,private$.runner)
+                 ladd(private$.smartObjs)<-aSmartObj
+                 
+                 aSmartObj<-SmartTable$new(self$results$structure$showdata4,private$.runner)
                  aSmartObj$expandOnInit <- TRUE
                  aSmartObj$expandFrom <- 2
                  ladd(private$.smartObjs)<-aSmartObj
