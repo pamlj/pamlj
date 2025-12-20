@@ -254,7 +254,7 @@ options:
 
     - name: show_clusters
       type: Bool
-      title: Variables structure
+      title: Clusters structure
       default: true
       description:
                 R: |

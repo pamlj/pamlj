@@ -355,7 +355,9 @@
     ladd(results)<-list(cluster=term,k=k,n=n,obs=value)
   }
   ## last, number of observations in general
-  ladd(results)<-list(cluster="Total observations",k=NA,n=NA,obs=dim(data)[1])
+#  ladd(results)<-list(cluster="___________",k=NA,n=NA,obs=NA)
+  
+  ladd(results)<-list(cluster="Total obs.",k=NA,n=NA,obs=dim(data)[1])
   
   return(results)
   

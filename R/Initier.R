@@ -160,7 +160,7 @@ Initer <- R6::R6Class(
       
     },
   
-  init_structure_showdata1=function(){
+  init_structure_showdata4=function(){
 
     vars<-c(self$info$model$varnames,self$info$model$clusters)
     df<-as.data.frame(matrix(NA,ncol=length(vars),nrow=1))
