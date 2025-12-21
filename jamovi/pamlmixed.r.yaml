@@ -62,55 +62,104 @@ items:
         - name: tested
           title: 'Role'
           type: text
+          visible: (aim:n)
         - name: df
           title: 'df'
           type: number
         - name: df_error
           title: 'df_error'
           type: number
-
+          visible: (algo:mc)
         - name: sig.level
           title: α
           type: number
         - name: converged
           title: '% converged'
           type: number
+          visible: (algo:mc)
         - name: singular
           title: '% singular'
           type: number
-        
-    - name:  effectsize
-      title: Effect size indices
-      type: Table
-      rows:  1
-      columns: 
-        - name: type
-          title: 'Type'
-          type: text
-        - name: term
-          title: 'Term'
-          type: text
-        - name: value
-          title: 'Input'
-          type: number
-        - name: es
-          title: 'ES'
-          type: number
-        - name: cluster
-          title: 'Cluster'
-          type: text
-        - name: label
-          title: 'ES label'
-          type: text
+          visible: (algo:mc)
+          
+          
+    -   name: structure
+        type: Group
+        title: Model Structure
+        visible: (show_vars || show_data || show_clusters)
+        items:
+              - name:  effectsize
+                title: Effect size indices
+                type: Table
+                rows:  1
+                columns: 
+                  - name: type
+                    title: 'Type'
+                    type: text
+                  - name: term
+                    title: 'Term'
+                    type: text
+                  - name: value
+                    title: 'Input'
+                    type: number
+                  - name: es
+                    title: 'ES'
+                    type: number
+                  - name: cluster
+                    title: 'Cluster'
+                    type: text
+                  - name: label
+                    title: 'ES label'
+                    type: text
 
-    - name: showdata
-      visible: (showdata)
-      title: Data structure
-      type: Table
-      columns: 
-        - name: row
-          title: 'Row'
-          type: number
+              - name: showdata2
+                visible: (show_vars)
+                title: Variables parameters (one sample)
+                type: Table
+                columns: 
+                  - name: what
+                    title: 'Param'
+                    type: text
+                  - name: var
+                    title: 'Variablle'
+                    type: text
+                  - name: cluster
+                    title: 'Cluster'
+                    type: text
+                  - name: value
+                    title: 'Value'
+                    type: number
+                  - name: evalue
+                    title: 'Level'
+                    type: number
+
+              - name: showdata3
+                visible: (show_clusters)
+                title: Clusters parameters (one sample)
+                type: Table
+                columns: 
+                  - name: cluster
+                    title: 'Cluster'
+                    type: text
+                  - name: k
+                    title: 'Levels (k)'
+                    type: integer
+                  - name: n
+                    title: 'N per cluster (n)'
+                    type: integer
+                  - name: obs
+                    title: 'N within'
+                    type: integer
+
+              - name: showdata4
+                visible: (show_data)
+                title: Data structure
+                type: Table
+                columns: 
+                  - name: row
+                    title: 'Row'
+                    type: integer
+                    
     - name: plotnotes
       title: Plot notes
       type: Html

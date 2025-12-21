@@ -376,15 +376,31 @@ get_other_lines <- function(syntax) {
 
 
 digest_other_lines <- function(lines) {
+  
+  if (!exists("SYNTAX_CMD") || is.null(SYNTAX_CMD)) return()
   results<-list()
   for (l in lines) {
-    t<-grep("test:",l,fixed = T)
-    if (length(t)>0) {
-      r<-stringr::str_split(l,":")[[1]]
-      results$test<-trimws(r[[2]])
+    t <- extract_prefix(l,SYNTAX_CMD)
+    if (is.something(t)) ladd(results[[t$keyword]])<-t$value
     }
-  }
   return(results)
 }
+
+extract_prefix <- function(s, keywords) {
+  # build regex with a capturing group for the keyword
+  rx <- paste0("^\\s*(", paste(keywords, collapse="|"), "):\\s*(.*)$")
+  
+  m <- regexec(rx, s, perl = TRUE)
+  hits <- regmatches(s, m)[[1]]
+  
+  if (length(hits) == 0)
+    return(NULL)  # no match
+  
+  list(
+    keyword = hits[2],   # captured keyword
+    value   = hits[3]    # remainder of string
+  )
+}
+
 
 coef.syntax_formula<-function(obj) unlist(obj$coefs)

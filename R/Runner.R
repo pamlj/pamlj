@@ -22,7 +22,7 @@ Runner <- R6::R6Class("Runner",
                                
                                
                                  ## some commands are run only if the run button is pressed
-                                 if ((self$options$.interface=="jamovi") && ("run" %in% names(self$options))) {
+                                 if ((self$ok && self$options$.interface=="jamovi") && ("run" %in% names(self$options))) {
                                    if (!self$option("run")) {
                                      self$ok<-FALSE
                                      self$warning<-list(topic="issues",
@@ -44,6 +44,7 @@ Runner <- R6::R6Class("Runner",
                                  }
                                  # everything went well, so fill self$data
                                  self$data<-resobj$obj
+                                 jinfo("PAMLj: Runner: first estimation: done")
                              
                               #   postchecks(self)
                                   extrainfo(self)
@@ -62,11 +63,13 @@ Runner <- R6::R6Class("Runner",
                                      return(effectsize_run(self))
                                     
                                },
-
+                              run_modelstructure_effectsize = function() {
+                                return(effectsize_run(self))
+                              },
+                              
                               run_powerbyes = function() {
                                 
                                      jinfo("PAMLj: Runner: powerbyes")
-                                mark(self$info$sensitivity)
                                      if (!self$info$sensitivity) {
                                        
                                        return() 
@@ -153,7 +156,6 @@ Runner <- R6::R6Class("Runner",
 
                               run_implied_covs= function() {
                               
-                                mark("PAMLj SEM: implied covs run")
                                 model<-lavaan::sem(self$data$modelPop)
                                 tab<-lavaan::inspect(model,"implied")
                                 return(as.data.frame(tab$cov))
@@ -161,7 +163,6 @@ Runner <- R6::R6Class("Runner",
                               },
                               run_implied_lvcovs= function() {
                               
-                                mark("PAMLj SEM: implied latent covs run")
                                 if (length(self$info$lvnames)==0) {
                                     self$warning<-list(topic="implied_lvcovs",message="No latent variables in the model")
                                     return()
@@ -191,14 +192,16 @@ Runner <- R6::R6Class("Runner",
                                 tab
                                 
                               },
-                              run_showdata=function() {
-                             
-                                if (!self$option("showdata"))
-                                  return()
-                                showdata(self)
-                                 
+                              run_structure_showdata2=function() {
+                                showdata2(self)
                               },
-                                                            
+                              run_structure_showdata3=function() {
+                                showdata3(self)
+                              },
+                              run_structure_showdata4=function() {
+                                showdata4(self)
+                              },
+                              
                           endrun = function() {
                             
                             self$analysis$results$initnotes$setContent(" ")

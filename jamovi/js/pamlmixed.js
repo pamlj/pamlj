@@ -45,6 +45,7 @@ const events = {
 
  var_type_changed: function(ui) {
    
+    console.log("var_type_changed");
     var vartype =  utils.clone(ui.var_type.value(), []);  
 
     var found = false;
@@ -240,14 +241,13 @@ function computeVarTypes(str, vartype) {
     }
 
     var vars = Array.from(varsSet);
-
     // 4. Preserve existing type info where possible
     var newvartype = vars.map(function(item) {
         var found = vartype.filter(function(element) {
             return element.name === item;
         });
         if (found.length === 0)
-            return { name: item, type: "continuous", levels: "---" };
+            return { name: item, type: "continuous", levels: "?" };
         else
             return found[0];
     });

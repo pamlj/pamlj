@@ -82,7 +82,11 @@ Initer <- R6::R6Class(
           tab<-effectsize_init(self)
           return(tab)
     },
-
+  init_structure_effectsize = function() {
+    tab<-effectsize_init(self)
+    return(tab)
+  },
+  
     init_powerbyes= function() {
       
       list(list(power='\u226450%',desc='Likely miss'),
@@ -156,9 +160,9 @@ Initer <- R6::R6Class(
       
     },
   
-  init_showdata=function(){
+  init_structure_showdata4=function(){
 
-    vars<-c(names(self$info$model$variables),self$info$model$clusters)
+    vars<-c(self$info$model$varnames,self$info$model$clusters)
     df<-as.data.frame(matrix(NA,ncol=length(vars),nrow=1))
     names(df)<-vars
     return(df)

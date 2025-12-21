@@ -224,7 +224,6 @@ options:
                         options:
                           - categorical
                           - continuous
-                        default: continuous
                   -     name: levels
                         type: String
 
@@ -245,7 +244,23 @@ options:
                 ui: |
                         The algorithm to use: `Monte Carlo` (default) for Monte Carlo simulation, `Raw approximation` for raw approximation based on plausible Chi-squared (fast but slightly optimistic)
      
-    - name: showdata
+    - name: show_vars
+      type: Bool
+      title: Variables structure
+      default: true
+      description:
+                R: |
+                     Show variables structure in output
+
+    - name: show_clusters
+      type: Bool
+      title: Clusters structure
+      default: true
+      description:
+                R: |
+                     Show clusters structure in output
+
+    - name: show_data
       type: Bool
       title: Data structure
       default: false

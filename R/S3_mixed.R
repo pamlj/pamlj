@@ -22,6 +22,7 @@
       check_mixed_model(obj,model)
       if (!obj$ok) return()
       
+      
       #### model syntax should be all digested at this point
       
       ## now we fill the info regarding the clusters
@@ -41,27 +42,39 @@
         acluster
       })
       names(model$cluster_info)<-sapply(obj$options$clusterpars, function(x) x$name)
-      
+      model$expand<-model$clusters[1]
       ### Here we handle the variables
       
       ### var in cluster?
-      test<-intersect(model$cluster,model$fixed$vars)
+      test<-intersect(model$clusters,model$fixed$vars)
       if (is.something(test)) obj$stop("Variable " %+% paste(test,collapse=", ") %+% " cannot be a term and a cluster variable")
 
       ### actual variables that will be in the generated data
-      model$variables<-c(model$fixed$vars,model$cluster)
+      model$variables<-c(model$fixed$vars,model$clusters)
       .vars_info<-obj$options$var_type
       names(.vars_info)<-sapply(.vars_info,function(x) x$name)
       issue<-list()
-      
       model$variable_info<-lapply(model$varnames, function(x) {
         .var<-.vars_info[[x]]
-        if (is.null(.var)) return(name=x,type="continuous")
+        if (is.null(.var)) return(name=x,type="continuous",levels=2)
+        if (.var$type=="continuous") .var$levels<-2
         if (.var$type=="categorical") .var$levels<-as.numeric(.var$levels)
         .var
       })
       names(model$variable_info)<-names(.vars_info)
+
+      ### check number of coefficients
+      test<-check_coefs_length(model,model$variable_info)
+      if (!isTRUE(test)) obj$stop("Fixed effects: " %+% test)
+      for (random in model$random)  {
+        test<-check_coefs_length(random,model$variable_info)
+        if (!isTRUE(test)) obj$stop("Random coefficients: " %+% test)
+        
+      }
+
+      ## digest additional commands
       
+      model<-extract_syntax_commands(obj,model)
       ## model should be completed now
     
       ## set the sub-aim  
@@ -71,13 +84,6 @@
      ## check if input makes sense
 
       if (obj$aim=="n") {
-        
-        if (length(model$cluster)>1) {
-               obj$warning<-list(topic="issues",message="Required N's are computed for the first cluster: " %+% names(clusters)[[1]], head="info")
-               .clusters<-model$cluster[-1]
-               test<-test_parameters(obj,.clusters, fun=function(x) (is.na(x$k) || x$k<5),head="Please insert the number of levels larger than 4 for cluster:")
-               
-        }
         
         if (find == "k") {
            test<-test_parameters(obj,model$cluster_info, fun=function(x) is.na(x$n),head="Please insert the number of cases for cluster:")
@@ -99,12 +105,12 @@
            test<-test_parameters(obj,model$cluster_info, fun=function(x) x$k<5,head="Minimum number of levels for a cluster is 5: Please correct `Levels` for cluster:")
       }
       
+      #check cat vars are well-defined
 
+      test<-test_parameters(obj,model$variable_info, fun=function(x) x$type=="categorical" && is.na(x$levels),head="Please insert the number of levels for categorical variable: ")
       
-      #### check consistency of coefficients for categorical variables
+      ### check on vars ok
       
-
-     
       model$sigma <- sqrt(obj$options$sigma2) 
       obj$data             <- data.frame(sig.level=obj$options$sig.level)
       obj$data$power       <- obj$options$power
@@ -125,7 +131,7 @@
         if (obj$info$R<1000)
            obj$warning     <-  list(topic="issues",message="Simulations replications is set to " %+% obj$info$R %+% ". Please set a number greater than 1000 for more stable results.", head="info")
       
-        obj$warning     <-  list(topic="initnotes",message="Monte Carlo method may take several minutes to estimate the results. Please be patient.", head="wait")
+        obj$warning     <-  list(topic="initnotes",message="Monte Carlo methods may take several minutes to estimate the results. Please be patient.", head="wait")
         }    
       
 
@@ -133,12 +139,17 @@
     
       ## interpret some commands
       if ("test" %in% names(model$commands)) {
+        if (length(model$commands$test)>1) obj$stop("Only one effect can be tested in one run.")
         w<-which(model$coef_symbs==model$commands$test)
+        if (length(w)==0) obj$stop("Test coefficient " %+% model$commands$test %+% " not found.")
         obj$info$sel_fun<-function(x) {
           x[[w-1]]
         }
       }
+      
       obj$info$model  <- model
+     
+#      dat<-.make_data(obj,k=100)
       jinfo("Checking data for pamlmixed done")
 }
 
@@ -159,6 +170,7 @@
 
 .powervector.pamlmixed <- function(obj,data) {
   
+  jinfo("PAMLj: S3: pamlmixed powervector")
   find<-obj$options$find
   if (obj$aim=="n") {
     if (find == "k") {
@@ -245,20 +257,11 @@
        pow <- .pow
      }
      pow$sig.level<-obj$data$sig.level
-     if (length(obj$info$model$clusters)>1) {
-       info<-obj$info$model$cluster_info[-1]
-       hm<-unlist(lapply(names(info), function(x) {
-         cluster<-info[[x]]
-         paste("cluster variable ",cluster$name, "with n=",cluster$n," and k=",cluster$k)
-         }))
-       msg<-"Power parameters are computed for " %+% paste(hm, collapse = ", ")
-       obj$warning<-list(topic="powertab",message=msg)
-     }
      pow<-as.data.frame(pow,stringsAsFactors = FALSE)
      pow$tested<-as.character("Est.")
      pow$tested[pow$power == obj$info$sel_fun(pow$power)] <- "Tested"
      obj$data<-pow
-     
+
   } 
   if (obj$aim=="power") {
      if (obj$options$algo=="mc")
@@ -272,87 +275,266 @@
      pow$sig.level<-obj$data$sig.level
      obj$data<-pow
   }
+  
+  ### some info for multi-clusters
+  
+  if (length(obj$info$model$clusters)>1) {
+    w<-which(names(obj$info$model$cluster_info)==obj$info$model$expand)
+    target<-obj$info$model$cluster_info[[w]]
+    info<-obj$info$model$cluster_info[-w]
+    hm<-unlist(lapply(names(info), function(x) {
+      cluster<-info[[x]]
+      paste("cluster variable <b>",cluster$name, "</b> with n=",cluster$n," and k=",cluster$k)
+    }))
+    msg<-"Power parameters are computed for cluster variable <b>" %+% target$name %+% "</b>, setting " %+% paste(hm, collapse = ", ")
+    obj$warning<-list(topic="powertab",message=msg)
+  }
+  jinfo("PAMLj: S3: pamlmixed powervector:done")
+  
   return(pow)
 }
 
 
-.showdata.pamlmixed<-function(obj) {
+## show variables structure
+
+.showdata2.pamlmixed<-function(obj) {
+
+  data<-obj$info$estimated@frame
+  model<-obj$info$model
+  results<-list()
+  for (v in model$variable_info) {
+    for (cl in model$clusters) {
+      
+     if (v$type=="continuous") {
+        res<-mean(tapply(data[[v$name]],list(data[[cl]]),sd))
+        res<-mean(tapply(data[[v$name]],list(data[[cl]]),sd))
+        ev<-"  "
+        if (res>.1) ev<-"within"
+        ladd(results)<-list(var=v$name,cluster=cl,what="SD within",value=round(res,3),evalue=ev)
+        res<-sd(tapply(data[[v$name]],list(data[[cl]]),mean))
+        ev<-"  "
+        if (res>.1) ev<-"between"
+
+        ladd(results)<-list(var=v$name,cluster=cl,what="SD between",value=round(res,3),evalue=ev)
+      }
+      else {
+           fun<-function(x) length(unique(x))
+           res<-mean(tapply(data[[v$name]],list(data[[cl]]),fun))
+           ev<-"mixed"
+           if (v$levels==res) ev<-"within"
+            if (round(res,0)==1) ev<-"between"
+           ladd(results)<-list(var=v$name,cluster=cl,what="Levels within",value=round(res,3),evalue=ev)
+       }
+    }
+  }
+  return(results)
+
+}
+
+## show clusters structure
+.showdata3.pamlmixed<-function(obj) {
   
-  n<-obj$data$n
-  k<-obj$data$k
-  if (n>30) n<-30
-  if (k>30) k<-30
-  model<-pamlmixed_makemodel(obj,n,k)
-  data<-model@frame
+  data<-obj$info$estimated@frame
+  model<-obj$info$model
+  results<-list()
+  termobj<-model$cluster_info
+  powerdata<-obj$data
+  # which cluster var has been manipulated
+  w<-model$expand
+ 
+  termobj[[w]]$n<-powerdata$n[1]
+  termobj[[w]]$k<-powerdata$k[1]
+  ## freq of observations within cluster. Recall clusters can be cluster1:cluster2 or cluster
+  for(term in names(model$random)) {
+  
+    vars<-strsplit(term,":",fixed=TRUE)[[1]]
+    vars <- trimws(vars)
+    vars <- vars[nzchar(vars)]
+    idata<-data[,vars,drop=FALSE]
+    k<-1
+    n<-1
+    for (var in vars) {
+      varobj<-termobj[[var]]
+      k<-k*varobj$k
+      n<-n*varobj$n
+      idata<-idata[idata[[var]]==levels(idata[[var]])[1],, drop=FALSE]
+    }
+    value<-dim(idata)[1]
+    ladd(results)<-list(cluster=term,k=k,n=n,obs=value)
+  }
+  ## last, number of observations in general
+#  ladd(results)<-list(cluster="___________",k=NA,n=NA,obs=NA)
+  
+  ladd(results)<-list(cluster="Total obs.",k=NA,n=NA,obs=dim(data)[1])
+  
+  return(results)
+  
+}
+
+### show raw data
+.showdata4.pamlmixed<-function(obj) {
+  
+  data<-  data<-obj$info$estimated@frame
   if (nrow(data)>30) {
-     data<-data[1:30,]
-     warning("Only the first 30 observations are shown")
+    data<-data[1:30,]
+    warning("Only the first 30 observations are shown")
   }
   
   data$row<-1:nrow(data)
   return(data)
-  
 }
 
 ###### local functions
 
-
-pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
-
+.make_data<-function(obj,n=NULL,k=NULL) {
+  
   if (obj$options$stability=="l1")
-      set.seed(obj$info$seed)
-
-  infomod<-obj$info$model
+    set.seed(obj$info$seed)
+  
+  model<-obj$info$model
   #### cluster data
-  ks<-sapply(infomod$cluster_info, function(x) x$k)
-  if (is.something(k)) ks[[1]]<-k
+  ks<-sapply(model$cluster_info, function(x) x$k)
+  ## here we decide which cluster to expand
+  w<-which(names(model$cluster_info)==model$expand)
+  if (is.something(k)) ks[[w]]<-k
   levels<-lapply(ks,function(x) 1:x)
   cdata<-as.data.frame(expand.grid(rev(levels)))  
-  names(cdata)<-rev(infomod$clusters)
-  cdata<-cdata[,infomod$clusters,  drop = FALSE]
-
+  names(cdata)<-rev(model$clusters)
+  cdata<-cdata[,model$clusters,  drop = FALSE]
   ### within data
-  ns<-sapply(infomod$cluster_info, function(x) x$n)
-  if (is.something(n)) ns[[1]]<-n
+  ns<-sapply(model$cluster_info, function(x) x$n)
+  if (is.something(n)) ns[[w]]<-n
   levels<-lapply(ns,function(x) 1:x)
-
+  
   wdata<-as.data.frame(expand.grid(levels))
   names(wdata)<-paste0("inter_id",1:length(levels))
   ### put them together
   ldata<-list()
   ### we capture warning because it may complain about rownames
   try_hard({
-   for (i in seq_len(nrow(cdata))) {
-     one<-cbind(cdata[i,],wdata)
-     ldata[[length(ldata)+1]]<-one
-  }
+    for (i in seq_len(nrow(cdata))) {
+      one<-cbind(cdata[i,],wdata)
+      ldata[[length(ldata)+1]]<-one
+    }
   }) #try
   data<-do.call(rbind,ldata)
-  names(data)<-c(infomod$clusters,names(wdata))
+  names(data)<-c(model$clusters,names(wdata))
 
-  r<-nrow(data)
-  for (i in seq_along(infomod$variable_info)) {
-    x<-infomod$variable_info[[i]]
-    data[[x$name]]<-as.numeric(scale(rnorm(r)))
-    if (x$type=="categorical") {
-      rep<-round(r/x$levels)
-      data[[x$name]]<-factor(rep(1:x$levels,rep+100)[1:r])
+  ## first we deal with categorical within (default)
+  ## the code is weired and ugly, but it handles a lot of different combinations of designs
+  
+  ## first, we select the categorcial variables
+  cats<-lapply(model$variable_info,function(x) if (x$type=="categorical") return(x))
+  cats<-cats[sapply(cats,function(x) !is.null(x))]
+  if (length(cats)>0) {
+  
+    cats_within<-lapply(cats,function(x) if (is.null(x$between)) return(x))
+    cats_within<-cats_within[sapply(cats_within,function(x) !is.null(x))]
+    levels<-lapply(cats_within,function(x) 1:x$level)
+  # since they are not between, we prepare their factorial combinations
+    catdata<-as.data.frame(expand.grid(levels))
+  
+    nr<-nrow(catdata)
+    
+    datalist<-list()
+  ## now, for each combination of clusters levels, we build the within factorial design
+    for (i in seq_len(nrow(cdata))) {
+      onelist<-lapply(cats_within, function(v) {
+       ## we replicate their value within their cluster or (default) the combinations of clusters levels
+         if (is.something(v$within)) cols<-v$within
+         else cols<-model$clusters
+         one<-merge(data,cdata[i,cols,drop=FALSE],by=cols)
+         one<-cbind(one,.recycle_df(catdata[,v$name,drop=FALSE],nrow(one)))
+         if (nrow(one)<nr) {
+           obj$stop("N per cluster too small for the planned design")
+         }
+         one
+        })
+      # here we have one case (whatever it means)
+        onedata<-.cbind_unique(onelist)
+        ladd(datalist)<-onedata
+    }
+    if (length(datalist)>0)
+        data<-as.data.frame(do.call(rbind,datalist))
+
+  ### now we handle categorical between
+    cats_between<-lapply(cats,function(x) if (!is.null(x$between)) return(x))
+    cats_between<-cats_between[sapply(cats_between,function(x) !is.null(x))]
+    for (x in cats_between) {
+      cluster<-x$between
+      cluster_info<-model$cluster_info[[cluster]]
+      data[[x$name]]<-as.numeric(scale(rnorm(nrow(data))))
+      data<-standardize_between(data,x$name,x$between)
+      qs <- quantile(data[[x$name]], probs = seq(0, 1, length.out = x$levels + 1), na.rm = TRUE, type = 7)
+      qs <- unique(qs)  
+      data[[x$name]]<-cut(data[[x$name]], breaks = qs, include.lowest = TRUE)
+      levels(data[[x$name]])<-letters[1:x$levels]
+    }  
+  ### at this point, we can factor the categorical variables and give them a contrast
+    for (x in cats) {
+      data[[x$name]]<-factor(data[[x$name]])
       contrasts(data[[x$name]])<-contr.sum(x$levels)
     }
-  }
+  } ### end of factors
   
+  for (x in model$cluster_info) {
+    data[[x$name]]<-factor(data[[x$name]])
+  } 
+  
+  ## now we deal with numeric variables 
+  nums_vars<-lapply(model$variable_info,function(x) if (x$type=="continuous") return(x))
+  nums_vars<-nums_vars[sapply(nums_vars,function(x) !is.null(x))]
+  
+  for (i in seq_along(nums_vars)) {
+    x<-nums_vars[[i]]
+    data[[x$name]]<-as.numeric(scale(rnorm(nrow(data))))
+    if (is.something(x$within)) {
+      data<-standardize_within(data,x$name,x$within)
+    }
+    if (is.something(x$between)) {
+      data<-standardize_between(data,x$name,x$between)
+    }
+  }
+    
   ## dependent 
-  data[[infomod$lhs]]<-rnorm(r)
+  data[[model$lhs]]<-rnorm(nrow(data))
   ###
+  names(data) <- trimws(make.names(names(data), unique = TRUE))
+  attr(data,"n")<-ns[[w]]
+  attr(data,"k")<-ks[[w]]
+  data
+  
+}
+### helper functions for making data
+.recycle_df <- function(df, n) {
+  k <- nrow(df)
+  if (n %% k != 0L) {
+    warning(sprintf("Partial recycling: target n = %d is not a multiple of source rows = %d",n, k),call. = FALSE  )
+  }
+  df[rep(seq_len(k), length.out = n), , drop = FALSE]
+}
 
+.cbind_unique <- function(dfs) {
+
+  Reduce(function(df1, df2) {
+    dup <- intersect(names(df1), names(df2))
+    cbind(df1, df2[, setdiff(names(df2), dup), drop = FALSE])
+  }, dfs)
+}
+
+### end of them
+
+pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
+
+  data<-.make_data(obj,n=n,k=k)
+  infomod<-obj$info$model
+  
   varcor<-lapply(infomod$random,function(x) {
     coefs<-unlist(x$coefs)
     diag(x=coefs,nrow=length(coefs))
   })
-  
   fixed<-unlist(infomod$coefs)
-  names(data) <- trimws(make.names(names(data), unique = TRUE))
-
+  
   modelobj<-try_hard({
              simr::makeLmer(formula=as.formula(infomod$formula),
                    fixef=fixed,
@@ -361,13 +543,18 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
                    data=data
                    )
   })
- 
   if (!isFALSE(modelobj$error)) {
     obj$stop("Model cannot be simulated. Please check your input syntax")
   }
+  if (!isFALSE(modelobj$message)) {
+    if (grep("rank",modelobj$message,fixed = TRUE)>0)
+         obj$stop("Model cannot be simulated. Please check your input model")
+  }
+  
   model<-modelobj$obj
-  attr(model,"n")<-ns[[1]]
-  attr(model,"k")<-ks[[1]]
+  attr(model,"n")<-attr(data,"n")
+  attr(model,"k")<-attr(data,"k")
+  obj$info$estimated<-model
   return(model)
   
 } 
@@ -389,7 +576,6 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
     if (is.null(k)) tab$k<-attr(model,"k")
     tab$df=df
     tab$effect<-rownames(tab)
-
     tab
 
 }
@@ -457,14 +643,7 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
   anov
 }
 
-# .sim_fun<-function(model) {
-#   y<-stats::simulate(model)$sim_1
-#   fit<-simr::doFit(y,model)
-#   fit<-lmerTest::as_lmerModLmerTest(fit)
-#   anov<-anova(fit)
-#   anov$name<-rownames(anov)
-#   anov
-# }
+
 
 .slow_onerun <- function(obj,n=NULL,k=NULL) {
   
@@ -549,9 +728,54 @@ check_mixed_model<- function(obj,model) {
       fun(model,"fixed effects")
       for (n in names(model$random)) fun(model$random[[n]],"random coefficient across " %+% n)  
       
-     
-      
-      
+}
+
+check_coefs_length<-function(model,variable_info) {
+
+  for (i in seq_along(model$terms)) {
+    tlist<-jmvcore::decomposeTerm(model$terms[[i]])
+    l<-1
+    for (t in tlist) {
+      v<-variable_info[[t]]
+      l<-l*(v$levels-1)
+    }
+
+    if(is.something(l) && !is.na(l) && l != length(model$coefs[[i]])) return("Number of coefficients for term " %+% model$terms[[i]] %+% " not correct")
+    }
+  return(TRUE)
+}
+
+
+
+extract_syntax_commands<-function(obj,model) {
+  
+  cmd<-model$commands
+  if (any(c("bet","between") %in% names(cmd))) {
+    for (x in cmd$bet) {
+      str<-stringr::str_split(x,"\\|")[[1]]
+      model$variable_info[[str[[1]]]]$between=str[[2]]
+    }
+  }
+  if (any(c("wit","within") %in% names(cmd))) {
+    for (x in cmd$wit) {
+      str<-stringr::str_split(x,"\\|")[[1]]
+      model$variable_info[[str[[1]]]]$within=str[[2]]
+    }
+  }
+  for (v in names(model$variable_info)) {
+    if (any(c("within","between") %in% names(model$variable_inf[[v]]))) {
+      test1<-(model$variable_info[[v]]$within==model$variable_info[[v]]$between)
+      test2<-(is.something(model$variable_info[[v]]$within) && is.something(model$variable_info[[v]]$between))
+      if (any(test1,test2))
+        obj$warning<-list(topic="issues",message="Variable " %+% v %+% " defined as both between and within clusters. It is modelled as between.", head="warning")
+    }
+  }
+  if ("expand" %in% names(cmd)) {
+     model$expand<-cmd$expand[[1]]
+  }
+    
+    
+  return(model)
 }
 
 # Integer search on f(n)$power (assuming monotone increasing with m), starting at n_start.
@@ -676,9 +900,48 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
   
 }
 
+standardize_within <- function(data, x, cluster) {
+  x      <- as.character(x)
+  cluster <- as.character(cluster)
+  
+  # compute mean and sd per cluster
+  means <- tapply(data[[x]], data[[cluster]], mean, na.rm = TRUE)
+  sds   <- tapply(data[[x]], data[[cluster]], sd,   na.rm = TRUE)
+  
+  # build standardized vector
+  z <- (data[[x]] - means[data[[cluster]]]) / sds[data[[cluster]]]
+  
+  # return data with new column
+  data[[x]] <- z
+  data
+}
 
 
-######### output functions 
+standardize_between <- function(data, x, cluster) {
+  x       <- as.character(x)
+  cluster <- as.character(cluster)
+  
+  # 1. cluster means of x
+  cl_means <- tapply(data[[x]], data[[cluster]], mean, na.rm = TRUE)
+  # cl_means is named by cluster levels
+  
+  # 2. standardize those means across clusters
+  mu  <- mean(cl_means, na.rm = TRUE)
+  sdx <- sd(cl_means,   na.rm = TRUE)
+  
+  z_cl <- (cl_means - mu) / sdx   # one z per cluster
+  
+  # 3. assign the same value to all rows in a cluster
+  z_vec <- z_cl[ data[[cluster]] ]
+  
+  # 4. store in data
+  new_name <- paste0(x, "_between_z")
+  data[[x]] <- z_vec
+  data
+}
+
+
+######### S3 output functions 
 
 .effectsize_init.pamlmixed= function(obj) {
   
@@ -717,13 +980,14 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
 .infotab_init.pamlmixed<- function(obj) {
   
       model<-obj$info$model
+      coefs<-gsub(")","]",gsub("c(","[",paste(model$coefs, collapse=", "),fixed=T), fixed=T)
+      
       tab<- list(list(info="Model",value=model$formula, specs=""),
              list(info="Fixed effects",value=model$rhs, specs=""),       
-             coefs<-gsub(")","]",gsub("c(","[",paste(model$coefs, collapse=", "),fixed=T), fixed=T),
-             list(info="Fixed coefs",value=coefs, specs=""),       
+             list(info="Fixed coefs",value=coefs, specs=" "),       
             list(info="Clusters:",value=" ",specs=" ")
             )
-            for (cluster in model$clusterS) ladd(tab)<-list(info="Clusters:",value=cluster)
+            for (cluster in model$clusters) ladd(tab)<-list(info="Clusters:",value=cluster)
             ladd(tab)<-list(info="Variables:",value=" ",specs=" ")
             for (var in model$variable_info) ladd(tab)<-list(info="Variables:",value=var$name,specs=var$type  )
             tab

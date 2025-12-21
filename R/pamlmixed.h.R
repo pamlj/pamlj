@@ -27,7 +27,9 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             clusterpars = list(),
             var_type = list(),
             algo = "mc",
-            showdata = FALSE, ...) {
+            show_vars = TRUE,
+            show_clusters = TRUE,
+            show_data = FALSE, ...) {
 
             super$initialize(
                 package="pamlj",
@@ -160,8 +162,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                             NULL,
                             options=list(
                                 "categorical",
-                                "continuous"),
-                            default="continuous"),
+                                "continuous")),
                         jmvcore::OptionString$new(
                             "levels",
                             NULL))))
@@ -172,9 +173,17 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=list(
                     "mc",
                     "raw"))
-            private$..showdata <- jmvcore::OptionBool$new(
-                "showdata",
-                showdata,
+            private$..show_vars <- jmvcore::OptionBool$new(
+                "show_vars",
+                show_vars,
+                default=TRUE)
+            private$..show_clusters <- jmvcore::OptionBool$new(
+                "show_clusters",
+                show_clusters,
+                default=TRUE)
+            private$..show_data <- jmvcore::OptionBool$new(
+                "show_data",
+                show_data,
                 default=FALSE)
 
             self$.addOption(private$..aim)
@@ -199,7 +208,9 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..clusterpars)
             self$.addOption(private$..var_type)
             self$.addOption(private$..algo)
-            self$.addOption(private$..showdata)
+            self$.addOption(private$..show_vars)
+            self$.addOption(private$..show_clusters)
+            self$.addOption(private$..show_data)
         }),
     active = list(
         aim = function() private$..aim$value,
@@ -224,7 +235,9 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         clusterpars = function() private$..clusterpars$value,
         var_type = function() private$..var_type$value,
         algo = function() private$..algo$value,
-        showdata = function() private$..showdata$value),
+        show_vars = function() private$..show_vars$value,
+        show_clusters = function() private$..show_clusters$value,
+        show_data = function() private$..show_data$value),
     private = list(
         ..aim = NA,
         ..find = NA,
@@ -248,7 +261,9 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..clusterpars = NA,
         ..var_type = NA,
         ..algo = NA,
-        ..showdata = NA)
+        ..show_vars = NA,
+        ..show_clusters = NA,
+        ..show_data = NA)
 )
 
 pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
@@ -262,8 +277,7 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         initnotes = function() private$.items[["initnotes"]],
         infotab = function() private$.items[["infotab"]],
         powertab = function() private$.items[["powertab"]],
-        effectsize = function() private$.items[["effectsize"]],
-        showdata = function() private$.items[["showdata"]],
+        structure = function() private$.items[["structure"]],
         plotnotes = function() private$.items[["plotnotes"]]),
     private = list(
         ..info = NA),
@@ -337,7 +351,8 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     list(
                         `name`="tested", 
                         `title`="Role", 
-                        `type`="text"),
+                        `type`="text", 
+                        `visible`="(aim:n)"),
                     list(
                         `name`="df", 
                         `title`="df", 
@@ -345,7 +360,8 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     list(
                         `name`="df_error", 
                         `title`="df_error", 
-                        `type`="number"),
+                        `type`="number", 
+                        `visible`="(algo:mc)"),
                     list(
                         `name`="sig.level", 
                         `title`="\u03B1", 
@@ -353,51 +369,115 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     list(
                         `name`="converged", 
                         `title`="% converged", 
-                        `type`="number"),
+                        `type`="number", 
+                        `visible`="(algo:mc)"),
                     list(
                         `name`="singular", 
                         `title`="% singular", 
-                        `type`="number"))))
-            self$add(jmvcore::Table$new(
-                options=options,
-                name="effectsize",
-                title="Effect size indices",
-                rows=1,
-                columns=list(
-                    list(
-                        `name`="type", 
-                        `title`="Type", 
-                        `type`="text"),
-                    list(
-                        `name`="term", 
-                        `title`="Term", 
-                        `type`="text"),
-                    list(
-                        `name`="value", 
-                        `title`="Input", 
-                        `type`="number"),
-                    list(
-                        `name`="es", 
-                        `title`="ES", 
-                        `type`="number"),
-                    list(
-                        `name`="cluster", 
-                        `title`="Cluster", 
-                        `type`="text"),
-                    list(
-                        `name`="label", 
-                        `title`="ES label", 
-                        `type`="text"))))
-            self$add(jmvcore::Table$new(
-                options=options,
-                name="showdata",
-                visible="(showdata)",
-                title="Data structure",
-                columns=list(
-                    list(
-                        `name`="row", 
-                        `title`="Row", 
-                        `type`="number"))))
+                        `type`="number", 
+                        `visible`="(algo:mc)"))))
+            self$add(R6::R6Class(
+                inherit = jmvcore::Group,
+                active = list(
+                    effectsize = function() private$.items[["effectsize"]],
+                    showdata2 = function() private$.items[["showdata2"]],
+                    showdata3 = function() private$.items[["showdata3"]],
+                    showdata4 = function() private$.items[["showdata4"]]),
+                private = list(),
+                public=list(
+                    initialize=function(options) {
+                        super$initialize(
+                            options=options,
+                            name="structure",
+                            title="Model Structure")
+                        self$add(jmvcore::Table$new(
+                            options=options,
+                            name="effectsize",
+                            title="Effect size indices",
+                            rows=1,
+                            columns=list(
+                                list(
+                                    `name`="type", 
+                                    `title`="Type", 
+                                    `type`="text"),
+                                list(
+                                    `name`="term", 
+                                    `title`="Term", 
+                                    `type`="text"),
+                                list(
+                                    `name`="value", 
+                                    `title`="Input", 
+                                    `type`="number"),
+                                list(
+                                    `name`="es", 
+                                    `title`="ES", 
+                                    `type`="number"),
+                                list(
+                                    `name`="cluster", 
+                                    `title`="Cluster", 
+                                    `type`="text"),
+                                list(
+                                    `name`="label", 
+                                    `title`="ES label", 
+                                    `type`="text"))))
+                        self$add(jmvcore::Table$new(
+                            options=options,
+                            name="showdata2",
+                            visible="(show_vars)",
+                            title="Variables parameters (one sample)",
+                            columns=list(
+                                list(
+                                    `name`="what", 
+                                    `title`="Param", 
+                                    `type`="text"),
+                                list(
+                                    `name`="var", 
+                                    `title`="Variablle", 
+                                    `type`="text"),
+                                list(
+                                    `name`="cluster", 
+                                    `title`="Cluster", 
+                                    `type`="text"),
+                                list(
+                                    `name`="value", 
+                                    `title`="Value", 
+                                    `type`="number"),
+                                list(
+                                    `name`="evalue", 
+                                    `title`="Level", 
+                                    `type`="number"))))
+                        self$add(jmvcore::Table$new(
+                            options=options,
+                            name="showdata3",
+                            visible="(show_clusters)",
+                            title="Clusters parameters (one sample)",
+                            columns=list(
+                                list(
+                                    `name`="cluster", 
+                                    `title`="Cluster", 
+                                    `type`="text"),
+                                list(
+                                    `name`="k", 
+                                    `title`="Levels (k)", 
+                                    `type`="integer"),
+                                list(
+                                    `name`="n", 
+                                    `title`="N per cluster (n)", 
+                                    `type`="integer"),
+                                list(
+                                    `name`="obs", 
+                                    `title`="N within", 
+                                    `type`="integer"))))
+                        self$add(jmvcore::Table$new(
+                            options=options,
+                            name="showdata4",
+                            visible="(show_data)",
+                            title="Data structure",
+                            columns=list(
+                                list(
+                                    `name`="row", 
+                                    `title`="Row", 
+                                    `type`="integer"))))}))$new(options=options))
             self$add(jmvcore::Html$new(
                 options=options,
                 name="plotnotes",

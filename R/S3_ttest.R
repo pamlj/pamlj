@@ -77,7 +77,7 @@
 
 .checkdata.ttestone <- function(obj) {
 
-      es<-as.numeric(obj$options$ttestind_es)
+      es<-as.numeric(obj$options$ttestone_es)
       obj$data             <- data.frame(es=es)
       obj$data$n           <- obj$options$ttestone_n
       obj$data$sig.level   <- obj$options$sig.level
