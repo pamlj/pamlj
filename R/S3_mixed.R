@@ -338,7 +338,12 @@
   model<-obj$info$model
   results<-list()
   termobj<-model$cluster_info
-  mark(attributes(model))
+  powerdata<-obj$data
+  # which cluster var has been manipulated
+  w<-model$expand
+ 
+  termobj[[w]]$n<-powerdata$n[1]
+  termobj[[w]]$k<-powerdata$k[1]
   ## freq of observations within cluster. Recall clusters can be cluster1:cluster2 or cluster
   for(term in names(model$random)) {
   
