@@ -656,9 +656,10 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
   # 5) anova table + annotations
   if ("lmerMod" %in% class(fit))
         anov <- stats::anova(fit)
-  else 
+  else  {
         anov<-   car::Anova(model,type="III")
-  
+        anov <-  anov[-1,]
+  }
   anov$name <- rownames(anov)
   newnames<-list(df=c("NumDF","Df"),df_error="DenDF",test=c("F value","Chisq"),p=c("Pr(>F)", "Pr(>Chisq)" ))
   names(anov)<- transnames(names(anov),newnames)
@@ -699,7 +700,7 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
       })
     }
   res<-as.data.frame(do.call(rbind,sims))
-  res$power<- (res[,6] < obj$data$sig.level)
+  res$power<- (res$p < obj$data$sig.level)
   pow<-lapply(c("df", "df_error","p","power","converged","singular"), function(name) tapply(res[[name]],res$name,mean, na.rm=T))
   pow<-as.data.frame(do.call(cbind,pow))
   names(pow)<-c("df","df_error","p","power","converged","singular")
