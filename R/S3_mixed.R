@@ -657,7 +657,7 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
   if ("lmerMod" %in% class(fit))
         anov <- stats::anova(fit)
   else  {
-        anov<-   car::Anova(model,type="III")
+        anov<-   car::Anova(fit,type="III")
         anov <-  anov[-1,]
   }
   anov$name <- rownames(anov)
