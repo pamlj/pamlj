@@ -566,6 +566,7 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
     obj$stop("Model cannot be simulated. Please check your input syntax")
   }
   if (!isFALSE(modelobj$message)) {
+    print(modelobj$message)
     if (grep("rank",modelobj$message,fixed = TRUE)>0)
          obj$stop("Model cannot be simulated. Please check your input model")
   }

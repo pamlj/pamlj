@@ -13,5 +13,5 @@ Description: A suite for power analysis for linear models. It allows for
 License: GPL (>=2)
 Encoding: UTF-8
 LazyData: true
-Imports: jmvcore (>= 0.8.0), pwr,viridis,rlang, qgraph, foreach, doFuture, semPower, MASS, lavaan, simr
+Imports: jmvcore (>= 0.8.0), pwr,viridis,rlang, qgraph, foreach, doFuture, semPower, MASS, lavaan, simr,car
 RoxygenNote: 7.3.2
