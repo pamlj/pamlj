@@ -146,7 +146,8 @@
           x[[w-1]]
         }
       }
-      
+      model$family<-binomial()
+#      model$family<-NULL
       obj$info$model  <- model
      
 #      dat<-.make_data(obj,k=100)
@@ -497,7 +498,14 @@
   }
     
   ## dependent 
-  data[[model$lhs]]<-rnorm(nrow(data))
+ 
+  if (is.null(model$family))
+      data[[model$lhs]]<-rnorm(nrow(data))
+  else {
+    switch (model$family$family,
+      binomial =  data[[model$lhs]]<-rbinom(nrow(data),1,.5)
+    )
+  }
   ###
   names(data) <- trimws(make.names(names(data), unique = TRUE))
   attr(data,"n")<-ns[[w]]
@@ -526,15 +534,15 @@
 
 pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
 
-  data<-.make_data(obj,n=n,k=k)
   infomod<-obj$info$model
+  data<-.make_data(obj,n=n,k=k)
   
   varcor<-lapply(infomod$random,function(x) {
     coefs<-unlist(x$coefs)
     diag(x=coefs,nrow=length(coefs))
   })
   fixed<-unlist(infomod$coefs)
-  
+  if (is.null(infomod$family)) {
   modelobj<-try_hard({
              simr::makeLmer(formula=as.formula(infomod$formula),
                    fixef=fixed,
@@ -543,7 +551,18 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
                    data=data
                    )
   })
+  } else {
+    modelobj<-try_hard({
+      simr::makeGlmer(formula=as.formula(infomod$formula),
+                      family=infomod$family,
+                     fixef=fixed,
+                     VarCorr=varcor,
+                     data=data
+      )
+    })
+  }
   if (!isFALSE(modelobj$error)) {
+    print(modelobj$error)
     obj$stop("Model cannot be simulated. Please check your input syntax")
   }
   if (!isFALSE(modelobj$message)) {
@@ -585,7 +604,7 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
  
   # 1) simulate new response
   y <- stats::simulate(model)$sim_1
-  
+ 
   # 2) fit while capturing warnings
   warn_buf <- character(0)
   fit <- withCallingHandlers(
@@ -595,11 +614,14 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
       invokeRestart("muffleWarning")
     }
   )
-  
+
   # 3) cast to lmerTest
-  fit <- lmerTest::as_lmerModLmerTest(fit)
+ 
+  if ("lmerMod" %in% class(fit))
+    fit <- lmerTest::as_lmerModLmerTest(fit)
   # 4) derive convergence + singularity
   #    (be defensive against optimizer variants)
+ 
   optinfo <- fit@optinfo
   # messages from lme4 and optimizer
   msgs <- c(
@@ -632,8 +654,15 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
   singular <- lme4::isSingular(fit, tol = tol_sing)
   
   # 5) anova table + annotations
-  anov <- stats::anova(fit)
+  if ("lmerMod" %in% class(fit))
+        anov <- stats::anova(fit)
+  else 
+        anov<-   car::Anova(model,type="III")
+  
   anov$name <- rownames(anov)
+  newnames<-list(df=c("NumDF","Df"),df_error="DenDF",test=c("F value","Chisq"),p=c("Pr(>F)", "Pr(>Chisq)" ))
+  names(anov)<- transnames(names(anov),newnames)
+  if (! "df_error" %in% names(anov)) anov$df_error<-NA
   anov$converged <- rep(converged, nrow(anov))
   anov$singular  <- rep(singular,  nrow(anov))
   if (isTRUE(include_warnings)) {
@@ -669,12 +698,11 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
         .sim_fun(model)
       })
     }
-
   res<-as.data.frame(do.call(rbind,sims))
   res$power<- (res[,6] < obj$data$sig.level)
-  pow<-lapply(c("NumDF", "DenDF","F value","Pr(>F)","power","converged","singular"), function(name) tapply(res[[name]],res$name,mean, na.rm=T))
+  pow<-lapply(c("df", "df_error","p","power","converged","singular"), function(name) tapply(res[[name]],res$name,mean, na.rm=T))
   pow<-as.data.frame(do.call(cbind,pow))
-  names(pow)<-c("df","df_error","F","p","power","converged","singular")
+  names(pow)<-c("df","df_error","p","power","converged","singular")
   pow$effect<-rownames(pow)
   pow$n<-attr(model,"n")
   pow$k<-attr(model,"k")

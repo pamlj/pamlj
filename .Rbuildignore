@@ -5,3 +5,5 @@ extdata$
 ^.*jmo
 jamovi$
 local$
+^\.positai$
+^\.claude$
