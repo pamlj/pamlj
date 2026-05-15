@@ -20,6 +20,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             set_seed = FALSE,
             seed = 42,
             stability = "l1",
+            model_type = "linear",
             .interface = "jamovi",
             .caller = "pamlmixed",
             .info = FALSE,
@@ -109,6 +110,13 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 options=list(
                     "l1",
                     "l2"))
+            private$..model_type <- jmvcore::OptionList$new(
+                "model_type",
+                model_type,
+                options=list(
+                    "linear",
+                    "logistic"),
+                default="linear")
             private$...interface <- jmvcore::OptionString$new(
                 ".interface",
                 .interface,
@@ -201,6 +209,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..set_seed)
             self$.addOption(private$..seed)
             self$.addOption(private$..stability)
+            self$.addOption(private$..model_type)
             self$.addOption(private$...interface)
             self$.addOption(private$...caller)
             self$.addOption(private$...info)
@@ -228,6 +237,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         set_seed = function() private$..set_seed$value,
         seed = function() private$..seed$value,
         stability = function() private$..stability$value,
+        model_type = function() private$..model_type$value,
         .interface = function() private$...interface$value,
         .caller = function() private$...caller$value,
         .info = function() private$...info$value,
@@ -254,6 +264,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..set_seed = NA,
         ..seed = NA,
         ..stability = NA,
+        ..model_type = NA,
         ...interface = NA,
         ...caller = NA,
         ...info = NA,
@@ -286,7 +297,7 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             super$initialize(
                 options=options,
                 name="",
-                title="Mixed Models Power analysis")
+                title="Mixed Models R")
             private$..info <- NULL
             self$add(jmvcore::Html$new(
                 options=options,

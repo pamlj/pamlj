@@ -12,7 +12,7 @@
       if (!isFALSE(syntaxobj$error)) obj$stop("Model formula not correct:" %+% syntaxobj$error)
       model<-syntaxobj$obj
       if (is.null(model$terms)) {
-          obj$warning<-list(topic="issues",message="Please insert a linear mixed model in the syntax", head="info")
+          obj$warning<-list(topic="issues",message="Please insert a mixed model in the syntax", head="info")
           obj$ok<-FALSE
           return()
       }
@@ -28,7 +28,7 @@
       ## now we fill the info regarding the clusters
       syn_clusters<-model$clusters
       if (!is.something(syn_clusters)) 
-        obj$stop("Please specify the random component is the  linear mixed model syntax")
+        obj$stop("Please specify the random component is the mixed model syntax")
 
       clusterpars<- obj$options$clusterpars
       names(clusterpars)<-sapply(obj$options$clusterpars, function(x) x$name)
@@ -127,7 +127,6 @@
 
       if (obj$options$algo=="mc" && obj$ok) {
         obj$info$parallel    <-  obj$options$parallel 
-        obj$warning     <-  list(topic="initnotes",message="Monte Carlo method may take several minutes to estimate the results. Please be patient.", head="wait")
         if (obj$info$R<1000)
            obj$warning     <-  list(topic="issues",message="Simulations replications is set to " %+% obj$info$R %+% ". Please set a number greater than 1000 for more stable results.", head="info")
       
@@ -146,8 +145,11 @@
           x[[w-1]]
         }
       }
-      model$family<-binomial()
-#      model$family<-NULL
+      ### select model type
+      model$family <- switch(obj$options$model_type,
+                             "linear" = NULL,
+                             "logistic" = binomial()
+      )
       obj$info$model  <- model
      
 #      dat<-.make_data(obj,k=100)
@@ -1009,8 +1011,19 @@ standardize_between <- function(data, x, cluster) {
   
       model<-obj$info$model
       coefs<-gsub(")","]",gsub("c(","[",paste(model$coefs, collapse=", "),fixed=T), fixed=T)
-      
-      tab<- list(list(info="Model",value=model$formula, specs=""),
+      if (is.null(model$family)) {
+        type="Linear"
+        dist="Gaussian"
+      }
+      else {
+           switch (model$family$family,
+                        binomial = {type<-"Logistic"
+                                    dist<-"Binomial"}
+                     )
+      }
+      tab<- list(
+             list(info="Model Type",value=type, specs=dist),
+             list(info="Model",value=model$formula, specs=""),
              list(info="Fixed effects",value=model$rhs, specs=""),       
              list(info="Fixed coefs",value=coefs, specs=" "),       
             list(info="Clusters:",value=" ",specs=" ")

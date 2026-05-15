@@ -6,7 +6,8 @@
 #'   \code{power} to estimate power
 #' @param find When \code{aim='n'}, indicates whether to find number of clusters \code{find='k'} or number of cases within each cluster \code{find='n'} (default). 
 #' @param syntax The model to be analysed with possible options
-#' @param sigma2 Residual variance
+#' @param model_type The model type or family: `linear` (default) for linear mixed model, `logistic` for binomial logistic mixed model. 
+#' @param sigma2 Residual variance. Ignored for `model_type="logistic"`
 #' @param power Minimal desired power
 #' @param sig.level Type I error rate (significance cut-off or alpha)
 #' @param  Number of repetitions for Monte Carlo method
@@ -46,6 +47,7 @@ pamlmixed <- function(
     syntax = NULL,
     clusterpars = list(),
     categorical = list(),    
+    model_type= "linear",
     sigma2 = 1,
     power = 0.9,
     sig.level = 0.05,
@@ -85,6 +87,7 @@ pamlmixed <- function(
     pars
   })
   )
+  if (model_type=="logistic") sigma2=1
   ## standard stuff
   .interface = "R"
   .caller = "pamlmixed"
@@ -98,6 +101,7 @@ pamlmixed <- function(
     aim = aim,
     find= find,
     code=syntax,
+    model_type=model_type,
     clusterpars = clusterpars,
     var_type = var_type,
     sigma2 = sigma2,

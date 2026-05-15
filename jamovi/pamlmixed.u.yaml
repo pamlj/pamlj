@@ -1,4 +1,4 @@
-title: Mixed Models power analysis
+title: Mixed Models U
 name: pamlmixed
 jus: '3.0'
 stage: 0
@@ -10,15 +10,33 @@ children:
   - type: LayoutBox
     stretchFactor: 1
     children:
-      - type: Label
-        label: Aim
-        style: inline
+      - type: LayoutBox
+        margin: large
         children:
-          - type: ComboBox
-            name: aim
-          - type: ComboBox
-            name: find
-            enable: (aim:n)
+              - type: Label
+                label: Model Family
+                children:
+                  - type: RadioButton
+                    name: model_type_linear
+                    optionName: model_type
+                    optionPart: linear
+                  - type: RadioButton
+                    name: model_type_logistic
+                    optionName: model_type
+                    optionPart: logistic
+
+      - type: LayoutBox
+        margin: large
+        children:
+          - type: Label
+            label: Aim
+            style: inline
+            children:
+              - type: ComboBox
+                name: aim
+              - type: ComboBox
+                name: find
+                enable: (aim:n)
       - type: Label
         label: Model Syntax
         name: model_syntax
@@ -38,6 +56,7 @@ children:
             type: TextBox
             label: Residual Variance
             format: number
+            enable: (model_type:linear)
               
   - type: Label
     label: Model Structure

@@ -82,12 +82,12 @@ analyses:
     description: |
       Something here
     category: analyses
-  - title: Linear Mixed Models
+  - title: Mixed Models A
     name: pamlmixed
     ns: pamlj
     menuSubgroup: Pamlj
     menuGroup: Power
-    menuTitle: Linear Mixed Models
+    menuTitle: Mixed Models A
     description: |
       Something here
     category: analyses
