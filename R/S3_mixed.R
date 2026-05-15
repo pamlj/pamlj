@@ -180,7 +180,7 @@
            what<-"number of clusters levels"  
            n<-obj$info$model$cluster_info[[1]]$n
            l <- obj$info$model$cluster_info[[1]]$k
-           rinfo("Finding number of clusters\n")
+           rmsg_msg("Finding number of clusters")
            ## we want f() to search for n
            f1<-function(int) {
              .fast_onerun(obj,n=NULL,k=int)
@@ -196,7 +196,7 @@
            l <- obj$info$model$cluster_info[[1]]$n
            # if we have random slopes, start with n>2
            if (l < 4 && length(obj$info$model$random[[1]]$terms) > 1) l<-4
-           rinfo("Finding number of cases within clusters\n")
+           rmsg_msg("Finding number of cases within clusters")
            ## we want f() to search for k
            f1<-function(int) {
              .fast_onerun(obj,int,k=NULL)
@@ -221,7 +221,7 @@
      int<-.pow[[find]][[1]]
      out<-attr(.pow,"out")
      pwr<-attr(.pow,"power")
-     rinfo("\nQuick search found " %+% find %+% "=" %+% .pow[[find]][[1]] %+% " with exit:" %+% out %+% "\n")
+     rmsg_success("Quick search found " %+% find %+% "=" %+% .pow[[find]][[1]] %+% " with exit:" %+% out,cr=TRUE)
  
      if (!is.null(out) && out=="asymptote" && abs(obj$info$power-pwr)>.10 && obj$options$algo=="mc") {
        pow<-.slow_onerun(obj,n=.pow$n,k=.pow$k)
@@ -245,7 +245,7 @@
          out<-attr(pow,"out")
          pwr<-attr(pow,"power")
 
-         rinfo("\nMC search found " %+% find %+% "=" %+% pow[[find]][[1]] %+% " with exit:" %+% out %+% "\n")
+         rmsg_success("MC search found " %+% find %+% "=" %+% pow[[find]][[1]] %+% " with exit:" %+% out,cr=TRUE)
          if (!is.null(out) && out=="asymptote" && abs(obj$info$power-pwr)> obj$options$tol) {
                msg<-"Power calculation indicates that the input model would not achieve the exact desired power. Power remains around " %+%
                round(pow$power,5) %+% " when " %+% what %+%" > " %+% pow[[find]] 
@@ -842,8 +842,9 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
   cache$max<-list(n=100000,v=1)
   cache$min<-list(n=0,v=0)
   iter<-0
+  status<-rmsg_start_status()
   repeat{
-    rinfo("INT_SEEK: trying n=",n," with boundaries [",cache$min$n,",",cache$max$n,"] ")
+    status("INT_SEEK: trying n=" %+% n %+%" with boundaries [" %+% cache$min$n %+% "," %+% cache$max$n %+% "] ")
     iter<-iter+1
     res<-fun(n)
     oldn<-n
@@ -857,14 +858,14 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
     cache$reslist<-cache$reslist[-1]
     cache$nlist[[length(cache$nlist)+1]]<-n
     
-    
+    cli::cat_line
     if (diff>0) dir<- -1 else dir<-1
     steps<-round(adiff*astep*dir)
     n<- n+steps
     s<-sd(unlist(cache$reslist))
     attr(res,"sd")<-s  
     attr(res,"dir")<-dir
-    rinfo("obtained power =",round(pwr,5)," target=",target_power," next steps=",steps," sd=",s)
+    status("INT_SEEK: obtained power =" %+% round(pwr,5) %+% " target=" %+% target_power %+% " next steps=" %+% steps %+% " sd=" %+% s)
     if (stability=="l1") {
       if (n %in% cache$nlist) {
        n<-n+dir
