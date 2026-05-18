@@ -274,6 +274,7 @@
      # we use the first cluster parameters
      n<-obj$info$model$random[[1]]$n
      k<-obj$info$model$random[[1]]$k
+     rmsg_msg("Finding power for n=" %+% n %+% " and k=" %+% k)
      pow<-.fun(obj,n=n,k=k)
      pow$sig.level<-obj$data$sig.level
      obj$data<-pow
@@ -881,15 +882,18 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
     ## if power is always lower than target it may be stuck
     if (s<(tol/4)) {
       attr(res,"out")<-"asymptote"
+      status("INT_SEEK:asymptote",finish=TRUE)
       return(res)
     }
     
     if (iter>max_iter) {
       attr(res,"out")<-"maxiter"
+      status("INT_SEEK: maxiter",finish=TRUE)
       return(res)
     }
     if (steps==0) {
       attr(res,"out")<-"nosteps"
+      status("INT_SEEK: nosteps",finish=TRUE)
       return(res)
       
     }
@@ -909,10 +913,12 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
     # if max n and min n are the same or 1 unit apart, return
     if ((cache$max$n-cache$min$n) <= 1 ) {
       attr(res,"out")<-"closed"
+      status("INT_SEEK:closed",finish=TRUE)
       return(res)
     }
     if ((cache$max$n-cache$min$n) == 2 && n==(cache$min$n+1)) {
       attr(res,"out")<-"middle"
+      status("INT_SEEK: middle",finish=TRUE)
       return(res)
     }
     if (n <= cache$min$n)  n<-cache$min$n+1

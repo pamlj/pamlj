@@ -1,5 +1,5 @@
-j_DEBUG = T
-j_INFO = T
+j_DEBUG = F
+j_INFO = F
 t_INFO  = F
 MODULE = "pamlj"
 
@@ -136,7 +136,6 @@ rmsg_start_status <- function() {
         return(invisible(FALSE))
       }
       text <- paste(as.character(text), collapse = " ")
-      
       if (finish) {
         icon <- cli::col_green("✔")
         module <- cli::col_green(MODULE)
