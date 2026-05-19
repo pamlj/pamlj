@@ -22,6 +22,7 @@
 #'   Any variable in the model not mentioned in `categorical ` is assumed to be numeric.
 #' @param seed the seed for Monte Carlo simulations, default=42.
 #' @param run TRUE (default) run the simulations, otherwise print out the model without results
+#' @param verbose (Boolean) `getOption("pamlj.messages")` (default). Print out updates of the simulation steps. 
 #' @param ... Used for internal purposes
 #' @return A results object containing:
 #' \tabular{llllll}{
@@ -57,6 +58,7 @@ pamlmixed <- function(
     set_seed = FALSE,
     seed = 42,
     run=TRUE,
+    verbose=getOption("pamlj.messages"),
     ...
     ) {
   
@@ -65,7 +67,11 @@ pamlmixed <- function(
   
   if (is.null(syntax))
      stop("Please speficy a model with expected coefficient with the parameter `syntax`")
-
+  
+  pmalj_messages<-getOption("pamlj.messages")
+  options("pamlj.messages"=verbose)
+  
+  
   ## get some info to pass to   pamlmixedClass
   modelobj    <-  try_hard(syntax_digest(syntax))
   if (!isFALSE(modelobj$error)) stop("Model formula not correct:" %+% modelobj$error)
@@ -128,5 +134,6 @@ pamlmixed <- function(
     analysis$init()
   
   analysis$results
+  options("pamlj.messages"=pamlj_messages)
 }
 
