@@ -504,7 +504,7 @@ pamlmixedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             super$initialize(
                 package = "pamlj",
                 name = "pamlmixed",
-                version = c(0,5,0),
+                version = c(1,0,0),
                 options = options,
                 results = pamlmixedResults$new(options=options),
                 data = data,
