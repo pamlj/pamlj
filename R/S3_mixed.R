@@ -272,9 +272,10 @@
      else
          .fun<-.fast_onerun
      # we use the first cluster parameters
-     n<-obj$info$model$random[[1]]$n
-     k<-obj$info$model$random[[1]]$k
-     rmsg_msg("Finding power for n=" %+% n %+% " and k=" %+% k)
+     n<-obj$info$model$cluster_info[[1]]$n
+     k<-obj$info$model$cluster_info[[1]]$k
+     msg<-"Finding power for n=" %+% n %+% " and k=" %+% k
+     rmsg_msg(msg)
      pow<-.fun(obj,n=n,k=k)
      pow$sig.level<-obj$data$sig.level
      obj$data<-pow
