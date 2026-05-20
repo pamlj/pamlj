@@ -297,7 +297,7 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             super$initialize(
                 options=options,
                 name="",
-                title="Mixed Models R")
+                title="Power analysis: mixed models")
             private$..info <- NULL
             self$add(jmvcore::Html$new(
                 options=options,

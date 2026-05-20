@@ -68,7 +68,7 @@ pamlmixed <- function(
   if (is.null(syntax))
      stop("Please speficy a model with expected coefficient with the parameter `syntax`")
   
-  pmalj_messages<-getOption("pamlj.messages")
+  pamlj_messages<-getOption("pamlj.messages")
   options("pamlj.messages"=verbose)
   
   
@@ -133,7 +133,8 @@ pamlmixed <- function(
   else
     analysis$init()
   
-  analysis$results
+  a<-analysis$results
   options("pamlj.messages"=pamlj_messages)
+  return(a)
 }
 
