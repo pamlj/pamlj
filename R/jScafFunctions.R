@@ -1,5 +1,5 @@
-j_DEBUG = F
-j_INFO = F
+j_DEBUG = FALSE
+j_INFO = FALSE
 t_INFO  = F
 MODULE = "pamlj"
 

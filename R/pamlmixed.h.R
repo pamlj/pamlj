@@ -11,6 +11,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             code = "",
             fonts = "small",
             toggle = FALSE,
+            run = FALSE,
             sigma2 = 1,
             power = 0.9,
             sig.level = 0.05,
@@ -69,7 +70,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 hidden=TRUE)
             private$..run <- jmvcore::OptionAction$new(
                 "run",
-                FALSE,
+                run,
                 hidden=TRUE)
             private$..sigma2 <- jmvcore::OptionNumber$new(
                 "sigma2",

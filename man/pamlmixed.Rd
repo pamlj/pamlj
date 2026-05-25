@@ -10,6 +10,7 @@ pamlmixed(
   syntax = NULL,
   clusterpars = list(),
   categorical = list(),
+  model_type = "linear",
   sigma2 = 1,
   power = 0.9,
   sig.level = 0.05,
@@ -17,7 +18,10 @@ pamlmixed(
   mcR = 500,
   parallel = TRUE,
   set_seed = FALSE,
-  seed = 42
+  seed = 42,
+  run = TRUE,
+  verbose = getOption("pamlj.messages"),
+  ...
 )
 }
 \arguments{
@@ -35,7 +39,9 @@ used as starting point for sample size. If \code{aim=clusters}, `k1` is used as 
 \item{categorical}{A named list of the form `list(varname1=x1,varname2=x2)`, specifying which variable is categorical and the number of levels (x). 
 Any variable in the model not mentioned in `categorical ` is assumed to be numeric.}
 
-\item{sigma2}{Residual variance}
+\item{model_type}{The model type or family: `linear` (default) for linear mixed model, `logistic` for binomial logistic mixed model.}
+
+\item{sigma2}{Residual variance. Ignored for `model_type="logistic"`}
 
 \item{power}{Minimal desired power}
 
@@ -50,11 +56,13 @@ Carlo method}
 
 \item{seed}{the seed for Monte Carlo simulations, default=42.}
 
+\item{run}{TRUE (default) run the simulations, otherwise print out the model without results}
+
+\item{verbose}{(Boolean) `getOption("pamlj.messages")` (default). Print out updates of the simulation steps.}
+
+\item{...}{Used for internal purposes}
+
 \item{Number}{of repetitions for Monte Carlo method}
-
-\item{.interface}{Used for internal purposes}
-
-\item{.caller}{Used for internal purposes}
 }
 \value{
 A results object containing:

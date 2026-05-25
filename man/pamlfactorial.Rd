@@ -127,6 +127,7 @@ A results object containing:
   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
   \code{results$extrainfo} \tab \tab \tab \tab \tab a html \cr
   \code{results$issues} \tab \tab \tab \tab \tab a html \cr
+  \code{results$infotab} \tab \tab \tab \tab \tab a table \cr
   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
   \code{results$powerbyes} \tab \tab \tab \tab \tab a table \cr
   \code{results$means} \tab \tab \tab \tab \tab an array of predicted means tables \cr
@@ -141,9 +142,9 @@ A results object containing:
 
 Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:
 
-\code{results$powertab$asDF}
+\code{results$infotab$asDF}
 
-\code{as.data.frame(results$powertab)}
+\code{as.data.frame(results$infotab)}
 }
 \description{
 Something here
