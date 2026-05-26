@@ -2,14 +2,13 @@
 
 .checkdata.pamlmixed <- function(obj) {
 
-
       if (is.something(obj$data)) 
         return()
       jinfo("Checking data for pamlmixed")
-
+     
       ### first we take all information from the syntax
       syntaxobj<-try_hard(syntax_digest(obj$options$code))
-      if (!isFALSE(syntaxobj$error)) obj$stop("Model formula not correct:" %+% syntaxobj$error)
+      if (!isFALSE(syntaxobj$error)) obj$stop("Model formula not correct: " %+% syntaxobj$error)
       model<-syntaxobj$obj
       if (is.null(model$terms)) {
           obj$warning<-list(topic="issues",message="Please insert a mixed model in the syntax", head="info")
@@ -427,10 +426,12 @@
 
   ## first we deal with categorical within (default)
   ## the code is weired and ugly, but it handles a lot of different combinations of designs
-  
   ## first, we select the categorcial variables
+
+
   cats<-lapply(model$variable_info,function(x) if (x$type=="categorical") return(x))
   cats<-cats[sapply(cats,function(x) !is.null(x))]
+
   if (length(cats)>0) {
   
     cats_within<-lapply(cats,function(x) if (is.null(x$between)) return(x))
@@ -485,7 +486,6 @@
   for (x in model$cluster_info) {
     data[[x$name]]<-factor(data[[x$name]])
   } 
-  
   ## now we deal with numeric variables 
   nums_vars<-lapply(model$variable_info,function(x) if (x$type=="continuous") return(x))
   nums_vars<-nums_vars[sapply(nums_vars,function(x) !is.null(x))]
@@ -546,6 +546,7 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
     diag(x=coefs,nrow=length(coefs))
   })
   fixed<-unlist(infomod$coefs)
+
   if (is.null(infomod$family)) {
   modelobj<-try_hard({
              simr::makeLmer(formula=as.formula(infomod$formula),
@@ -785,12 +786,19 @@ extract_syntax_commands<-function(obj,model) {
   if (any(c("bet","between") %in% names(cmd))) {
     for (x in cmd$bet) {
       str<-stringr::str_split(x,"\\|")[[1]]
-      model$variable_info[[str[[1]]]]$between=str[[2]]
+      if (length(str)<2) 
+        stop("between: command requires a coefficient and a cluster variable as in `between:x|cluster`",call. = FALSE)
+      if (str[[1]] %in% model$varnames)
+          model$variable_info[[str[[1]]]]$between=str[[2]]
+      else
+          warning("variable " %+% str[[1]] %+% " in `between:` command is not a variable of the model. Command ignored",call. = FALSE)
     }
   }
   if (any(c("wit","within") %in% names(cmd))) {
     for (x in cmd$wit) {
       str<-stringr::str_split(x,"\\|")[[1]]
+      if (length(str)<2) 
+        stop("within: command requires a coefficient and a cluster variable as in `within:x|cluster`",call. = FALSE)
       model$variable_info[[str[[1]]]]$within=str[[2]]
     }
   }

@@ -1,5 +1,5 @@
-j_DEBUG = FALSE
-j_INFO = FALSE
+j_DEBUG = T
+j_INFO = T
 t_INFO  = F
 MODULE = "pamlj"
 
@@ -210,7 +210,6 @@ try_hard<-function(exp,max_warn=5, silent=FALSE) {
   }
   if(length(.results$warning)==0) .results$warning<-FALSE
   if(length(.results$warning)==1) .results$warning<-.results$warning[[1]]
-  
   
   return(.results)
 }
