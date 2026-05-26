@@ -288,9 +288,9 @@
     info<-obj$info$model$cluster_info[-w]
     hm<-unlist(lapply(names(info), function(x) {
       cluster<-info[[x]]
-      paste("cluster variable <b>",cluster$name, "</b> with n=",cluster$n," and k=",cluster$k)
+      paste("cluster variable `",cluster$name, "` with n=",cluster$n," and k=",cluster$k)
     }))
-    msg<-"Power parameters are computed for cluster variable <b>" %+% target$name %+% "</b>, setting " %+% paste(hm, collapse = ", ")
+    msg<-"Power parameters are computed for cluster variable `" %+% target$name %+% "`, setting " %+% paste(hm, collapse = ", ")
     obj$warning<-list(topic="powertab",message=msg)
   }
   jinfo("PAMLj: S3: pamlmixed powervector:done")
@@ -791,7 +791,7 @@ extract_syntax_commands<-function(obj,model) {
       if (str[[1]] %in% model$varnames)
           model$variable_info[[str[[1]]]]$between=str[[2]]
       else
-          warning("variable " %+% str[[1]] %+% " in `between:` command is not a variable of the model. Command ignored",call. = FALSE)
+          obj$warning<-list(topic="issue",message="Variable " %+% str[[1]] %+% " in `between:` command is not a variable of the model. Command ignored",head="warning")
     }
   }
   if (any(c("wit","within") %in% names(cmd))) {
@@ -811,7 +811,10 @@ extract_syntax_commands<-function(obj,model) {
     }
   }
   if ("expand" %in% names(cmd)) {
-     model$expand<-cmd$expand[[1]]
+     if (cmd$expand %in% model$clusters)
+         model$expand<-cmd$expand[[1]]
+     else
+         obj$warning<-list(topic="issues",messages="Cluster variable `" %+% cmd$expand %+% "` in command `expand` not found. Command ignored",head="warning")
   }
     
     
