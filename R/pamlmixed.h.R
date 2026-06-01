@@ -22,6 +22,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             seed = 42,
             stability = "l1",
             model_type = "linear",
+            test = "f",
             .interface = "jamovi",
             .caller = "pamlmixed",
             .info = FALSE,
@@ -118,6 +119,13 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "linear",
                     "logistic"),
                 default="linear")
+            private$..test <- jmvcore::OptionList$new(
+                "test",
+                test,
+                options=list(
+                    "f",
+                    "chi"),
+                default="f")
             private$...interface <- jmvcore::OptionString$new(
                 ".interface",
                 .interface,
@@ -211,6 +219,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..seed)
             self$.addOption(private$..stability)
             self$.addOption(private$..model_type)
+            self$.addOption(private$..test)
             self$.addOption(private$...interface)
             self$.addOption(private$...caller)
             self$.addOption(private$...info)
@@ -239,6 +248,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         seed = function() private$..seed$value,
         stability = function() private$..stability$value,
         model_type = function() private$..model_type$value,
+        test = function() private$..test$value,
         .interface = function() private$...interface$value,
         .caller = function() private$...caller$value,
         .info = function() private$...info$value,
@@ -266,6 +276,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..seed = NA,
         ..stability = NA,
         ..model_type = NA,
+        ..test = NA,
         ...interface = NA,
         ...caller = NA,
         ...info = NA,

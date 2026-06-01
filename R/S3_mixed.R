@@ -149,6 +149,7 @@
                              "linear" = NULL,
                              "logistic" = binomial()
       )
+      obj$info$test <- obj$options$test
       obj$info$model  <- model
      
 #      dat<-.make_data(obj,k=100)
@@ -607,7 +608,7 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
 
 }
 
-.sim_fun <- function(model, tol_sing = 1e-4, include_warnings = TRUE) {
+.sim_fun <- function(model, test,tol_sing = 1e-4, include_warnings = TRUE) {
   
  
   # 1) simulate new response
@@ -662,7 +663,7 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
   singular <- lme4::isSingular(fit, tol = tol_sing)
   
   # 5) anova table + annotations
-  if ("lmerMod" %in% class(fit))
+  if ("lmerModLmerTest" %in% class(fit) & test=="f")
         anov <- stats::anova(fit)
   else  {
         anov<-   car::Anova(fit,type="III")
@@ -697,14 +698,14 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
         i = seq_len(R),
         .options.future = list(seed = master_seed)  # common random numbers CRN: deterministic substream per i
       ) %dofuture% {
-        .sim_fun(model)
+        .sim_fun(model,obj$info$test)
       }
     } else {
       # serial, still CRN: use per-rep substreams derived from the master seed
       set.seed(master_seed, kind = "L'Ecuyer-CMRG")
       sims <- lapply(seq_len(R), function(i) {
         set.seed(master_seed + i, kind = "L'Ecuyer-CMRG")
-        .sim_fun(model)
+        .sim_fun(model,obj$info$test)
       })
     }
   res<-as.data.frame(do.call(rbind,sims))

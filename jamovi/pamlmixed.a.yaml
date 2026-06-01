@@ -176,6 +176,22 @@ options:
             R: |
                 Select the generalized linear model: `linear`,`logistic`.
 
+    -   name: test
+        title: Test
+        type: List
+        options:
+            -   name: f
+                title: F-test
+            -   name: chi
+                title: Chi-squared
+        default: f
+        description:
+            gui: |
+                Use the inferential test: `F-test`,`Chi-squared`.
+
+            R: |
+                Use the inferential test: `f` for `F-test`,and `chi` for `Chi-squared`.
+
 ## tech stuff
     - name: .interface
       type: String
