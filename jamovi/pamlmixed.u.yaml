@@ -164,6 +164,24 @@ children:
                        type: RadioButton
                        optionName: algo
                        optionPart: raw
+          - type: Label
+            name: test_label
+            label: Test
+            children:
+                - type: LayoutBox
+                  name: test_layout
+                  style: list
+                  children:
+                     - name: test_f
+                       type: RadioButton
+                       optionName: test
+                       optionPart: f
+                       enable: (model_type:linear)
+                     - name: test_chi
+                       type: RadioButton
+                       optionName: test
+                       optionPart: chi
+                       enable: (model_type:linear)
 
           - type: Label
             name: out_label
