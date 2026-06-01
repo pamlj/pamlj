@@ -219,6 +219,7 @@ Plotter <- R6::R6Class(
       esmin <- data$es/obj$plots$esrange
       if (esmin < obj$info$esmin) esmin<-obj$info$esmin
       .data<-data
+      .data$precise <- FALSE
       .data$es<-esmin
       .data$n<-NULL
       nmax<-powervector(obj,.data)$n
@@ -263,11 +264,13 @@ Plotter <- R6::R6Class(
        ytickslabels<-format(FEY(yticks),digits=3)
        ytickslabels<-sub("^0+", "", ytickslabels)
       .data <- cbind(n,obj$data)
+      .data$precise <- FALSE
       .data$es <- NULL
       .data$power[.data$power<.0501]<- .0501
        yline=powervector(obj,.data)[["es"]]
        yline=FLY(yline)
       .data <- cbind(n,obj$data)
+      .data$precise <- FALSE
       .data$power<-NULL
        out<-lapply(es,function(ind)  {
          .data$es<-ind
@@ -321,6 +324,7 @@ Plotter <- R6::R6Class(
        ticks<-seq(FLX(nmin),FLX(nmax),len=6)
        tickslabels<-round(FEX(ticks))
       .data<-obj$data
+      .data$precise <- FALSE
       .data[["n"]]<-NULL
       .data  <- cbind(n,.data)
       .data$power<-NULL
@@ -356,6 +360,7 @@ Plotter <- R6::R6Class(
         image<-private$.results$powerEscurve
     ## check the min-max for effect size
       .data<-data
+      .data$precise <- FALSE
       .data$power<-.99
        esmax <- find_max_es(obj,.data)
 
@@ -380,6 +385,7 @@ Plotter <- R6::R6Class(
        tickslabels<-round(FEX(ticks),digits=3)
 
         .data <- cbind(es,obj$data) 
+        .data$precise <- FALSE
         .data$power<-NULL
         ydata<-powervector(obj,.data)
         ydata$x <- x

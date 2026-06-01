@@ -6,7 +6,8 @@
 #'   \code{power} to estimate power
 #' @param find When \code{aim='n'}, indicates whether to find number of clusters \code{find='k'} or number of cases within each cluster \code{find='n'} (default). 
 #' @param syntax The model to be analysed with possible options
-#' @param sigma2 Residual variance
+#' @param model_type The model type or family: `linear` (default) for linear mixed model, `logistic` for binomial logistic mixed model. 
+#' @param sigma2 Residual variance. Ignored for `model_type="logistic"`
 #' @param power Minimal desired power
 #' @param sig.level Type I error rate (significance cut-off or alpha)
 #' @param  Number of repetitions for Monte Carlo method
@@ -21,6 +22,7 @@
 #'   Any variable in the model not mentioned in `categorical ` is assumed to be numeric.
 #' @param seed the seed for Monte Carlo simulations, default=42.
 #' @param run TRUE (default) run the simulations, otherwise print out the model without results
+#' @param verbose (Boolean) `getOption("pamlj.messages")` (default). Print out updates of the simulation steps. 
 #' @param ... Used for internal purposes
 #' @return A results object containing:
 #' \tabular{llllll}{
@@ -46,6 +48,7 @@ pamlmixed <- function(
     syntax = NULL,
     clusterpars = list(),
     categorical = list(),    
+    model_type= "linear",
     sigma2 = 1,
     power = 0.9,
     sig.level = 0.05,
@@ -55,6 +58,7 @@ pamlmixed <- function(
     set_seed = FALSE,
     seed = 42,
     run=TRUE,
+    verbose=getOption("pamlj.messages"),
     ...
     ) {
   
@@ -63,7 +67,11 @@ pamlmixed <- function(
   
   if (is.null(syntax))
      stop("Please speficy a model with expected coefficient with the parameter `syntax`")
-
+  
+  pamlj_messages<-getOption("pamlj.messages")
+  options("pamlj.messages"=verbose)
+  
+  
   ## get some info to pass to   pamlmixedClass
   modelobj    <-  try_hard(syntax_digest(syntax))
   if (!isFALSE(modelobj$error)) stop("Model formula not correct:" %+% modelobj$error)
@@ -85,6 +93,7 @@ pamlmixed <- function(
     pars
   })
   )
+  if (model_type=="logistic") sigma2=1
   ## standard stuff
   .interface = "R"
   .caller = "pamlmixed"
@@ -98,6 +107,7 @@ pamlmixed <- function(
     aim = aim,
     find= find,
     code=syntax,
+    model_type=model_type,
     clusterpars = clusterpars,
     var_type = var_type,
     sigma2 = sigma2,
@@ -123,6 +133,8 @@ pamlmixed <- function(
   else
     analysis$init()
   
-  analysis$results
+  a<-analysis$results
+  options("pamlj.messages"=pamlj_messages)
+  return(a)
 }
 

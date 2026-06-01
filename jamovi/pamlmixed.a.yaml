@@ -1,8 +1,8 @@
 ---
 name: pamlmixed
-title: Linear Mixed Models 
+title: "Mixed Models" 
 menuGroup: Power
-version: '0.5.0'
+version: '1.0.0'
 jas: '1.2'
 export: false
 completeWhenFilled: false
@@ -160,6 +160,21 @@ options:
                         but may yield different results across different runs. `level2` algorithm is slower and more stochastic,
                         but (tend to) yield results more similar across different runs
 
+    -   name: model_type
+        title: Model Selection
+        type: List
+        options:
+            -   name: linear
+                title: Linear
+            -   name: logistic
+                title: Logistic
+        default: linear
+        description:
+            gui: |
+                Select the generalized linear model: `Linear`,`Logistic`.
+
+            R: |
+                Select the generalized linear model: `linear`,`logistic`.
 
 ## tech stuff
     - name: .interface

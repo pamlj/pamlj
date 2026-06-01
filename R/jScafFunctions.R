@@ -1,7 +1,7 @@
 j_DEBUG = FALSE
 j_INFO = FALSE
-t_INFO  <- F
-
+t_INFO  = F
+MODULE = "pamlj"
 
 #### Helper functions used by Scaffold (not exported)
 
@@ -51,6 +51,113 @@ rinfo <- function(...) {
   cat(info,"\n")
 }
 
+
+rmsg_msg <- function(text) {
+  
+    text <- paste(as.character(text), collapse = " ")
+    opt_name <- paste0(MODULE, ".messages")
+    if (!isTRUE(getOption(opt_name))) {
+      return(invisible(FALSE))
+    }
+    
+    icon <- cli::col_blue("ℹ")
+    module <- cli::col_blue(MODULE)
+    cli::cat_line(paste0(icon, " ", module, ": ", text))
+    
+    invisible(TRUE)
+  }
+
+rmsg_warn <- function(text) {
+  
+  text <- paste(as.character(text), collapse = " ")
+  
+  opt_name <- paste0(MODULE, ".messages")
+  
+  if (!isTRUE(getOption(opt_name))) {
+    return(invisible(FALSE))
+  }
+  
+  icon <- cli::col_yellow("⚠")
+  module <- cli::col_yellow(MODULE)
+  
+  cli::cat_line(paste0(icon, " ", module, ": ", text))
+  
+  invisible(TRUE)
+}
+
+rmsg_success <- function(text,cr=FALSE) {
+  
+  text <- paste(as.character(text), collapse = " ")
+  
+  opt_name <- paste0(MODULE, ".messages")
+  
+  if (!isTRUE(getOption(opt_name))) {
+    return(invisible(FALSE))
+  }
+  
+  icon <- cli::col_green("✔")
+  module <- cli::col_green(MODULE)
+  bit<-""
+  if (cr) bit<-"\n\n"
+  cli::cat_line(paste0(bit,icon, " ", module, ": ", text))
+  
+  invisible(TRUE)
+}
+
+### kind of progress
+
+supports_ansi <- function() {
+  if (!interactive()) {
+    return(FALSE)
+  }
+  
+  term <- Sys.getenv("TERM", unset = "")
+  
+  if (.Platform$OS.type == "windows") {
+    return(
+      nzchar(Sys.getenv("WT_SESSION")) ||
+        nzchar(Sys.getenv("RSTUDIO")) ||
+        grepl("xterm|ansi|color|screen|tmux", term, ignore.case = TRUE)
+    )
+  }
+  
+  grepl("xterm|ansi|color|screen|tmux", term, ignore.case = TRUE)
+}
+
+rmsg_start_status <- function() {
+    last_width <- 0L
+    step <- 0L
+    spinner <- c("◐", "◓", "◑", "◒")
+    
+    function(text, finish = FALSE) {
+      
+      opt_name <- paste0(MODULE, ".messages")
+      if (!isTRUE(getOption(opt_name))) {
+        return(invisible(FALSE))
+      }
+      text <- paste(as.character(text), collapse = " ")
+      if (finish) {
+        icon <- cli::col_green("✔")
+        module <- cli::col_green(MODULE)
+      } else {
+        step <<- step + 1L
+        icon <- cli::col_cyan(spinner[((step - 1L) %% length(spinner)) + 1L])
+        module <- cli::col_cyan(MODULE)
+      }
+      msg <- paste0(icon, " ", module, ": ", text)
+      width <- nchar(msg, type = "width")
+      pad <- max(0L, last_width - width)
+      cat("\r", msg, strrep(" ", pad), sep = "")
+      flush.console()
+      last_width <<- width
+      if (finish) {
+        cat("\n")
+        last_width <<- 0L
+        step <<- 0L
+      }
+      invisible(TRUE)
+    }
+  }
 
 
 
@@ -103,7 +210,6 @@ try_hard<-function(exp,max_warn=5, silent=FALSE) {
   }
   if(length(.results$warning)==0) .results$warning<-FALSE
   if(length(.results$warning)==1) .results$warning<-.results$warning[[1]]
-  
   
   return(.results)
 }

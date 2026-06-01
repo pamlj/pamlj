@@ -28,7 +28,7 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             n = 100,
             sig.level = 0.05,
             alternative = "two.sided",
-            test = "joint",
+            test = "sobel",
             mcR = 1000,
             parallel = FALSE,
             set_seed = FALSE,
@@ -163,7 +163,7 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..test <- jmvcore::OptionList$new(
                 "test",
                 test,
-                default="joint",
+                default="sobel",
                 options=list(
                     "joint",
                     "sobel",
@@ -883,7 +883,7 @@ pamlmed <- function(
     n = 100,
     sig.level = 0.05,
     alternative = "two.sided",
-    test = "joint",
+    test = "sobel",
     mcR = 1000,
     parallel = FALSE,
     set_seed = FALSE,

@@ -10,7 +10,7 @@ plots(x, ...)
 
 \method{plot}{pamlj}(x, ...)
 
-make_mixed_model(syntax, clusterpars, ...)
+make_mixed_model(syntax, clusterpars, categorical = list(), ...)
 }
 \arguments{
 \item{x}{a pamlj results object of the class `pamlj`}
@@ -20,6 +20,8 @@ make_mixed_model(syntax, clusterpars, ...)
 \item{syntax}{a pamlj model syntax}
 
 \item{clusterpars}{a pamlj syntax model}
+
+\item{categorical}{named list of categorical variables with number of levels in the form `list(varname=x)` where x is the number of levels}
 }
 \value{
 an object of class ggplot or a list of ggplot objects

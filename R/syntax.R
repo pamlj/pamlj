@@ -1,10 +1,11 @@
 ### text manipulation
 
 syntax_digest<-function(s) {
-  
   warning<-list(unique_symb=TRUE)
   # first, get the regression lines
   regressions<-.get_regression_lines(s)
+  if (is.null(regressions))
+      stop("Please specify a model of the form `y~1*1+1*x+(1*1|cluster)`")
   
   alist<-lapply(regressions, function(line) {
     .re    <- .findbars(line)
@@ -94,7 +95,9 @@ fix_intercept<-function(obj,avalue=NULL) {
 }
 
 .get_regression_lines <- function(syntax) {
+
   parts <- .split_syntax_text(syntax)
+  parts<-  gsub("\\s+", "", parts, perl = TRUE)
   # detect tilde that's not part of ~~ or :=
   formula_tilde <- "(?<![~:])\\s*~\\s*(?![~=])"
   keep <- grepl(formula_tilde, parts, perl = TRUE)
@@ -381,7 +384,7 @@ digest_other_lines <- function(lines) {
   results<-list()
   for (l in lines) {
     t <- extract_prefix(l,SYNTAX_CMD)
-    if (is.something(t)) ladd(results[[t$keyword]])<-t$value
+    if (is.something(t)) ladd(results[[t$keyword]])<- parts<-  gsub("\\s+", "", t$value, perl = TRUE)
     }
   return(results)
 }

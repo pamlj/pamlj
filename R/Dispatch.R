@@ -74,7 +74,7 @@ Dispatch <- R6::R6Class(
                                       if (obj$head=="wait")
                                          return()
                                        if (obj$head=="info")
-                                         message(private$.process_text(obj$message))
+                                           message(private$.process_text(obj$message))
                                        else
                                            warning(obj$message,call. = FALSE) 
                                        return()

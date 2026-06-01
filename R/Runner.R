@@ -38,6 +38,7 @@ Runner <- R6::R6Class("Runner",
                                  if (!isFALSE(resobj$warning))
                                      warning(resobj$warning)
                                  if (!isFALSE(resobj$error)) {
+                                            self$warning<-list(topic="issues",message=resobj$error,head="error")
                                             checkfailure(self,resobj)
                                             self$ok <- FALSE
                                             return(NULL)

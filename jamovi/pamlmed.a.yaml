@@ -209,7 +209,7 @@ options:
 
     -   name: test
         type: List
-        default: joint
+        default: sobel
         options:
         -       name: joint
                 title: Joint Significance

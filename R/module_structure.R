@@ -107,6 +107,7 @@ powerbyn <- function(x, ...) UseMethod(".powerbyn")
             dd<-do.call(rbind,lapply(power, function(x) {
                                  data$power<-x
                                  return(data)}))
+            dd$precise <- FALSE
             dd$n<-NULL    
             results<-powervector(obj,dd)
             results$n<-round(results$n,digits=0)
@@ -190,6 +191,7 @@ find_min_n <- function(obj, ...) UseMethod(".find_min_n")
   
   data$n <- NULL
   data$power<-.10
+  data$precise <- FALSE
   res<-try_hard(powervector(obj,data))
   if (isFALSE(res$error)) {
     n<-ceiling(res$obj$n)
@@ -208,6 +210,7 @@ find_max_n <- function(obj, ...) UseMethod(".find_max_n")
   data$es<-ifelse(data$es/3 > obj$info$esmin, data$es/3, obj$info$esmin)
   data$power=.99
   data$n <- NULL
+  data$precise <- FALSE
   res<-try_hard(powervector(obj,data))
   if (isFALSE(res$error)) 
     n<-ceiling(res$obj$n)
@@ -224,6 +227,7 @@ find_max_es <- function(obj, ...) UseMethod(".find_max_es")
 
 
   data$es <- NULL
+  data$precise <- FALSE
   res<-try_hard(powervector(obj,data))
   if (isFALSE(res$error)) 
     es<-res$obj$es
@@ -242,6 +246,7 @@ find_min_es <- function(obj, ...) UseMethod(".find_min_es")
   data$es <- NULL
   if (is.null(data$power)) data$power=.99
   data$n  <- obj$info$nmax
+  data$precise <- FALSE
   res<-try_hard(powervector(obj,data))
   if (isFALSE(res$error)) 
     es<-res$obj$es

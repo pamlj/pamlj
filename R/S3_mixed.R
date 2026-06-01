@@ -2,17 +2,16 @@
 
 .checkdata.pamlmixed <- function(obj) {
 
-
       if (is.something(obj$data)) 
         return()
       jinfo("Checking data for pamlmixed")
-
+     
       ### first we take all information from the syntax
       syntaxobj<-try_hard(syntax_digest(obj$options$code))
-      if (!isFALSE(syntaxobj$error)) obj$stop("Model formula not correct:" %+% syntaxobj$error)
+      if (!isFALSE(syntaxobj$error)) obj$stop("Model formula not correct: " %+% syntaxobj$error)
       model<-syntaxobj$obj
       if (is.null(model$terms)) {
-          obj$warning<-list(topic="issues",message="Please insert a linear mixed model in the syntax", head="info")
+          obj$warning<-list(topic="issues",message="Please insert a mixed model in the syntax", head="info")
           obj$ok<-FALSE
           return()
       }
@@ -28,7 +27,7 @@
       ## now we fill the info regarding the clusters
       syn_clusters<-model$clusters
       if (!is.something(syn_clusters)) 
-        obj$stop("Please specify the random component is the  linear mixed model syntax")
+        obj$stop("Please specify the random component is the mixed model syntax")
 
       clusterpars<- obj$options$clusterpars
       names(clusterpars)<-sapply(obj$options$clusterpars, function(x) x$name)
@@ -127,7 +126,6 @@
 
       if (obj$options$algo=="mc" && obj$ok) {
         obj$info$parallel    <-  obj$options$parallel 
-        obj$warning     <-  list(topic="initnotes",message="Monte Carlo method may take several minutes to estimate the results. Please be patient.", head="wait")
         if (obj$info$R<1000)
            obj$warning     <-  list(topic="issues",message="Simulations replications is set to " %+% obj$info$R %+% ". Please set a number greater than 1000 for more stable results.", head="info")
       
@@ -146,7 +144,11 @@
           x[[w-1]]
         }
       }
-      
+      ### select model type
+      model$family <- switch(obj$options$model_type,
+                             "linear" = NULL,
+                             "logistic" = binomial()
+      )
       obj$info$model  <- model
      
 #      dat<-.make_data(obj,k=100)
@@ -177,7 +179,7 @@
            what<-"number of clusters levels"  
            n<-obj$info$model$cluster_info[[1]]$n
            l <- obj$info$model$cluster_info[[1]]$k
-           rinfo("Finding number of clusters\n")
+           rmsg_msg("Finding number of clusters")
            ## we want f() to search for n
            f1<-function(int) {
              .fast_onerun(obj,n=NULL,k=int)
@@ -193,7 +195,7 @@
            l <- obj$info$model$cluster_info[[1]]$n
            # if we have random slopes, start with n>2
            if (l < 4 && length(obj$info$model$random[[1]]$terms) > 1) l<-4
-           rinfo("Finding number of cases within clusters\n")
+           rmsg_msg("Finding number of cases within clusters")
            ## we want f() to search for k
            f1<-function(int) {
              .fast_onerun(obj,int,k=NULL)
@@ -218,7 +220,7 @@
      int<-.pow[[find]][[1]]
      out<-attr(.pow,"out")
      pwr<-attr(.pow,"power")
-     rinfo("\nQuick search found " %+% find %+% "=" %+% .pow[[find]][[1]] %+% " with exit:" %+% out %+% "\n")
+     rmsg_success("Quick search found " %+% find %+% "=" %+% .pow[[find]][[1]] %+% " with exit:" %+% out,cr=TRUE)
  
      if (!is.null(out) && out=="asymptote" && abs(obj$info$power-pwr)>.10 && obj$options$algo=="mc") {
        pow<-.slow_onerun(obj,n=.pow$n,k=.pow$k)
@@ -232,17 +234,21 @@
        return(pow)
      }
      if (obj$options$algo=="mc") {
+         slow_step <- max(1, int)
+         rmsg_msg("MC refinement starts from " %+% find %+% "=" %+% int %+% " with step scale=" %+% slow_step)
     
          pow<-int_seek(f = f2,
                        target_power = obj$info$power,
-                       n_start=int,memory=5,
+                       n_start=int,
+                       step=slow_step,
+                       memory=5,
                        tol=obj$options$tol,
                        stability=obj$options$stability,
                        sel_fun = obj$info$sel_fun)  
          out<-attr(pow,"out")
          pwr<-attr(pow,"power")
 
-         rinfo("\nMC search found " %+% find %+% "=" %+% pow[[find]][[1]] %+% " with exit:" %+% out %+% "\n")
+         rmsg_success("MC search found " %+% find %+% "=" %+% pow[[find]][[1]] %+% " with exit:" %+% out,cr=TRUE)
          if (!is.null(out) && out=="asymptote" && abs(obj$info$power-pwr)> obj$options$tol) {
                msg<-"Power calculation indicates that the input model would not achieve the exact desired power. Power remains around " %+%
                round(pow$power,5) %+% " when " %+% what %+%" > " %+% pow[[find]] 
@@ -269,8 +275,10 @@
      else
          .fun<-.fast_onerun
      # we use the first cluster parameters
-     n<-obj$info$model$random[[1]]$n
-     k<-obj$info$model$random[[1]]$k
+     n<-obj$info$model$cluster_info[[1]]$n
+     k<-obj$info$model$cluster_info[[1]]$k
+     msg<-"Finding power for n=" %+% n %+% " and k=" %+% k
+     rmsg_msg(msg)
      pow<-.fun(obj,n=n,k=k)
      pow$sig.level<-obj$data$sig.level
      obj$data<-pow
@@ -284,9 +292,9 @@
     info<-obj$info$model$cluster_info[-w]
     hm<-unlist(lapply(names(info), function(x) {
       cluster<-info[[x]]
-      paste("cluster variable <b>",cluster$name, "</b> with n=",cluster$n," and k=",cluster$k)
+      paste("cluster variable `",cluster$name, "` with n=",cluster$n," and k=",cluster$k)
     }))
-    msg<-"Power parameters are computed for cluster variable <b>" %+% target$name %+% "</b>, setting " %+% paste(hm, collapse = ", ")
+    msg<-"Power parameters are computed for cluster variable `" %+% target$name %+% "`, setting " %+% paste(hm, collapse = ", ")
     obj$warning<-list(topic="powertab",message=msg)
   }
   jinfo("PAMLj: S3: pamlmixed powervector:done")
@@ -422,10 +430,12 @@
 
   ## first we deal with categorical within (default)
   ## the code is weired and ugly, but it handles a lot of different combinations of designs
-  
   ## first, we select the categorcial variables
+
+
   cats<-lapply(model$variable_info,function(x) if (x$type=="categorical") return(x))
   cats<-cats[sapply(cats,function(x) !is.null(x))]
+
   if (length(cats)>0) {
   
     cats_within<-lapply(cats,function(x) if (is.null(x$between)) return(x))
@@ -480,7 +490,6 @@
   for (x in model$cluster_info) {
     data[[x$name]]<-factor(data[[x$name]])
   } 
-  
   ## now we deal with numeric variables 
   nums_vars<-lapply(model$variable_info,function(x) if (x$type=="continuous") return(x))
   nums_vars<-nums_vars[sapply(nums_vars,function(x) !is.null(x))]
@@ -497,7 +506,14 @@
   }
     
   ## dependent 
-  data[[model$lhs]]<-rnorm(nrow(data))
+ 
+  if (is.null(model$family))
+      data[[model$lhs]]<-rnorm(nrow(data))
+  else {
+    switch (model$family$family,
+      binomial =  data[[model$lhs]]<-rbinom(nrow(data),1,.5)
+    )
+  }
   ###
   names(data) <- trimws(make.names(names(data), unique = TRUE))
   attr(data,"n")<-ns[[w]]
@@ -526,15 +542,16 @@
 
 pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
 
-  data<-.make_data(obj,n=n,k=k)
   infomod<-obj$info$model
+  data<-.make_data(obj,n=n,k=k)
   
   varcor<-lapply(infomod$random,function(x) {
     coefs<-unlist(x$coefs)
     diag(x=coefs,nrow=length(coefs))
   })
   fixed<-unlist(infomod$coefs)
-  
+
+  if (is.null(infomod$family)) {
   modelobj<-try_hard({
              simr::makeLmer(formula=as.formula(infomod$formula),
                    fixef=fixed,
@@ -543,11 +560,21 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
                    data=data
                    )
   })
+  } else {
+    modelobj<-try_hard({
+      simr::makeGlmer(formula=as.formula(infomod$formula),
+                      family=infomod$family,
+                     fixef=fixed,
+                     VarCorr=varcor,
+                     data=data
+      )
+    })
+  }
   if (!isFALSE(modelobj$error)) {
+    print(modelobj$error)
     obj$stop("Model cannot be simulated. Please check your input syntax")
   }
-  if (!isFALSE(modelobj$message)) {
-    if (grep("rank",modelobj$message,fixed = TRUE)>0)
+  if (is.null(modelobj$obj)) {
          obj$stop("Model cannot be simulated. Please check your input model")
   }
   
@@ -585,7 +612,7 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
  
   # 1) simulate new response
   y <- stats::simulate(model)$sim_1
-  
+ 
   # 2) fit while capturing warnings
   warn_buf <- character(0)
   fit <- withCallingHandlers(
@@ -595,11 +622,14 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
       invokeRestart("muffleWarning")
     }
   )
-  
+
   # 3) cast to lmerTest
-  fit <- lmerTest::as_lmerModLmerTest(fit)
+ 
+  if ("lmerMod" %in% class(fit))
+    fit <- lmerTest::as_lmerModLmerTest(fit)
   # 4) derive convergence + singularity
   #    (be defensive against optimizer variants)
+ 
   optinfo <- fit@optinfo
   # messages from lme4 and optimizer
   msgs <- c(
@@ -632,8 +662,16 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
   singular <- lme4::isSingular(fit, tol = tol_sing)
   
   # 5) anova table + annotations
-  anov <- stats::anova(fit)
+  if ("lmerMod" %in% class(fit))
+        anov <- stats::anova(fit)
+  else  {
+        anov<-   car::Anova(fit,type="III")
+        anov <-  anov[-1,]
+  }
   anov$name <- rownames(anov)
+  newnames<-list(df=c("NumDF","Df"),df_error="DenDF",test=c("F value","Chisq"),p=c("Pr(>F)", "Pr(>Chisq)" ))
+  names(anov)<- transnames(names(anov),newnames)
+  if (! "df_error" %in% names(anov)) anov$df_error<-NA
   anov$converged <- rep(converged, nrow(anov))
   anov$singular  <- rep(singular,  nrow(anov))
   if (isTRUE(include_warnings)) {
@@ -669,12 +707,11 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
         .sim_fun(model)
       })
     }
-
   res<-as.data.frame(do.call(rbind,sims))
-  res$power<- (res[,6] < obj$data$sig.level)
-  pow<-lapply(c("NumDF", "DenDF","F value","Pr(>F)","power","converged","singular"), function(name) tapply(res[[name]],res$name,mean, na.rm=T))
+  res$power<- (res$p < obj$data$sig.level)
+  pow<-lapply(c("df", "df_error","p","power","converged","singular"), function(name) tapply(res[[name]],res$name,mean, na.rm=T))
   pow<-as.data.frame(do.call(cbind,pow))
-  names(pow)<-c("df","df_error","F","p","power","converged","singular")
+  names(pow)<-c("df","df_error","p","power","converged","singular")
   pow$effect<-rownames(pow)
   pow$n<-attr(model,"n")
   pow$k<-attr(model,"k")
@@ -753,12 +790,19 @@ extract_syntax_commands<-function(obj,model) {
   if (any(c("bet","between") %in% names(cmd))) {
     for (x in cmd$bet) {
       str<-stringr::str_split(x,"\\|")[[1]]
-      model$variable_info[[str[[1]]]]$between=str[[2]]
+      if (length(str)<2) 
+        stop("between: command requires a coefficient and a cluster variable as in `between:x|cluster`",call. = FALSE)
+      if (str[[1]] %in% model$varnames)
+          model$variable_info[[str[[1]]]]$between=str[[2]]
+      else
+          obj$warning<-list(topic="issue",message="Variable " %+% str[[1]] %+% " in `between:` command is not a variable of the model. Command ignored",head="warning")
     }
   }
   if (any(c("wit","within") %in% names(cmd))) {
     for (x in cmd$wit) {
       str<-stringr::str_split(x,"\\|")[[1]]
+      if (length(str)<2) 
+        stop("within: command requires a coefficient and a cluster variable as in `within:x|cluster`",call. = FALSE)
       model$variable_info[[str[[1]]]]$within=str[[2]]
     }
   }
@@ -771,7 +815,10 @@ extract_syntax_commands<-function(obj,model) {
     }
   }
   if ("expand" %in% names(cmd)) {
-     model$expand<-cmd$expand[[1]]
+     if (cmd$expand %in% model$clusters)
+         model$expand<-cmd$expand[[1]]
+     else
+         obj$warning<-list(topic="issues",messages="Cluster variable `" %+% cmd$expand %+% "` in command `expand` not found. Command ignored",head="warning")
   }
     
     
@@ -812,8 +859,9 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
   cache$max<-list(n=100000,v=1)
   cache$min<-list(n=0,v=0)
   iter<-0
+  status<-rmsg_start_status()
   repeat{
-    rinfo("INT_SEEK: trying n=",n," with boundaries [",cache$min$n,",",cache$max$n,"] ")
+    status("INT_SEEK: trying n=" %+% n %+%" with boundaries [" %+% cache$min$n %+% "," %+% cache$max$n %+% "] ")
     iter<-iter+1
     res<-fun(n)
     oldn<-n
@@ -827,14 +875,14 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
     cache$reslist<-cache$reslist[-1]
     cache$nlist[[length(cache$nlist)+1]]<-n
     
-    
+    cli::cat_line
     if (diff>0) dir<- -1 else dir<-1
     steps<-round(adiff*astep*dir)
     n<- n+steps
     s<-sd(unlist(cache$reslist))
     attr(res,"sd")<-s  
     attr(res,"dir")<-dir
-    rinfo("obtained power =",round(pwr,5)," target=",target_power," next steps=",steps," sd=",s)
+    status("INT_SEEK: obtained power =" %+% round(pwr,5) %+% " target=" %+% target_power %+% " next steps=" %+% steps %+% " sd=" %+% s)
     if (stability=="l1") {
       if (n %in% cache$nlist) {
        n<-n+dir
@@ -850,15 +898,18 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
     ## if power is always lower than target it may be stuck
     if (s<(tol/4)) {
       attr(res,"out")<-"asymptote"
+      status("INT_SEEK:asymptote",finish=TRUE)
       return(res)
     }
     
     if (iter>max_iter) {
       attr(res,"out")<-"maxiter"
+      status("INT_SEEK: maxiter",finish=TRUE)
       return(res)
     }
     if (steps==0) {
       attr(res,"out")<-"nosteps"
+      status("INT_SEEK: nosteps",finish=TRUE)
       return(res)
       
     }
@@ -878,10 +929,12 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
     # if max n and min n are the same or 1 unit apart, return
     if ((cache$max$n-cache$min$n) <= 1 ) {
       attr(res,"out")<-"closed"
+      status("INT_SEEK:closed",finish=TRUE)
       return(res)
     }
     if ((cache$max$n-cache$min$n) == 2 && n==(cache$min$n+1)) {
       attr(res,"out")<-"middle"
+      status("INT_SEEK: middle",finish=TRUE)
       return(res)
     }
     if (n <= cache$min$n)  n<-cache$min$n+1
@@ -981,8 +1034,19 @@ standardize_between <- function(data, x, cluster) {
   
       model<-obj$info$model
       coefs<-gsub(")","]",gsub("c(","[",paste(model$coefs, collapse=", "),fixed=T), fixed=T)
-      
-      tab<- list(list(info="Model",value=model$formula, specs=""),
+      if (is.null(model$family)) {
+        type="Linear"
+        dist="Gaussian"
+      }
+      else {
+           switch (model$family$family,
+                        binomial = {type<-"Logistic"
+                                    dist<-"Binomial"}
+                     )
+      }
+      tab<- list(
+             list(info="Model Type",value=type, specs=dist),
+             list(info="Model",value=model$formula, specs=""),
              list(info="Fixed effects",value=model$rhs, specs=""),       
              list(info="Fixed coefs",value=coefs, specs=" "),       
             list(info="Clusters:",value=" ",specs=" ")
@@ -992,4 +1056,3 @@ standardize_between <- function(data, x, cluster) {
             for (var in model$variable_info) ladd(tab)<-list(info="Variables:",value=var$name,specs=var$type  )
             tab
 }
-
