@@ -234,10 +234,14 @@
        return(pow)
      }
      if (obj$options$algo=="mc") {
+         slow_step <- max(1, int)
+         rmsg_msg("MC refinement starts from " %+% find %+% "=" %+% int %+% " with step scale=" %+% slow_step)
     
          pow<-int_seek(f = f2,
                        target_power = obj$info$power,
-                       n_start=int,memory=5,
+                       n_start=int,
+                       step=slow_step,
+                       memory=5,
                        tol=obj$options$tol,
                        stability=obj$options$stability,
                        sel_fun = obj$info$sel_fun)  
@@ -1052,4 +1056,3 @@ standardize_between <- function(data, x, cluster) {
             for (var in model$variable_info) ladd(tab)<-list(info="Variables:",value=var$name,specs=var$type  )
             tab
 }
-

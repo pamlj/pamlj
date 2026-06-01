@@ -27,11 +27,16 @@
       obj$data$power       <- obj$options$power
       obj$data$alternative <- obj$options$alternative
       obj$data$test        <- obj$options$test
+      obj$data$precise     <- TRUE
+      obj$data$parallel    <- obj$options$parallel
       if (obj$data$test == "mc")
            obj$warning     <-  list(topic="initnotes",message="Monte Carlo method may take several minutes to estimate the results. Please be patient.", head="wait")
-
+      if (obj$data$test == "sobel")
+          obj$warning     <-  list(topic="issues",message="Sobel test method is based on power parameters approximation. Please use joint-significance or monte carlo methods for more accurate results ", head="info")
+      if (obj$data$test == "joint")
+        obj$warning     <-  list(topic="initnotes",message="Joint-significance requires fast simulations. Please wait. ", head="info")
+      
       obj$data$R           <- obj$options$mcR
-      obj$data$parallel    <- obj$options$parallel
 
       obj$plots$data       <- obj$data
 
@@ -80,6 +85,12 @@
                           exdata$cprime <- plotdata$cprime
                           exdata$a      <- c(plotdata$a1,plotdata$a2)
                           exdata$b      <- c(plotdata$b1,plotdata$b2)
+                          exdata$model_type <- "twomeds"
+                          exdata$a1 <- plotdata$a1
+                          exdata$b1 <- plotdata$b1
+                          exdata$a2 <- plotdata$a2
+                          exdata$b2 <- plotdata$b2
+                          exdata$r12 <- plotdata$r12
                           corMat      <- diag(4)
                           corMat[2,1] <- corMat[1,2] <- plotdata$a1
                           corMat[3,1] <- corMat[1,3] <- plotdata$a2
@@ -134,6 +145,16 @@
                           exdata$cprime <- plotdata$cprime
                           exdata$a      <- c(plotdata$a1,plotdata$a2,plotdata$a3)
                           exdata$b      <- c(plotdata$b1,plotdata$b2,plotdata$b3)
+                          exdata$model_type <- "threemeds"
+                          exdata$a1 <- plotdata$a1
+                          exdata$b1 <- plotdata$b1
+                          exdata$a2 <- plotdata$a2
+                          exdata$b2 <- plotdata$b2
+                          exdata$a3 <- plotdata$a3
+                          exdata$b3 <- plotdata$b3
+                          exdata$r12 <- plotdata$r12
+                          exdata$r13 <- plotdata$r13
+                          exdata$r23 <- plotdata$r23
                           corMat <- diag(5)
                           corMat[2,1] <- corMat[1,2] <- plotdata$a1
                           corMat[3,1] <- corMat[1,3] <- plotdata$a2
@@ -188,6 +209,12 @@
                           exdata$a      <- c(plotdata$a1,plotdata$a2,plotdata$a1)
                           exdata$b      <- c(plotdata$b1,plotdata$b2,plotdata$b2)
                           exdata$d1     <- c(NA,NA,plotdata$d1)
+                          exdata$model_type <- "twoserial"
+                          exdata$a1 <- plotdata$a1
+                          exdata$b1 <- plotdata$b1
+                          exdata$a2 <- plotdata$a2
+                          exdata$b2 <- plotdata$b2
+                          exdata$d1.full <- plotdata$d1
 
                          corMat <- diag(4)
                          corMat[2,1] <- corMat[1,2] <- plotdata$a1
@@ -243,11 +270,19 @@
       obj$extradata$power       <- obj$options$power
       obj$extradata$alternative <- obj$options$alternative
       obj$extradata$test        <- obj$options$test
-      obj$extradata$R           <- obj$options$mcR
+      obj$extradata$precise     <- TRUE
       obj$extradata$parallel    <- obj$options$parallel
+      obj$extradata$R           <- obj$options$mcR
       
       obj$extradata[[obj$aim]]  <- NULL
-
+      
+      if (obj$options$test == "mc")
+        obj$warning     <-  list(topic="initnotes",message="Monte Carlo method may take several minutes to estimate the results. Please be patient.", head="wait")
+      if (obj$options$test == "sobel")
+        obj$warning     <-  list(topic="issues",message="Sobel test method is based on power parameters approximation. Please use joint-significance or monte carlo methods for more accurate results ", head="info")
+      if (obj$options$test == "joint")
+        obj$warning     <-  list(topic="initnotes",message="Joint-significance requires fast simulations. Please wait. ", head="info")
+      
       if (obj$filled)
                 w <- which.min(obj$extradata$es)[1]
       else
@@ -280,19 +315,20 @@
 #                    .names <- intersect(names(data),rlang::fn_fmls_names(fun))
 #                     one      <- data[i,.names]
                       one      <- data[i,]
+                      one[]    <- lapply(one, function(x) if (is.factor(x)) as.character(x) else x)
                       one      <- one[!sapply(one,is.na)]
                      tryobj<-try_hard(do.call(fun,one), silent=F)
                      out<-tryobj$obj
                      if (!isFALSE(tryobj$error)) {
                      switch(aim,
                             n = {
-                                stop("failed on n")
+                                stop("failed on n: ", tryobj$error)
                                },
                             power={ 
-                                stop("failed on power")
+                                stop("failed on power: ", tryobj$error)
                                   },
                             es={ 
-                               stop("failed on es")
+                               stop("failed on es: ", tryobj$error)
                                }
                             
                             )
@@ -472,6 +508,3 @@
     obj$warning<-list(topic="extrainfo",message=text,head="info")  
 
 }
-
-
-
