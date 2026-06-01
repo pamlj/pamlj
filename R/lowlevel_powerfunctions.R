@@ -344,7 +344,7 @@ pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,power=NULL
          if ("try-error" %in% class(inv_xx))
              return(NA_real_)
          beta_hat <- inv_xx %*% xy
-         rss <- yy - t(xy) %*% inv_xx %*% xy
+         rss <- as.numeric(yy - t(xy) %*% inv_xx %*% xy)
          df <- n - length(predictors) - 1
          if (df <= 0 || rss <= 0)
              return(NA_real_)

@@ -27,7 +27,7 @@ pamlmed(
   n = 100,
   sig.level = 0.05,
   alternative = "two.sided",
-  test = "joint",
+  test = "sobel",
   mcR = 1000,
   parallel = FALSE,
   set_seed = FALSE,
