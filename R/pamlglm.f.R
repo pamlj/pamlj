@@ -30,25 +30,6 @@
 #' @param plot_log Logical; if \code{TRUE}, use a log scale where supported in
 #'   plots.
 #' @param plot_palette Color palette used for plots.
-#' @param covs Number of covariates in the model.
-#' @param factors Number of factors in the model.
-#' @param factors_list A list describing each factor and its number of levels.
-#' @param covs_order Maximum interaction order among covariates.
-#' @param factors_order Maximum interaction order among factors.
-#' @param mixed_order Maximum interaction order between covariates and factors.
-#' @param eta A user-supplied eta-squared value shown in the effect-size table.
-#' @param f A user-supplied Cohen's f value shown in the effect-size table.
-#' @param eta_df_error Error degrees of freedom used for effect-size
-#'   conversions.
-#' @param epsilon A user-supplied epsilon-squared value shown in the
-#'   effect-size table.
-#' @param omega A user-supplied omega-squared value shown in the effect-size
-#'   table.
-#' @param gpower A user-supplied effect size following the G*Power
-#'   parameterization.
-#' @param f2 A user-supplied Cohen's f-squared value shown in the effect-size
-#'   table.
-#' @param use not used in R
 #' @param ncp_type What type of non-centrality parameter (NCP) should be used.
 #'   The effect size is always transformed into a Cohen's \code{f2}, which is
 #'   multiplied by the estimated \code{N} based on the degrees of freedom such
@@ -118,21 +99,6 @@ pamlglm <- function(
     plot_ncurve = FALSE,
     plot_log = FALSE,
     plot_palette = "viridis",
-    covs = 0,
-    factors = 0,
-    factors_list = list(
-                list(var="factor 1", levels=0)),
-    covs_order = "main",
-    factors_order = "main",
-    mixed_order = "none",
-    eta = "-",
-    f = "-",
-    eta_df_error = 0,
-    epsilon = 0,
-    omega = 0,
-    gpower = 0,
-    f2 = 0,
-    use = "none",
     ncp_type = "model",
     rx = NULL,
     plot_x = "none",
@@ -191,20 +157,21 @@ pamlglm <- function(
         plot_ncurve = plot_ncurve,
         plot_log = plot_log,
         plot_palette = plot_palette,
-        covs = covs,
-        factors = factors,
-        factors_list = factors_list,
-        covs_order = covs_order,
-        factors_order = factors_order,
-        mixed_order = mixed_order,
-        eta = eta,
-        f = f,
-        eta_df_error = eta_df_error,
-        epsilon = epsilon,
-        omega = omega,
-        gpower = gpower,
-        f2 = f2,
-        use = use,
+        covs = 0,
+        factors = 0,
+        factors_list = list(
+                    list(var="factor 1", levels=0)),
+        covs_order = "main",
+        factors_order = "main",
+        mixed_order = "none",
+        eta = "-",
+        f = "-",
+        eta_df_error = 0,
+        epsilon = 0,
+        omega = 0,
+        gpower = 0,
+        f2 = 0,
+        use = "none",
         ncp_type = ncp_type,
         rx = rx,
         plot_x = plot_x,

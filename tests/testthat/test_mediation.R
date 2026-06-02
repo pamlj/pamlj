@@ -71,8 +71,7 @@ testthat::test_that("pamlmed interface returns finite mediation results", {
     power = 0.80,
     test = "joint",
     mcR = 20,
-    parallel = FALSE,
-    .interface = "R"
+    parallel = FALSE
   )
 
   tab <- obj$powertab$asDF

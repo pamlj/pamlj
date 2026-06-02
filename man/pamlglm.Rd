@@ -20,20 +20,6 @@ pamlglm(
   plot_ncurve = FALSE,
   plot_log = FALSE,
   plot_palette = "viridis",
-  covs = 0,
-  factors = 0,
-  factors_list = list(list(var = "factor 1", levels = 0)),
-  covs_order = "main",
-  factors_order = "main",
-  mixed_order = "none",
-  eta = "-",
-  f = "-",
-  eta_df_error = 0,
-  epsilon = 0,
-  omega = 0,
-  gpower = 0,
-  f2 = 0,
-  use = "none",
   ncp_type = "model",
   rx = NULL,
   plot_x = "none",
@@ -91,39 +77,6 @@ curve.}
 plots.}
 
 \item{plot_palette}{Color palette used for plots.}
-
-\item{covs}{Number of covariates in the model.}
-
-\item{factors}{Number of factors in the model.}
-
-\item{factors_list}{A list describing each factor and its number of levels.}
-
-\item{covs_order}{Maximum interaction order among covariates.}
-
-\item{factors_order}{Maximum interaction order among factors.}
-
-\item{mixed_order}{Maximum interaction order between covariates and factors.}
-
-\item{eta}{A user-supplied eta-squared value shown in the effect-size table.}
-
-\item{f}{A user-supplied Cohen's f value shown in the effect-size table.}
-
-\item{eta_df_error}{Error degrees of freedom used for effect-size
-conversions.}
-
-\item{epsilon}{A user-supplied epsilon-squared value shown in the
-effect-size table.}
-
-\item{omega}{A user-supplied omega-squared value shown in the effect-size
-table.}
-
-\item{gpower}{A user-supplied effect size following the G*Power
-parameterization.}
-
-\item{f2}{A user-supplied Cohen's f-squared value shown in the effect-size
-table.}
-
-\item{use}{not used in R}
 
 \item{ncp_type}{What type of non-centrality parameter (NCP) should be used.
 The effect size is always transformed into a Cohen's \code{f2}, which is

@@ -2,9 +2,7 @@
   op <- options()
   
   op.pamlj <- list(
-    pamlj.messages = TRUE,
-    pamlj.colors = TRUE,
-    pamlj.progress = TRUE
+    pamlj.messages = TRUE
   )
   
   toset <- !(names(op.pamlj) %in% names(op))
