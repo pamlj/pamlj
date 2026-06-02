@@ -56,13 +56,11 @@ pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,sig.level=NULL,df_model=N
         if (!inherits(log_root, "try-error") && is.finite(log_root$root) && abs(log_root$f.root) <= 0.01) {
             f2 <- exp(log_root$root)
         } else {
-          ### Extremely small effect sizes can be numerically unstable. Use a brute-force fallback.
+          ### log-space uniroot failed or was imprecise; fall back to optimize() over the full range
           f.body <- function(f2) eval(p.body)
-          int <- seq(1e-07, 1e-03, length.out = 1e+04)
-          p <- abs(power - sapply(int, f.body))
-          f2 <- as.numeric(int[which.min(p)])
-          approx_f2 <- if (!inherits(log_root, "try-error") && is.finite(log_root$root)) exp(log_root$root) else NA_real_
-          rmsg_warn(paste("es", f2, "found by brute force. Log-scale approximation", approx_f2))
+          result <- optimize(function(f2) abs(power - f.body(f2)), interval = c(1e-16, 1e+10))
+          f2 <- result$minimum
+          rmsg_warn(paste("es", round(f2, 6), "found by optimize fallback"))
           method <- "brute"
         }
     }

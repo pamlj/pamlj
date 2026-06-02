@@ -71,9 +71,11 @@ fix_intercept<-function(obj,avalue=NULL) {
   attr(obj,"fix_intercept")<-FALSE
   test<-any(sapply(obj$terms,function(x) (x=="1" || x=="0")))  
   if (!test) {
+    old_commands <- obj$commands
     coef<-ifelse(is.null(avalue),"",paste0(avalue,"*"))
     line<-paste0(obj$lhs,"~",coef,"1+",obj$original_rhs)
     obj<-syntax_digest(line)
+    obj$commands <- old_commands
     attr(obj,"fix_intercept")<-TRUE
   }
   if (!is.null(obj$random))
@@ -105,17 +107,11 @@ fix_intercept<-function(obj,avalue=NULL) {
 }
 
 ## check that no crazy grammar is used for categorical variables
-.has_bad_terms<- function(formula_string) {
-  
-  is_bad_term <- function(term) {
-    # any word-like token immediately before "* ["
-    grepl("\\b[A-Za-z]\\w*\\s*\\*\\s*\\[", term, perl = TRUE)
-  }
-  rhs <- strsplit(formula_string, "~", fixed = TRUE)[[1]][2]
-  terms <- strsplit(rhs, "\\+")[[1]]
-  terms <- trimws(terms)
-  bad <- vapply(terms, is_bad_term, logical(1))
-  if (bad) stop("Syntax for categorical variables not correct")
+.has_bad_terms <- function(term) {
+  # bad: word*[...] with nothing after ] (e.g. x*[1,2])
+  # valid: word*[...]*varname (e.g. b*[1,2]*q) or [1,2]*varname
+  if (grepl("\\b[A-Za-z]\\w*\\s*\\*\\s*\\[[^\\]]*\\](?!\\s*\\*\\s*[A-Za-z])", term, perl = TRUE))
+    stop("Syntax for categorical variables not correct")
 }
 
 

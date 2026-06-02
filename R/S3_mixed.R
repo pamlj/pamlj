@@ -31,25 +31,27 @@
 
       clusterpars<- obj$options$clusterpars
       names(clusterpars)<-sapply(obj$options$clusterpars, function(x) x$name)
+      missing_clusters<-syn_clusters[!syn_clusters %in% names(clusterpars)]
+      if (is.something(missing_clusters))
+          obj$stop("Cluster variable(s) " %+% paste(missing_clusters,collapse=", ") %+% " defined in syntax but not set up in options")
       model$cluster_info<-lapply(syn_clusters, function(x) {
         acluster<-clusterpars[[x]]
-        if (is.null(acluster)) stop("Cluster variable ",x," defined in syntax but not setup in the options")
         acluster$n<-as.numeric(acluster$n)
         if (is.na(acluster$n)) x$n<-2
         acluster$k<-as.numeric(acluster$k)
         if (is.na(acluster$k)) acluster$k<-5
         acluster
       })
-      names(model$cluster_info)<-sapply(obj$options$clusterpars, function(x) x$name)
+      names(model$cluster_info)<-syn_clusters
       model$expand<-model$clusters[1]
       ### Here we handle the variables
       
       ### var in cluster?
-      test<-intersect(model$clusters,model$fixed$vars)
+      test<-intersect(model$clusters,model$varnames)
       if (is.something(test)) obj$stop("Variable " %+% paste(test,collapse=", ") %+% " cannot be a term and a cluster variable")
 
       ### actual variables that will be in the generated data
-      model$variables<-c(model$fixed$vars,model$clusters)
+      model$variables<-c(model$varnames,model$clusters)
       .vars_info<-obj$options$var_type
       names(.vars_info)<-sapply(.vars_info,function(x) x$name)
       issue<-list()
