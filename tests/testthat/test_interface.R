@@ -17,5 +17,3 @@ testthat::test_that("values ok", {
   testthat::expect_equal(asum[[2]]$power[2],"50% – 80%")
   
 })
-
-pamlj::paml

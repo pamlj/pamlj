@@ -1,0 +1,5 @@
+library(testthat)
+library(pamlj)
+options(pamlj.messages = FALSE)
+test_check("pamlj")
+options(pamlj.messages = TRUE)
