@@ -405,5 +405,5 @@ extract_prefix <- function(s, keywords) {
   )
 }
 
-
+#' @exportS3Method stats::coef
 coef.syntax_formula<-function(obj) unlist(obj$coefs)

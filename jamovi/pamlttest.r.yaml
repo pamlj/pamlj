@@ -48,7 +48,7 @@ items:
           title: 'df'
           type: integer
         - name: sig.level
-          title: '&alpha;'
+          title: 'α'
           type: number
 
 

@@ -876,7 +876,6 @@ int_seek<-function(fun,sel_fun=min,n_start,target_power=.90,tol=.01,step=100,low
     cache$reslist<-cache$reslist[-1]
     cache$nlist[[length(cache$nlist)+1]]<-n
     
-    cli::cat_line
     if (diff>0) dir<- -1 else dir<-1
     steps<-round(adiff*astep*dir)
     n<- n+steps

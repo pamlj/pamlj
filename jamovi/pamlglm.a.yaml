@@ -4,7 +4,7 @@ title: General Linear Model
 menuGroup: Power
 version: '0.0.1'
 jas: '1.2'
-export: true
+export: false
 completeWhenFilled: false
 description:
     main: |
@@ -43,7 +43,7 @@ options:
 
       
     - name: b_es
-      title: Expected standardized coefficient (&beta;)
+      title: Expected standardized coefficient (β)
       type:  Number
       default: .2
 
@@ -59,7 +59,7 @@ options:
       min: 0
 
     - name: v_es
-      title: Expected partial Eta-squared (p&eta;&sup2;)
+      title: Expected partial Eta-squared (pη²)
       type:  Number
       default: .2
 
@@ -75,7 +75,7 @@ options:
       min: 1
 
     - name: e_es
-      title: Expected Eta-squared (&eta;&sup2;)
+      title: Expected Eta-squared (η²)
       type:  Number
       default: .2
 
@@ -106,7 +106,7 @@ options:
       default: 20
 
     - name: sig.level
-      title: '&alpha; (type I error rate)'
+      title: 'α (type I error rate)'
       type:  Number
       default: .05
 
@@ -188,6 +188,7 @@ options:
     - name: covs_order
       title: Max Order
       type: List
+      default: main
       options:
         -       name:  main
                 title: Main Effects
@@ -201,6 +202,7 @@ options:
     - name: factors_order
       title: Max Order
       type: List
+      default: main
       options:
         -       name:  main
                 title: Main Effects
@@ -214,6 +216,7 @@ options:
     - name: mixed_order
       title: Factors Covariates interactions
       type: List
+      default: none
       options:
         -       name:  none
                 title: None
@@ -278,6 +281,7 @@ options:
     - name: ncp_type
       type: List
       title: Non-centrality Parameter (NCP)
+      default: model
       options:
         - name: model
           title: "Model-based"
@@ -411,4 +415,3 @@ options:
       hidden: true
 
 ...
-

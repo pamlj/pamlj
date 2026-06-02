@@ -212,7 +212,10 @@ TEXT["pressplay"]<-"<br> <br> Please press the run button " %+% letter_play %+% 
 ### here we define a nice widget to convey information
 
 info_text <- function(obj, ...) {
-  
+  interface <- NULL
+  if (!is.null(obj$options) && is.joption(obj$options, ".interface"))
+    interface <- obj$options$.interface
+  if (identical(interface, "R")) return()
 text <- paste(
     '<style>',
     '.accordion {',

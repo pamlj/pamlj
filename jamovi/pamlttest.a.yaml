@@ -43,7 +43,7 @@ options:
 
 ### this is for mode ttestind       
     - name: ttestind_es
-      title: "Expected Cohen's d (&delta;)"
+      title: "Expected Cohen's d (δ)"
       type:  Number
       default: .5
       description:
@@ -69,7 +69,7 @@ options:
 #### this is for mode ttestpaired
 
     - name: ttestpaired_es
-      title: "Expected Cohen' d (dz)"
+      title: "Expected Cohen's d (dz)"
       type:  Number
       default: .5
       description:
@@ -87,7 +87,7 @@ options:
 #### this is for mode ttestone
 
     - name: ttestone_es
-      title: "Expected Cohen'a d (&delta;)"
+      title: "Expected Cohen's d (δ)"
       type:  Number
       default: .5
       description:
@@ -463,4 +463,3 @@ options:
 
 
 ...
-
