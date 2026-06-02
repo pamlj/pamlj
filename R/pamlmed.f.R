@@ -203,12 +203,11 @@ pamlmed <- function(
         test_c = test_c,
         explain = explain,
         diagram = diagram,
-        .interface = "jamovi",
+        .interface = "R",
         .caller = "mediation")
 
     analysis <- pamlmedClass$new(
-        options = options,
-        data = data)
+        options = options)
 
     analysis$run()
 

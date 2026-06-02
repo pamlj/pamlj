@@ -145,7 +145,10 @@ Dispatch <- R6::R6Class(
 
                        },
                        warnings_topics=function() {return(names(private$.warnings))},
-                       errors_topics=function() {return(names(private$.errors))}
+                       errors_topics=function() {return(names(private$.errors))},
+                       reset_last_warning=function() {
+                           private$.last_r_warning <- list(topic=NULL, message=NULL, head=NULL)
+                       }
                       
             ),
 private = list(

@@ -13,7 +13,7 @@ Runner <- R6::R6Class("Runner",
                                  # it produces the basic estimation required for all tables and plots
                                  # it fills self$data with all power parameters
                                  jinfo("PAMLj: Runner: checking data")
-                                 
+                                 private$.dispatcher$reset_last_warning()
                                  checkdata(self)
                                  commonchecks(self)
                                  if (!self$filled) {
