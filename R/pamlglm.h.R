@@ -31,9 +31,9 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             factors = 0,
             factors_list = list(
                 list(var="factor 1", levels=0)),
-            covs_order = NULL,
-            factors_order = NULL,
-            mixed_order = NULL,
+            covs_order = "main",
+            factors_order = "main",
+            mixed_order = "none",
             eta = "-",
             f = "-",
             eta_df_error = 0,
@@ -42,7 +42,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             gpower = 0,
             f2 = 0,
             use = "none",
-            ncp_type = NULL,
+            ncp_type = "model",
             rx = NULL,
             plot_x = "none",
             plot_y = "none",
@@ -199,6 +199,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..covs_order <- jmvcore::OptionList$new(
                 "covs_order",
                 covs_order,
+                default="main",
                 options=list(
                     "main",
                     "order2",
@@ -207,6 +208,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..factors_order <- jmvcore::OptionList$new(
                 "factors_order",
                 factors_order,
+                default="main",
                 options=list(
                     "main",
                     "order2",
@@ -215,6 +217,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..mixed_order <- jmvcore::OptionList$new(
                 "mixed_order",
                 mixed_order,
+                default="none",
                 options=list(
                     "none",
                     "order2",
@@ -261,6 +264,7 @@ pamlglmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..ncp_type <- jmvcore::OptionList$new(
                 "ncp_type",
                 ncp_type,
+                default="model",
                 options=list(
                     "model",
                     "liberal",
@@ -590,7 +594,7 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `type`="integer"),
                     list(
                         `name`="sig.level", 
-                        `title`="&alpha;", 
+                        `title`="\u03B1", 
                         `type`="number"))))
             self$add(jmvcore::Table$new(
                 options=options,
@@ -816,212 +820,4 @@ pamlglmBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 requiresMissings = FALSE,
                 weightsSupport = 'auto')
         }))
-
-#' General Linear Model
-#'
-#' Something here
-#' 
-#' @param data the data as a data frame
-#' @param aim .
-#' @param mode .
-#' @param b_es .
-#' @param b_r2 .
-#' @param b_df_model .
-#' @param v_es .
-#' @param v_df_model .
-#' @param v_df_effect .
-#' @param e_es .
-#' @param e_df_model .
-#' @param e_r2 .
-#' @param e_df_effect .
-#' @param power .
-#' @param n .
-#' @param sig.level .
-#' @param alternative .
-#' @param plot_contour .
-#' @param plot_escurve .
-#' @param plot_ncurve .
-#' @param plot_log .
-#' @param plot_palette .
-#' @param covs .
-#' @param factors .
-#' @param factors_list .
-#' @param covs_order .
-#' @param factors_order .
-#' @param mixed_order .
-#' @param eta .
-#' @param f .
-#' @param eta_df_error .
-#' @param epsilon .
-#' @param omega .
-#' @param gpower .
-#' @param f2 .
-#' @param use not used in R
-#' @param ncp_type What type of non-centrality parameter (NCP) should be used.
-#'   The effect size is always transformed into  a Cohen's \code{f2}, that is
-#'   multiplied by the N to  which is estimated based on the degrees of freedom
-#'   such that \code{N=df+edf+1}. \code{model} defines \code{df} as the model
-#'   degrees of freedom. This is the method used by \code{G*Power} software.
-#'   \code{liberal} uses the effect \code{df}. \code{strict} uses only the error
-#'   df (df=0).
-#' @param rx a vector of strings naming the columns from \code{data}
-#'   containing the correlations among independent variables
-#' @param plot_x .
-#' @param plot_y .
-#' @param plot_custom_labels .
-#' @param plot_z .
-#' @param plot_x_from .
-#' @param plot_x_to .
-#' @param plot_z_lines .
-#' @param plot_z_value .
-#' @param plot_to_table .
-#' @param explain .
-#' @param .caller .
-#' @param .interface .
-#' @return A results object containing:
-#' \tabular{llllll}{
-#'   \code{results$intro} \tab \tab \tab \tab \tab a html \cr
-#'   \code{results$extrainfo} \tab \tab \tab \tab \tab a html \cr
-#'   \code{results$issues} \tab \tab \tab \tab \tab a html \cr
-#'   \code{results$powertab} \tab \tab \tab \tab \tab a table \cr
-#'   \code{results$effectsize} \tab \tab \tab \tab \tab a table \cr
-#'   \code{results$powerbyes} \tab \tab \tab \tab \tab a table \cr
-#'   \code{results$plotnotes} \tab \tab \tab \tab \tab a html \cr
-#'   \code{results$powerContour} \tab \tab \tab \tab \tab an image \cr
-#'   \code{results$powerEscurve} \tab \tab \tab \tab \tab an image \cr
-#'   \code{results$powerNcurve} \tab \tab \tab \tab \tab an image \cr
-#'   \code{results$powerCustom} \tab \tab \tab \tab \tab an image \cr
-#'   \code{results$customnotes} \tab \tab \tab \tab \tab a html \cr
-#'   \code{results$customtable} \tab \tab \tab \tab \tab a table \cr
-#' }
-#'
-#' Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:
-#'
-#' \code{results$powertab$asDF}
-#'
-#' \code{as.data.frame(results$powertab)}
-#'
-#' @export
-pamlglm <- function(
-    data,
-    aim = "n",
-    mode = "peta",
-    b_es = 0.2,
-    b_r2 = 0.05,
-    b_df_model = 1,
-    v_es = 0.2,
-    v_df_model = 1,
-    v_df_effect = 1,
-    e_es = 0.2,
-    e_df_model = 1,
-    e_r2 = 0.2,
-    e_df_effect = 1,
-    power = 0.9,
-    n = 20,
-    sig.level = 0.05,
-    alternative = "two.sided",
-    plot_contour = FALSE,
-    plot_escurve = FALSE,
-    plot_ncurve = FALSE,
-    plot_log = FALSE,
-    plot_palette = "viridis",
-    covs = 0,
-    factors = 0,
-    factors_list = list(
-                list(var="factor 1", levels=0)),
-    covs_order,
-    factors_order,
-    mixed_order,
-    eta = "-",
-    f = "-",
-    eta_df_error = 0,
-    epsilon = 0,
-    omega = 0,
-    gpower = 0,
-    f2 = 0,
-    use = "none",
-    ncp_type,
-    rx = NULL,
-    plot_x = "none",
-    plot_y = "none",
-    plot_custom_labels = FALSE,
-    plot_z = "none",
-    plot_x_from = 0,
-    plot_x_to = 0,
-    plot_z_lines = 0,
-    plot_z_value = list(),
-    plot_to_table = FALSE,
-    explain = FALSE,
-    .caller = "glm",
-    .interface = "jamovi") {
-
-    if ( ! requireNamespace("jmvcore", quietly=TRUE))
-        stop("pamlglm requires jmvcore to be installed (restart may be required)")
-
-    if ( ! missing(rx)) rx <- jmvcore::resolveQuo(jmvcore::enquo(rx))
-    if (missing(data))
-        data <- jmvcore::marshalData(
-            parent.frame(),
-            `if`( ! missing(rx), rx, NULL))
-
-
-    options <- pamlglmOptions$new(
-        aim = aim,
-        mode = mode,
-        b_es = b_es,
-        b_r2 = b_r2,
-        b_df_model = b_df_model,
-        v_es = v_es,
-        v_df_model = v_df_model,
-        v_df_effect = v_df_effect,
-        e_es = e_es,
-        e_df_model = e_df_model,
-        e_r2 = e_r2,
-        e_df_effect = e_df_effect,
-        power = power,
-        n = n,
-        sig.level = sig.level,
-        alternative = alternative,
-        plot_contour = plot_contour,
-        plot_escurve = plot_escurve,
-        plot_ncurve = plot_ncurve,
-        plot_log = plot_log,
-        plot_palette = plot_palette,
-        covs = covs,
-        factors = factors,
-        factors_list = factors_list,
-        covs_order = covs_order,
-        factors_order = factors_order,
-        mixed_order = mixed_order,
-        eta = eta,
-        f = f,
-        eta_df_error = eta_df_error,
-        epsilon = epsilon,
-        omega = omega,
-        gpower = gpower,
-        f2 = f2,
-        use = use,
-        ncp_type = ncp_type,
-        rx = rx,
-        plot_x = plot_x,
-        plot_y = plot_y,
-        plot_custom_labels = plot_custom_labels,
-        plot_z = plot_z,
-        plot_x_from = plot_x_from,
-        plot_x_to = plot_x_to,
-        plot_z_lines = plot_z_lines,
-        plot_z_value = plot_z_value,
-        plot_to_table = plot_to_table,
-        explain = explain,
-        .caller = .caller,
-        .interface = .interface)
-
-    analysis <- pamlglmClass$new(
-        options = options,
-        data = data)
-
-    analysis$run()
-
-    analysis$results
-}
 

@@ -482,7 +482,7 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
                         `type`="integer"),
                     list(
                         `name`="sig.level", 
-                        `title`="&alpha;", 
+                        `title`="\u03B1", 
                         `type`="number"))))
             self$add(jmvcore::Table$new(
                 options=options,

@@ -125,6 +125,7 @@ supports_ansi <- function() {
 }
 
 rmsg_start_status <- function() {
+  
     last_width <- 0L
     step <- 0L
     spinner <- c("◐", "◓", "◑", "◒")

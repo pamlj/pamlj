@@ -11,10 +11,10 @@ testthat::test_that("values ok", {
   testthat::expect_equal(obj$powerbyes$asDF$es[4],"ρ > 0.1111")
 })
 
-plots<-plots(obj)
+plots <- suppressWarnings(plots(obj))
 
 testthat::test_that("plots ok", {
-  testthat::expect_true(ggplot2::is.ggplot(plots$powerCustom))
+  testthat::expect_true(ggplot2::is_ggplot(plots$powerCustom))
 })
 
 testthat::expect_warning(
@@ -43,4 +43,3 @@ testthat::test_that("power ok", {
   testthat::expect_equal(obj$powertab$asDF$es,ok)
   testthat::expect_equal(obj$powerbyes$asDF$es[4],"ρ > 0.479")
 })
-

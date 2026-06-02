@@ -88,6 +88,8 @@ Plotter <- R6::R6Class(
 
        }
 
+       invisible(NULL)
+
       },
       plot_curve= function(image,ggtheme,theme) {
          
@@ -125,7 +127,8 @@ Plotter <- R6::R6Class(
          segments(state$point.x,yor,state$point.x,state$point.y, lwd=2)
          points(state$point.x,state$point.y,pch=21,bg="white",cex=1.5)
          mtext(state$text, adj = 1)
-         
+
+         invisible(NULL)
        },
 
       plot_custom= function(image,ggtheme,theme) {

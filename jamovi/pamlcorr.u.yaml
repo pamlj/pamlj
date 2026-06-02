@@ -17,7 +17,7 @@ children:
         children:
           - name: es
             type: TextBox
-            label: Minimally-interesting effect size (&rho;)
+            label: Minimally-interesting effect size (ρ)
             format: number
             enable: (!aim:es)
           - name: power
@@ -32,7 +32,7 @@ children:
             enable: (!aim:n)
           - name: sig.level
             type: TextBox
-            label: '&alpha; (type I error rate)'
+            label: 'α (type I error rate)'
             format: number
             enable: (!aim:alpha)
           - type: ComboBox

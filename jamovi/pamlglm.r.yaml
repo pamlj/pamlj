@@ -68,7 +68,7 @@ items:
           title: 'df(res)'
           type: integer
         - name: sig.level
-          title: '&alpha;'
+          title: 'α'
           type: number
 
     - name:  effectsize

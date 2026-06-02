@@ -41,18 +41,29 @@ pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,sig.level=NULL,df_model=N
     else if (is.null(v)) 
         v <- uniroot(function(v) eval(p.body) - power, c(1 + 
             1e-10, 1e+09))$root
-    else if (is.null(f2)) { 
-        res <- uniroot(function(f2) log(eval(p.body)) - log(power), c(1e-10, 1e+10))
-        if (abs(res$f.root) > 0.01)  {
-          ### this means that the required es is too small for uniroot (less than 1e-03). We go brute force (slow but correct)
-          f.body <- function(f2) eval(p.body)
-          int<-seq(1e-07,1e-03,length.out=1e+04)
-          p<-abs(power - sapply(int,f.body))
-          f2<-as.numeric(int[which.min(p)])
-          print(paste("es ",f2," found by brute force. Approximation ",min(p)))
-          method="brute"
+    else if (is.null(f2)) {
+        log_root <- try(
+            uniroot(
+                function(log_f2) {
+                    f2 <- exp(log_f2)
+                    log(eval(p.body)) - log(power)
+                },
+                c(log(1e-16), log(1e+10))
+            ),
+            silent = TRUE
+        )
+
+        if (!inherits(log_root, "try-error") && is.finite(log_root$root) && abs(log_root$f.root) <= 0.01) {
+            f2 <- exp(log_root$root)
         } else {
-          f2<-res$root
+          ### Extremely small effect sizes can be numerically unstable. Use a brute-force fallback.
+          f.body <- function(f2) eval(p.body)
+          int <- seq(1e-07, 1e-03, length.out = 1e+04)
+          p <- abs(power - sapply(int, f.body))
+          f2 <- as.numeric(int[which.min(p)])
+          approx_f2 <- if (!inherits(log_root, "try-error") && is.finite(log_root$root)) exp(log_root$root) else NA_real_
+          rmsg_warn(paste("es", f2, "found by brute force. Log-scale approximation", approx_f2))
+          method <- "brute"
         }
     }
     else if (is.null(sig.level)) 
@@ -374,7 +385,7 @@ pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,power=NULL
          n <- round(n)
          if (n < 4)
              return(0)
-         mark(paste("joint sim: evaluating power at n =", n, "with R =", R))
+         .joint.status("SIM: evaluating power at n =" %+% n %+% " with R =" %+% R)
          if (isTRUE(parallel)) {
              nchunks <- min(max(2, future::availableCores()), R)
              chunk_sizes <- rep(floor(R / nchunks), nchunks)
@@ -410,7 +421,7 @@ pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,power=NULL
                  return(NA_real_)
              out <- mean(apply(hits[keep, , drop = FALSE], 1, all))
          }
-         mark(paste("joint sim: power at n =", n, "is", format(out, digits = 6)))
+         .joint.status("SIM: power at n =" %+% n %+% " is " %+% format(out, digits = 6))
          out
   }
   .joint_sigma_simple <- function(a, b, cprime, r2a, r2y) {
@@ -520,102 +531,6 @@ pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,power=NULL
              return(NA_real_)
          .joint_power_from_sigma(n, sigma, tests)
   }
-  .joint.analytic.power <- function(n) {
-         se.betas <- .sefun(n, r2s)
-         dfs <- n - seq_along(betas) - 1
-         pw <- mapply(.joint.path.power, betas, se.betas, dfs)
-         prod(pw)
-  }
-  .joint.analytic.es.power <- function(a_value, n_value = n) {
-         r2s_local <- r2s
-         betas_local <- betas
-         r2s_local[1] <- a_value^2
-         r2s_local[2] <- b^2 + cprime^2 + 2 * a_value * b * cprime
-         betas_local[1] <- a_value
-         se.betas <- .sefun(n_value, r2s_local)
-         dfs <- n_value - seq_along(betas_local) - 1
-         pw <- mapply(.joint.path.power, betas_local, se.betas, dfs)
-         prod(pw)
-  }
-
-     switch(test, 
-     
-     sobel= {
-              se.formula<-function(.betas,.se) {
-                               cc<-combn(.betas^2, length(.betas)-1, simplify = FALSE)
-                               sqrt(sum(sapply(cc,prod) * rev(.se^2)))
-                          }
-            p.body <- function(n_value = n) {
-                n_local <- n
-                on.exit(n <<- n_local, add = TRUE)
-                n <<- n_value
-                eval(p.sobel)
-            }
-            p.es   <- function(a_value = a, n_value = n) {
-                n_local <- n
-                a_local <- a
-                betas_local <- betas
-                r2s_local <- r2s
-                on.exit({
-                    n <<- n_local
-                    a <<- a_local
-                    betas <<- betas_local
-                    r2s <<- r2s_local
-                }, add = TRUE)
-                n <<- n_value
-                a <<- a_value
-                eval(p.es.sobel)
-            }
-
-            },
-     joint= {
-       
-            p.body <- function(n_value = n) {
-                n_local <- n
-                on.exit(n <<- n_local, add = TRUE)
-                n <<- n_value
-                if (!isTRUE(precise)) {
-                    .joint.analytic.power(n)
-                } else if (!is.null(args$model_type)) {
-                    .joint_complex.power(n = n)
-                } else if (length(betas) == 2) {
-                    .joint_simple.power(n = n, a = betas[1], b = betas[2], cprime = cprime, r2a = r2s[1], r2y = r2s[2])
-                } else {
-                    eval(p.joint)
-                }
-            }
-            p.es   <- function(a_value = a, n_value = n) {
-                n_local <- n
-                a_local <- a
-                betas_local <- betas
-                r2s_local <- r2s
-                on.exit({
-                    n <<- n_local
-                    a <<- a_local
-                    betas <<- betas_local
-                    r2s <<- r2s_local
-                }, add = TRUE)
-                n <<- n_value
-                a <<- a_value
-                r2s[1] <<- a^2
-                r2s[2] <<- b^2+cprime^2+2*a*b*cprime
-                betas[1] <<- a
-                if (!isTRUE(precise)) {
-                    eval(p.es.joint)
-                } else if (!is.null(args$model_type)) {
-                    .joint_complex.power(n = n)
-                } else if (length(betas) == 2) {
-                    .joint_simple.power(n = n, a = betas[1], b = betas[2], cprime = cprime, r2a = r2s[1], r2y = r2s[2])
-                } else {
-                    eval(p.es.joint)
-                }
-            }
-
-            }
-   )
-
-  
-  
     .power.fun <- function(ncp) {
       switch (alternative,
           two.sided = {power <- 1 - pnorm(qnorm(sig.level / 2, mean = 0, sd = 1, lower.tail = FALSE), sd = 1, mean = abs(ncp)) +
@@ -628,7 +543,7 @@ pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,power=NULL
     power
     }
 
-    .joint.path.power <- function(beta, se, df) {
+  .joint.path.power <- function(beta, se, df) {
       ncp <- beta / se
       switch (alternative,
           two.sided = {
@@ -648,230 +563,337 @@ pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,power=NULL
       )
     }
 
-     # comments and warnings variables
-     attribs<-list()
-     method<-"pamlj"
-     .joint.cache <- new.env(parent = emptyenv())
-     .joint.cached_power <- function(n_value) {
-        key <- as.character(round(n_value))
-        if (!exists(key, envir = .joint.cache, inherits = FALSE)) {
-          mark(paste("joint cache: miss at n =", key))
-          assign(key, p.body(round(n_value)), envir = .joint.cache)
-        } else {
-          mark(paste("joint cache: hit at n =", key))
-        }
-        get(key, envir = .joint.cache, inherits = FALSE)
+     .sobel.se <- function(betas, se) {
+       cc <- combn(betas^2, length(betas) - 1, simplify = FALSE)
+       sqrt(sum(vapply(cc, prod, numeric(1)) * rev(se^2)))
      }
-     .joint.root_fun <- function(n_value) {
-        .joint.cached_power(n_value) - power
+     .sobel.power <- function(ctx, n_value = ctx$n) {
+       se.betas <- ctx$sefun(n_value, ctx$r2s)
+       se <- .sobel.se(ctx$betas, se.betas)
+       ncp <- prod(ctx$betas) / se
+       ctx$power_fun(ncp)
      }
-     .joint.integer_search <- function(n_continuous) {
-        mark(paste("joint integer search: start from continuous n =", format(n_continuous, digits = 6)))
-        n_low <- max(4, floor(n_continuous))
-        n <- n_low
-        p_low <- .joint.cached_power(n_low)
-        if (is.na(p_low))
-          return(list(n = n_low, power = p_low))
-        if (p_low >= power) {
-          mark(paste("joint integer search: floor n =", n_low, "already reaches target power"))
-          repeat {
-            if (n_low <= 4)
-              break
-            n <- n_low - 1
-            p_prev <- .joint.cached_power(n)
-            if (is.na(p_prev) || p_prev < power) {
-              n <- n_low
-              mark(paste("joint integer search: selected n =", n_low, "previous power =", format(p_prev, digits = 6), "current power =", format(p_low, digits = 6)))
-              return(list(n = n_low, power = p_low, power.previous = p_prev))
-            }
-            n_low <- n
-            p_low <- p_prev
-          }
-          n <- n_low
-          mark(paste("joint integer search: selected minimum feasible n =", n_low))
-          return(list(n = n_low, power = p_low))
-        }
-        n_high <- max(n_low + 1, ceiling(n_continuous))
-        n <- n_high
-        mark(paste("joint integer search: floor n =", n_low, "below target, searching upward from", n_high))
-        p_high <- .joint.cached_power(n_high)
-        while (!is.na(p_high) && p_high < power) {
-          n_low <- n_high
-          p_low <- p_high
-          n_high <- n_high + 1
-          n <- n_high
-          mark(paste("joint integer search: n =", n_low, "power =", format(p_low, digits = 6), "still below target"))
-          p_high <- .joint.cached_power(n_high)
-        }
-        n <- n_high
-        mark(paste("joint integer search: selected n =", n_high, "previous power =", format(p_low, digits = 6), "current power =", format(p_high, digits = 6)))
-        list(n = n_high, power = p_high, power.previous = p_low)
+     .sobel.es.power <- function(ctx, a_value = ctx$a, n_value = ctx$n) {
+       r2s_local <- ctx$r2s
+       betas_local <- ctx$betas
+       r2s_local[1] <- a_value^2
+       r2s_local[2] <- ctx$b^2 + ctx$cprime^2 + 2 * a_value * ctx$b * ctx$cprime
+       betas_local[1] <- a_value
+       se.betas <- ctx$sefun(n_value, r2s_local)
+       se <- .sobel.se(betas_local, se.betas)
+       ncp <- prod(betas_local) / se
+       ctx$power_fun(ncp)
      }
-     .joint.refine_interval <- function(n_start) {
-        n0 <- max(10, round(n_start))
-        p0 <- p.body(n0)
-        if (!is.finite(p0))
-          return(c(10, max(12, n0 + 2)))
-        diff0 <- p0 - power
-        step0 <- max(2, round(abs(diff0) * n0))
-        mark(paste("joint n-solver: precise power at analytic start n =", n0, "is", format(p0, digits = 6), "initial step =", step0))
-        if (abs(diff0) < .Machine$double.eps^0.5)
-          return(c(max(10, n0 - 1), n0 + 1))
-        if (diff0 < 0) {
-          ll <- n0
-          ul <- n0 + step0
-          pu <- p.body(ul)
-          while (is.finite(pu) && pu < power) {
-            ll <- ul
-            step0 <- max(2, round(step0 * 1.5))
-            ul <- ul + step0
-            mark(paste("joint n-solver: expanding upward to", ul))
-            pu <- p.body(ul)
-          }
-          return(c(ll, ul))
-        } else {
-          ul <- n0
-          ll <- max(10, n0 - step0)
-          pl <- p.body(ll)
-          while (ll > 10 && is.finite(pl) && pl > power) {
-            ul <- ll
-            step0 <- max(2, round(step0 * 1.5))
-            ll <- max(10, ll - step0)
-            mark(paste("joint n-solver: expanding downward to", ll))
-            pl <- p.body(ll)
-          }
-          return(c(ll, ul))
-        }
+     .joint.analytic.power <- function(ctx, n_value = ctx$n) {
+       se.betas <- ctx$sefun(n_value, ctx$r2s)
+       dfs <- n_value - seq_along(ctx$betas) - 1
+       pw <- mapply(ctx$joint_path.power, ctx$betas, se.betas, dfs)
+       prod(pw)
      }
-     .joint.refine_es_interval <- function(a_start) {
-        a0 <- min(max(.00001, a_start), .99999)
-        p0 <- p.es(a_value = a0, n_value = n)
-        if (!is.finite(p0))
-          return(c(.00001, min(.99999, max(.05, a0 + .05))))
-        diff0 <- p0 - power
-        step0 <- max(.01, abs(diff0) * max(a0, .05))
-        mark(paste("joint es-solver: precise power at analytic start a =", format(a0, digits = 6), "is", format(p0, digits = 6), "initial step =", format(step0, digits = 6)))
-        if (abs(diff0) < .Machine$double.eps^0.5)
-          return(c(max(.00001, a0 - .01), min(.99999, a0 + .01)))
-        if (diff0 < 0) {
-          ll <- a0
-          ul <- min(.99999, a0 + step0)
-          pu <- p.es(a_value = ul, n_value = n)
-          while (ul < .99999 && is.finite(pu) && pu < power) {
-            ll <- ul
-            step0 <- max(.01, step0 * 1.5)
-            ul <- min(.99999, ul + step0)
-            mark(paste("joint es-solver: expanding upward to", format(ul, digits = 6)))
-            pu <- p.es(a_value = ul, n_value = n)
-          }
-          return(c(ll, ul))
-        } else {
-          ul <- a0
-          ll <- max(.00001, a0 - step0)
-          pl <- p.es(a_value = ll, n_value = n)
-          while (ll > .00001 && is.finite(pl) && pl > power) {
-            ul <- ll
-            step0 <- max(.01, step0 * 1.5)
-            ll <- max(.00001, ll - step0)
-            mark(paste("joint es-solver: expanding downward to", format(ll, digits = 6)))
-            pl <- p.es(a_value = ll, n_value = n)
-          }
-          return(c(ll, ul))
-        }
+     .joint.analytic.es.power <- function(ctx, a_value = ctx$a, n_value = ctx$n) {
+       r2s_local <- ctx$r2s
+       betas_local <- ctx$betas
+       r2s_local[1] <- a_value^2
+       r2s_local[2] <- ctx$b^2 + ctx$cprime^2 + 2 * a_value * ctx$b * ctx$cprime
+       betas_local[1] <- a_value
+       se.betas <- ctx$sefun(n_value, r2s_local)
+       dfs <- n_value - seq_along(betas_local) - 1
+       pw <- mapply(ctx$joint_path.power, betas_local, se.betas, dfs)
+       prod(pw)
      }
-
-     switch(aim, 
-            power={
-                   if (test=="joint" && isTRUE(precise))
-                     mark(paste("joint power: direct evaluation at n =", n))
-                   power<-p.body(n)
-                  },
-            n    ={
-                   if (test=="joint" && isTRUE(precise)) {
-                      mark(paste("joint n-solver: target power =", power))
-                      mark("joint n-solver: starting analytic pilot search")
-                      n_start <- try(uniroot(function(n) .joint.analytic.power(n) - power, interval = c(10, 1e10))$root, silent = TRUE)
-                      if (!("try-error" %in% class(n_start))) {
-                        mark(paste("joint n-solver: analytic pilot found n =", format(n_start, digits = 6)))
-                        interval <- .joint.refine_interval(n_start)
-                        ll <- interval[1]
-                        ul <- interval[2]
-                        mark(paste("joint n-solver: simulated root search in [", ll, ",", ul, "]"))
-                        n <- try(uniroot(.joint.root_fun, interval = c(ll, ul))$root, silent=F)
-                      } else {
-                        mark("joint n-solver: analytic pilot failed, using wide simulated search")
-                        n <- try(uniroot(.joint.root_fun, interval = c(10, 1e10))$root,silent=F)
-                      }
-                   } else {
-                      n<-try(uniroot(function(n) p.body(n) - power, interval = c(10, 1e10))$root,silent=F)
-                   }
-                   # if it fails, n should be too small or to large. we test for too small
-                   if ("try-error" %in% class(n)) {
-                      n<-10
-                      pw<-p.body(n)
-                      ## if power with 10 is larger than power, we set the minumum n=10
-                      if (pw > power) {
-                        method="nmin"
-                        n<-10
-                      } else {
-                        ## otherwise, we test for too large
-                      n<-1e+07
-                      pw<-p.body(n)
-                      # is with n=1e+07 we do not reach the required power, we yield and say that n>1e+07
-                      if (pw < power) {
-                        method="nmax"
-                        n<-1e+07
-                      }
-                      }
-                   }
-                   if (isTRUE(precise) && !(method %in% c("nmin","nmax")) && test=="joint" && (length(betas)==2 || !is.null(args$model_type))) {
-                      mark(paste("joint n-solver: continuous root =", format(n, digits = 6), "starting integer refinement"))
-                      check.int <- .joint.integer_search(n)
-                      n <- check.int$n
-                      if (!is.null(check.int$power))
-                        attribs$power <- check.int$power
-                      if (!is.null(check.int$power.previous))
-                        attribs$power.previous <- check.int$power.previous
-                      mark(paste("joint n-solver: final integer n =", n))
-                   }
-                  },
-            es   ={
-                   if (aim=="es" && length(betas)>2) stop("es can be estimated only for simple mediation")
-                   ## first we test what is the max power we can reach given b
-                   x<-seq(0,1,by=.001)
-                   if (test=="joint" && isTRUE(precise)) {
-                      pow <- sapply(x, function(a) .joint.analytic.es.power(a_value = a, n_value = n))
-                   } else {
-                      pow<-(sapply(x,function(a) p.es(a_value = a, n_value = n)))
-                   }
-                   .max<-max(pow)
-                   ## if we can go above power, we solve for a
-                   if (.max > power) {
-                          if (test=="joint" && isTRUE(precise)) {
-                              a_start <- uniroot(function(a) .joint.analytic.es.power(a_value = a, n_value = n) - power, interval = c(.00001,x[which.max(pow)] ))$root
-                              mark(paste("joint es-solver: analytic pilot found a =", format(a_start, digits = 6)))
-                              interval <- .joint.refine_es_interval(a_start)
-                              mark(paste("joint es-solver: precise search in [", format(interval[1], digits = 6), ",", format(interval[2], digits = 6), "]"))
-                              a <- uniroot(function(a) p.es(a_value = a, n_value = n) - power, interval = interval)$root
-                          } else {
-                              a<-uniroot(function(a) p.es(a_value = a, n_value = n) - power, interval = c(.00001,x[which.max(pow)] ))$root
-                          }
-                   }
-                   else {
-                          ## otherwise, we yield the effect size (a) that gives the maximum power
-                          a<-x[which.max(pow)]
-                          method <-"powmax"
-                          power  <- .max
-                          attribs$power<-.max
-                   }
-                   betas[1]<-a
-
+     .joint.power <- function(ctx, n_value = ctx$n) {
+       if (!isTRUE(ctx$precise))
+         return(.joint.analytic.power(ctx, n_value))
+       if (!is.null(ctx$args$model_type))
+         return(ctx$joint_complex.power(n_value))
+       if (length(ctx$betas) == 2)
+         return(ctx$joint_simple.power(n = n_value, a = ctx$betas[1], b = ctx$betas[2],
+                                       cprime = ctx$cprime, r2a = ctx$r2s[1], r2y = ctx$r2s[2]))
+       .joint.analytic.power(ctx, n_value)
+     }
+     .joint.es.power <- function(ctx, a_value = ctx$a, n_value = ctx$n) {
+       if (!isTRUE(ctx$precise))
+         return(.joint.analytic.es.power(ctx, a_value, n_value))
+       if (length(ctx$betas) == 2)
+         return(ctx$joint_simple.power(n = n_value, a = a_value, b = ctx$b,
+                                       cprime = ctx$cprime, r2a = a_value^2,
+                                       r2y = ctx$b^2 + ctx$cprime^2 + 2 * a_value * ctx$b * ctx$cprime))
+       .joint.analytic.es.power(ctx, a_value, n_value)
+     }
+     .select.strategy <- function(ctx) {
+       switch(ctx$test,
+              sobel = list(
+                p.body = function(n_value = ctx$n) .sobel.power(ctx, n_value),
+                p.es = function(a_value = ctx$a, n_value = ctx$n) .sobel.es.power(ctx, a_value, n_value)
+              ),
+              joint = list(
+                p.body = function(n_value = ctx$n) .joint.power(ctx, n_value),
+                p.es = function(a_value = ctx$a, n_value = ctx$n) .joint.es.power(ctx, a_value, n_value)
+              ),
+              stop("Unsupported mediation test", call. = FALSE))
+     }
+     .make.joint.cached.power <- function(ctx, strategy) {
+       cache <- new.env(parent = emptyenv())
+       function(n_value) {
+         key <- as.character(round(n_value))
+         if (!exists(key, envir = cache, inherits = FALSE)) {
+           .joint.status("CACHE: miss at n =" %+% key)
+           assign(key, strategy$p.body(round(n_value)), envir = cache)
+         } else {
+           .joint.status("CACHE: hit at n =" %+% key)
+         }
+         get(key, envir = cache, inherits = FALSE)
+       }
+     }
+     .joint.integer.search <- function(ctx, cached_power, n_continuous) {
+       .joint.status("INT_SEEK: start from continuous n =" %+% format(n_continuous, digits = 6))
+       n_low <- max(4, floor(n_continuous))
+       p_low <- cached_power(n_low)
+       if (is.na(p_low))
+         return(list(n = n_low, power = p_low))
+       if (p_low >= ctx$power) {
+         .joint.status("INT_SEEK: floor n =" %+% n_low %+% " already reaches target power")
+         repeat {
+           if (n_low <= 4)
+             break
+           n_prev <- n_low - 1
+           p_prev <- cached_power(n_prev)
+           if (is.na(p_prev) || p_prev < ctx$power) {
+             .joint.status("INT_SEEK: selected n =" %+% n_low %+% " previous power =" %+% format(p_prev, digits = 6) %+% " current power =" %+% format(p_low, digits = 6))
+             return(list(n = n_low, power = p_low, power.previous = p_prev))
+           }
+           n_low <- n_prev
+           p_low <- p_prev
+         }
+         .joint.status("INT_SEEK: selected minimum feasible n =" %+% n_low)
+         return(list(n = n_low, power = p_low))
+       }
+       n_high <- max(n_low + 1, ceiling(n_continuous))
+       .joint.status("INT_SEEK: floor n =" %+% n_low %+% " below target, searching upward from " %+% n_high)
+       p_high <- cached_power(n_high)
+       while (!is.na(p_high) && p_high < ctx$power) {
+         n_low <- n_high
+         p_low <- p_high
+         n_high <- n_high + 1
+         .joint.status("INT_SEEK: n =" %+% n_low %+% " power =" %+% format(p_low, digits = 6) %+% " still below target")
+         p_high <- cached_power(n_high)
+       }
+       .joint.status("INT_SEEK: selected n =" %+% n_high %+% " previous power =" %+% format(p_low, digits = 6) %+% " current power =" %+% format(p_high, digits = 6))
+       list(n = n_high, power = p_high, power.previous = p_low)
+     }
+     .joint.refine.interval <- function(ctx, strategy, n_start) {
+       n0 <- max(10, round(n_start))
+       p0 <- strategy$p.body(n0)
+       if (!is.finite(p0))
+         return(c(10, max(12, n0 + 2)))
+       diff0 <- p0 - ctx$power
+       step0 <- max(2, round(abs(diff0) * n0))
+       .joint.status("N_SOLVE: precise power at analytic start n =" %+% n0 %+% " is " %+% format(p0, digits = 6) %+% " initial step =" %+% step0)
+       if (abs(diff0) < .Machine$double.eps^0.5)
+         return(c(max(10, n0 - 1), n0 + 1))
+       if (diff0 < 0) {
+         ll <- n0
+         ul <- n0 + step0
+         pu <- strategy$p.body(ul)
+         while (is.finite(pu) && pu < ctx$power) {
+           ll <- ul
+           step0 <- max(2, round(step0 * 1.5))
+           ul <- ul + step0
+           .joint.status("N_SOLVE: expanding upward to " %+% ul)
+           pu <- strategy$p.body(ul)
+         }
+         return(c(ll, ul))
+       }
+       ul <- n0
+       ll <- max(10, n0 - step0)
+       pl <- strategy$p.body(ll)
+       while (ll > 10 && is.finite(pl) && pl > ctx$power) {
+         ul <- ll
+         step0 <- max(2, round(step0 * 1.5))
+         ll <- max(10, ll - step0)
+         .joint.status("N_SOLVE: expanding downward to " %+% ll)
+         pl <- strategy$p.body(ll)
+       }
+       c(ll, ul)
+     }
+     .joint.refine.es.interval <- function(ctx, strategy, a_start) {
+       a0 <- min(max(.00001, a_start), .99999)
+       p0 <- strategy$p.es(a_value = a0, n_value = ctx$n)
+       if (!is.finite(p0))
+         return(c(.00001, min(.99999, max(.05, a0 + .05))))
+       diff0 <- p0 - ctx$power
+       step0 <- max(.01, abs(diff0) * max(a0, .05))
+       .joint.status("ES_SOLVE: precise power at analytic start a =" %+% format(a0, digits = 6) %+% " is " %+% format(p0, digits = 6) %+% " initial step =" %+% format(step0, digits = 6))
+       if (abs(diff0) < .Machine$double.eps^0.5)
+         return(c(max(.00001, a0 - .01), min(.99999, a0 + .01)))
+       if (diff0 < 0) {
+         ll <- a0
+         ul <- min(.99999, a0 + step0)
+         pu <- strategy$p.es(a_value = ul, n_value = ctx$n)
+         while (ul < .99999 && is.finite(pu) && pu < ctx$power) {
+           ll <- ul
+           step0 <- max(.01, step0 * 1.5)
+           ul <- min(.99999, ul + step0)
+           .joint.status("ES_SOLVE: expanding upward to " %+% format(ul, digits = 6))
+           pu <- strategy$p.es(a_value = ul, n_value = ctx$n)
+         }
+         return(c(ll, ul))
+       }
+       ul <- a0
+       ll <- max(.00001, a0 - step0)
+       pl <- strategy$p.es(a_value = ll, n_value = ctx$n)
+       while (ll > .00001 && is.finite(pl) && pl > ctx$power) {
+         ul <- ll
+         step0 <- max(.01, step0 * 1.5)
+         ll <- max(.00001, ll - step0)
+         .joint.status("ES_SOLVE: expanding downward to " %+% format(ll, digits = 6))
+         pl <- strategy$p.es(a_value = ll, n_value = ctx$n)
+       }
+       c(ll, ul)
+     }
+     .resolve.mediation <- function(ctx, strategy) {
+       switch(ctx$aim,
+              power = {
+                if (ctx$test == "joint" && isTRUE(ctx$precise))
+                  .joint.status("POWER: direct evaluation at n =" %+% ctx$n)
+                ctx$power <- strategy$p.body(ctx$n)
+                if (ctx$test == "joint" && isTRUE(ctx$precise))
+                  .joint.status("POWER: done with power =" %+% format(ctx$power, digits = 6), finish = TRUE)
+              },
+              n = {
+                if (ctx$test == "joint" && isTRUE(ctx$precise)) {
+                  .joint.status("N_SOLVE: target power =" %+% ctx$power)
+                  .joint.status("N_SOLVE: starting analytic pilot search")
+                  n_start <- try(uniroot(function(n) .joint.analytic.power(ctx, n) - ctx$power,
+                                         interval = c(10, 1e10))$root, silent = TRUE)
+                  if (!("try-error" %in% class(n_start))) {
+                    .joint.status("N_SOLVE: analytic pilot found n =" %+% format(n_start, digits = 6))
+                    interval <- .joint.refine.interval(ctx, strategy, n_start)
+                    ll <- interval[1]
+                    ul <- interval[2]
+                    .joint.status("N_SOLVE: simulated root search in [" %+% ll %+% "," %+% ul %+% "]")
+                    ctx$n <- try(uniroot(function(n) strategy$p.body(n) - ctx$power, interval = c(ll, ul))$root, silent = FALSE)
+                  } else {
+                    .joint.status("N_SOLVE: analytic pilot failed, using wide simulated search")
+                    ctx$n <- try(uniroot(function(n) strategy$p.body(n) - ctx$power, interval = c(10, 1e10))$root, silent = FALSE)
                   }
-      )
+                } else {
+                  ctx$n <- try(uniroot(function(n) strategy$p.body(n) - ctx$power, interval = c(10, 1e10))$root, silent = FALSE)
+                }
+                if ("try-error" %in% class(ctx$n)) {
+                  ctx$n <- 10
+                  pw <- strategy$p.body(ctx$n)
+                  if (pw > ctx$power) {
+                    ctx$method <- "nmin"
+                    ctx$n <- 10
+                  } else {
+                    ctx$n <- 1e+07
+                    pw <- strategy$p.body(ctx$n)
+                    if (pw < ctx$power) {
+                      ctx$method <- "nmax"
+                      ctx$n <- 1e+07
+                    }
+                  }
+                }
+                if (isTRUE(ctx$precise) && !(ctx$method %in% c("nmin", "nmax")) &&
+                    ctx$test == "joint" && (length(ctx$betas) == 2 || !is.null(ctx$args$model_type))) {
+                  .joint.status("N_SOLVE: continuous root =" %+% format(ctx$n, digits = 6) %+% " starting integer refinement")
+                  cached_power <- .make.joint.cached.power(ctx, strategy)
+                  check.int <- .joint.integer.search(ctx, cached_power, ctx$n)
+                  ctx$n <- check.int$n
+                  if (!is.null(check.int$power))
+                    ctx$attribs$power <- check.int$power
+                  if (!is.null(check.int$power.previous))
+                    ctx$attribs$power.previous <- check.int$power.previous
+                  .joint.status("N_SOLVE: final integer n =" %+% ctx$n, finish = TRUE)
+                } else if (ctx$test == "joint" && isTRUE(ctx$precise)) {
+                  .joint.status("N_SOLVE: final n =" %+% ctx$n %+% " method =" %+% ctx$method, finish = TRUE)
+                }
+              },
+              es = {
+                if (length(ctx$betas) > 2)
+                  stop("es can be estimated only for simple mediation")
+                x <- seq(0, 1, by = .001)
+                if (ctx$test == "joint" && isTRUE(ctx$precise)) {
+                  pow <- sapply(x, function(a) .joint.analytic.es.power(ctx, a_value = a, n_value = ctx$n))
+                } else {
+                  pow <- sapply(x, function(a) strategy$p.es(a_value = a, n_value = ctx$n))
+                }
+                max_power <- max(pow)
+                if (max_power > ctx$power) {
+                  if (ctx$test == "joint" && isTRUE(ctx$precise)) {
+                    a_start <- uniroot(function(a) .joint.analytic.es.power(ctx, a_value = a, n_value = ctx$n) - ctx$power,
+                                       interval = c(.00001, x[which.max(pow)]))$root
+                    .joint.status("ES_SOLVE: analytic pilot found a =" %+% format(a_start, digits = 6))
+                    interval <- .joint.refine.es.interval(ctx, strategy, a_start)
+                    .joint.status("ES_SOLVE: precise search in [" %+% format(interval[1], digits = 6) %+% "," %+% format(interval[2], digits = 6) %+% "]")
+                    ctx$a <- uniroot(function(a) strategy$p.es(a_value = a, n_value = ctx$n) - ctx$power, interval = interval)$root
+                  } else {
+                    ctx$a <- uniroot(function(a) strategy$p.es(a_value = a, n_value = ctx$n) - ctx$power,
+                                     interval = c(.00001, x[which.max(pow)]))$root
+                  }
+                } else {
+                  ctx$a <- x[which.max(pow)]
+                  ctx$method <- "powmax"
+                  ctx$power <- max_power
+                  ctx$attribs$power <- max_power
+                }
+                ctx$betas[1] <- ctx$a
+                if (ctx$test == "joint" && isTRUE(ctx$precise))
+                  .joint.status("ES_SOLVE: final a =" %+% format(ctx$a, digits = 6) %+% " power =" %+% format(ctx$power, digits = 6), finish = TRUE)
+              })
+       invisible(ctx)
+     }
+     .finalize.mediation <- function(ctx) {
+       results <- list(
+         n = round(ctx$n, digits = 0),
+         a = ctx$a,
+         b = ctx$b,
+         es = prod(ctx$betas),
+         cprime = ctx$cprime,
+         r2a = ctx$r2a,
+         r2y = ctx$r2y,
+         sig.level = ctx$sig.level,
+         power = ctx$power,
+         method = ctx$method
+       )
+       attributes(results) <- c(attributes(results), ctx$attribs)
+       results
+     }
 
-      results<-(list(n = round(n,digits=0), a = a, b=b , es= prod(betas), cprime=cprime,r2a=r2a,r2y=r2y, sig.level = sig.level,  power = power, method=method))
-      attributes(results)<-c(attributes(results),attribs)
-      return(results)
+     ctx <- new.env(parent = emptyenv())
+     ctx$aim <- aim
+     ctx$n <- n
+     ctx$a <- a
+     ctx$b <- b
+     ctx$cprime <- cprime
+     ctx$r2a <- r2a
+     ctx$r2y <- r2y
+     ctx$power <- power
+     ctx$sig.level <- sig.level
+     ctx$alternative <- alternative
+     ctx$test <- test
+     ctx$R <- R
+     ctx$precise <- precise
+     ctx$parallel <- parallel
+     ctx$args <- args
+     ctx$betas <- betas
+     ctx$r2s <- r2s
+     ctx$attribs <- list()
+     ctx$method <- "pamlj"
+     ctx$sefun <- .sefun
+     ctx$power_fun <- .power.fun
+     ctx$joint_path.power <- .joint.path.power
+     ctx$joint_simple.power <- .joint_simple.power
+     ctx$joint_complex.power <- .joint_complex.power
+     status <- rmsg_start_status()
+     .joint.status <- function(text, finish = FALSE) {
+       status("JOINT_" %+% text, finish = finish)
+     }
+
+     strategy <- .select.strategy(ctx)
+     .resolve.mediation(ctx, strategy)
+     .finalize.mediation(ctx)
 }
 
 pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,
@@ -971,7 +993,7 @@ pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,
                   },
             n    ={
                   ### first we obtain a reasonable estimation of n
-              mark("MC mediation: Find a reasonable estimation first")
+              rmsg_msg("MC mediation: Find a reasonable estimation first")
                    check<-pamlj.mediation(a=a,b=b,cprime=cprime,r2a=r2a,r2y=r2y,power=power,sig.level=sig.level, alternative=alternative,test="joint", precise=FALSE)
                    if (check$method %in% c("nmax","nmin")) return(check)
                    n_par<-check$n
@@ -1005,60 +1027,6 @@ pamlj.mediation.mc <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,
 
 ##### mediation power functions
 
-          p.sobel <- quote({
-                se.betas   <- .sefun(n,r2s)
-                se         <-  se.formula(betas, se.betas)
-                ncp        <-  prod(betas) / se
-                pw         <- .power.fun(ncp) 
-                pw
-                })
-          
-            p.es.sobel <- quote({
-                
-                r2s[1]     <-  a^2
-                r2s[2]     <-  b^2+cprime^2+2*a*b*cprime
-                se.betas   <- .sefun(n,r2s)
-                betas[1]   <-  a
-                se         <-  se.formula(betas, se.betas)
-                ncp        <-  prod(betas) / se
-                pw         <- .power.fun(ncp) 
-                pw
-                })
-            
-            p.joint <- quote({
-                if (!is.null(args$model_type)) {
-                    .joint_complex.power(n = n)
-                } else if (length(betas) == 2) {
-                    # For simple mediation, estimate power for the actual regression-based joint test.
-                    .joint.simple.power(n = n, a = betas[1], b = betas[2], cprime = cprime, r2a = r2s[1], r2y = r2s[2])
-                } else {
-                    # For longer chains we keep the older pathwise approximation because the full joint
-                    # covariance structure is not fully identified by the current inputs alone.
-                    se.betas   <- .sefun(n,r2s)
-                    dfs        <-  n - seq_along(betas) - 1
-                    pw         <-  mapply(.joint.path.power, betas, se.betas, dfs) 
-                    prod(pw)
-                }
-                })
-            
-            p.es.joint <- quote({
-                r2s[1]     <-  a^2
-                r2s[2]     <-  b^2+cprime^2+2*a*b*cprime
-                betas[1]   <-  a
-                if (!is.null(args$model_type)) {
-                    .joint_complex.power(n = n)
-                } else if (length(betas) == 2) {
-                    # Reuse the same simulation-based joint test while solving for the unknown a path.
-                    .joint.simple.power(n = n, a = betas[1], b = betas[2], cprime = cprime, r2a = r2s[1], r2y = r2s[2])
-                } else {
-                    se.betas   <- .sefun(n,r2s)
-                    dfs        <-  n - seq_along(betas) - 1
-                    pw         <-  mapply(.joint.path.power, betas, se.betas, dfs) 
-                    prod(pw)
-                }
-
-                })
-   
             p.mc  <- quote({               
                 # for each beta we draw a random value from its distribution
                 pars <- sapply(seq_along(betas),function(j) rnorm(1, betas[j], se.betas[j]))

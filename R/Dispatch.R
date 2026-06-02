@@ -71,6 +71,12 @@ Dispatch <- R6::R6Class(
                                 if (inherits(table,"Html")) {
                                   ### messaging in R and jamovi are very different
                                   if (self$interface=="R") {
+                                      same_as_last <- identical(private$.last_r_warning$topic, obj$topic) &&
+                                                      identical(private$.last_r_warning$message, obj$message) &&
+                                                      identical(private$.last_r_warning$head, obj$head)
+                                      if (same_as_last)
+                                         return()
+                                      private$.last_r_warning <- list(topic = obj$topic, message = obj$message, head = obj$head)
                                       if (obj$head=="wait")
                                          return()
                                        if (obj$head=="info")
@@ -145,6 +151,7 @@ Dispatch <- R6::R6Class(
 private = list(
                 .warnings = list(),
                 .errors = list(),
+                .last_r_warning = list(topic = NULL, message = NULL, head = NULL),
                 .process_html = function(content, obj) {
                     
                     style = ""

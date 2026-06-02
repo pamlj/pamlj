@@ -93,7 +93,7 @@ children:
             enable: (!aim:power)
           - name: sig.level
             type: TextBox
-            label: '&alpha; (type I error rate)'
+            label: 'α (type I error rate)'
             format: number
             enable: (!aim:alpha)
           - type: ComboBox
