@@ -241,7 +241,6 @@
                                 res<-list(n1=n1,n2=n1*one$n_ratio,h=one$h,sig.level=one$sig.level,power=one$power,alternative=one$alternative,method="nmin")
                               },
                               es={
-                                mark("error in low function for es")
                               }
                               )
                      }
@@ -288,10 +287,8 @@
                                 out<-list(h=one$h,n=obj$info$nmin,sig.level=one$sig.level,power=one$power,alternative=one$alternative,method="nmin")
                                },
                               es={
-                                mark("error in low function for es")
                               },
                               power={
-                                mark("error in low function for power")
                               }
 
                               )
@@ -342,17 +339,14 @@
                        res<-one
                        switch(aim,
                               n={
-                               mark("error in low function for n")
                           
                                 out<-list(n=obj$info$nmin,p1=one$p1,psi=one$psi,sig.level=one$sig.level,power=one$power,alternative=one$alternative,method="nmin")
                                },
                               es={
-                                mark("error in low function for es")
                                   out<-list(n=one$n,p1=one$p1,psi=NA,sig.level=one$sig.level,power=one$power,alternative=one$alternative,method="eserror")
 
                               },
                               power={
-                                mark("error in low function for power")
                                 out<-list(n=one$n,p1=one$p1,psi=one$psi,sig.level=one$sig.level,power=NA,alternative=one$alternative,method="error")
 
                               }

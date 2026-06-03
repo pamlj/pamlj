@@ -8,7 +8,7 @@ export: false
 completeWhenFilled: false
 description:
     main: |
-           Something here
+           Power analysis for simple and multiple mediation models using the Sobel test, joint-significance, or Monte Carlo simulation.
 
 options:
 
@@ -304,7 +304,7 @@ options:
 
     - name: plot_custom_labels
       type: Bool
-      title: "Show values"
+      title: "Value labels"
       default: false
 
     - name: plot_z
@@ -342,7 +342,7 @@ options:
 
     - name: plot_to_table
       type: Bool
-      title: "Show table"
+      title: "Results table"
       default: false
 
     - name: test_c

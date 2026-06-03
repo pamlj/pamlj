@@ -620,7 +620,8 @@ pamlttestBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 
 #' T-Test
 #'
-#' Something here
+#' Power analysis for one-sample, paired, and independent-samples t-tests: 
+#' estimate required sample size, power, or minimum detectable effect size.
 #' 
 #' @param aim The aim of the analysis: \code{n} for required N, \code{power}
 #'   for estimated power and \code{es} for minimal detectable effect size

@@ -207,7 +207,8 @@ pamlmed <- function(
         .caller = "mediation")
 
     analysis <- pamlmedClass$new(
-        options = options)
+        options = options,
+        data = data)
 
     analysis$run()
 

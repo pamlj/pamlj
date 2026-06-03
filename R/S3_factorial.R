@@ -258,7 +258,6 @@
                                   out<-tryobj$obj 
                                    
                                   if (!isFALSE(tryobj$error)) {
-                                      mark("Factorial powervector:",tryobj$error)
                                     v<-one$v
                                     if (obj$aim=="n")
                                         v<-Inf

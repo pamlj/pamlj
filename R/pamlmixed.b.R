@@ -8,7 +8,6 @@ pamlmixedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
         .time = NULL,
         .ready= FALSE,
         .smartObjs=list(),
-        .plotter=NULL,
         .runner=NULL,
         .init = function() {
 
@@ -20,9 +19,6 @@ pamlmixedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
      ### set up the R6 workhorse class
                 private$.runner          <-  Runner$new(self)
 
-                 ### handle plotter #####
-#                 private$.plotter<-Plotter$new(self,private$.runner)
-#                 private$.plotter$initPlots()      
       ### info table ###
                  aSmartObj<-SmartTable$new(self$results$infotab,private$.runner)
                  ladd(private$.smartObjs)<-aSmartObj
@@ -56,7 +52,6 @@ pamlmixedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                 now <- Sys.time()
                 jinfo(paste("MODULE:  PAMLmixed #### phase run  ####"))
                  private$.runner$run()
-                 #private$.plotter$preparePlots()
                  for (tab in private$.smartObjs) {
                      tab$runTable()
                  }
@@ -67,14 +62,7 @@ pamlmixedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
       jinfo("TIME:",Sys.time()-private$.time," secs. Runtime: ",Sys.time()-now)
                  
 
-        },
-      .plot_custom=function(image, ggtheme, theme, ...) {
+        }
 
-          private$.plotter$plot_custom(image,ggtheme,theme)
-       }
-
-
-
-     
      ) # end of private
 ) # end of class

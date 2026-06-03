@@ -635,7 +635,9 @@ pamlfactorialBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 
 #' Factorial Designs
 #'
-#' Something here
+#' Power analysis for between-subjects, within-subjects, and mixed factorial 
+#' designs specified via observed or expected cell means and standard 
+#' deviations.
 #' 
 #' @param data the data as a data frame
 #' @param aim The aim of the analysis: \code{n} (default) for sample size,

@@ -79,8 +79,8 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
             data$power<-NULL
             suppressWarnings(dd<-as.data.frame(cbind(power,data)))
             dd$es<-NULL
+            dd$precise <- FALSE
             res<-powervector(obj,dd)
-            mark(res)
             probs_es<-format(res$es,digits=3)
             check<-which(is.na(res$es))
            
@@ -135,28 +135,24 @@ extrainfo <- function(obj, ...) UseMethod(".extrainfo")
 showdata1 <- function(obj, ...) UseMethod(".showdata1")
 
 .showdata1.default <-function(obj,...) {
-  mark("no showdata1 for class ",class(obj)) 
   return()
 }
 
 showdata2 <- function(obj, ...) UseMethod(".showdata2")
 
 .showdata2.default <-function(obj,...) {
-  mark("no showdata2 for class ",class(obj)) 
   return()
 }
 
 showdata3 <- function(obj, ...) UseMethod(".showdata3")
 
 .showdata3.default <-function(obj,...) {
-  mark("no showdata3 for class ",class(obj)) 
   return()
 }
 
 showdata4 <- function(obj, ...) UseMethod(".showdata4")
 
 .showdata4.default <-function(obj,...) {
-  mark("no showdata4 for class ",class(obj)) 
   return()
 }
 

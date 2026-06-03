@@ -24,8 +24,9 @@ analyses:
     ns: pamlj
     menuSubgroup: Pamlj
     menuTitle: Correlation
-    description: |
-      Something here
+    description: >
+      Power analysis for Pearson's correlation coefficient: estimate required
+      sample size, power, or minimum detectable correlation.
     menuGroup: Power
     category: analyses
   - title: T-Test
@@ -33,8 +34,9 @@ analyses:
     ns: pamlj
     menuSubgroup: Pamlj
     menuTitle: T-Test
-    description: |
-      Something here
+    description: >
+      Power analysis for one-sample, paired, and independent-samples t-tests:
+      estimate required sample size, power, or minimum detectable effect size.
     menuGroup: Power
     category: analyses
   - title: Proportions
@@ -42,8 +44,9 @@ analyses:
     ns: pamlj
     menuSubgroup: Pamlj
     menuTitle: Proportions
-    description: |
-      Something here
+    description: >
+      Power analysis for tests on one or two proportions: estimate required
+      sample size, power, or minimum detectable difference.
     menuGroup: Power
     category: analyses
   - title: General Linear Model
@@ -51,8 +54,9 @@ analyses:
     ns: pamlj
     menuSubgroup: Pamlj
     menuTitle: General Linear Model
-    description: |
-      Something here
+    description: >
+      Power analysis for regression, ANOVA, and ANCOVA models using standardized
+      coefficients, partial eta-squared, or eta-squared effect sizes.
     menuGroup: Power
     category: analyses
   - title: Factorial Designs
@@ -60,8 +64,10 @@ analyses:
     ns: pamlj
     menuSubgroup: Pamlj
     menuTitle: Factorial Designs
-    description: |
-      Something here
+    description: >
+      Power analysis for between-subjects, within-subjects, and mixed factorial
+      designs specified via observed or expected cell means and standard
+      deviations.
     menuGroup: Power
     category: analyses
   - title: Mediation
@@ -70,8 +76,9 @@ analyses:
     menuSubgroup: Pamlj
     menuGroup: Power
     menuTitle: Mediation
-    description: |
-      Something here
+    description: >
+      Power analysis for simple and multiple mediation models using the Sobel
+      test, joint-significance, or Monte Carlo simulation.
     category: analyses
   - title: Structural Equations Models
     name: pamlsem
@@ -79,8 +86,9 @@ analyses:
     menuSubgroup: Pamlj
     menuGroup: Power
     menuTitle: Structural Equations Models
-    description: |
-      Something here
+    description: >
+      Power analysis for structural equation models estimated via the
+      RMSEA-based method or Monte Carlo simulation.
     category: analyses
   - title: Mixed Models
     name: pamlmixed
@@ -88,8 +96,9 @@ analyses:
     menuSubgroup: Pamlj
     menuGroup: Power
     menuTitle: Mixed Models
-    description: |
-      Something here
+    description: >
+      Power analysis for linear mixed models with fixed and random effects,
+      specified via model syntax and cluster parameters.
     category: analyses
 datasets:
   - name: factorial

@@ -558,15 +558,12 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "b_df_model",
                     "v_df_model",
                     "e_df_model",
-                    "b_df_effect",
                     "v_df_effect",
                     "e_df_effect",
                     "e_r2",
-                    "v_r2",
                     "b_r2",
                     "ncp_type",
-                    "rx",
-                    "ry"),
+                    "rx"),
                 columns=list(
                     list(
                         `name`="n", 
@@ -614,16 +611,12 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "b_df_model",
                     "v_df_model",
                     "e_df_model",
-                    "b_df_effect",
                     "v_df_effect",
                     "e_df_effect",
                     "e_r2",
-                    "v_r2",
                     "b_r2",
                     "ncp_type",
-                    "rx",
-                    "ry",
-                    "ncp_type"),
+                    "rx"),
                 columns=list(
                     list(
                         `name`="index", 
@@ -651,16 +644,12 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "b_df_model",
                     "v_df_model",
                     "e_df_model",
-                    "b_df_effect",
                     "v_df_effect",
                     "e_df_effect",
                     "e_r2",
-                    "v_r2",
                     "b_r2",
                     "ncp_type",
-                    "rx",
-                    "ry",
-                    "ncp_type"),
+                    "rx"),
                 columns=list(
                     list(
                         `name`="es", 
@@ -701,7 +690,6 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "v_df_model",
                     "e_df_model",
                     "e_r2",
-                    "v_r2",
                     "ncp_type",
                     "plot_log",
                     "plot_palette")))
@@ -727,7 +715,6 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "v_df_model",
                     "e_df_model",
                     "e_r2",
-                    "v_r2",
                     "ncp_type",
                     "plot_log",
                     "plot_palette")))
@@ -753,7 +740,6 @@ pamlglmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "v_df_model",
                     "e_df_model",
                     "e_r2",
-                    "v_r2",
                     "ncp_type",
                     "plot_log",
                     "plot_palette")))

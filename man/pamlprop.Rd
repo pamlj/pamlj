@@ -131,5 +131,6 @@ Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.f
 \code{as.data.frame(results$powertab)}
 }
 \description{
-Something here
+Power analysis for tests on one or two proportions: estimate required 
+sample size, power, or minimum detectable difference.
 }

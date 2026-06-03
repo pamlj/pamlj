@@ -526,7 +526,8 @@ pamlpropBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 
 #' Proportions
 #'
-#' Something here
+#' Power analysis for tests on one or two proportions: estimate required 
+#' sample size, power, or minimum detectable difference.
 #' 
 #' @param aim .
 #' @param mode .

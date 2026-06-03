@@ -39,16 +39,13 @@ items:
         - b_df_model
         - v_df_model
         - e_df_model
-        - b_df_effect
         - v_df_effect
         - e_df_effect
         - e_r2
-        - v_r2
         - b_r2
         - ncp_type
         - rx
-        - ry
-      columns: 
+      columns:
         - name: n
           title: 'N'
           type: integer
@@ -88,18 +85,14 @@ items:
         - b_df_model
         - v_df_model
         - e_df_model
-        - b_df_effect
         - v_df_effect
         - e_df_effect
         - e_r2
-        - v_r2
         - b_r2
         - ncp_type
         - rx
-        - ry
-        - ncp_type
-        
-      columns: 
+
+      columns:
         - name: index
           title: 'Index'
           type: text
@@ -125,17 +118,13 @@ items:
         - b_df_model
         - v_df_model
         - e_df_model
-        - b_df_effect
         - v_df_effect
         - e_df_effect
         - e_r2
-        - v_r2
         - b_r2
         - ncp_type
         - rx
-        - ry
-        - ncp_type
-        
+
       columns:
         - name: es
           title: 'True effect size'
@@ -176,7 +165,6 @@ items:
         - v_df_model
         - e_df_model
         - e_r2
-        - v_r2
         - ncp_type
         - plot_log
         - plot_palette
@@ -201,7 +189,6 @@ items:
         - v_df_model
         - e_df_model
         - e_r2
-        - v_r2
         - ncp_type
         - plot_log
         - plot_palette
@@ -227,12 +214,10 @@ items:
         - v_df_model
         - e_df_model
         - e_r2
-        - v_r2
         - ncp_type
         - plot_log
         - plot_palette
 
-      
     - name: powerCustom
       title: Power Parameters
       type: Image
