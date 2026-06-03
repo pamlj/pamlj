@@ -8,7 +8,7 @@ export: false
 completeWhenFilled: false
 description:
     main: |
-           Something here
+           Power analysis for linear mixed models with fixed and random effects, specified via model syntax and cluster parameters.
 
 options:
 

@@ -8,7 +8,7 @@ export: true
 completeWhenFilled: false
 description:
     main: |
-           Something here
+           Power analysis for tests on one or two proportions: estimate required sample size, power, or minimum detectable difference.
 
 options:
 
@@ -184,7 +184,7 @@ options:
 
     - name: plot_custom_labels
       type: Bool
-      title: "Show values"
+      title: "Value labels"
       default: false
 
     - name: plot_z
@@ -229,7 +229,7 @@ options:
 
     - name: plot_to_table
       type: Bool
-      title: "Show table"
+      title: "Results table"
       default: false
 
 

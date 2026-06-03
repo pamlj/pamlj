@@ -8,7 +8,7 @@ export: false
 completeWhenFilled: false
 description:
     main: |
-           Something here
+           Power analysis for Pearson's correlation coefficient: estimate required sample size, power, or minimum detectable correlation.
 
 options:
 
@@ -158,7 +158,7 @@ options:
 
     - name: plot_custom_labels
       type: Bool
-      title: "Show values"
+      title: "Value labels"
       default: false
       description:
                 R: |
@@ -235,7 +235,7 @@ options:
 
     - name: plot_to_table
       type: Bool
-      title: "Show table"
+      title: "Results table"
       default: false
       description:
                 R: |

@@ -25,7 +25,7 @@ analyses:
     menuSubgroup: Pamlj
     menuTitle: Correlation
     description: |
-      Something here
+      Power analysis for Pearson's correlation coefficient: estimate required sample size, power, or minimum detectable correlation.
     menuGroup: Power
     category: analyses
   - title: T-Test
@@ -34,7 +34,7 @@ analyses:
     menuSubgroup: Pamlj
     menuTitle: T-Test
     description: |
-      Something here
+      Power analysis for Pearson's correlation coefficient: estimate required sample size, power, or minimum detectable correlation.
     menuGroup: Power
     category: analyses
   - title: Proportions
@@ -43,7 +43,7 @@ analyses:
     menuSubgroup: Pamlj
     menuTitle: Proportions
     description: |
-      Something here
+      Power analysis for Pearson's correlation coefficient: estimate required sample size, power, or minimum detectable correlation.
     menuGroup: Power
     category: analyses
   - title: General Linear Model
@@ -52,7 +52,7 @@ analyses:
     menuSubgroup: Pamlj
     menuTitle: General Linear Model
     description: |
-      Something here
+      Power analysis for Pearson's correlation coefficient: estimate required sample size, power, or minimum detectable correlation.
     menuGroup: Power
     category: analyses
   - title: Factorial Designs
@@ -61,7 +61,7 @@ analyses:
     menuSubgroup: Pamlj
     menuTitle: Factorial Designs
     description: |
-      Something here
+      Power analysis for Pearson's correlation coefficient: estimate required sample size, power, or minimum detectable correlation.
     menuGroup: Power
     category: analyses
   - title: Mediation
@@ -71,7 +71,7 @@ analyses:
     menuGroup: Power
     menuTitle: Mediation
     description: |
-      Something here
+      Power analysis for Pearson's correlation coefficient: estimate required sample size, power, or minimum detectable correlation.
     category: analyses
   - title: Structural Equations Models
     name: pamlsem
@@ -80,7 +80,7 @@ analyses:
     menuGroup: Power
     menuTitle: Structural Equations Models
     description: |
-      Something here
+      Power analysis for Pearson's correlation coefficient: estimate required sample size, power, or minimum detectable correlation.
     category: analyses
   - title: Mixed Models
     name: pamlmixed
@@ -89,7 +89,7 @@ analyses:
     menuGroup: Power
     menuTitle: Mixed Models
     description: |
-      Something here
+      Power analysis for Pearson's correlation coefficient: estimate required sample size, power, or minimum detectable correlation.
     category: analyses
 datasets:
   - name: factorial
