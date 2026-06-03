@@ -147,5 +147,7 @@ Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.f
 \code{as.data.frame(results$infotab)}
 }
 \description{
-Something here
+Power analysis for between-subjects, within-subjects, and mixed factorial 
+designs specified via observed or expected cell means and standard 
+deviations.
 }

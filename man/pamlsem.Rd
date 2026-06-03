@@ -153,5 +153,6 @@ Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.f
 \code{as.data.frame(results$powertab)}
 }
 \description{
-Something here
+Power analysis for structural equation models estimated via the RMSEA-based 
+method or Monte Carlo simulation.
 }

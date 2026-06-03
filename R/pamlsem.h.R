@@ -644,7 +644,8 @@ pamlsemBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
 
 #' Structural Equations Models
 #'
-#' Something here
+#' Power analysis for structural equation models estimated via the RMSEA-based 
+#' method or Monte Carlo simulation.
 #' 
 #' @param aim The aim of the analysis: \code{n} (default) for sample size,
 #'   \code{power} to estimate power

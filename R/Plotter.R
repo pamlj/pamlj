@@ -509,7 +509,7 @@ Plotter <- R6::R6Class(
           names(data)[1]<-self$options$plot_z
         }
         data[[self$options$plot_y]]<-NULL
-      
+        data$precise <- FALSE
         tryobj<-try_hard(powervector(private$.operator,data))
 
         if (!isFALSE(tryobj$error)) {
