@@ -70,7 +70,7 @@ testthat::test_that("pamlmed interface returns finite mediation results", {
     cprime = 0,
     power = 0.80,
     test = "joint",
-    mcR = 20,
+    mcR = 200,
     parallel = FALSE
   )
 

@@ -269,7 +269,6 @@ pamlj.prop.paired <- function (n = NULL, p1 = NULL, psi = NULL, sig.level = 0.05
 
 pamlj.mediation <- function(n=NULL,a=NULL,b=NULL,cprime=0,r2a=0,r2y=0,power=NULL,sig.level=.05, alternative="two.sided",test="sobel",R=1000,precise=TRUE,parallel=FALSE,...) {
   
-  R=R*10
   if (parallel && test=="joint" && isTRUE(precise)) {
     if (Sys.info()['sysname'] == "Windows")
       plan<-future::multisession
