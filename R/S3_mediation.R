@@ -21,7 +21,17 @@
                       obj$data$es<-obj$data$a*obj$data$b
                       obj$info$rxy<-obj$data$a*obj$data$b+obj$data$cprime
       }
-      
+
+      ## define the mediation model as a RAM path matrix A (A[i,j] = path FROM
+      ## j TO i) and its implied correlation Sigma. These describe the model and
+      ## are handed to pamlj.mediation() by .powervector.mediation().
+      A <- matrix(0, 3, 3, dimnames = list(c("X","M","Y"), c("X","M","Y")))
+      A["M","X"] <- obj$data$a          # a  : X -> M
+      A["Y","M"] <- obj$data$b          # b  : M -> Y
+      A["Y","X"] <- obj$data$cprime     # c' : X -> Y (direct)
+      obj$info$A     <- A
+      obj$info$Sigma <- .mediation.implied_cor(A)
+
       obj$data$n           <- obj$options$n
       obj$data$sig.level   <- obj$options$sig.level
       obj$data$power       <- obj$options$power
@@ -29,12 +39,14 @@
       obj$data$test        <- obj$options$test
       obj$data$precise     <- TRUE
       obj$data$parallel    <- obj$options$parallel
-      if (obj$data$test == "mc")
-           obj$warning     <-  list(topic="initnotes",message="Monte Carlo method may take several minutes to estimate the results. Please be patient.", head="wait")
       if (obj$data$test == "sobel")
-          obj$warning     <-  list(topic="issues",message="Sobel test method is based on power parameters approximation. Please use joint-significance or monte carlo methods for more accurate results ", head="info")
+          obj$warning     <-  list(topic="issues",message="Sobel test method is based on power parameters approximation. Please use joint-significance or bootstrap confidence intervals for more accurate results ", head="info")
       if (obj$data$test == "joint")
-        obj$warning     <-  list(topic="initnotes",message="Joint-significance requires fast simulations. Please wait. ", head="info")
+        obj$warning     <-  list(topic="initnotes",message="Joint-significance power is computed from the distribution of each path coefficient.", head="info")
+      if (obj$data$test == "parametric")
+        obj$warning     <-  list(topic="initnotes",message="Bootstrap CI power (parametric) is estimated with the Monte Carlo confidence-interval method.", head="info")
+      if (obj$data$test == "simulation")
+        obj$warning     <-  list(topic="initnotes",message="Bootstrap CI power (simulation) is estimated by simulating datasets; this may take a little longer.", head="wait")
       
       obj$data$R           <- obj$options$mcR
 
@@ -50,273 +62,220 @@
 }
 
 
+
+## complex mediation now uses the SAME design as medsimple: .checkdata defines
+## the model (path matrix A, residual covariance S, implied correlation Sigma)
+## and hands it to pamlj.mediation() via .powervector.mediation(). The ONLY
+## model-specific part is how A and S are built; every indirect (X -> ... -> Y)
+## path is then found and powered generically by the Sobel engine.
+
 .checkdata.medcomplex <- function(obj) {
-  
-       jinfo("Checking data for medcomplex")
 
-        if (obj$aim == "es") obj$stop("Finding minumum effect size for complex mediation models is not implemented yet")
-  
-        bs<-list(a1=obj$options$a1,b1=obj$options$b1,a2=obj$options$a2,b2=obj$options$b2,a3=obj$options$a3,b3=obj$options$b3)
-        numbs<-sapply(bs,as.numeric)
-        ### some checks      
-        
-        test <- check_parameters(numbs, fun=function(x) (!is.na(x) && abs(x) >.99), verbose=FALSE)
-        if (length(test)>0) obj$stop("Standardized coefficients cannot be larger than .99. Please correct coefficients: " %+% paste(test,collapse=", "))
-        test <- check_parameters(numbs, fun=function(x) (!is.na(x) && abs(x)<.001), verbose=FALSE)
-        if (length(test)>0) obj$stop("Standardized coefficients (absolute value) cannot be smaller than .001. Please correct coefficients: " %+% paste(test,collapse=", "))
+      jinfo("Checking data for medcomplex")
 
-        
-        #### here we go
-        switch (obj$options$model_type,
-              twomeds = {
-                        betas           <- bs[1:4]
-                        betas$r12       <- obj$options$r12
-                        check           <- lapply(betas, as.numeric,USE.NAMES=T)
-                        plotdata        <- data.frame(do.call(cbind,check))
-                        plotdata$cprime <- obj$options$cprime2
-                        obj$plots$data  <- plotdata
-                     
-                        if (any(sapply(check, is.na))) obj$filled<-FALSE
-                        
-                        exdata             <- data.frame(id=1:2)
-                       
-                        if (obj$filled) {
-      
-                          exdata$cprime <- plotdata$cprime
-                          exdata$a      <- c(plotdata$a1,plotdata$a2)
-                          exdata$b      <- c(plotdata$b1,plotdata$b2)
-                          exdata$model_type <- "twomeds"
-                          exdata$a1 <- plotdata$a1
-                          exdata$b1 <- plotdata$b1
-                          exdata$a2 <- plotdata$a2
-                          exdata$b2 <- plotdata$b2
-                          exdata$r12 <- plotdata$r12
-                          corMat      <- diag(4)
-                          corMat[2,1] <- corMat[1,2] <- plotdata$a1
-                          corMat[3,1] <- corMat[1,3] <- plotdata$a2
-                          corMat[2,3] <- corMat[3,2] <- plotdata$r12
-                          corMat[4,1] <- corMat[1,4] <- plotdata$cprime + plotdata$a1*plotdata$b1 + plotdata$a2*plotdata$b2
-                          corMat[2,4] <- corMat[4,2] <- plotdata$a1*plotdata$cprime + plotdata$b1 + plotdata$b2*plotdata$r12
-                          corMat[3,4] <- corMat[4,3] <- plotdata$a2*plotdata$cprime + plotdata$b2 + plotdata$b1*plotdata$r12
-                          
-                          ry<-corMat[1:3,4]
-                          rx<-corMat[1:3,1:3]  
-                         
-                          r2b <- t(ry)%*%MASS::ginv(rx)%*%ry
-                          
-                          if (r2b > .99) {
-                                        obj$stop("Input coefficients are not feasable. The resulting R-squared are impossible. Please adjust the input values")
-                          }
+      if (obj$aim == "es") obj$stop("Finding minumum effect size for complex mediation models is not implemented yet")
 
-                          obj$info$rxy<-corMat[4,1]
-                          exdata$r2y <- as.numeric(r2b)
-                          exdata$r2a <- exdata$a^2
-                          exdata$es  <-  exdata$a * exdata$b
-                          exdata$effect <- c("a1*b1","a2*b2")
-                         
+      o   <- obj$options
+      num <- function(x) suppressWarnings(as.numeric(x))
 
-                        } else {
-                          
-                          needed <-c("X to M1 (a1)","M1 to Y (b1)","X to M2 (a2)","M2 to Y (b2)","M1-M2 correlation (r12)")
-                          names(check)<-needed
-                          test<-check_parameters(check, fun=is.na)
-                          if (length(test)>0) obj$warning<-list(topic="issues",message=test,head="info")
+      ## ---- validate the magnitude of the structural (a/b) coefficients -------
+      numbs <- sapply(list(a1=o$a1,b1=o$b1,a2=o$a2,b2=o$b2,a3=o$a3,b3=o$b3), as.numeric)
+      test  <- check_parameters(numbs, fun=function(x) (!is.na(x) && abs(x) >.99), verbose=FALSE)
+      if (length(test)>0) obj$stop("Standardized coefficients cannot be larger than .99. Please correct coefficients: " %+% paste(test,collapse=", "))
+      test  <- check_parameters(numbs, fun=function(x) (!is.na(x) && abs(x)<.001), verbose=FALSE)
+      if (length(test)>0) obj$stop("Standardized coefficients (absolute value) cannot be smaller than .001. Please correct coefficients: " %+% paste(test,collapse=", "))
 
-                          
-                        }
-                        
-                        },
-              threemeds = {
-                        betas <- bs
-                        betas$r12 <- obj$options$r12
-                        betas$r13 <- obj$options$r13
-                        betas$r23 <- obj$options$r23
-                        check <- lapply(betas, as.numeric,USE.NAMES=T)
-                       
-                        plotdata<- data.frame(do.call(cbind,check))
-                        plotdata$cprime      <- obj$options$cprime2
-                        obj$plots$data       <- plotdata
+      cprime <- num(o$cprime2)
 
-                        if (any(sapply(check, is.na))) obj$filled<-FALSE
-                        
-                        exdata        <- data.frame(id=1:3)
-
-                        if (obj$filled) {
-                          exdata$cprime <- plotdata$cprime
-                          exdata$a      <- c(plotdata$a1,plotdata$a2,plotdata$a3)
-                          exdata$b      <- c(plotdata$b1,plotdata$b2,plotdata$b3)
-                          exdata$model_type <- "threemeds"
-                          exdata$a1 <- plotdata$a1
-                          exdata$b1 <- plotdata$b1
-                          exdata$a2 <- plotdata$a2
-                          exdata$b2 <- plotdata$b2
-                          exdata$a3 <- plotdata$a3
-                          exdata$b3 <- plotdata$b3
-                          exdata$r12 <- plotdata$r12
-                          exdata$r13 <- plotdata$r13
-                          exdata$r23 <- plotdata$r23
-                          corMat <- diag(5)
-                          corMat[2,1] <- corMat[1,2] <- plotdata$a1
-                          corMat[3,1] <- corMat[1,3] <- plotdata$a2
-                          corMat[4,1] <- corMat[1,4] <- plotdata$a3
-                          corMat[2,3] <- corMat[3,2] <- plotdata$r12
-                          corMat[2,4] <- corMat[4,2] <- plotdata$r13
-                          corMat[3,4] <- corMat[4,3] <- plotdata$r23
-  
-                          corMat[5,1] <- corMat[1,5] <- plotdata$cprime + plotdata$a1*plotdata$b1 + plotdata$a2*plotdata$b2 + plotdata$a3*plotdata$b3
-                          corMat[2,5] <- corMat[5,2] <- plotdata$a1*plotdata$cprime + plotdata$b1 + plotdata$b2*plotdata$r12 + plotdata$b3*plotdata$r13
-                          corMat[3,5] <- corMat[5,3] <- plotdata$a2*plotdata$cprime + plotdata$b2 + plotdata$b1*plotdata$r12 + plotdata$b3*plotdata$r23
-                          corMat[4,5] <- corMat[5,4] <- plotdata$a3*plotdata$cprime + plotdata$b3 + plotdata$b2*plotdata$r23 + plotdata$b1*plotdata$r13
-  
-                          colnames(corMat)<-rownames(corMat)<-c("X","M1","M2","M3","Y")
-                     
-                          ry <- corMat[1:4,5]
-                          rx <- corMat[1:4,1:4]  
-                          r2b <- t(ry)%*%MASS::ginv(rx)%*%ry
-                          if (r2b > .99) {
-                                        obj$stop("Input coefficients are not feasable. The resulting R-squared are impossible. Please adjust the input values")
-                          }
-
-                          exdata$r2y <- as.numeric(r2b)
-                          exdata$r2a <- exdata$a^2
-                          exdata$es  <-  exdata$a * exdata$b
-                          obj$info$rxy<-corMat[5,1]
-                          exdata$effect <- c("a1*b1","a2*b2","a3*b3")
-                        } else {
-                          
-                          needed <-c("X to M1 (a1)","M1 to Y (b1)","X to M2 (a2)","M2 to Y (b2)", "X to M3 (a3)",
-                                     "M3 to Y (b3)","M1-M2 Correlation (r12)","M1-M3 Correlation (r13)", "M2-M3 Correlation (r23)")
-                          names(check)<-needed
-                          test<-check_parameters(check, fun=is.na)
-                          if (length(test)>0) obj$warning<-list(topic="issues",message=test,head="info")
-                        }
-                        
-                        
-                        },
-              twoserial = {
-                        betas <- bs[1:4]
-                        betas$d1  <- obj$options$d1
-                        check <- lapply(betas, as.numeric,USE.NAMES=T)
-                        if (any(sapply(check, is.na))) obj$filled<-FALSE
-                        plotdata<- data.frame(do.call(cbind,check))
-                        plotdata$cprime      <- obj$options$cprime2
-                        obj$plots$data       <- plotdata
-                        exdata        <- data.frame(id=1:3)
-                        obj$info$keffects <- 3 
-                       
-                        if (obj$filled) {
-                          exdata$cprime <- plotdata$cprime
-                          exdata$a      <- c(plotdata$a1,plotdata$a2,plotdata$a1)
-                          exdata$b      <- c(plotdata$b1,plotdata$b2,plotdata$b2)
-                          exdata$d1     <- c(NA,NA,plotdata$d1)
-                          exdata$model_type <- "twoserial"
-                          exdata$a1 <- plotdata$a1
-                          exdata$b1 <- plotdata$b1
-                          exdata$a2 <- plotdata$a2
-                          exdata$b2 <- plotdata$b2
-                          exdata$d1.full <- plotdata$d1
-
-                         corMat <- diag(4)
-                         corMat[2,1] <- corMat[1,2] <- plotdata$a1
-                         corMat[3,1] <- corMat[1,3] <- plotdata$a2 + plotdata$d1*plotdata$a1
-                         corMat[2,3] <- corMat[3,2] <- plotdata$d1 + plotdata$a1*plotdata$a2
-
-                         corMat[4,1] <- corMat[1,4] <- plotdata$cprime + plotdata$a1*plotdata$b1 + plotdata$a1*plotdata$b2*plotdata$d1 + plotdata$a2*plotdata$b2
-                         corMat[2,4] <- corMat[4,2] <- plotdata$a1*plotdata$cprime + plotdata$b1 + plotdata$b2*plotdata$d1 + plotdata$a1*plotdata$a2*plotdata$b2
-                         corMat[3,4] <- corMat[4,3] <- plotdata$a2*plotdata$cprime + plotdata$b2 + plotdata$b1*plotdata$d1 + plotdata$a1*plotdata$cprime*plotdata$d1
-                         
-                         ry<-corMat[1:3,4]
-                         rx<-corMat[1:3,1:3]  
-                         r2b<-as.numeric(t(ry)%*%MASS::ginv(rx)%*%ry)
-                         
-                          if (r2b > .99) {
-                                        obj$stop("Input coefficients are not feasable. The resulting R-squared are impossible. Please adjust the input values")
-                          }
-
-                         r2a<-plotdata$a1^2
-
-                         ry<-corMat[c(1,2),3]
-                         rx<-corMat[c(1,2),c(1,2)]
-                         r2d1<-as.numeric(t(ry)%*%MASS::ginv(rx)%*%ry)
-                        
-                         exdata$es   <- 0
-                         exdata$r2a  <- r2a
-                         exdata$r2y  <- r2b
-                         exdata$r2d1 <- c(NA,NA,r2d1) 
-
-                         exdata$es[1] <- plotdata$a1*plotdata$b1
-                         exdata$es[2] <- plotdata$a2*plotdata$b2
-                         exdata$es[3] <- plotdata$a1*plotdata$d1*plotdata$b2
-                         obj$info$rxy<-corMat[4,1]
-
-                         exdata$effect <- c("a1*b1","a2*b2","a1*d1*b2")
-                         obj$warning<-list(topic="powertab",message="Additional coefficients: d1=" %+% plotdata$d1)
- 
-
-                        } else {
-                          
-                          needed <-c("X to M1 (a1)","M1 to Y (b1)","X to M2 (a2)","M2 to Y (b2)","M1 to M2 (d1)")
-                          names(check)<-needed
-                          test<-check_parameters(check, fun=is.na)
-                          if (length(test)>0) obj$warning<-list(topic="issues",message=test,head="info")
-                        }
-                    }
-              
+      ## ---- model definition: the ONLY model-specific part --------------------
+      ##  Each branch returns: the variable names, the coefficients that must be
+      ##  supplied (`req`, named for the missing-input message), the raw values
+      ##  for the path diagram (`plotdata`), and a `build()` returning the RAM
+      ##  path matrix A and the residual-covariance S among mediators.
+      spec <- switch(o$model_type,
+            twomeds = {
+                  vars <- c("X","M1","M2","Y")
+                  req  <- list("X to M1 (a1)"=num(o$a1),"M1 to Y (b1)"=num(o$b1),
+                               "X to M2 (a2)"=num(o$a2),"M2 to Y (b2)"=num(o$b2),
+                               "M1-M2 correlation (r12)"=num(o$r12))
+                  plotdata <- data.frame(a1=num(o$a1),b1=num(o$b1),a2=num(o$a2),b2=num(o$b2),
+                                         r12=num(o$r12),cprime=cprime)
+                  build <- function() {
+                        A <- matrix(0,4,4,dimnames=list(vars,vars))
+                        A["M1","X"]<-num(o$a1); A["M2","X"]<-num(o$a2)
+                        A["Y","X"]<-cprime; A["Y","M1"]<-num(o$b1); A["Y","M2"]<-num(o$b2)
+                        S <- matrix(0,4,4,dimnames=list(vars,vars))
+                        S["M1","M2"]<-S["M2","M1"]<- num(o$r12) - num(o$a1)*num(o$a2)
+                        list(A=A,S=S)
+                  }
+                  list(vars=vars,req=req,plotdata=plotdata,build=build)
+            },
+            threemeds = {
+                  vars <- c("X","M1","M2","M3","Y")
+                  req  <- list("X to M1 (a1)"=num(o$a1),"M1 to Y (b1)"=num(o$b1),
+                               "X to M2 (a2)"=num(o$a2),"M2 to Y (b2)"=num(o$b2),
+                               "X to M3 (a3)"=num(o$a3),"M3 to Y (b3)"=num(o$b3),
+                               "M1-M2 Correlation (r12)"=num(o$r12),
+                               "M1-M3 Correlation (r13)"=num(o$r13),
+                               "M2-M3 Correlation (r23)"=num(o$r23))
+                  plotdata <- data.frame(a1=num(o$a1),b1=num(o$b1),a2=num(o$a2),b2=num(o$b2),
+                                         a3=num(o$a3),b3=num(o$b3),r12=num(o$r12),r13=num(o$r13),
+                                         r23=num(o$r23),cprime=cprime)
+                  build <- function() {
+                        A <- matrix(0,5,5,dimnames=list(vars,vars))
+                        A["M1","X"]<-num(o$a1); A["M2","X"]<-num(o$a2); A["M3","X"]<-num(o$a3)
+                        A["Y","X"]<-cprime; A["Y","M1"]<-num(o$b1); A["Y","M2"]<-num(o$b2); A["Y","M3"]<-num(o$b3)
+                        S <- matrix(0,5,5,dimnames=list(vars,vars))
+                        S["M1","M2"]<-S["M2","M1"]<- num(o$r12) - num(o$a1)*num(o$a2)
+                        S["M1","M3"]<-S["M3","M1"]<- num(o$r13) - num(o$a1)*num(o$a3)
+                        S["M2","M3"]<-S["M3","M2"]<- num(o$r23) - num(o$a2)*num(o$a3)
+                        list(A=A,S=S)
+                  }
+                  list(vars=vars,req=req,plotdata=plotdata,build=build)
+            },
+            twoserial = {
+                  vars <- c("X","M1","M2","Y")
+                  req  <- list("X to M1 (a1)"=num(o$a1),"M1 to Y (b1)"=num(o$b1),
+                               "X to M2 (a2)"=num(o$a2),"M2 to Y (b2)"=num(o$b2),
+                               "M1 to M2 (d1)"=num(o$d1))
+                  plotdata <- data.frame(a1=num(o$a1),b1=num(o$b1),a2=num(o$a2),b2=num(o$b2),
+                                         d1=num(o$d1),cprime=cprime)
+                  build <- function() {
+                        A <- matrix(0,4,4,dimnames=list(vars,vars))
+                        A["M1","X"]<-num(o$a1); A["M2","X"]<-num(o$a2); A["M2","M1"]<-num(o$d1)
+                        A["Y","X"]<-cprime; A["Y","M1"]<-num(o$b1); A["Y","M2"]<-num(o$b2)
+                        list(A=A,S=matrix(0,4,4,dimnames=list(vars,vars)))
+                  }
+                  list(vars=vars,req=req,plotdata=plotdata,build=build)
+            }
       )
 
-      obj$extradata<- exdata
-      obj$extradata$n           <- obj$options$n
-      obj$extradata$sig.level   <- obj$options$sig.level
-      obj$extradata$power       <- obj$options$power
-      obj$extradata$alternative <- obj$options$alternative
-      obj$extradata$test        <- obj$options$test
-      obj$extradata$precise     <- TRUE
-      obj$extradata$parallel    <- obj$options$parallel
-      obj$extradata$R           <- obj$options$mcR
-      
-      obj$extradata[[obj$aim]]  <- NULL
-      
-      if (obj$options$test == "mc")
-        obj$warning     <-  list(topic="initnotes",message="Monte Carlo method may take several minutes to estimate the results. Please be patient.", head="wait")
-      if (obj$options$test == "sobel")
-        obj$warning     <-  list(topic="issues",message="Sobel test method is based on power parameters approximation. Please use joint-significance or monte carlo methods for more accurate results ", head="info")
-      if (obj$options$test == "joint")
-        obj$warning     <-  list(topic="initnotes",message="Joint-significance requires fast simulations. Please wait. ", head="info")
-      
-      if (obj$filled)
-                w <- which.min(obj$extradata$es)[1]
-      else
-                w<- 1
-      obj$data                  <- obj$extradata[w,]
-      obj$info$letter      <- "ME"
-      obj$info$esmax       <- .9801
-      obj$info$esmin       <-  1e-06
-      obj$info$nmin        <-  10
-      obj$info$nochecks    <-  "es"
+      obj$plots$data <- spec$plotdata
+
+      ## ---- which coefficients are still missing? -----------------------------
+      missing    <- names(spec$req)[vapply(spec$req, is.na, logical(1))]
+      obj$filled <- (length(missing) == 0)
+
+      if (obj$filled) {
+
+            mod     <- spec$build()
+            A       <- mod$A
+            Sigma   <- .mediation.implied_cor(A, mod$S)
+            vars    <- rownames(A)
+            outcome <- length(vars)            # Y is the last variable
+
+            if (.mediation.r2(Sigma, A, outcome) > .99)
+                  obj$stop("Input coefficients are not feasable. The resulting R-squared are impossible. Please adjust the input values")
+
+            ## every indirect effect of interest is an X -> ... -> Y path; the
+            ## label (e.g. "X → M1 → Y") also keys the target map used per row.
+            paths  <- Filter(function(ch) ch[1] == 1 && ch[length(ch)] == outcome,
+                             .mediation.indirect_paths(A))
+            labels <- vapply(paths, function(ch) paste(vars[ch], collapse = " → "), character(1))
+
+            ## one table row per indirect effect: a = first edge (X -> first
+            ## mediator), es = product of all edges on the path, b = the rest of
+            ## the product (so a * b = es), cprime = the direct X -> Y effect.
+            exdata        <- data.frame(effect = labels, stringsAsFactors = FALSE)
+            exdata$a      <- vapply(paths, function(ch) A[ch[2], ch[1]], numeric(1))
+            exdata$es     <- vapply(paths, function(ch)
+                                    prod(mapply(function(i,j) A[i,j], ch[-1], ch[-length(ch)])), numeric(1))
+            exdata$b      <- ifelse(exdata$a != 0, exdata$es / exdata$a, 0)
+            exdata$cprime <- A[outcome, 1]
+
+            ## stash the model for .powervector.mediation(): A and Sigma are shared
+            ## by all effects; `targets` maps each effect label to its node path.
+            obj$info$A       <- A
+            obj$info$Sigma   <- Sigma
+            obj$info$S       <- mod$S    # residual covariances among mediators (for es resize)
+            obj$info$targets <- setNames(lapply(paths, function(ch) vars[ch]), labels)
+            obj$info$rxy     <- Sigma[1, outcome]    # model-implied X-Y correlation
+
+      } else {
+
+            ## not enough input yet: list what is missing and leave `es` unset so
+            ## the downstream common checks skip it (the analysis will not run).
+            obj$warning <- list(topic="issues", message=missing, head="info")
+            exdata      <- data.frame(effect=NA_character_, a=NA_real_, b=NA_real_,
+                                      cprime=cprime, stringsAsFactors=FALSE)
+      }
+
+      ## ---- shared parameters (identical to medsimple) ------------------------
+      exdata$n           <- o$n
+      exdata$sig.level   <- o$sig.level
+      exdata$power       <- o$power
+      exdata$alternative <- o$alternative
+      exdata$test        <- o$test
+      exdata$precise     <- TRUE
+      exdata$parallel    <- o$parallel
+      exdata$R           <- o$mcR
+      exdata[[obj$aim]]  <- NULL
+
+      if (o$test == "sobel")
+            obj$warning <- list(topic="issues",message="Sobel test method is based on power parameters approximation. Please use joint-significance or bootstrap confidence intervals for more accurate results ", head="info")
+      if (o$test == "joint")
+            obj$warning <- list(topic="initnotes",message="Joint-significance power is computed from the distribution of each path coefficient.", head="info")
+      if (o$test == "parametric")
+            obj$warning <- list(topic="initnotes",message="Bootstrap CI power (parametric) is estimated with the Monte Carlo confidence-interval method.", head="info")
+      if (o$test == "simulation")
+            obj$warning <- list(topic="initnotes",message="Bootstrap CI power (simulation) is estimated by simulating datasets; this may take a little longer.", head="wait")
+
+      ## extradata holds every effect (one per table row); obj$data is a single
+      ## representative effect -- the smallest one, the hardest to detect -- used
+      ## by the plots and the sensitivity / X-Y power tables.
+      obj$extradata <- exdata
+      w             <- if (obj$filled) which.min(exdata$es)[1] else 1
+      obj$data      <- exdata[w, ]
+
+      obj$info$letter   <- "ME"
+      obj$info$esmax    <- .9801
+      obj$info$esmin    <- 1e-06
+      obj$info$nmin     <- 10
+      obj$info$nochecks <- "es"
       jinfo("Checking data for medcomplex done")
 }
 
-## powervector:     (required) pass the data, with adjutment, to the lowerlevel power functions 
+
+## powervector:     (required) pass the data, with adjutment, to the lowerlevel power functions
+##
+## Estimates the power parameters for one or more rows of `data` (one row per
+## indirect effect for complex models, a single row for the simple model). For
+## each row it: (1) chooses the engine (bootstrap vs the analytic Sobel /
+## joint engine), (2) keeps only the scalar columns that engine declares as arguments,
+## (3) injects the model matrices A / Sigma built in .checkdata() and, for
+## complex models, the target indirect path for that row, and (4) calls the
+## engine. The per-row results are stacked back onto the input columns.
+
+.powervector.medsimple <- function(obj, data) .powervector.mediation(obj, data)
+.powervector.medcomplex <- function(obj, data) .powervector.mediation(obj, data)
 
 .powervector.mediation <- function(obj,data) {
 
                  aim<-required_param(data)
-                 if (aim=="es") data$a<-NULL
 
-                 ## dealing with seed for montecarlo
-                 seed<-NULL
+                 ## dealing with seed for simulations
                  if (obj$options$set_seed) data$seed=obj$options$seed
                  results<-lapply(1:nrow(data),function(i) {
                      
                      test      <- data$test[i]
-                     if (test=="mc") fun<-pamlj.mediation.mc
-                     else fun<-pamlj.mediation
+                     fun       <- pamlj.mediation
                      
-#                    .names <- intersect(names(data),rlang::fn_fmls_names(fun))
-#                     one      <- data[i,.names]
-                      one      <- data[i,]
+                      one      <- as.list(data[i,])
                       one[]    <- lapply(one, function(x) if (is.factor(x)) as.character(x) else x)
-                      one      <- one[!sapply(one,is.na)]
+                      one      <- one[!vapply(one, function(x) length(x)==1 && is.na(x), logical(1))]
+                      ## pass only the scalar arguments the target power function declares
+                      .names   <- intersect(names(one), rlang::fn_fmls_names(fun))
+                      one      <- one[.names]
+                      ## inject the model matrices built in .checkdata()
+                      one$A     <- obj$info$A
+                      one$Sigma <- obj$info$Sigma
+                      ## [["S"]] (exact), NOT $S: simple mediation has no "S" key and
+                      ## $S would partial-match "Sigma", passing the correlation matrix
+                      ## as fixed residual covariances and corrupting the implied Sigma.
+                      one$S     <- obj$info[["S"]]    # residual (co)variances; NULL for simple
+                      ## complex models carry one indirect path per row: select it by effect label
+                      if (!is.null(obj$info$targets))
+                          one$target <- obj$info$targets[[ as.character(data$effect[i]) ]]
                      tryobj<-try_hard(do.call(fun,one), silent=F)
                      out<-tryobj$obj
                      if (!isFALSE(tryobj$error)) {
@@ -355,6 +314,18 @@
 
 ## powertab_init:   (not required) this function produces or format the main table, powertab, before running
 
+## In the R/jamovi table lifecycle, an initialized table may not be rewritten
+## during run. Therefore simple mediation initializes powertab with the solved
+## row, using the same vectorizer as the run phase.
+.powertab_init.medsimple <- function(obj) {
+
+          if (!obj$ok) return()
+
+          tab <- powervector(obj, obj$data)
+          attr(tab, "titles") <- list(es = obj$info$letter)
+          return(tab)
+}
+
 .powertab_init.medcomplex <- function(obj) {
 
           if (!obj$ok) return()
@@ -391,26 +362,28 @@
 }
 
 
+## mediators / outcome of the model, read off the path matrix A (the outcome Y
+## is the last variable; every other variable with incoming paths is a mediator)
+.medcomplex_endo <- function(A) {
+    vars    <- rownames(A)
+    outcome <- vars[length(vars)]
+    endo    <- vars[rowSums(A != 0) > 0]
+    list(meds = setdiff(endo, outcome), outcome = outcome)
+}
+
+## row labels of the "Computed Parameters" table: one R-squared per mediator
+## equation, then the outcome's R-squared, then the X-Y correlation. Generic:
+## the rows follow whatever mediators the model's path matrix A contains.
 .effectsize_init.medcomplex <- function(obj) {
 
-    if (obj$options$model_type != "threemeds" ) {
-    return(list(
-               list(index=letter_r2 %+% " predicting M1"),
-               list(index=letter_r2 %+% " predicting M2"),
-               list(index=letter_r2 %+% " predicting Y"),
-               list(index=" X-Y correlation (c) ")
-               
-                 ))
-    } else
-       return(list(
-               list(index=letter_r2 %+% " predicting M1"),
-               list(index=letter_r2 %+% " predicting M2"),
-               list(index=letter_r2 %+% " predicting M3"),
-               list(index=letter_r2 %+% " predicting Y"),
-               list(index=" X-Y correlation (c) ")
-               
-                 ))
-    
+    A <- obj$info$A
+    if (is.null(A)) return(list())
+    parts <- .medcomplex_endo(A)
+    items <- lapply(parts$meds, function(m) list(index = letter_r2 %+% " predicting " %+% m))
+    items <- c(items,
+               list(list(index = letter_r2 %+% " predicting " %+% parts$outcome),
+                    list(index = " X-Y correlation (c) ")))
+    return(items)
 }
 
 
@@ -428,41 +401,20 @@
   
 }
 
+## fills the "Computed Parameters" table built by .effectsize_init.medcomplex():
+## each value is the R-squared of one equation, recovered from the implied
+## correlation Sigma, in the same mediator/outcome order; last is the X-Y corr.
 .effectsize_run.medcomplex <- function(obj) {
 
-  if (obj$options$model_type == "twoserial" ) {
-    return(list(
-               list(value=obj$extradata$r2a[1]),
-               list(value=obj$extradata$r2d1[3]),
-               list(value=obj$extradata$r2y[2]),
-               list(value=obj$info$rxy)
- 
-
-                 ))
-  }
-    if (obj$options$model_type == "twomeds" ) {
-    return(list(
-               list(value=obj$extradata$r2a[1]),
-               list(value=obj$extradata$r2a[2]),
-               list(value=obj$extradata$r2y[1]),
-               list(value=obj$info$rxy)
-
-                 ))
-  }
-
-    if (obj$options$model_type == "threemeds" ) {
-    return(list(
-               list(value=obj$extradata$r2a[1]),
-               list(value=obj$extradata$r2a[2]),
-               list(value=obj$extradata$r2a[3]),
-               list(value=obj$extradata$r2y[1]),
-               list(value=obj$info$rxy)
-
-                 ))
-  }
-
-   return(tab)
-  
+  A     <- obj$info$A
+  Sigma <- obj$info$Sigma
+  if (is.null(A) || is.null(Sigma)) return(list())
+  parts <- .medcomplex_endo(A)
+  ## R^2 of each mediator equation, then the outcome equation, then the X-Y correlation
+  vals  <- lapply(c(parts$meds, parts$outcome),
+                  function(v) list(value = .mediation.r2(Sigma, A, v)))
+  vals  <- c(vals, list(list(value = obj$info$rxy)))
+  return(vals)
 }
 
 
@@ -476,7 +428,8 @@
    switch (obj$data$test,
            sobel = test <-"for the <b>Sobel test (z-test)</b>",
            joint = test <- "<b> for joint significance test </b> (both a and b significant)",
-           mc    = test <- "with <b>Monte Carlo simulation method</b>"
+           parametric = test <- "with <b>bootstrap confidence intervals (parametric Monte Carlo)</b>",
+           simulation = test <- "with <b>bootstrap confidence intervals (simulation)</b>"
    )
     infoparms<-list(n="total sample size N=" %+% obj$data$n,
                    power="power equal to " %+% format5(obj$data$power)

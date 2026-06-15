@@ -8,7 +8,7 @@ export: false
 completeWhenFilled: false
 description:
     main: |
-           Power analysis for simple and multiple mediation models using the Sobel test, joint-significance, or Monte Carlo simulation.
+           Power analysis for simple and multiple mediation models using the Sobel test, joint-significance, or bootstrap confidence intervals.
 
 options:
 
@@ -209,14 +209,16 @@ options:
 
     -   name: test
         type: List
-        default: sobel
+        default: joint
         options:
         -       name: joint
                 title: Joint Significance
         -       name: sobel
                 title: Sobel
-        -       name: mc
-                title: Monte Carlo (slow)
+        -       name: parametric
+                title: Bootstrap CI (Parametric)
+        -       name: simulation
+                title: Bootstrap CI (Simulation)
 
     -   name: mcR
         title: Number of simulations
@@ -379,4 +381,3 @@ options:
 
 
 ...
-

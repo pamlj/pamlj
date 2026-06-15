@@ -56,7 +56,7 @@ nicify_param<- function(what,short=FALSE) {
   }  
   switch (what,
     n  = "Sample size (N)",
-    es = "Effect size",
+    es = "Minimum Effect size",
     power= "Power",
     sig.level = "Type I error rate (alpha)"
   )

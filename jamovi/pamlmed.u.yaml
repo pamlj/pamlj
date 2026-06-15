@@ -139,7 +139,7 @@ children:
         enable: (!aim:n)
       - name: sig.level
         type: TextBox
-        label: 'α (type I error rate)'
+        label: α (type I error rate)
         format: number
       - type: ComboBox
         name: alternative
@@ -150,18 +150,22 @@ children:
         label: Test
         children:
           - type: RadioButton
-            name: test_sobel
-            optionName: test
-            optionPart: sobel
-
-          - type: RadioButton
             name: test_joint
             optionName: test
             optionPart: joint
           - type: RadioButton
-            name: test_mc
+            name: test_sobel
             optionName: test
-            optionPart: mc
+            optionPart: sobel
+          - name: test_parametric
+            type: RadioButton
+            optionName: test
+            optionPart: parametric
+          - name: test_simulation
+            type: RadioButton
+            optionName: test
+            optionPart: simulation
+            
       - type: Label
         label: Options
         children:
@@ -286,7 +290,7 @@ children:
         style: inline
         children:
           - type: Label
-            label: Monte Carlo
+            label: Bootstrap
             children:
               - type: LayoutBox
                 style: inline
@@ -308,4 +312,3 @@ children:
                         name: seed
                         format: number
                         enable: (set_seed)
-   

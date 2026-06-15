@@ -47,9 +47,10 @@
 #' @param alternative Test direction: \code{"two.sided"} (default) or
 #'   \code{"one.sided"}.
 #' @param test Mediation test method: \code{"sobel"}, \code{"joint"} for
-#'   joint-significance, or \code{"mc"} for Monte Carlo simulation.
-#' @param mcR Number of simulation replications used by the Monte Carlo and
-#'   simulation-based joint methods.
+#'   joint-significance, or the Monte Carlo confidence-interval methods
+#'   \code{"parametric"} and \code{"simulation"} (both approximate bootstrap-CI
+#'   power for the indirect effect).
+#' @param mcR Number of simulated studies used by the Monte Carlo CI methods.
 #' @param parallel Logical; if \code{TRUE}, use parallel computation for
 #'   simulation-based methods when available.
 #' @param set_seed Logical; if \code{TRUE}, use the value in \code{seed} to
