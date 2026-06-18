@@ -800,9 +800,51 @@ Plotter <- R6::R6Class(
 
               } # end of medcomplex
 
+
+              ## Free (syntax) models: the structure is arbitrary, so let semPlot lay
+              ## it out automatically (same approach as the SEM module's lav diagram).
+              ## We rebuild a lavaan population model from the path matrix A -- one
+              ## regression per endogenous variable, each predictor fixed to its path
+              ## coefficient -- and render it with semPaths(whatLabels = "est"), which
+              ## prints those numeric values on the edges (no a/b/c' symbols).
+              if (obj$options$mode == "medmodels") {
+
+                        A <- obj$info$A
+                        if (!is.null(A) && nrow(A) > 0) {
+
+                              vars  <- rownames(A)
+                              endo  <- which(rowSums(A != 0) > 0)
+                              lines <- vapply(endo, function(i) {
+                                    preds <- which(A[i, ] != 0)
+                                    rhs   <- paste0(A[i, preds], "*", vars[preds], collapse = " + ")
+                                    paste0(vars[i], " ~ ", rhs)
+                              }, character(1))
+
+                              ## show user-specified correlations as covariance edges,
+                              ## labelled with the value typed in cor(v1,v2)=r
+                              for (cc in obj$info$cors)
+                                    lines <- c(lines, paste0(cc$v1, " ~~ ", cc$r, "*", cc$v2))
+
+                              modelPop <- paste(lines, collapse = "\n")
+                              model    <- try_hard(lavaan::lavaanify(modelPop))$obj
+
+                              if (!is.null(model)) {
+                                    nNodes <- length(vars)
+                                    size   <- 16 * exp(-nNodes / 80) + 1
+                                    state  <- list(model = model,
+                                                   layout = .mediation.diagram_layout(model, obj$info$targets),
+                                                   sizeLat = size, sizeLat2 = size * .50,
+                                                   sizeMan = size * .70, sizeMan2 = size * .35,
+                                                   edge.label.cex = 1.3)
+                              }
+                        }
+
+              } # end of medmodels
+
+
               ## only push a usable state when a layout was actually built
-              ## (e.g. medmodels has no branch yet); otherwise clear it so the
-              ## renderer does not try to draw an empty diagram.
+              ## (an invalid / empty model leaves it unset); otherwise clear it so
+              ## the renderer does not try to draw an empty diagram.
               if (length(state) > 0) image$setState(state) else image$setState(NULL)
 
     },

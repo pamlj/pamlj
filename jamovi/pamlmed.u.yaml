@@ -190,6 +190,8 @@ children:
               - type: CheckBox
                 name: diagram
           - type: CheckBox
+            name: inspect_cors
+          - type: CheckBox
             name: test_c
   - type: CollapseBox
     label: Sensitivity Analysis

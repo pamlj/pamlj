@@ -10,6 +10,7 @@
   if (!isFALSE(syntaxobj$error))
         obj$stop("Model formula not correct: " %+% syntaxobj$error)
 
+  mark(syntaxobj$obj)
   ## validate that the syntax describes a recursive mediation model
   parsed <- .mediation.parse_syntax(syntaxobj$obj)
   if (!parsed$ok) {
@@ -17,7 +18,7 @@
         obj$ok      <- FALSE
         return()
   }
-
+  
   ## ---- valid model: build A / Sigma and the per-effect table -------------
   ## medmodels is structurally identical to medcomplex (several indirect
   ## effects, one table row each, all powered by the generic engine). The ONLY
@@ -26,7 +27,24 @@
   o     <- obj$options
   A     <- parsed$A
   vars  <- parsed$vars
-  Sigma <- suppressWarnings(.mediation.implied_cor(A))
+
+  ## residual correlations among variables, from `cor(v1,v2)=r` commands (e.g.
+  ## correlated parallel mediators). These build the disturbance covariance S.
+  sres <- .mediation.build_S(A, syntaxobj$obj$commands$cor)
+  if (!sres$ok) {
+        obj$warning <- list(topic = "issues", message = sres$message, head = "info")
+        obj$ok      <- FALSE
+        return()
+  }
+  S     <- sres$S
+  Sigma <- suppressWarnings(.mediation.implied_cor(A, S))
+
+  ## the specified correlations must yield a valid (positive-definite) matrix
+  ev <- tryCatch(min(eigen(Sigma, symmetric = TRUE, only.values = TRUE)$values),
+                 error = function(e) NA_real_)
+  if (is.null(Sigma) || any(!is.finite(Sigma)) || is.na(ev) || ev <= 1e-8)
+        obj$stop("The specified correlations are not feasable (they imply an impossible ",
+                 "covariance matrix). Please adjust the cor() values.")
 
   ## feasibility: no endogenous equation may imply an impossible R-squared
   endo <- which(rowSums(A != 0) > 0)
@@ -56,13 +74,49 @@
   exdata$cprime <- vapply(paths, function(ch) A[ch[length(ch)], ch[1]], numeric(1))
 
   ## stash the model for .powervector.mediation(): A / Sigma are shared by all
-  ## effects; `targets` maps each effect label to its node path. Free syntax has
-  ## no correlated residuals, so S is left NULL (independent disturbances).
+  ## effects; `targets` maps each effect label to its node path. S holds the
+  ## residual covariances from any cor() commands (NULL when none were given);
+  ## `cors` keeps the user-specified correlations for the path diagram.
   obj$info$A       <- A
   obj$info$Sigma   <- Sigma
-  obj$info$S       <- NULL
+  obj$info$S       <- S
+  obj$info$cors    <- sres$cors
   obj$info$targets <- setNames(lapply(paths, function(ch) vars[ch]), labels)
   obj$filled       <- TRUE
+
+  ## ---- sensitivity coefficient (es aim) ----------------------------------
+  ## The user can label a path coefficient in the syntax (e.g. `y ~ a*.2*m1`)
+  ## and select it for the minimum-detectable-effect search with `test:a`. The
+  ## labelled edge is then the one resized; if it is missing or not on any
+  ## indirect effect we warn and fall back to the per-effect default.
+  obj$info$coef_edges       <- parsed$coef_labels
+  obj$info$sensitivity_edge <- NULL
+  if (identical(obj$aim, "es")) {
+        sel <- unlist(syntaxobj$obj$commands$test)
+        if (length(sel) > 0) {
+              sel  <- sel[1]
+              edge <- parsed$coef_labels[[sel]]
+              if (is.null(edge)) {
+                    obj$warning <- list(topic = "issues", head = "info",
+                          message = paste0("The coefficient label '", sel, "' (test:", sel,
+                          ") is not defined in the model syntax. The minimum detectable effect ",
+                          "is found for each indirect effect separately."))
+              } else {
+                    ei      <- match(edge, vars)   # c(to_idx, from_idx)
+                    on_path <- any(vapply(paths, function(ch)
+                                    any(ch[-length(ch)] == ei[2] & ch[-1] == ei[1]), logical(1)))
+                    if (!on_path) {
+                          obj$warning <- list(topic = "issues", head = "info",
+                                message = paste0("The coefficient '", sel, "' is not part of any ",
+                                "indirect effect. The minimum detectable effect is found for each ",
+                                "indirect effect separately."))
+                    } else {
+                          obj$info$sensitivity_edge  <- edge
+                          obj$info$sensitivity_label <- sel
+                    }
+              }
+        }
+  }
 
   ## ---- shared parameters (identical to medsimple / medcomplex) -----------
   exdata$n           <- o$n
@@ -383,6 +437,17 @@
       .powervector.mediation(obj, data)
 }
 
+## Free (syntax) models: when the user labelled a coefficient and selected it
+## with `test:<label>`, the es aim resizes that one edge and recomputes every
+## affected effect -- the same coordinated search complex models use. Without a
+## valid selection the es aim falls through to the per-effect default (each
+## effect's own first edge is resized independently).
+.powervector.medmodels <- function(obj, data) {
+      if (identical(required_param(data), "es") && !is.null(obj$info$sensitivity_edge))
+            return(.powervector.medcomplex_mde(obj, data))
+      .powervector.mediation(obj, data)
+}
+
 ## ----------------------------------------------------------------------------
 ## Minimum detectable indirect effect for complex models.
 ##
@@ -403,8 +468,12 @@
       vars    <- rownames(A)
       targets <- obj$info$targets
 
-      ## chosen coefficient -> A edge (validated in .checkdata.medcomplex)
-      vary <- match(obj$info$coef_edges[[ obj$options$sensitivity_coef ]], vars)  # c(to, from)
+      ## chosen coefficient -> A edge. Free (syntax) models resolve it from a
+      ## symbolic label (obj$info$sensitivity_edge, set in .checkdata.medmodels);
+      ## complex models use the GUI dropdown (validated in .checkdata.medcomplex).
+      edge_names <- if (!is.null(obj$info$sensitivity_edge)) obj$info$sensitivity_edge
+                    else obj$info$coef_edges[[ obj$options$sensitivity_coef ]]
+      vary <- match(edge_names, vars)  # c(to, from)
       all_chains <- lapply(targets, function(v) match(v, vars))
 
       ## affected = indirect paths that traverse the chosen edge. Shrinking the
@@ -647,10 +716,22 @@
 .powertab_init.medmodels <- .powertab_init.medcomplex
 .powertab.medmodels      <- .powertab.medcomplex
 
-## Power-by-effect-size: resize the representative effect's first edge and
-## report the es / coefficient bands, exactly like the simple model. (Wrapper,
-## not an alias: .powerbyes.medsimple is defined further down this file.)
-.powerbyes.medmodels <- function(obj) .powerbyes.medsimple(obj)
+## Power-by-effect-size. When the user selected a coefficient (test:<label>),
+## resize THAT edge and report the bands like the complex model; otherwise fall
+## back to the simple-model behaviour (resize the representative effect's first
+## edge). (Wrapper, not an alias: the medsimple/medcomplex helpers are defined
+## further down this file.)
+.powerbyes.medmodels <- function(obj) {
+      if (is.null(obj$info$sensitivity_edge))
+            return(.powerbyes.medsimple(obj))
+
+      powers <- c(.5, .8, .95)
+      n_val  <- obj$data$n
+      mdes   <- lapply(powers, function(p) .medcomplex_mde(obj, n_val, p))
+      es     <- vapply(mdes, .medcomplex_mde_es,   numeric(1))
+      coef   <- vapply(mdes, .medcomplex_mde_coef, numeric(1))
+      .power_es_bands(es, coef, obj$info$letter, obj$info$sensitivity_label)
+}
 
 ## R-squared of each endogenous equation (every variable with incoming paths),
 ## recovered from the implied correlation Sigma, then the representative X-Y
@@ -889,7 +970,8 @@
   ## ---- per-equation checks; collect directed edges (from -> to) -----------
   edges    <- list()                     # each: list(from=, to=, value=)
   outcomes <- character(0)               # LHS of each equation
-  
+  labels   <- list()                     # symbolic coefficient label -> c(to, from)
+
   for (eq in eqs) {
     
     lhs <- eq$lhs
@@ -932,8 +1014,13 @@
       
       ladd(edges) <- list(from = term, to = lhs, value = value)
       used <- used + 1L
+
+      ## a symbolic label (e.g. `a*.2*m1`) marks this edge as selectable for the
+      ## sensitivity / minimum-detectable-effect analysis via `test:a`.
+      sym <- if (i <= length(eq$coef_symbs)) eq$coef_symbs[i] else NA
+      if (!is.na(sym)) labels[[sym]] <- c(lhs, term)   # c(to, from)
     }
-    
+
     if (used == 0L)
       return(fail(paste0("The equation for '", lhs, "' has no predictors.")))
   }
@@ -957,6 +1044,100 @@
     return(fail(paste0("The model has no indirect effect. A mediation model needs at least one ",
                        "path of the form X -> M -> Y (a variable that is both an outcome and a predictor).")))
   
-  list(ok = TRUE, A = A, vars = vars, paths = paths)
+  list(ok = TRUE, A = A, vars = vars, paths = paths, coef_labels = labels)
+}
+
+
+## ============================================================================
+##  .mediation.build_S() : turn `cor(v1, v2) = r` commands into the residual
+##  (disturbance) covariance matrix S used by .mediation.implied_cor(A, S).
+##
+##  `r` is the correlation between v1 and v2 and is placed directly into S
+##  (S[v1, v2] = r), i.e. the lavaan `v1 ~~ r*v2` convention.
+##
+##  `cor_cmds` is the list of {args, value} parsed from the syntax (commands$cor).
+##  Returns list(ok, S, cors) on success -- S is NULL when no correlations were
+##  given -- or list(ok = FALSE, message) with a user-facing reason.
+## ============================================================================
+
+.mediation.build_S <- function(A, cor_cmds) {
+
+  if (is.null(cor_cmds) || length(cor_cmds) == 0)
+        return(list(ok = TRUE, S = NULL, cors = list()))
+
+  vars <- rownames(A)
+  S    <- matrix(0, nrow(A), ncol(A), dimnames = list(vars, vars))
+  cors <- list()
+
+  for (cc in cor_cmds) {
+        if (length(cc$args) != 2)
+              return(list(ok = FALSE,
+                          message = paste0("cor() needs exactly two variables, e.g. cor(m1,m2)=.3 (got: ",
+                                           paste(cc$args, collapse = ", "), ").")))
+        v1 <- cc$args[1]; v2 <- cc$args[2]
+
+        if (identical(v1, v2))
+              return(list(ok = FALSE, message = paste0("cor(", v1, ",", v2,
+                          "): a variable cannot be correlated with itself.")))
+        miss <- setdiff(c(v1, v2), vars)
+        if (length(miss))
+              return(list(ok = FALSE, message = paste0("cor(): variable(s) '",
+                          paste(miss, collapse = "', '"), "' are not in the model.")))
+
+        r <- suppressWarnings(as.numeric(cc$value))
+        if (length(r) != 1 || is.na(r))
+              return(list(ok = FALSE, message = paste0("cor(", v1, ",", v2,
+                          "): the correlation value '", cc$value, "' is not numeric.")))
+        if (abs(r) >= 1)
+              return(list(ok = FALSE, message = paste0("cor(", v1, ",", v2,
+                          "): the correlation must be between -1 and 1.")))
+
+        S[v1, v2] <- S[v2, v1] <- r
+        cors[[length(cors) + 1L]] <- list(v1 = v1, v2 = v2, r = r)
+  }
+
+  list(ok = TRUE, S = S, cors = cors)
+}
+
+
+## ============================================================================
+##  .mediation.diagram_layout() : mediation-style node layout for semPaths().
+##  Each variable is placed in a column equal to its furthest position along any
+##  indirect effect (X on the left, the final outcome on the right). For a single
+##  chain the two endpoints are dropped below the mediators so they sit above the
+##  X -> Y baseline (the classic triangle); when several variables share a column
+##  they are stacked vertically.
+##
+##  `model` is a lavaanify() parameter table; `ie` is the list of indirect-effect
+##  variable chains (obj$info$targets). Returns an n x 2 coordinate matrix in the
+##  model's variable order, or "tree" when there are no indirect effects.
+## ============================================================================
+
+.mediation.diagram_layout <- function(model, ie) {
+
+  if (is.null(ie) || length(ie) == 0) return("tree")
+
+  lhs  <- model$lhs[model$op != ":="]
+  xcoo <- suppressWarnings(
+            sapply(unique(lhs), function(x)
+                   max(unlist(lapply(ie, function(chain) which(chain == x))))))
+  xcoo[!is.finite(xcoo)] <- 1
+
+  q          <- cbind(seq_along(xcoo), order(xcoo))
+  orig_order <- q[order(q[, 2]), 1]
+  xcoo       <- xcoo[order(xcoo)]
+
+  if (length(unique(xcoo)) == length(xcoo)) {
+        ycoo <- rep(.80, length(xcoo))
+        ycoo[xcoo == min(xcoo)] <- ycoo[xcoo == max(xcoo)] <- .2
+  } else {
+        ycoo <- unlist(lapply(unique(xcoo), function(x) {
+              nvars <- length(xcoo[xcoo == x])
+              seq_len(nvars) / (nvars + 1)
+        }))
+  }
+
+  p <- cbind(x = xcoo, y = ycoo)
+  p[orig_order, , drop = FALSE]
 }
 

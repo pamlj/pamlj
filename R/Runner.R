@@ -193,6 +193,16 @@ Runner <- R6::R6Class("Runner",
                                 tab
                                 
                               },
+                              run_implied_cors= function() {
+
+                                jinfo("PAMLj: implied correlations run")
+                                Sig <- self$info$Sigma
+                                if (is.null(Sig)) return()
+                                tab <- as.data.frame(round(Sig, digits = 3))
+                                tab$variable <- rownames(Sig)
+                                return(tab)
+
+                              },
                               run_structure_showdata2=function() {
                                 showdata2(self)
                               },

@@ -42,6 +42,13 @@ pamlmedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                  aSmartObj<-SmartTable$new(self$results$powerxy,private$.runner)
                  ladd(private$.smartObjs)<-aSmartObj
 
+                 ## model-implied correlations among the variables (filled from
+                 ## obj$info$Sigma); columns are added at run from the matrix.
+                 aSmartObj                <- SmartTable$new(self$results$implied_cors,private$.runner)
+                 aSmartObj$expandOnRun    <- TRUE
+                 aSmartObj$expandFrom     <- 2
+                 ladd(private$.smartObjs) <- aSmartObj
+
                            
                  aSmartObj<-SmartTable$new(self$results$customtable,private$.runner)
                  aSmartObj$hideOn<-list("z"=NA)
@@ -114,8 +121,23 @@ pamlmedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
           private$.plotter$plot_custom(image,ggtheme,theme)
        },
          .plot_diagram=function(image, ggtheme, theme, ...) {
-           
-             if (is.null(image$state) || is.null(image$state$coord)) return()
+
+             if (is.null(image$state)) return()
+
+             ## free (syntax) models are laid out by semPlot from a lavaan model;
+             ## simple / complex models use the hand-built qgraph layout below.
+             if (!is.null(image$state$model)) {
+                 state <- image$state
+                 semPlot::semPaths(state$model, whatLabels = "est",
+                                   layout   = state$layout,
+                                   sizeLat  = state$sizeLat,  sizeLat2 = state$sizeLat2,
+                                   sizeMan  = state$sizeMan,  sizeMan2 = state$sizeMan2,
+                                   edge.label.cex = state$edge.label.cex,
+                                   residuals = FALSE)
+                 return(TRUE)
+             }
+
+             if (is.null(image$state$coord)) return()
 
             m<-image$state$enlarge
 

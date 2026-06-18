@@ -10,7 +10,7 @@ TRANS_WARNS[[1]]<-list(original="positive-definite",new="Input parameters imply 
 
 
 ### SYNTAX COMMANDS
-SYNTAX_CMD=c("test","bet","between","wit","within", "expand")
+SYNTAX_CMD=c("test","bet","between","wit","within", "expand","cor")
 
 
 ########### Greek Letters  ###############

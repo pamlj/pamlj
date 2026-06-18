@@ -416,6 +416,11 @@ options:
       title: "Path diagram"
       default: true
 
+    - name: inspect_cors
+      type: Bool
+      title: "Implied correlations"
+      default: false
+
     - name: .interface
       type: String
       default: jamovi

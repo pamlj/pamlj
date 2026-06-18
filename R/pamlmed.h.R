@@ -55,6 +55,7 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             test_c = FALSE,
             explain = FALSE,
             diagram = TRUE,
+            inspect_cors = FALSE,
             .interface = "jamovi",
             .caller = "mediation", ...) {
 
@@ -315,6 +316,10 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "diagram",
                 diagram,
                 default=TRUE)
+            private$..inspect_cors <- jmvcore::OptionBool$new(
+                "inspect_cors",
+                inspect_cors,
+                default=FALSE)
             private$...interface <- jmvcore::OptionString$new(
                 ".interface",
                 .interface,
@@ -375,6 +380,7 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..test_c)
             self$.addOption(private$..explain)
             self$.addOption(private$..diagram)
+            self$.addOption(private$..inspect_cors)
             self$.addOption(private$...interface)
             self$.addOption(private$...caller)
         }),
@@ -428,6 +434,7 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         test_c = function() private$..test_c$value,
         explain = function() private$..explain$value,
         diagram = function() private$..diagram$value,
+        inspect_cors = function() private$..inspect_cors$value,
         .interface = function() private$...interface$value,
         .caller = function() private$...caller$value),
     private = list(
@@ -480,6 +487,7 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..test_c = NA,
         ..explain = NA,
         ..diagram = NA,
+        ..inspect_cors = NA,
         ...interface = NA,
         ...caller = NA)
 )
@@ -502,7 +510,8 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         powerNcurve = function() private$.items[["powerNcurve"]],
         powerCustom = function() private$.items[["powerCustom"]],
         customnotes = function() private$.items[["customnotes"]],
-        customtable = function() private$.items[["customtable"]]),
+        customtable = function() private$.items[["customtable"]],
+        implied_cors = function() private$.items[["implied_cors"]]),
     private = list(),
     public=list(
         initialize=function(options) {
@@ -869,7 +878,36 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     list(
                         `name`="es", 
                         `title`="ME", 
-                        `type`="Number"))))}))
+                        `type`="Number"))))
+            self$add(jmvcore::Table$new(
+                options=options,
+                name="implied_cors",
+                title="Model-implied correlations",
+                visible="(inspect_cors)",
+                clearWith=list(
+                    "a",
+                    "b",
+                    "c",
+                    "a1",
+                    "b1",
+                    "a2",
+                    "b2",
+                    "a3",
+                    "b3",
+                    "r12",
+                    "r13",
+                    "r23",
+                    "d1",
+                    "mode",
+                    "cprime",
+                    "cprime2",
+                    "model_type",
+                    "code"),
+                columns=list(
+                    list(
+                        `name`="variable", 
+                        `title`="", 
+                        `type`="text"))))}))
 
 pamlmedBase <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     "pamlmedBase",
