@@ -1,4 +1,6 @@
 # History files
+.claude*
+.codex*
 .Rhistory
 .Rapp.history
 .Rhistor*

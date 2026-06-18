@@ -23,16 +23,18 @@ pamlmed(
   r13 = "",
   r23 = "",
   cprime2 = 0,
+  sensitivity_coef = "a1",
   power = 0.9,
   n = 100,
   sig.level = 0.05,
   alternative = "two.sided",
-  test = "sobel",
+  test = "joint",
   mcR = 1000,
   parallel = FALSE,
   set_seed = FALSE,
   seed = 42,
   table_pwbyn = TRUE,
+  table_pwbyes = FALSE,
   plot_ncurve = FALSE,
   plot_log = FALSE,
   plot_palette = "viridis",
@@ -108,6 +110,10 @@ mediator 1}
 \item{cprime2}{The expected standardized effect of the independent variable
 on the mediator}
 
+\item{sensitivity_coef}{For complex mediation models with the effect-size
+aim, the path coefficient (\code{"a1"}, \code{"b1"}, \code{"d1"}, ...) that
+is resized to find the minimum detectable indirect effect.}
+
 \item{power}{Minimal desired power}
 
 \item{n}{Sample size}
@@ -118,10 +124,11 @@ on the mediator}
 \code{"one.sided"}.}
 
 \item{test}{Mediation test method: \code{"sobel"}, \code{"joint"} for
-joint-significance, or \code{"mc"} for Monte Carlo simulation.}
+joint-significance, or the Monte Carlo confidence-interval methods
+\code{"parametric"} and \code{"simulation"} (both approximate bootstrap-CI
+power for the indirect effect).}
 
-\item{mcR}{Number of simulation replications used by the Monte Carlo and
-simulation-based joint methods.}
+\item{mcR}{Number of simulated studies used by the Monte Carlo CI methods.}
 
 \item{parallel}{Logical; if \code{TRUE}, use parallel computation for
 simulation-based methods when available.}
@@ -133,6 +140,10 @@ make simulations reproducible.}
 
 \item{table_pwbyn}{Logical; if \code{TRUE}, produce the "Power by Sample
 size" table.}
+
+\item{table_pwbyes}{Logical; if \code{TRUE}, produce the "Power by Effect
+Size" table: the indirect effect and the value of the varied coefficient
+reaching power .5/.8/.95 at the analysis sample size.}
 
 \item{plot_ncurve}{Logical; if \code{TRUE}, produce the power-by-\code{n}
 curve.}

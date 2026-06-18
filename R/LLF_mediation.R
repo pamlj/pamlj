@@ -297,15 +297,24 @@
 }
 
 .mediation.solve_mde <- function(A, chain, S, n, target_power, power_for,
-                                 seed_mag = NULL) {
-  first_to   <- chain[2]
-  first_from <- chain[1]
+                                 seed_mag = NULL, vary_edge = NULL) {
+  ## `vary_edge` = c(to, from) indices of the coefficient to resize. Defaults to
+  ## the first edge of `chain` (the a-path). The caller picks any edge (a/b/d) to vary while `chain`
+  ## stays the indirect path whose power is driven to target_power.
+  if (is.null(vary_edge)) vary_edge <- c(chain[2], chain[1])
+  first_to   <- vary_edge[1]
+  first_from <- vary_edge[2]
   sign_first <- if (A[first_to, first_from] != 0) sign(A[first_to, first_from]) else 1
+
+  ## The search probes infeasible coefficient values (negative residual variance,
+  ## non-PD implied matrix); the power engines already return NA there, so the
+  ## resulting NaN warnings are expected noise and are muffled.
+  eval_pf <- function(trial) suppressWarnings(power_for(trial, .mediation.safe_implied_cor(trial, S), n))
 
   eval_mag <- function(magnitude) {
     trial <- A
     trial[first_to, first_from] <- sign_first * magnitude
-    power_for(trial, .mediation.safe_implied_cor(trial, S), n)
+    eval_pf(trial)
   }
 
   solve_from_seed <- function(seed_mag) {
@@ -325,16 +334,29 @@
         return(list(A = A, power = low_power, method = "powmin"))
       }
     } else {
+      ## Power vs coefficient is unimodal: it rises, peaks, then FALLS back toward
+      ## alpha as the coefficient approaches 1 and the standardized model
+      ## degenerates (the mediator becomes collinear with X, so the other edge's
+      ## standard error explodes). When the target lies above the peak we must
+      ## report the PEAK -- the best achievable power -- not keep walking to the
+      ## boundary where power has collapsed. Track the strongest magnitude seen
+      ## while expanding and return it if we reach the boundary without bracketing.
+      best_mag   <- seed_mag
+      best_power <- seed_power
       low <- seed_mag
       high <- seed_mag
       repeat {
         low <- high
         high <- min(.999, max(high + 1e-3, high * 1.5))
         high_power <- eval_mag(high)
+        if (is.finite(high_power) && high_power > best_power) {
+          best_power <- high_power
+          best_mag   <- high
+        }
         if (isTRUE(high_power >= target_power)) break
         if (high >= .999) {
-          A[first_to, first_from] <- sign_first * high
-          return(list(A = A, power = high_power, method = "powmax"))
+          A[first_to, first_from] <- sign_first * best_mag
+          return(list(A = A, power = best_power, method = "powmax"))
         }
       }
     }
@@ -351,11 +373,7 @@
   }
 
   grid <- seq(1e-3, .999, by = .001)
-  grid_power <- vapply(grid, function(magnitude) {
-    trial <- A
-    trial[first_to, first_from] <- sign_first * magnitude
-    power_for(trial, .mediation.safe_implied_cor(trial, S), n)
-  }, numeric(1))
+  grid_power <- vapply(grid, eval_mag, numeric(1))
 
   usable <- is.finite(grid_power)
   if (!any(usable))
@@ -367,14 +385,60 @@
     return(list(A = A, power = grid_power[max_index], method = "powmax"))
   }
 
-  root <- uniroot(function(magnitude) {
-    trial <- A
-    trial[first_to, first_from] <- sign_first * magnitude
-    power_for(trial, .mediation.safe_implied_cor(trial, S), n) - target_power
-  }, interval = c(1e-5, grid[max_index]))$root
+  root <- uniroot(function(magnitude) eval_mag(magnitude) - target_power,
+                  interval = c(1e-5, grid[max_index]))$root
 
   A[first_to, first_from] <- sign_first * root
   list(A = A, power = target_power, method = "pamlj")
+}
+
+## ----------------------------------------------------------------------------
+## Equal-components minimum detectable effect (fallback for an unreachable target).
+##
+## Resizing a single edge cannot exceed the peak imposed by the OTHER, fixed edges
+## (as one edge -> 1 the mediator becomes collinear with its predictor and the
+## remaining edges can no longer be estimated, so power collapses). When the target
+## power is above that peak there is no single-coefficient answer. Growing ALL the
+## edges of the path together removes the fixed bottleneck: power then rises
+## monotonically and any target below 1 is reachable. This solves for the common
+## magnitude `t` (each edge keeps its own sign) that delivers the target power and
+## reports the resulting balanced indirect effect (t^k for a k-edge path).
+## ----------------------------------------------------------------------------
+.mediation.solve_equal_components <- function(A, chain, S, n, target_power, power_for) {
+  edges <- .mediation.path_edges(chain)
+  k     <- length(edges$to)
+  signs <- vapply(seq_len(k), function(e) {
+    s <- sign(A[edges$to[e], edges$from[e]]); if (s == 0) 1 else s
+  }, numeric(1))
+
+  set_A <- function(t) {
+    trial <- A
+    for (e in seq_len(k)) trial[edges$to[e], edges$from[e]] <- signs[e] * t
+    trial
+  }
+  eval_mag <- function(t)
+    suppressWarnings(power_for(set_A(t), .mediation.safe_implied_cor(set_A(t), S), n))
+
+  low   <- 1e-3
+  low_p <- eval_mag(low)
+  if (!is.finite(low_p)) return(NULL)
+  if (isTRUE(low_p >= target_power))
+    return(list(A = set_A(low), power = low_p, method = "balanced"))
+
+  ## expand upward until the (monotone increasing) power brackets the target
+  lo <- low
+  hi <- low
+  repeat {
+    hi <- min(.999, max(hi + 1e-3, hi * 1.5))
+    hi_p <- eval_mag(hi)
+    if (isTRUE(hi_p >= target_power)) break
+    if (is.finite(hi_p)) lo <- hi
+    if (hi >= .999)
+      ## even with every edge maximal the target is out of reach: report the best
+      return(list(A = set_A(hi), power = hi_p, method = "powmax"))
+  }
+  root <- uniroot(function(t) eval_mag(t) - target_power, interval = c(lo, hi))$root
+  list(A = set_A(root), power = target_power, method = "balanced")
 }
 
 .mediation.result <- function(A, Sigma, chain, n, power, sig.level, method) {
@@ -551,6 +615,30 @@
 }
 
 ## ============================================================================
+##  .mediation.power_dispatch() : build the power function for a given test.
+## ----------------------------------------------------------------------------
+##  Returns a closure power(A, Sigma, N, chain, free) selecting the right engine
+##  (Sobel family / joint via .mediation.path_power, or the Monte Carlo CI
+##  methods). Used by pamlj.mediation() and by the complex-model MDE orchestrator
+##  so both share one definition of "power of an indirect path".
+## ============================================================================
+
+.mediation.power_dispatch <- function(test, sig.level = .05, alternative = "two.sided",
+                                      R = 1000, L = 2000, parallel = FALSE, seed = NULL) {
+  function(A, Sigma, N, chain, free = NULL) {
+    if (is.null(free)) free <- .mediation.default_free(A, chain)
+    if (test == "parametric")
+      .mediation.mc_power_parametric(A, Sigma, N, chain, free, sig.level,
+                                     R = R, L = L, seed = seed)
+    else if (test == "simulation")
+      .mediation.mc_power_simulation(A, Sigma, N, chain, free, sig.level,
+                                     R = R, L = L, seed = seed, parallel = parallel)
+    else
+      .mediation.path_power(A, Sigma, N, chain, test, sig.level, alternative, free)
+  }
+}
+
+## ============================================================================
 ##  .mediation.path_power() : power of detecting ONE indirect effect.
 ## ----------------------------------------------------------------------------
 ##  `chain` is the indirect path as a vector of node indices (as produced by
@@ -642,17 +730,24 @@ pamlj.mediation <- function(A, Sigma = NULL, S = NULL, free = NULL, n = NULL, po
 
   if (is.null(free)) free <- .mediation.default_free(A, chain)
 
-  power_for <- function(Amat, Sig, n_val) {
-    if (test == "parametric") {
-      .mediation.mc_power_parametric(Amat, Sig, n_val, chain, free, sig.level,
-                                     R = R, L = L, seed = seed)
-    } else if (test == "simulation") {
-      .mediation.mc_power_simulation(Amat, Sig, n_val, chain, free, sig.level,
-                                     R = R, L = L, seed = seed, parallel = parallel)
-    } else {
-      .mediation.path_power(Amat, Sig, n_val, chain, test, sig.level, alternative, free)
-    }
-  }
+  engine    <- .mediation.power_dispatch(test, sig.level, alternative,
+                                         R = R, L = L, parallel = parallel, seed = seed)
+  power_for <- function(Amat, Sig, n_val) engine(Amat, Sig, n_val, chain, free)
+
+  ## Monte Carlo power is a *random* function of N / the coefficient, so a plain
+  ## root-find or grid search over it is unreliable: uniroot can fail to bracket
+  ## the target (the noisy endpoints land on the same side) and the solved value
+  ## drifts run to run. We solve instead on a frozen objective using common random
+  ## numbers -- the engine re-seeds before every evaluation, so the same seed makes
+  ## the simulated power a smooth, deterministic function of its argument. The
+  ## user's own seed is used when supplied; otherwise a fixed internal seed. Only
+  ## the search uses this; the direct power aim keeps the user's seed semantics.
+  solve_seed   <- if (!is.null(seed)) seed else 20240101L
+  solve_engine <- if (is_mc)
+      .mediation.power_dispatch(test, sig.level, alternative,
+                                R = R, L = L, parallel = parallel, seed = solve_seed)
+    else engine
+  power_solve  <- function(Amat, Sig, n_val) solve_engine(Amat, Sig, n_val, chain, free)
 
   if (is.null(Sigma)) Sigma <- .mediation.safe_implied_cor(A, S)
 
@@ -674,10 +769,10 @@ pamlj.mediation <- function(A, Sigma = NULL, S = NULL, free = NULL, n = NULL, po
                                              sig.level, alternative, free),
           power
         )$n
-        solved <- .mediation.solve_n_grid(function(nn) power_for(A, Sigma, nn),
+        solved <- .mediation.solve_n_grid(function(nn) power_solve(A, Sigma, nn),
                                           power, n_seed = joint_seed)
       } else {
-        solved <- .mediation.solve_n(function(nn) power_for(A, Sigma, nn), power)
+        solved <- .mediation.solve_n(function(nn) power_solve(A, Sigma, nn), power)
       }
       n <- solved$n
       method <- solved$method
@@ -692,10 +787,17 @@ pamlj.mediation <- function(A, Sigma = NULL, S = NULL, free = NULL, n = NULL, po
           }
         )
         seed_mag <- abs(joint_seed$A[chain[2], chain[1]])
-        solved <- .mediation.solve_mde(A, chain, S, n, power, power_for,
+        solved <- .mediation.solve_mde(A, chain, S, n, power, power_solve,
                                        seed_mag = seed_mag)
       } else {
-        solved <- .mediation.solve_mde(A, chain, S, n, power, power_for)
+        solved <- .mediation.solve_mde(A, chain, S, n, power, power_solve)
+      }
+      ## Resizing the first edge alone could not reach the target (it sits above
+      ## the achievable peak). Fall back to growing every edge of the path together,
+      ## which removes the fixed-edge bottleneck and can reach any target below 1.
+      if (identical(solved$method, "powmax")) {
+        balanced <- .mediation.solve_equal_components(A, chain, S, n, power, power_solve)
+        if (!is.null(balanced)) solved <- balanced
       }
       A <- solved$A
       power <- solved$power

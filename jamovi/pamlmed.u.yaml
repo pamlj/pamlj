@@ -3,6 +3,10 @@ name: pamlmed
 jus: '3.0'
 stage: 0
 compilerMode: tame
+events:
+  loaded: ./syntax_editor::loaded
+  update: ./syntax_editor::update
+
 children:
   - type: LayoutBox
     margin: large
@@ -26,7 +30,6 @@ children:
                   - name: a
                     type: TextBox
                     format: number
-                    enable: (!aim:es)
                   - name: b
                     type: TextBox
                     format: number
@@ -122,6 +125,16 @@ children:
               - type: TextBox
                 name: cprime2
                 format: number
+
+      - type: Content
+        name: medmodels
+        children:
+          - type: CustomControl
+            stretchFactor: 1
+            name: syntax
+            events:
+              creating: ./syntax_editor::editor_creating
+
   - type: Label
     label: Parameters
     name: power_parameters
@@ -184,6 +197,13 @@ children:
     collapsed: true
     stretchFactor: 1
     children:
+      - type: Label
+        label: Minimum detectable effect
+        children:
+          - type: ComboBox
+            name: sensitivity_coef
+            label: Coefficient to vary
+            enable: (aim:es)
       - type: LayoutBox
         style: inline
         children:
@@ -204,6 +224,8 @@ children:
         children:
           - type: CheckBox
             name: table_pwbyn
+          - type: CheckBox
+            name: table_pwbyes
   - type: CollapseBox
     label: Power Parameters plot
     name: panel_customplot

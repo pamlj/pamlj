@@ -41,6 +41,9 @@
 #'   mediator 1
 #' @param cprime2 The expected standardized effect of the independent variable
 #'   on the mediator
+#' @param sensitivity_coef For complex mediation models with the effect-size
+#'   aim, the path coefficient (\code{"a1"}, \code{"b1"}, \code{"d1"}, ...) that
+#'   is resized to find the minimum detectable indirect effect.
 #' @param power Minimal desired power
 #' @param n Sample size
 #' @param sig.level Type I error rate (significance cut-off or alpha)
@@ -58,6 +61,9 @@
 #' @param seed Random seed used when \code{set_seed=TRUE}.
 #' @param table_pwbyn Logical; if \code{TRUE}, produce the "Power by Sample
 #'   size" table.
+#' @param table_pwbyes Logical; if \code{TRUE}, produce the "Power by Effect
+#'   Size" table: the indirect effect and the value of the varied coefficient
+#'   reaching power .5/.8/.95 at the analysis sample size.
 #' @param plot_ncurve Logical; if \code{TRUE}, produce the power-by-\code{n}
 #'   curve.
 #' @param plot_log Logical; if \code{TRUE}, use a log scale where supported in
@@ -130,16 +136,18 @@ pamlmed <- function(
     r13 = "",
     r23 = "",
     cprime2 = 0,
+    sensitivity_coef = "a1",
     power = 0.9,
     n = 100,
     sig.level = 0.05,
     alternative = "two.sided",
-    test = "sobel",
+    test = "joint",
     mcR = 1000,
     parallel = FALSE,
     set_seed = FALSE,
     seed = 42,
     table_pwbyn = TRUE,
+    table_pwbyes = FALSE,
     plot_ncurve = FALSE,
     plot_log = FALSE,
     plot_palette = "viridis",
@@ -158,6 +166,10 @@ pamlmed <- function(
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
         stop("pamlmed requires jmvcore to be installed (restart may be required)")
+    if(missing(table_pwbyn) & aim=="es"){
+      table_pwbyn=FALSE
+      table_pwbyes=TRUE
+    }
 
 
     options <- pamlmedOptions$new(
@@ -179,6 +191,7 @@ pamlmed <- function(
         r13 = r13,
         r23 = r23,
         cprime2 = cprime2,
+        sensitivity_coef = sensitivity_coef,
         power = power,
         n = n,
         sig.level = sig.level,
@@ -189,6 +202,7 @@ pamlmed <- function(
         set_seed = set_seed,
         seed = seed,
         table_pwbyn = table_pwbyn,
+        table_pwbyes = table_pwbyes,
         plot_ncurve = plot_ncurve,
         plot_log = plot_log,
         plot_palette = plot_palette,

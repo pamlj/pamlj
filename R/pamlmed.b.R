@@ -12,7 +12,7 @@ pamlmedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
         .runner=NULL,
         .init = function() {
 
-                jinfo(paste("MODULE:  PAMLcorr #### phase init  ####"))
+                jinfo(paste("MODULE:  PAMLmed #### phase init  ####"))
                 private$.time<-Sys.time()
                 class(private$.results) <- c('pamlj', class(private$.results)) ## this is useful in R interface
 
@@ -34,6 +34,9 @@ pamlmedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                  ladd(private$.smartObjs)<-aSmartObj
                  
                  aSmartObj<-SmartTable$new(self$results$powerbyn,private$.runner)
+                 ladd(private$.smartObjs)<-aSmartObj
+
+                 aSmartObj<-SmartTable$new(self$results$powerbyes,private$.runner)
                  ladd(private$.smartObjs)<-aSmartObj
                  
                  aSmartObj<-SmartTable$new(self$results$powerxy,private$.runner)
@@ -112,8 +115,8 @@ pamlmedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
        },
          .plot_diagram=function(image, ggtheme, theme, ...) {
            
-             if (is.null(image$state)) return()
-             
+             if (is.null(image$state) || is.null(image$state$coord)) return()
+
             m<-image$state$enlarge
 
              pl<-qgraph::qgraph(image$state$coord,

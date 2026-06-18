@@ -11,6 +11,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             code = "",
             fonts = "small",
             toggle = FALSE,
+            hardrun = NULL,
             run = FALSE,
             sigma2 = 1,
             power = 0.9,
@@ -68,6 +69,10 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "toggle",
                 toggle,
                 default=FALSE,
+                hidden=TRUE)
+            private$..hardrun <- jmvcore::OptionBool$new(
+                "hardrun",
+                hardrun,
                 hidden=TRUE)
             private$..run <- jmvcore::OptionAction$new(
                 "run",
@@ -208,6 +213,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..code)
             self$.addOption(private$..fonts)
             self$.addOption(private$..toggle)
+            self$.addOption(private$..hardrun)
             self$.addOption(private$..run)
             self$.addOption(private$..sigma2)
             self$.addOption(private$..power)
@@ -237,6 +243,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         code = function() private$..code$value,
         fonts = function() private$..fonts$value,
         toggle = function() private$..toggle$value,
+        hardrun = function() private$..hardrun$value,
         run = function() private$..run$value,
         sigma2 = function() private$..sigma2$value,
         power = function() private$..power$value,
@@ -265,6 +272,7 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..code = NA,
         ..fonts = NA,
         ..toggle = NA,
+        ..hardrun = NA,
         ..run = NA,
         ..sigma2 = NA,
         ..power = NA,

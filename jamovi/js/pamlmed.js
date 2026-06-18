@@ -8,6 +8,20 @@ const events = {
          update_coefs(ui);        
 
     },
+    aim_changed: function(ui) {
+      
+      var value = ui.aim.value();
+      if (value === "es") {
+        ui.table_pwbyn.setValue(false);
+        ui.table_pwbyes.setValue(true);
+      }
+      if (value === "n") {
+        ui.table_pwbyn.setValue(true);
+        ui.table_pwbyes.setValue(false);
+      }
+      
+      
+    },
     test_changed: function(ui) {
 
       var value = ui.test.value();

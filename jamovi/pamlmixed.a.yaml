@@ -60,6 +60,10 @@ options:
       default: false
       hidden: true
 
+    - name: hardrun
+      type: Bool   
+      hidden: true
+
     - name: run
       type: Action   
       hidden: true

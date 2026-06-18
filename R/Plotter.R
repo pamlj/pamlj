@@ -799,9 +799,11 @@ Plotter <- R6::R6Class(
                   ) # end of switch
 
               } # end of medcomplex
-              
-              
-              image$setState(state)
+
+              ## only push a usable state when a layout was actually built
+              ## (e.g. medmodels has no branch yet); otherwise clear it so the
+              ## renderer does not try to draw an empty diagram.
+              if (length(state) > 0) image$setState(state) else image$setState(NULL)
 
     },
 
