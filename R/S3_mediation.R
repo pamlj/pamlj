@@ -132,6 +132,9 @@
   smallest           <- which.min(exdata$es)[1]
   rep_path           <- paths[[smallest]]
   obj$info$rxy       <- Sigma[rep_path[1], rep_path[length(rep_path)]]   # representative X-Y corr
+  ## endpoints of the representative path, so rxy can be recomputed from the
+  ## solved Sigma when the es aim resizes the model (.powervector.medcomplex_mde)
+  obj$info$rxy_path  <- c(rep_path[1], rep_path[length(rep_path)])
   exdata[[obj$aim]]  <- NULL
 
   if (o$test == "sobel")
@@ -371,6 +374,9 @@
             obj$info$S       <- mod$S    # residual covariances among mediators (for es resize)
             obj$info$targets <- setNames(lapply(paths, function(ch) vars[ch]), labels)
             obj$info$rxy     <- Sigma[1, outcome]    # model-implied X-Y correlation
+            ## endpoints (X, Y), so rxy can be recomputed from the solved Sigma
+            ## when the es aim resizes the model (.powervector.medcomplex_mde)
+            obj$info$rxy_path <- c(1, outcome)
             ## coefficient -> A edge map, for the sensitivity (MDE) analysis: the
             ## user picks one coefficient to resize while solving for the minimum
             ## detectable indirect effect.
@@ -534,6 +540,16 @@
                                            vary_edge = vary)
       }
 
+      ## Resizing the chosen coefficient alone can hit the unimodal peak below the
+      ## target (powmax). Mirror the per-effect path (pamlj.mediation): grow all
+      ## edges of the weakest affected chain together (balanced solution), which
+      ## can reach any power < 1; powmax stands only if even that is capped.
+      if (identical(solved$method, "powmax")) {
+            balanced <- .mediation.solve_equal_components(A, rep_chain, S, n_val,
+                                                          target_power, min_affected(engine))
+            if (!is.null(balanced)) solved <- balanced
+      }
+
       list(A = solved$A, S = S, vars = vars, targets = targets, vary = vary,
            rep_chain = rep_chain, engine = engine, method = solved$method)
 }
@@ -549,6 +565,17 @@
       Asolved      <- mde$A
       Sigma_solved <- .mediation.safe_implied_cor(Asolved, mde$S)
       alpha        <- obj$options$sig.level
+
+      ## es aim: the reported model IS the solved one. On the authoritative
+      ## (precise) solve, refresh A / Sigma / rxy so the implied correlations,
+      ## R-squared and path diagram reflect the coefficients found by the search,
+      ## not the input placeholders. Plots / bands run precise = FALSE and skip this.
+      if (isTRUE(data$precise[1])) {
+            obj$info$A     <- Asolved
+            obj$info$Sigma <- Sigma_solved
+            rp <- obj$info$rxy_path
+            if (!is.null(rp)) obj$info$rxy <- Sigma_solved[rp[1], rp[2]]
+      }
       chain_of     <- function(label) match(mde$targets[[ as.character(label) ]], mde$vars)
 
       ## recompute every requested effect at the solved model
