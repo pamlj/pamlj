@@ -216,5 +216,6 @@ Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.f
 \code{as.data.frame(results$powertab)}
 }
 \description{
-Something here
+Power analysis for simple and multiple mediation models using the Sobel test,
+joint-significance, or bootstrap confidence intervals.
 }

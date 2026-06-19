@@ -716,7 +716,8 @@
 pamlj.mediation <- function(A, Sigma = NULL, S = NULL, free = NULL, n = NULL, power = NULL,
                             es = NULL, target = NULL, sig.level = .05,
                             alternative = "two.sided", test = "sobel",
-                            R = 1000, L = 2000, parallel = FALSE, seed = NULL, ...) {
+                            R = 1000, L = 2000, parallel = FALSE, seed = NULL,
+                            vary_edge = NULL, ...) {
 
   if (!test %in% c("sobel", "aroian", "goodman", "joint", "parametric", "simulation"))
     stop("pamlj.mediation() supports the Sobel test family ('sobel', 'aroian', ",
@@ -778,19 +779,24 @@ pamlj.mediation <- function(A, Sigma = NULL, S = NULL, free = NULL, n = NULL, po
       method <- solved$method
     },
     es = {
+      ## which coefficient to resize: vary_edge = c(to, from) into A (defaults
+      ## inside solve_mde to the first/a edge of the chain when NULL).
+      vedge <- if (is.null(vary_edge)) c(chain[2], chain[1]) else vary_edge
       if (is_mc) {
         joint_seed <- .mediation.solve_mde(
           A, chain, S, n, power,
           function(Amat, Sig, n_val) {
             .mediation.path_power(Amat, Sig, n_val, chain, "joint",
                                   sig.level, alternative, free)
-          }
+          },
+          vary_edge = vedge
         )
-        seed_mag <- abs(joint_seed$A[chain[2], chain[1]])
+        seed_mag <- abs(joint_seed$A[vedge[1], vedge[2]])
         solved <- .mediation.solve_mde(A, chain, S, n, power, power_solve,
-                                       seed_mag = seed_mag)
+                                       seed_mag = seed_mag, vary_edge = vedge)
       } else {
-        solved <- .mediation.solve_mde(A, chain, S, n, power, power_solve)
+        solved <- .mediation.solve_mde(A, chain, S, n, power, power_solve,
+                                       vary_edge = vedge)
       }
       ## Resizing the first edge alone could not reach the target (it sits above
       ## the achievable peak). Fall back to growing every edge of the path together,

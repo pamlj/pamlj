@@ -1,6 +1,7 @@
 #' General Linear Model
 #'
-#' Something here
+#' Power analysis for regression, ANOVA, and ANCOVA models using standardized
+#' coefficients, partial eta-squared, or eta-squared effect sizes.
 #'
 #' @param aim The aim of the analysis: \code{n} (default) for sample size,
 #'   \code{power} to estimate power, or \code{es} to estimate the minimum

@@ -82,6 +82,8 @@ pamlmedClass <- if (requireNamespace('jmvcore', quietly=TRUE)) R6::R6Class(
                      if (identical(private$.runner$aim, "es")) {
                          medArgs$n <- self$options$n
                          medArgs$power <- self$options$power
+                         ## which coefficient to resize (a vs b), resolved in .checkdata.medsimple
+                         medArgs$vary_edge <- private$.runner$info[["vary_edge"]]
                      }
                      if (isTRUE(self$options$set_seed)) medArgs$seed <- self$options$seed
                      private$.runner$data <- as.data.frame(do.call(pamlj.mediation, medArgs))

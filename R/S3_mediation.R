@@ -10,7 +10,7 @@
   if (!isFALSE(syntaxobj$error))
         obj$stop("Model formula not correct: " %+% syntaxobj$error)
 
-  mark(syntaxobj$obj)
+ 
   ## validate that the syntax describes a recursive mediation model
   parsed <- .mediation.parse_syntax(syntaxobj$obj)
   if (!parsed$ok) {
@@ -189,6 +189,23 @@
       A["Y","X"] <- obj$data$cprime     # c' : X -> Y (direct)
       obj$info$A     <- A
       obj$info$Sigma <- .mediation.implied_cor(A)
+
+      ## minimum-detectable-effect (es aim): which coefficient to resize while
+      ## solving for the effect. `a` is the X -> M edge (default), `b` is the
+      ## M -> Y edge. The option is shared with the complex models, so a value
+      ## that is not `a`/`b` falls back to `a` (with a warning under the es aim).
+      sel  <- obj$options$sensitivity_coef
+      edge <- switch(sel, a = c("M","X"), b = c("Y","M"), NULL)
+      if (is.null(edge)) {
+            if (identical(obj$aim, "es"))
+                  obj$warning <- list(topic = "issues", head = "info",
+                        message = paste0("The coefficient '", sel, "' is not a coefficient of the ",
+                        "simple mediation model (use 'a' or 'b'). The minimum detectable effect ",
+                        "is found by resizing 'a'."))
+            edge <- c("M","X"); sel <- "a"
+      }
+      obj$info$vary_edge         <- match(edge, rownames(A))   # c(to, from) into A
+      obj$info$sensitivity_label <- sel
 
       obj$data$n           <- obj$options$n
       obj$data$sig.level   <- obj$options$sig.level
@@ -464,7 +481,7 @@
 .medcomplex_mde <- function(obj, n_val, target_power) {
 
       A       <- obj$info$A
-      S       <- obj$info$S
+      S       <- obj$info[["S"]]   # exact match: `$S` partial-matches `Sigma` when S is NULL
       vars    <- rownames(A)
       targets <- obj$info$targets
 
@@ -548,7 +565,6 @@
       results <- cbind(odata, results)
       names(results) <- .names
       results$n <- round(results$n, digits = 0)
-      .mediation.feasibility_warning(obj, results, "es")
       results
 }
 
@@ -558,8 +574,10 @@
 ## indirect effect -- but the reported power sits below the request, so without a
 ## message it looks as if changing the desired power does nothing. Surface a clear
 ## warning naming the requested power and the maximum that is actually achievable.
-## Only the main estimation (precise) warns; the by-effect-size table deliberately
-## probes unreachable bands and must stay quiet.
+## Called once per run from the table builders (.powertab[_init]) on the full
+## set of effects, so the message is emitted a single time and lists every
+## affected effect. The by-effect-size table deliberately probes unreachable
+## bands (precise = FALSE) and must stay quiet, hence the precise gate below.
 .mediation.feasibility_warning <- function(obj, results, aim) {
       if (!isTRUE(results$precise[1])) return(invisible())
       if (!identical(aim, "es")) return(invisible())
@@ -630,6 +648,9 @@
                       ## $S would partial-match "Sigma", passing the correlation matrix
                       ## as fixed residual covariances and corrupting the implied Sigma.
                       one$S     <- obj$info[["S"]]    # residual (co)variances; NULL for simple
+                      ## es aim: the coefficient to resize (simple model lets the user
+                      ## pick a vs b). [["vary_edge"]] exact-match; NULL -> solve_mde default.
+                      one$vary_edge <- obj$info[["vary_edge"]]
                       ## complex models carry one indirect path per row: select it by effect label
                       if (!is.null(obj$info$targets))
                           one$target <- obj$info$targets[[ as.character(data$effect[i]) ]]
@@ -663,7 +684,6 @@
                  results<-cbind(odata,results)
                  names(results)<-.names
                  results$n  <- round(results$n,digits=0)
-                 .mediation.feasibility_warning(obj, results, aim)
                  return(results)
 
 }
@@ -680,6 +700,10 @@
           if (!obj$ok) return()
 
           tab <- powervector(obj, obj$data)
+          ## the main (precise) table is the single point that warns about an
+          ## unreachable MDE -- emitted here, on the full result set, exactly once
+          ## per run (auxiliary powervector calls for plots / text stay quiet).
+          .mediation.feasibility_warning(obj, tab, obj$aim)
           attr(tab, "titles") <- list(es = obj$info$letter)
           return(tab)
 }
@@ -701,6 +725,9 @@
 .powertab.medcomplex <- function(obj) {
 
    tab<-powervector(obj,obj$extradata)
+   ## single, authoritative MDE-feasibility warning over every indirect effect
+   ## (medcomplex and medmodels): emitted once here, not per powervector call.
+   .mediation.feasibility_warning(obj, tab, obj$aim)
    return(tab)
 }
 
@@ -787,10 +814,13 @@
       suppressWarnings(dd <- as.data.frame(cbind(power = powers, data)))
       dd$es      <- NULL
       dd$precise <- FALSE
-      res        <- powervector(obj, dd)     # es aim: resize a at the fixed N
+      res        <- powervector(obj, dd)     # es aim: resize the chosen edge at the fixed N
       if (any(is.na(res$es)))
             warning("Some effect sizes cannot be computed given the input parameters.")
-      .power_es_bands(res$es, res$a, obj$info$letter, "a")
+      ## report the coefficient that was actually resized (a by default, b when chosen)
+      lab  <- obj$info$sensitivity_label
+      coef <- if (identical(lab, "b")) res$b else res$a
+      .power_es_bands(res$es, coef, obj$info$letter, if (is.null(lab)) "a" else lab)
 }
 
 .powerbyes.medcomplex <- function(obj) {

@@ -329,13 +329,49 @@ testthat::test_that("complex MDE: every effect through the coefficient reaches a
   testthat::expect_equal(min(affected$power), 0.80, tolerance = 1e-3)
 })
 
-testthat::test_that("complex MDE rejects a coefficient absent from the model", {
-  testthat::expect_error(
-    pamlj::pamlmed(mode = "medcomplex", model_type = "twomeds", aim = "es",
+testthat::test_that("R wrapper ignores an incoherent sensitivity_coef with a warning (falls back)", {
+  ## d1 is not a coefficient of twomeds: the wrapper warns and falls back to a1
+  testthat::expect_warning(
+    obj <- pamlj::pamlmed(mode = "medcomplex", model_type = "twomeds", aim = "es",
                    a1 = ".3", b1 = ".35", a2 = ".25", b2 = ".4", r12 = ".2",
                    cprime2 = .1, n = 150, power = .80, test = "joint",
                    sensitivity_coef = "d1", table_pwbyn = FALSE, diagram = FALSE),
-    "not a path of the current model")
+    "not a coefficient of mode")
+  tab <- obj$powertab$asDF
+  testthat::expect_equal(nrow(tab), 2)
+  ## fell back to a1: the path through a1 (X -> M1 -> Y) is driven to the target
+  m1 <- tab[grepl("M1", tab$effect) & !grepl("M2", tab$effect), ]
+  testthat::expect_equal(m1$power, .80, tolerance = 1e-2)
+})
+
+testthat::test_that("medsimple sensitivity_coef resizes a or b (and reports the other unchanged)", {
+  base <- list(mode = "medsimple", a = .3, b = .5, cprime = 0, aim = "es",
+               n = 150, power = .80, test = "joint",
+               table_pwbyn = FALSE, diagram = FALSE)
+
+  ## default 'a': resize X -> M; b stays at its input value
+  ra <- do.call(pamlj::pamlmed, c(base, list(sensitivity_coef = "a")))$powertab$asDF
+  testthat::expect_equal(ra$b, .5, tolerance = tol)        # b unchanged
+  testthat::expect_true(ra$a > 0 && ra$a < 1 && abs(ra$a - .3) > 1e-3)
+  testthat::expect_equal(ra$power, .80, tolerance = 1e-2)
+  testthat::expect_equal(ra$es, ra$a * ra$b, tolerance = tol)
+
+  ## 'b': resize M -> Y; a stays at its input value
+  rb <- do.call(pamlj::pamlmed, c(base, list(sensitivity_coef = "b")))$powertab$asDF
+  testthat::expect_equal(rb$a, .3, tolerance = tol)        # a unchanged
+  testthat::expect_true(rb$b > 0 && rb$b < 1 && abs(rb$b - .5) > 1e-3)
+  testthat::expect_equal(rb$power, .80, tolerance = 1e-2)
+  testthat::expect_equal(rb$es, rb$a * rb$b, tolerance = tol)
+})
+
+testthat::test_that("R wrapper warns + falls back when a complex coefficient is passed to medsimple", {
+  testthat::expect_warning(
+    obj <- pamlj::pamlmed(mode = "medsimple", a = .3, b = .4, cprime = 0, aim = "es",
+                          n = 150, power = .80, test = "joint",
+                          sensitivity_coef = "a1", table_pwbyn = FALSE, diagram = FALSE),
+    "not a coefficient of mode")
+  ## fell back to 'a': b unchanged at its input value
+  testthat::expect_equal(obj$powertab$asDF$b, .4, tolerance = tol)
 })
 
 testthat::test_that("joint serial mediation with two mediators solves N, power and MDE", {
@@ -424,3 +460,68 @@ testthat::test_that("complex power-by-es varies the chosen coefficient monotonic
 })
 
 pamlj::pamlmed(a = .36,b=.381,aim="es")
+
+## ---------------------------------------------------------------------------
+## Free models (mode = "medmodels"): the model is passed to pamlmed() as a
+## syntax string in `code` (one regression equation per endogenous variable).
+## Every source -> ... -> sink directed path becomes one row of the table.
+## ---------------------------------------------------------------------------
+
+testthat::test_that("free model: simple-mediation syntax matches the medsimple engine", {
+  free <- pamlj::pamlmed(mode = "medmodels",
+                         code = "m ~ .3*x\ny ~ .2*x + .4*m",
+                         aim = "n", power = .80, test = "joint",
+                         table_pwbyn = FALSE, diagram = FALSE)
+  ftab <- free$powertab$asDF
+  testthat::expect_equal(nrow(ftab), 1)                      # one indirect effect
+  testthat::expect_equal(ftab$es, .3 * .4, tolerance = tol)  # ME = a * b
+  testthat::expect_true(is.finite(ftab$n) && ftab$n >= 10)
+  testthat::expect_equal(ftab$power, .80, tolerance = 1e-6)
+
+  ## the same model entered through the medsimple interface gives the same N
+  simple <- pamlj::pamlmed(mode = "medsimple", a = .3, b = .4, cprime = .2,
+                           aim = "n", power = .80, test = "joint",
+                           table_pwbyn = FALSE, diagram = FALSE)
+  testthat::expect_equal(ftab$n, simple$powertab$asDF$n)
+})
+
+testthat::test_that("free model: two parallel mediators give one row per indirect effect", {
+  obj <- pamlj::pamlmed(mode = "medmodels",
+                        code = "m1 ~ .4*x\nm2 ~ .5*x\ny ~ .1*x + .2*m1 + .3*m2",
+                        aim = "power", n = 200, test = "joint",
+                        table_pwbyn = FALSE, diagram = FALSE)
+  tab <- obj$powertab$asDF
+  testthat::expect_equal(nrow(tab), 2)                       # x->m1->y and x->m2->y
+  testthat::expect_true(all(is.finite(tab$power)))
+  testthat::expect_true(all(tab$power > 0 & tab$power < 1))
+  ## the effect label is the variable path; the ME is the product of its edges
+  testthat::expect_true(grepl("m1", tab$effect[grepl("m1", tab$effect)]))
+  testthat::expect_true(any(abs(tab$es - .4 * .2) < tol))    # x -> m1 -> y
+  testthat::expect_true(any(abs(tab$es - .5 * .3) < tol))    # x -> m2 -> y
+})
+
+testthat::test_that("free model: cor() directive runs and fills the implied-correlations table", {
+  obj <- pamlj::pamlmed(mode = "medmodels",
+                        code = "m1 ~ .4*x\nm2 ~ .5*x\ny ~ .1*x + .2*m1 + .3*m2\ncor(m1,m2)=.3",
+                        aim = "power", n = 150, test = "joint",
+                        inspect_cors = TRUE, table_pwbyn = FALSE, diagram = FALSE)
+  testthat::expect_equal(nrow(obj$powertab$asDF), 2)
+  cors <- obj$implied_cors$asDF
+  testthat::expect_true(is.data.frame(cors))
+  testthat::expect_true(nrow(cors) >= 4)                     # x, m1, m2, y
+})
+
+testthat::test_that("free model: symbolic label + test: chooses the sensitivity coefficient (MDE)", {
+  obj <- pamlj::pamlmed(mode = "medmodels",
+                        code = "m1 ~ .4*x\nm2 ~ .5*x\ny ~ .1*x + a*.2*m1 + .3*m2\ntest: a",
+                        aim = "es", n = 200, power = .80, test = "joint",
+                        table_pwbyn = FALSE, table_pwbyes = FALSE, diagram = FALSE)
+  tab <- obj$powertab$asDF
+  testthat::expect_equal(nrow(tab), 2)
+  ## the labelled coefficient (m1 -> y) lies on x -> m1 -> y; that path is
+  ## resized to the target power, the other path is recomputed at its value
+  m1 <- tab[grepl("m1", tab$effect), ]
+  testthat::expect_equal(nrow(m1), 1)
+  testthat::expect_equal(m1$power, .80, tolerance = 1e-2)
+  testthat::expect_true(m1$a > 0 && m1$a < 1)
+})

@@ -24,7 +24,7 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             r13 = "",
             r23 = "",
             cprime2 = 0,
-            sensitivity_coef = "a1",
+            sensitivity_coef = "a",
             code = "",
             fonts = "small",
             toggle = FALSE,
@@ -152,8 +152,10 @@ pamlmedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             private$..sensitivity_coef <- jmvcore::OptionList$new(
                 "sensitivity_coef",
                 sensitivity_coef,
-                default="a1",
+                default="a",
                 options=list(
+                    "a",
+                    "b",
                     "a1",
                     "b1",
                     "a2",

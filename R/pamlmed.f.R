@@ -1,12 +1,18 @@
 #' Mediation
 #'
-#' Something here
-#' 
+#' Power analysis for simple and multiple mediation models using the Sobel test,
+#' joint-significance, or bootstrap confidence intervals.
+#'
 #' @param aim The aim of the analysis: \code{n} (default) for sample size,
 #'   \code{power} to estimate power, \code{es} for effect size (correlation)
 #' @param mode Mediation model mode: \code{"medsimple"} for simple mediation
-#'   with paths \code{a}, \code{b}, and \code{cprime}, or \code{"medcomplex"}
-#'   for multiple/serial mediator models.
+#'   with paths \code{a}, \code{b}, and \code{cprime}, \code{"medcomplex"}
+#'   for multiple/serial mediator models, or \code{"medmodels"} for a free
+#'   model specified with the model syntax (see \code{code}).
+#' @param code Character string with the model syntax used when
+#'   \code{mode="medmodels"}: one regression equation per endogenous variable
+#'   (e.g. \code{"m ~ .3*x\\ny ~ .2*x + .4*m"}), optionally with \code{cor()}
+#'   directives and symbolic coefficient labels.
 #' @param a The expected standardized effect of the independent variable on
 #'   the mediator
 #' @param b The expected standardized effect of the independent variable on
@@ -89,6 +95,8 @@
 #'   the direct X -> Y effect (\code{c} path) without mediators.
 #' @param explain Logical; if \code{TRUE}, include explanatory output where
 #'   available.
+#' @param inspect_cors Logical; if \code{TRUE} (free models), add a table of the
+#'   model-implied correlations among the variables.
 #' @param diagram Logical; if \code{TRUE}, display the mediation path diagram.
 #' @param .interface Used for internal purposes
 #' @param .caller Used for internal purposes
@@ -120,6 +128,7 @@
 pamlmed <- function(
     aim = "n",
     mode = "medsimple",
+    code = "",
     a = 0.3,
     b = 0.3,
     cprime = 0,
@@ -136,7 +145,7 @@ pamlmed <- function(
     r13 = "",
     r23 = "",
     cprime2 = 0,
-    sensitivity_coef = "a1",
+    sensitivity_coef = "a",
     power = 0.9,
     n = 100,
     sig.level = 0.05,
@@ -162,6 +171,7 @@ pamlmed <- function(
     plot_to_table = FALSE,
     test_c = FALSE,
     explain = FALSE,
+    inspect_cors = FALSE,
     diagram = TRUE) {
 
     if ( ! requireNamespace("jmvcore", quietly=TRUE))
@@ -171,10 +181,37 @@ pamlmed <- function(
       table_pwbyes=TRUE
     }
 
+    ## `sensitivity_coef` must be one of the coefficients of the chosen model
+    ## (the option is shared across all modes). In jamovi the editor restricts the
+    ## list per model; for the R interface we validate here. An incoherent value
+    ## that the user supplied explicitly is ignored (with a warning) and replaced
+    ## by the model's default; a value left at the default is set silently. Free
+    ## (medmodels) models pick the coefficient through the `test:` directive in the
+    ## syntax, so `sensitivity_coef` is not validated there.
+    valid_coef <- if (mode == "medsimple") c("a", "b")
+                  else if (mode == "medcomplex") switch(model_type,
+                        twomeds   = c("a1", "a2", "b1", "b2"),
+                        threemeds = c("a1", "a2", "a3", "b1", "b2", "b3"),
+                        twoserial = c("a1", "a2", "b1", "b2", "d1"),
+                        character(0))
+                  else NULL
+    if (!is.null(valid_coef) && length(valid_coef) > 0) {
+        if (missing(sensitivity_coef)) {
+            sensitivity_coef <- valid_coef[1]
+        } else if ( ! sensitivity_coef %in% valid_coef) {
+            warning("sensitivity_coef '", sensitivity_coef, "' is not a coefficient of mode '",
+                    mode, if (mode == "medcomplex") paste0("' / model_type '", model_type),
+                    "'. Ignoring it and using '", valid_coef[1], "' instead. Valid coefficients: ",
+                    paste(valid_coef, collapse = ", "), ".")
+            sensitivity_coef <- valid_coef[1]
+        }
+    }
+
 
     options <- pamlmedOptions$new(
         aim = aim,
         mode = mode,
+        code = code,
         a = a,
         b = b,
         cprime = cprime,
@@ -217,6 +254,7 @@ pamlmed <- function(
         plot_to_table = plot_to_table,
         test_c = test_c,
         explain = explain,
+        inspect_cors = inspect_cors,
         diagram = diagram,
         .interface = "R",
         .caller = "mediation")

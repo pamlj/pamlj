@@ -178,8 +178,12 @@ options:
     - name: sensitivity_coef
       title: Coefficient to vary
       type: List
-      default: a1
+      default: a
       options:
+        - name: a
+          title: a
+        - name: b
+          title: b
         - name: a1
           title: a1
         - name: b1

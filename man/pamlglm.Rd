@@ -143,5 +143,6 @@ Tables can be converted to data frames with \code{asDF} or
 \code{as.data.frame(results$powertab)}
 }
 \description{
-Something here
+Power analysis for regression, ANOVA, and ANCOVA models using standardized
+coefficients, partial eta-squared, or eta-squared effect sizes.
 }

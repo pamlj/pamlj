@@ -201,6 +201,7 @@ children:
     children:
       - type: Label
         label: Minimum detectable effect
+        name: mde_section
         children:
           - type: ComboBox
             name: sensitivity_coef
