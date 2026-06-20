@@ -21,7 +21,7 @@ Runner <- R6::R6Class("Runner",
                                
                                
                                  ## some commands are run only if the run button is pressed
-                                 if ((self$ok && self$options$.interface=="jamovi") && ("run" %in% names(self$options))) {
+                                 if ((self$ok && self$options$.interface=="jamovi") && ("hardrun" %in% names(self$options))) {
                                    if (!self$option("run")) {
                                      self$ok<-FALSE
                                      self$warning<-list(topic="issues",
@@ -192,6 +192,16 @@ Runner <- R6::R6Class("Runner",
                                 tab$variable<-names(tab)
                                 tab
                                 
+                              },
+                              run_implied_cors= function() {
+
+                                jinfo("PAMLj: implied correlations run")
+                                Sig <- self$info$Sigma
+                                if (is.null(Sig)) return()
+                                tab <- as.data.frame(round(Sig, digits = 3))
+                                tab$variable <- rownames(Sig)
+                                return(tab)
+
                               },
                               run_structure_showdata2=function() {
                                 showdata2(self)

@@ -1,4 +1,6 @@
 # History files
+.claude*
+.codex*
 .Rhistory
 .Rapp.history
 .Rhistor*
@@ -42,4 +44,3 @@ vignettes/*.pdf
 # docs sources
 inst/doc
 .positai
-jamovi/js/node_modules/

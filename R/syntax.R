@@ -375,29 +375,53 @@ get_other_lines <- function(syntax) {
 
 
 digest_other_lines <- function(lines) {
-  
+
   if (!exists("SYNTAX_CMD") || is.null(SYNTAX_CMD)) return()
   results<-list()
   for (l in lines) {
     t <- extract_prefix(l,SYNTAX_CMD)
-    if (is.something(t)) ladd(results[[t$keyword]])<- parts<-  gsub("\\s+", "", t$value, perl = TRUE)
+    if (is.something(t)) {
+      value <- gsub("\\s+", "", t$value, perl = TRUE)
+      ## a plain command keeps the previous shape (the value string, appended);
+      ## a command WITH arguments stores args + value together so callers can
+      ## tell e.g. `cor(m1,m2):.30` apart from a simple `test:b`.
+      if (is.null(t$args))
+          ladd(results[[t$keyword]]) <- value
+      else
+          ladd(results[[t$keyword]]) <- list(args = t$args, value = value)
     }
+  }
   return(results)
 }
 
+## Parse one "command line" of the form
+##     keyword : value                 e.g.  test: b      test = a    expand: cluster
+##     keyword(arg1, arg2, ...): value e.g.  cor(m1, m2): .30   cor(m1,m2) = .30
+## The separator may be ':' or '='. `keywords` is the whitelist of recognised
+## commands (SYNTAX_CMD). Returns NULL when the line is not a recognised command,
+## otherwise a list with the `keyword`, its `args` (a character vector, or NULL
+## when no parentheses were given), and the `value` (everything after the separator).
 extract_prefix <- function(s, keywords) {
-  # build regex with a capturing group for the keyword
-  rx <- paste0("^\\s*(", paste(keywords, collapse="|"), "):\\s*(.*)$")
-  
+  # keyword, an OPTIONAL (arg, arg, ...) group, then a ':' or '=' and the value
+  rx <- paste0("^\\s*(", paste(keywords, collapse="|"),
+               ")\\s*(?:\\(([^)]*)\\))?\\s*[:=]\\s*(.*)$")
+
   m <- regexec(rx, s, perl = TRUE)
   hits <- regmatches(s, m)[[1]]
-  
+
   if (length(hits) == 0)
-    return(NULL)  # no match
-  
+    return(NULL)  # no recognised command on this line
+
+  args <- NULL
+  if (nzchar(hits[3])) {                       # parentheses were present
+    args <- trimws(strsplit(hits[3], ",", fixed = TRUE)[[1]])
+    args <- args[nzchar(args)]
+  }
+
   list(
-    keyword = hits[2],   # captured keyword
-    value   = hits[3]    # remainder of string
+    keyword = hits[2],          # captured keyword
+    args    = args,             # parsed arguments, or NULL
+    value   = trimws(hits[4])   # remainder after the colon
   )
 }
 

@@ -4,8 +4,8 @@ jus: '3.0'
 stage: 0
 compilerMode: tame
 events:
-  loaded: ./mixed_editor::loaded
-  update: ./mixed_editor::update
+  loaded: ./syntax_editor::loaded
+  update: ./syntax_editor::update
 children:
   - type: LayoutBox
     stretchFactor: 1
@@ -47,7 +47,7 @@ children:
             stretchFactor: 1
             name: syntax
             events:
-              creating: ./mixed_editor::editor_creating
+              creating: ./syntax_editor::editor_creating
       - type: Label
         label: Additional Parameters
         name: add_params

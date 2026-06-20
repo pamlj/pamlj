@@ -1,0 +1,285 @@
+---
+title: "Free mediation models with pamlj"
+author: "Marcello Gallucci"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Free mediation models with pamlj}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>"
+)
+library(pamlj)
+```
+
+The jamovi module `pamlj` offers three ways to set up a mediation power
+analysis: the **simple** model (3 variables), the **complex** templates
+(two/three parallel mediators, serial mediation) and the **free** interface,
+which lets you describe _any_ recursive mediation model by typing its equations
+in a model syntax. This vignette shows how to use the free interface from R, via
+`pamlj::pamlmed()` with `mode = "medmodels"`.
+
+The free interface is useful when your model does not match one of the
+predefined templates: several independent variables, an arbitrary number of
+mediators, serial and parallel pathways combined, and so on. From the equations,
+`pamlj` builds the path model, finds every indirect (mediated) effect, and
+computes the power parameters for each of them.
+
+In R, the model is passed as a single string to the `code` argument (one
+equation per line, separated by `\n`). Every other argument — `aim`, `n`,
+`power`, `test`, `sig.level`, … — works as in the other mediation modes. The
+results table is returned in `obj$powertab$asDF`.
+
+# Model syntax
+
+The model is described with one regression equation per _endogenous_ variable
+(every variable that is predicted by others), written in the familiar
+`lm()`/`lavaan` style. The classical simple mediation reads:
+
+```{r}
+res <- pamlj::pamlmed(
+  mode  = "medmodels",
+  code  = "m ~ .3*x
+           y ~ .2*x + .4*m",
+  aim   = "n",
+  power = .80,
+  test  = "joint"
+)
+res$powertab$asDF
+```
+
+Each line reads as _outcome `~` predictors_. Here `x` predicts the mediator `m`
+with a standardized coefficient of `.3`, and `y` is predicted by both `x`
+(direct effect `c' = .2`) and `m` (`b = .4`). The mediated effect `x → m → y`
+is the product of the path coefficients, `.3 * .4 = .12` (the `es` / `ME`
+column), and the table reports the sample size required to detect it with power
+`.80`.
+
+A few rules apply to the syntax:
+
+* **Every predictor needs a numeric coefficient**, passed as `value*variable`
+  (e.g. `.4*m`). Coefficients are completely standardized path coefficients and
+  their absolute value must lie between `.001` and `.99`.
+* **One equation per outcome.** A variable can appear on the left-hand side of
+  at most one equation; list all its predictors on that single line.
+* **No intercepts, interactions or categorical terms.** The model works on
+  standardized coefficients between single variables, so intercept tokens (`1`)
+  are ignored and interaction (`x:z`) or categorical (`[...]`) terms are not
+  allowed.
+* **The model must be a proper mediation model**: it has to be _recursive_ (no
+  feedback loops) and contain at least one indirect path (a variable that is
+  both an outcome and a predictor). If these conditions are not met, the
+  function reports what is missing instead of running.
+
+# Indirect effects
+
+`pamlj` automatically enumerates every indirect effect in the model — each
+simple directed path of at least two edges that runs from an exogenous variable
+(a _source_, never predicted by others) to a final outcome (a _sink_, that
+predicts nothing). Each such effect becomes one row of the results table,
+labelled with its path in the `effect` column.
+
+A model with two parallel mediators therefore yields two indirect effects:
+
+```{r}
+res <- pamlj::pamlmed(
+  mode  = "medmodels",
+  code  = "m1 ~ .4*x
+           m2 ~ .5*x
+           y  ~ .1*x + .2*m1 + .3*m2",
+  aim   = "power",
+  n     = 200,
+  test  = "joint"
+)
+res$powertab$asDF[, c("effect", "a", "b", "es", "power")]
+```
+
+For every indirect effect the table reports the first path coefficient (`a`),
+the remainder of the product (`b`), the mediated effect size `es` (`ME`, the
+product of all coefficients along the path) and the requested quantity (here the
+`power` at `n = 200`).
+
+The power of each indirect effect depends on the test selected. With the joint
+significance test (Yzerbyt et al., 2018), two effects that share their weakest
+path can require the same sample size even when their other coefficients differ,
+because the shared (weaker) coefficient drives the power.
+
+# Correlated variables
+
+Variables can be correlated with the `cor()` directive, written on its own line.
+The most common use is two _parallel mediators_ whose residuals are correlated:
+
+```{r}
+res <- pamlj::pamlmed(
+  mode  = "medmodels",
+  code  = "m1 ~ .4*x
+           m2 ~ .5*x
+           y  ~ .1*x + .2*m1 + .3*m2
+           cor(m1,m2) = .3",
+  aim   = "power",
+  n     = 200,
+  test  = "joint",
+  inspect_cors = TRUE
+)
+res$powertab$asDF[, c("effect", "es", "power")]
+```
+
+`cor(m1,m2) = .3` sets the correlation between `m1` and `m2` to `.3`, following
+the `lavaan` convention `m1 ~~ .3*m2`. The separator can be either `:` or `=`,
+so `cor(m1,m2):.3` is equivalent. Several `cor()` lines can be specified. If the
+requested correlations imply an impossible (non positive-definite) covariance
+matrix, the function reports it.
+
+Setting `inspect_cors = TRUE` adds a table of the model-implied correlations
+among all variables, which is handy to check what actually entered the model:
+
+```{r}
+res$implied_cors$asDF
+```
+
+# Minimum detectable effect and sensitivity analysis
+
+When `aim = "es"`, `pamlj` solves for the **minimum detectable effect** (MDE):
+given a fixed sample size and the desired power, it finds the smallest indirect
+effect the design can detect. Because a mediated effect is a _product_ of path
+coefficients, the answer depends on _which_ coefficient is allowed to change
+while the others stay fixed.
+
+## Choosing the coefficient to vary
+
+By default, `pamlj` works on each indirect effect separately and resizes its
+**first edge** (the path leaving the independent variable, the `a` path). This
+needs no extra input — just set `aim = "es"`:
+
+```{r}
+res <- pamlj::pamlmed(
+  mode  = "medmodels",
+  code  = "m1 ~ .4*x
+           m2 ~ .5*x
+           y  ~ .1*x + .2*m1 + .3*m2",
+  aim   = "es",
+  n     = 250,
+  power = .80,
+  test  = "joint"
+)
+res$powertab$asDF[, c("effect", "a", "b", "es", "power")]
+```
+
+To target a _specific_ coefficient instead — for instance the `b` path of a
+mediator, or a coefficient shared by several indirect effects — give it a
+**symbolic label** in the syntax and select it with the `test:` directive. A
+label is a letter placed before the value, written `label*value*variable`:
+
+```{r}
+res <- pamlj::pamlmed(
+  mode  = "medmodels",
+  code  = "m1 ~ .4*x
+           m2 ~ .5*x
+           y  ~ .1*x + a*.2*m1 + .3*m2
+           test: a",
+  aim   = "es",
+  n     = 250,
+  power = .80,
+  test  = "joint"
+)
+res$powertab$asDF[, c("effect", "a", "b", "es", "power")]
+```
+
+Here the coefficient of `m1 → y` is labelled `a`, and `test: a` (equivalently
+`test = a`) tells `pamlj` to find the minimum detectable effect by resizing
+_that_ coefficient. If the label is not defined, or the labelled coefficient is
+not part of any indirect effect, the analysis falls back to the per-effect
+default.
+
+## How the search works
+
+`pamlj` resizes the selected coefficient — keeping every other coefficient at
+its specified value — until the power of the indirect effect(s) that travel
+_through_ that coefficient reaches the desired level. When the coefficient lies
+on more than one indirect path (a shared edge), the search drives the
+**weakest** of those effects to the target, so that every affected effect
+reaches _at least_ the requested power. Effects that do not pass through the
+coefficient are left unchanged.
+
+### The balanced solution
+
+Resizing a single coefficient cannot always reach the requested power. The power
+of an indirect effect, seen as a function of one of its coefficients, is
+_unimodal_: it rises, reaches a peak, then falls back as the coefficient
+approaches 1 (the mediator becomes collinear with its predictor and the other
+coefficients' standard errors explode). The other coefficients on the path
+therefore **cap** the achievable power: if the requested power sits above that
+peak, no value of the single coefficient can deliver it.
+
+When this happens, `pamlj` switches to a **balanced solution**: instead of
+moving one coefficient, it grows _all_ the coefficients of the path together to
+a common value, which removes the bottleneck and can reach any power below 1.
+A message explains what happened, and the solution is recognisable in the table
+because the `a` and `b` columns of an affected effect become equal (every edge
+on the path is set to the same value):
+
+```{r}
+res <- pamlj::pamlmed(
+  mode  = "medmodels",
+  code  = "m1 ~ .4*x
+           m2 ~ .5*x
+           y  ~ .1*x + .2*m1 + .3*m2",
+  aim   = "es",
+  n     = 100,
+  power = .90,
+  test  = "joint"
+)
+res$powertab$asDF[, c("effect", "a", "b", "es", "power")]
+```
+
+If even the balanced solution cannot reach the target at the given sample size,
+the table reports the _largest_ detectable effect together with the maximum
+power it yields, and suggests increasing the sample size. In practice the
+balanced solution is most useful as a feasibility check: when it appears, the
+chosen sample size is too small for the requested power _whatever single
+coefficient you adjust_, and the common value shows how large every path would
+have to be to make the design work.
+
+# Tests
+
+The free interface supports the same tests as the other mediation models, set
+with the `test` argument:
+
+* `"joint"` — joint significance (Yzerbyt et al., 2018), the default and
+  recommended method;
+* `"sobel"` — the Sobel test (Sobel, 1982);
+* `"parametric"` / `"simulation"` — the Monte Carlo confidence-interval methods
+  (MacKinnon, Lockwood & Williams, 2004). The number of simulations is set with
+  `mcR`, and `set_seed = TRUE` with `seed = <n>` makes the result reproducible.
+
+```{r}
+res <- pamlj::pamlmed(
+  mode  = "medmodels",
+  code  = "m1 ~ .4*x
+           m2 ~ .5*x
+           y  ~ .1*x + .2*m1 + .3*m2",
+  aim   = "power",
+  n     = 200,
+  test  = "sobel"
+)
+res$powertab$asDF[, c("effect", "es", "power")]
+```
+
+# References
+
+Yzerbyt, V., Muller, D., Batailler, C., & Judd, C. M. (2018). New
+recommendations for testing indirect effects in mediational models: The need to
+report and test component paths. *Journal of Personality and Social
+Psychology*, 115(6), 929–943.
+
+Sobel, M. E. (1982). Asymptotic confidence intervals for indirect effects in
+structural equation models. *Sociological Methodology*, 13, 290–312.
+
+MacKinnon, D. P., Lockwood, C. M., & Williams, J. (2004). Confidence limits for
+the indirect effect: Distribution of the product and resampling methods.
+*Multivariate Behavioral Research*, 39(1), 99–128.

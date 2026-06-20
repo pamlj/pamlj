@@ -7,6 +7,7 @@
 pamlmed(
   aim = "n",
   mode = "medsimple",
+  code = "",
   a = 0.3,
   b = 0.3,
   cprime = 0,
@@ -23,16 +24,18 @@ pamlmed(
   r13 = "",
   r23 = "",
   cprime2 = 0,
+  sensitivity_coef = "a",
   power = 0.9,
   n = 100,
   sig.level = 0.05,
   alternative = "two.sided",
-  test = "sobel",
+  test = "joint",
   mcR = 1000,
   parallel = FALSE,
   set_seed = FALSE,
   seed = 42,
   table_pwbyn = TRUE,
+  table_pwbyes = FALSE,
   plot_ncurve = FALSE,
   plot_log = FALSE,
   plot_palette = "viridis",
@@ -47,6 +50,7 @@ pamlmed(
   plot_to_table = FALSE,
   test_c = FALSE,
   explain = FALSE,
+  inspect_cors = FALSE,
   diagram = TRUE
 )
 }
@@ -55,8 +59,14 @@ pamlmed(
 \code{power} to estimate power, \code{es} for effect size (correlation)}
 
 \item{mode}{Mediation model mode: \code{"medsimple"} for simple mediation
-with paths \code{a}, \code{b}, and \code{cprime}, or \code{"medcomplex"}
-for multiple/serial mediator models.}
+with paths \code{a}, \code{b}, and \code{cprime}, \code{"medcomplex"}
+for multiple/serial mediator models, or \code{"medmodels"} for a free
+model specified with the model syntax (see \code{code}).}
+
+\item{code}{Character string with the model syntax used when
+\code{mode="medmodels"}: one regression equation per endogenous variable
+(e.g. \code{"m ~ .3*x\\ny ~ .2*x + .4*m"}), optionally with \code{cor()}
+directives and symbolic coefficient labels.}
 
 \item{a}{The expected standardized effect of the independent variable on
 the mediator}
@@ -108,6 +118,10 @@ mediator 1}
 \item{cprime2}{The expected standardized effect of the independent variable
 on the mediator}
 
+\item{sensitivity_coef}{For complex mediation models with the effect-size
+aim, the path coefficient (\code{"a1"}, \code{"b1"}, \code{"d1"}, ...) that
+is resized to find the minimum detectable indirect effect.}
+
 \item{power}{Minimal desired power}
 
 \item{n}{Sample size}
@@ -118,10 +132,11 @@ on the mediator}
 \code{"one.sided"}.}
 
 \item{test}{Mediation test method: \code{"sobel"}, \code{"joint"} for
-joint-significance, or \code{"mc"} for Monte Carlo simulation.}
+joint-significance, or the Monte Carlo confidence-interval methods
+\code{"parametric"} and \code{"simulation"} (both approximate bootstrap-CI
+power for the indirect effect).}
 
-\item{mcR}{Number of simulation replications used by the Monte Carlo and
-simulation-based joint methods.}
+\item{mcR}{Number of simulated studies used by the Monte Carlo CI methods.}
 
 \item{parallel}{Logical; if \code{TRUE}, use parallel computation for
 simulation-based methods when available.}
@@ -133,6 +148,10 @@ make simulations reproducible.}
 
 \item{table_pwbyn}{Logical; if \code{TRUE}, produce the "Power by Sample
 size" table.}
+
+\item{table_pwbyes}{Logical; if \code{TRUE}, produce the "Power by Effect
+Size" table: the indirect effect and the value of the varied coefficient
+reaching power .5/.8/.95 at the analysis sample size.}
 
 \item{plot_ncurve}{Logical; if \code{TRUE}, produce the power-by-\code{n}
 curve.}
@@ -173,6 +192,9 @@ the direct X -> Y effect (\code{c} path) without mediators.}
 \item{explain}{Logical; if \code{TRUE}, include explanatory output where
 available.}
 
+\item{inspect_cors}{Logical; if \code{TRUE} (free models), add a table of the
+model-implied correlations among the variables.}
+
 \item{diagram}{Logical; if \code{TRUE}, display the mediation path diagram.}
 
 \item{.interface}{Used for internal purposes}
@@ -205,5 +227,6 @@ Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.f
 \code{as.data.frame(results$powertab)}
 }
 \description{
-Something here
+Power analysis for simple and multiple mediation models using the Sobel test,
+joint-significance, or bootstrap confidence intervals.
 }

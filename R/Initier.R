@@ -155,9 +155,15 @@ Initer <- R6::R6Class(
       
     },
       init_implied_betas= function() {
-        
+
         return(list(list(variable=".")))
-      
+
+    },
+      init_implied_cors= function() {
+
+        ## placeholder row; the value columns are added at run from obj$info$Sigma
+        return(list(list(variable=".")))
+
     },
   
   init_structure_showdata4=function(){

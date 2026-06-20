@@ -8,7 +8,7 @@ export: false
 completeWhenFilled: false
 description:
     main: |
-           Power analysis for simple and multiple mediation models using the Sobel test, joint-significance, or Monte Carlo simulation.
+           Power analysis for simple and multiple mediation models using the Sobel test, joint-significance, or bootstrap confidence intervals.
 
 options:
 
@@ -39,6 +39,9 @@ options:
               title: Simple (3 variables)
             - name: medcomplex
               title: Complex (multiple mediators)
+            - name: medmodels
+              title: Free (model syntax)
+              
       default: medsimple
 
 ## mode simple
@@ -165,14 +168,63 @@ options:
                         The expected standardized effect of the independent variable on mediator 1
 
     - name: cprime2
-      title: X to Y (c') 
+      title: X to Y (c')
       type:  Number
       default: 0
       description:
                 R: |
                         The expected standardized effect of the independent variable on the mediator
 
+    - name: sensitivity_coef
+      title: Coefficient to vary
+      type: List
+      default: a
+      options:
+        - name: a
+          title: a
+        - name: b
+          title: b
+        - name: a1
+          title: a1
+        - name: b1
+          title: b1
+        - name: a2
+          title: a2
+        - name: b2
+          title: b2
+        - name: a3
+          title: a3
+        - name: b3
+          title: b3
+        - name: d1
+          title: d1
+        - name: d2
+          title: d2
+      description:
+                R: |
+                        For complex mediation models, the coefficient that is resized to find the minimum detectable indirect effect (effect-size aim).
 
+### mode formulas
+    - name: code
+      type: String
+      hidden: true
+      default: ""
+      
+    - name: fonts
+      type: String
+      default: "small"
+      hidden: true
+
+    - name: toggle
+      type: Bool
+      default: false
+      hidden: true
+
+    - name: run
+      type: Action   
+      hidden: true
+
+### end of modes
 
     - name: power
       title: Minimal desired power 
@@ -209,14 +261,16 @@ options:
 
     -   name: test
         type: List
-        default: sobel
+        default: joint
         options:
         -       name: joint
                 title: Joint Significance
         -       name: sobel
                 title: Sobel
-        -       name: mc
-                title: Monte Carlo (slow)
+        -       name: parametric
+                title: Bootstrap CI (Parametric)
+        -       name: simulation
+                title: Bootstrap CI (Simulation)
 
     -   name: mcR
         title: Number of simulations
@@ -242,6 +296,11 @@ options:
         title: Power quantiles by N
         type: Bool
         default: true
+
+    -   name: table_pwbyes
+        title: Power by effect size
+        type: Bool
+        default: false
 
 
     - name: plot_ncurve
@@ -361,6 +420,11 @@ options:
       title: "Path diagram"
       default: true
 
+    - name: inspect_cors
+      type: Bool
+      title: "Implied correlations"
+      default: false
+
     - name: .interface
       type: String
       default: jamovi
@@ -379,4 +443,3 @@ options:
 
 
 ...
-
