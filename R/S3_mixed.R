@@ -1058,3 +1058,187 @@ standardize_between <- function(data, x, cluster) {
             for (var in model$variable_info) ladd(tab)<-list(info="Variables:",value=var$name,specs=var$type  )
             tab
 }
+
+
+## ============================================================================
+##  .mixed_from_fit() : inverts the syntax -> simr::makeLmer/makeGlmer mapping
+##  used by pamlmixed_makemodel(), turning a FITTED lme4 model back into the
+##  arguments pamlmixed() accepts (syntax, clusterpars, categorical, sigma2,
+##  model_type). Lets `pamlmixed(model = fit, ...)` run a power analysis for
+##  the design actually observed in a pilot / previous lmer()/glmer() fit.
+##
+##  Coefficients are embedded as literal numbers in the generated syntax, so
+##  they must round-trip through the `value*var` / `[v1,v2]*var` grammar
+##  (R/syntax.R): negative single-value terms carry their own leading "-" (no
+##  separate "+" before it -- "+-1.4*x" mis-parses, see .get_terms_signs()),
+##  while bracket (categorical) terms always use a "+" term-sign and keep the
+##  true signed values inside the brackets, where they are protected from
+##  being read as term separators.
+## ============================================================================
+
+.mixed_fmt_num <- function(x) formatC(x, digits = 6, format = "f")
+
+## raw variable name(s) composing a term label (main effect or interaction)
+.mixed_term_vars <- function(term) {
+  if (identical(term, "1")) return(character(0))
+  trimws(strsplit(term, ":", fixed = TRUE)[[1]])
+}
+
+.mixed_from_fit <- function(model) {
+
+  if (!inherits(model, "merMod"))
+    stop("`model` must be a fitted lme4 model (lmer() or glmer()).")
+
+  warnings <- character(0)
+
+  ## ---- model type / residual variance -------------------------------------
+  if (lme4::isLMM(model)) {
+    model_type <- "linear"
+    sigma2 <- stats::sigma(model)^2
+  } else if (lme4::isGLMM(model)) {
+    fam <- stats::family(model)$family
+    if (!identical(fam, "binomial"))
+      stop("Only linear (lmer) and binomial (glmer) mixed models can be extracted; ",
+           "family '", fam, "' is not supported.")
+    model_type <- "logistic"
+    sigma2 <- 1
+  } else {
+    stop("Unsupported model: only linear mixed models (lmer) and binomial ",
+         "generalized linear mixed models (glmer) are supported.")
+  }
+
+  ## ---- response name: an arbitrary placeholder is fine, pamlj regenerates
+  ## the data from scratch (.make_data()) and never reads the original values;
+  ## a matrix response (e.g. cbind(succ, fail) for binomial) is not a valid
+  ## identifier, so fall back to a generic name in that case.
+  resp_expr <- as.character(stats::formula(model))[2]
+  lhs <- if (grepl("^[A-Za-z.][A-Za-z0-9._]*$", resp_expr)) resp_expr else "y"
+
+  ## ---- fixed-effect design: group model-matrix columns by model term -------
+  X    <- lme4::getME(model, "X")
+  asgn <- attr(X, "assign")
+  cn   <- colnames(X)
+  tl   <- attr(stats::terms(model), "term.labels")
+  if (!("(Intercept)" %in% cn))
+    stop("Models without an intercept are not supported.")
+
+  term_of_col <- vapply(asgn, function(a) if (a == 0) "1" else tl[a], character(1))
+  names(term_of_col) <- cn
+
+  fixef_vals <- lme4::fixef(model)
+
+  ## ---- classify predictors as continuous / categorical (excluding the
+  ## response and the grouping/cluster variables) from the model frame -------
+  mf <- stats::model.frame(model)
+  cluster_names <- names(lme4::getME(model, "flist"))
+  pred_names <- setdiff(names(mf)[-1], cluster_names)
+  pred_names <- pred_names[!grepl("^\\(", pred_names)]   # drop "(weights)" etc.
+
+  categorical <- list()
+  for (v in pred_names) {
+    col <- mf[[v]]
+    if (is.factor(col) || is.character(col))
+      categorical[[v]] <- nlevels(factor(col))
+  }
+  if (length(categorical) > 0)
+    warnings <- c(warnings, paste0(
+      "Categorical predictor(s) ", paste(names(categorical), collapse = ", "),
+      " were re-coded with sum-to-zero contrasts for the power simulation; the extracted ",
+      "coefficients come from the fitted model's own contrasts and may not align exactly ",
+      "with pamlj's contr.sum coding."))
+
+  ## ---- one syntax term per model term, in column order ---------------------
+  build_term <- function(term, vals) {
+    is_cat <- term != "1" && any(names(categorical) %in% .mixed_term_vars(term))
+    if (term == "1" || (!is_cat && length(vals) == 1)) {
+      v    <- unname(vals[[1]])
+      sign <- if (v < 0) "-" else "+"
+      paste0(sign, .mixed_fmt_num(abs(v)), "*", term)
+    } else {
+      paste0("+[", paste(.mixed_fmt_num(unname(vals)), collapse = ","), "]*", term)
+    }
+  }
+
+  ord <- unique(term_of_col[cn])   # preserve column order, one entry per term
+  fixed_parts <- vapply(ord, function(term) {
+    cols <- cn[term_of_col == term]
+    build_term(term, fixef_vals[cols])
+  }, character(1))
+
+  ## a random slope that is not also a fixed-effect term still needs to be
+  ## simulated as data -- pamlj derives the set of variables it generates from
+  ## the FIXED-effect terms (.checkdata.pamlmixed / .make_data(), R/S3_mixed.R)
+  ## -- so such variables are registered here as a zero-coefficient fixed term,
+  ## the same workaround a hand-written syntax would need.
+  covered_terms <- ord
+  build_zero_term <- function(term) {
+    is_cat <- any(names(categorical) %in% .mixed_term_vars(term))
+    if (!is_cat) return(paste0("+0*", term))
+    lv <- vapply(.mixed_term_vars(term), function(v) {
+      L <- categorical[[v]]; if (is.null(L)) 2 else L
+    }, numeric(1))
+    paste0("+[", paste(rep("0", prod(lv - 1)), collapse = ","), "]*", term)
+  }
+
+  ## ---- random effects: one bracketed block per grouping factor -------------
+  ## pamlj only simulates INDEPENDENT random effects (diagonal VarCorr), so any
+  ## estimated covariance between random terms of the same group is dropped
+  ## (with a warning); each random slope is matched back to its fixed-effect
+  ## term grouping when possible, so a factor random slope also collapses into
+  ## one bracketed term instead of one synthetic term per dummy column.
+  vc <- lme4::VarCorr(model)
+  random_blocks <- character(0)
+  extra_fixed_parts <- character(0)
+  for (g in names(vc)) {
+    mat    <- as.matrix(vc[[g]])
+    dvals  <- diag(mat)
+    dnames <- rownames(mat)
+
+    off <- mat; diag(off) <- 0
+    if (length(dvals) > 1 && any(abs(off) > 1e-6)) {
+      corr_range <- range(stats::cov2cor(mat)[upper.tri(mat)])
+      warnings <- c(warnings, paste0(
+        "Random effects for '", g, "' are correlated in the fitted model (correlation range ",
+        .mixed_fmt_num(corr_range[1]), " to ", .mixed_fmt_num(corr_range[2]),
+        "); pamlj only supports independent random effects, so the covariance was dropped."))
+    }
+
+    resolved <- vapply(dnames, function(nm) {
+      if (identical(nm, "(Intercept)")) return("1")
+      if (nm %in% names(term_of_col)) return(unname(term_of_col[nm]))
+      if (nm %in% pred_names) return(nm)
+      nm   # fallback: no match found, keep as its own synthetic term
+    }, character(1))
+
+    terms_ord <- unique(resolved)
+    block_parts <- vapply(terms_ord, function(term) {
+      vals <- dvals[resolved == term]
+      if (term == "1" || length(vals) == 1) {
+        paste0("+", .mixed_fmt_num(unname(vals[1])), "*", term)
+      } else {
+        paste0("+[", paste(.mixed_fmt_num(unname(vals)), collapse = ","), "]*", term)
+      }
+    }, character(1))
+
+    random_blocks <- c(random_blocks, paste0("(", paste(block_parts, collapse = ""), "|", g, ")"))
+
+    new_terms <- setdiff(terms_ord, covered_terms)
+    if (length(new_terms) > 0) {
+      extra_fixed_parts <- c(extra_fixed_parts, vapply(new_terms, build_zero_term, character(1)))
+      covered_terms <- union(covered_terms, new_terms)
+    }
+  }
+
+  fixed_str <- paste(c(fixed_parts, extra_fixed_parts), collapse = "")
+  syntax <- paste0(lhs, "~", fixed_str, "+", paste(random_blocks, collapse = "+"))
+
+  ## ---- clusterpars: the design actually observed in the fitted model -------
+  ## (n per cluster is the balanced approximation nobs/k for unbalanced data)
+  ks      <- lme4::ngrps(model)
+  n_total <- stats::nobs(model)
+  clusterpars <- lapply(names(ks), function(g) list(n = round(n_total / ks[[g]]), k = unname(ks[[g]])))
+  names(clusterpars) <- names(ks)
+
+  list(syntax = syntax, clusterpars = clusterpars, categorical = categorical,
+       sigma2 = sigma2, model_type = model_type, warnings = warnings)
+}

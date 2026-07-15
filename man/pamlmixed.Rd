@@ -8,6 +8,7 @@ pamlmixed(
   aim = "n",
   find = "n",
   syntax = NULL,
+  model = NULL,
   clusterpars = list(),
   categorical = list(),
   model_type = "linear",
@@ -31,6 +32,16 @@ pamlmixed(
 \item{find}{When \code{aim='n'}, indicates whether to find number of clusters \code{find='k'} or number of cases within each cluster \code{find='n'} (default).}
 
 \item{syntax}{The model to be analysed with possible options}
+
+\item{model}{A fitted \code{lme4::lmer()} or \code{lme4::glmer()} (binomial) model. When
+supplied, \code{syntax}, \code{clusterpars}, \code{categorical}, \code{sigma2} and
+\code{model_type} are extracted from it (any of these the user also passes explicitly are
+kept instead), and \code{aim} defaults to \code{"power"} for the design observed in the
+fitted model (cluster sizes/levels read off the fit). Random effects are extracted as
+independent (diagonal) variances -- any estimated covariance between random terms is
+dropped, with a warning -- and categorical predictors are re-coded with sum-to-zero
+contrasts for the simulation, which may not exactly match the fitted model's own contrasts
+(also warned). Only Gaussian and binomial mixed models are supported.}
 
 \item{clusterpars}{A named list of the form `list(cluster1=c(n=n1,k=k1))`, where `cluster1` is the name of the clustering variable
 in the model, `n1` is the expcted number of cases within each cluster, and `k1` is the expcted number of clusters. if \code{aim=n}, `n1` is

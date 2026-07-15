@@ -4,8 +4,17 @@
 #' 
 #' @param aim The aim of the analysis: \code{n} (default) sample size,
 #'   \code{power} to estimate power
-#' @param find When \code{aim='n'}, indicates whether to find number of clusters \code{find='k'} or number of cases within each cluster \code{find='n'} (default). 
+#' @param find When \code{aim='n'}, indicates whether to find number of clusters \code{find='k'} or number of cases within each cluster \code{find='n'} (default).
 #' @param syntax The model to be analysed with possible options
+#' @param model A fitted \code{lme4::lmer()} or \code{lme4::glmer()} (binomial) model. When
+#'   supplied, \code{syntax}, \code{clusterpars}, \code{categorical}, \code{sigma2} and
+#'   \code{model_type} are extracted from it (any of these the user also passes explicitly are
+#'   kept instead), and \code{aim} defaults to \code{"power"} for the design observed in the
+#'   fitted model (cluster sizes/levels read off the fit). Random effects are extracted as
+#'   independent (diagonal) variances -- any estimated covariance between random terms is
+#'   dropped, with a warning -- and categorical predictors are re-coded with sum-to-zero
+#'   contrasts for the simulation, which may not exactly match the fitted model's own contrasts
+#'   (also warned). Only Gaussian and binomial mixed models are supported.
 #' @param model_type The model type or family: `linear` (default) for linear mixed model, `logistic` for binomial logistic mixed model. 
 #' @param sigma2 Residual variance. Ignored for `model_type="logistic"`
 #' @param power Minimal desired power
@@ -46,6 +55,7 @@ pamlmixed <- function(
     aim = "n",
     find = "n",
     syntax = NULL,
+    model = NULL,
     clusterpars = list(),
     categorical = list(),    
     model_type= "linear",
@@ -64,10 +74,27 @@ pamlmixed <- function(
   
   if ( ! requireNamespace("jmvcore", quietly=TRUE))
     stop("pamlmixed requires jmvcore to be installed (restart may be required)")
-  
+
+  ## `model`: a fitted lme4 fit, extracted into the same syntax/options the
+  ## user would otherwise type by hand (see .mixed_from_fit(), R/S3_mixed.R).
+  ## Arguments the user also passed explicitly are kept; the aim defaults to
+  ## "power" (evaluated at the design observed in the fit) unless overridden.
+  if (!is.null(model)) {
+      ext <- .mixed_from_fit(model)
+      if (missing(syntax))      syntax      <- ext$syntax
+      if (missing(clusterpars)) clusterpars <- ext$clusterpars
+      if (missing(categorical)) categorical <- ext$categorical
+      if (missing(sigma2))      sigma2      <- ext$sigma2
+      if (missing(model_type))  model_type  <- ext$model_type
+      if (missing(aim))         aim         <- "power"
+      if (length(ext$warnings) > 0 && isTRUE(verbose))
+          for (w in ext$warnings) message(w)
+  }
+
   if (is.null(syntax))
-     stop("Please speficy a model with expected coefficient with the parameter `syntax`")
-  
+     stop("Please specify a model with expected coefficients with the parameter `syntax`, ",
+          "or pass a fitted lme4 model with `model`")
+
   pamlj_messages<-getOption("pamlj.messages")
   options("pamlj.messages"=verbose)
   
@@ -75,12 +102,12 @@ pamlmixed <- function(
   ## get some info to pass to   pamlmixedClass
   modelobj    <-  try_hard(syntax_digest(syntax))
   if (!isFALSE(modelobj$error)) stop("Model formula not correct:" %+% modelobj$error)
-  model <- modelobj$obj
+  synmodel <- modelobj$obj   # digested syntax model (distinct from the `model` argument: a fitted lme4 fit)
   ## check the model syntax, functions used are in S3_mixed.R
 
   ### build var_type out of defaults and categorical option (which is not in jamovi)
-  var_type<-lapply(model$varnames, function(x) list(name=x,type="continuous",levels="---"))
-  names(var_type)<-model$varnames
+  var_type<-lapply(synmodel$varnames, function(x) list(name=x,type="continuous",levels="---"))
+  names(var_type)<-synmodel$varnames
   for (x in names(categorical)) var_type[[x]]<-list(name=x,type="categorical",levels=categorical[[x]])
 
   # fix clusterpars that in jamovi has a name element
