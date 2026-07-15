@@ -111,19 +111,26 @@ children:
                 columns:
                   - name: name
                     label: Name
+                    stretchFactor: 2
                     template:
                       type: Label
-                      stretchFactor: 2
                   - name: type
                     label: Type
+                    stretchFactor: 1
                     template:
                       type: ComboBox
-                      stretchFactor: 1
                   - name: levels
                     label: Levels
+                    stretchFactor: 0.3
+                    maxWidth: 50
                     template:
                       type: TextBox
-                      stretchFactor: 1
+                      format: number
+                  - name: coding
+                    label: Coding
+                    stretchFactor: 1
+                    template:
+                      type: ComboBox
   - type: Label
     label: Parameters
     name: power_parameters

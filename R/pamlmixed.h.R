@@ -187,6 +187,21 @@ pamlmixedOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                                 "continuous")),
                         jmvcore::OptionString$new(
                             "levels",
+                            NULL),
+                        jmvcore::OptionList$new(
+                            "coding",
+                            NULL,
+                            options=list(
+                                "deviation",
+                                "simple",
+                                "dummy",
+                                "difference",
+                                "helmert",
+                                "repeated",
+                                "polynomial",
+                                "custom")),
+                        jmvcore::OptionString$new(
+                            "contrasts",
                             NULL))))
             private$..algo <- jmvcore::OptionList$new(
                 "algo",

@@ -85,8 +85,13 @@ testthat::test_that("pamlmixed(model=) extracts a factor predictor with bracket 
 
   ext <- pamlj:::.mixed_from_fit(fit)
   testthat::expect_true(grepl("\\[.*\\]\\*grp", ext$syntax))
-  testthat::expect_identical(ext$categorical, list(grp = 3L))
-  testthat::expect_true(any(grepl("re-coded with sum-to-zero contrasts", ext$warnings)))
+  testthat::expect_identical(ext$categorical$grp$levels, 3L)
+  testthat::expect_identical(ext$categorical$grp$coding, "custom")
+  ## grp has default (treatment) contrasts in the fit, so the extracted matrix
+  ## should be contr.treatment(3)
+  testthat::expect_equal(pamlj:::.mixed_decode_contrasts(ext$categorical$grp$contrasts, 3),
+                          unname(stats::contr.treatment(3)))
+  testthat::expect_true(any(grepl("exact contrast coding", ext$warnings)))
 
   ## the extracted grp coding is unbalanced across the 18-cluster / 10-cases-per-
   ## cluster design read from the fit, which legitimately triggers pamlj's
@@ -130,6 +135,46 @@ testthat::test_that("pamlmixed(model=) honours explicit user overrides", {
   res <- pamlj::pamlmixed(model = fit, aim = "n", find = "n", sigma2 = 999, power = .8,
                            mcR = 60, set_seed = TRUE, seed = 1, verbose = FALSE)
   testthat::expect_true(is.data.frame(res$powertab$asDF))
+})
+
+
+testthat::test_that("categorical= supports named coding schemes and custom contrast matrices", {
+  m <- "y~1*1+[.3,-.2]*grp+(1*1|cluster)"
+  cl <- list(cluster = c(n = 10, k = 20))
+
+  ## every named scheme runs and yields a k-1 = 2 coefficient design (no error)
+  for (coding in c("deviation", "simple", "dummy", "difference", "helmert", "repeated", "polynomial")) {
+    res <- suppressWarnings(pamlj::pamlmixed(
+      aim = "power", syntax = m, clusterpars = cl,
+      categorical = list(grp = list(levels = 3, coding = coding)),
+      algo = "raw", verbose = FALSE))
+    testthat::expect_true(is.finite(res$powertab$asDF$power), info = coding)
+  }
+
+  ## bare level count (backward-compatible shorthand) is equivalent to explicit "deviation"
+  res_short <- suppressWarnings(pamlj::pamlmixed(
+    aim = "power", syntax = m, clusterpars = cl, categorical = list(grp = 3),
+    algo = "raw", verbose = FALSE))
+  res_dev <- suppressWarnings(pamlj::pamlmixed(
+    aim = "power", syntax = m, clusterpars = cl,
+    categorical = list(grp = list(levels = 3, coding = "deviation")),
+    algo = "raw", verbose = FALSE))
+  testthat::expect_equal(res_short$powertab$asDF$power, res_dev$powertab$asDF$power)
+
+  ## an explicit custom contrast matrix (here, contr.sum) matches "deviation"
+  res_custom <- suppressWarnings(pamlj::pamlmixed(
+    aim = "power", syntax = m, clusterpars = cl,
+    categorical = list(grp = list(levels = 3, coding = "custom", contrasts = contr.sum(3))),
+    algo = "raw", verbose = FALSE))
+  testthat::expect_equal(res_custom$powertab$asDF$power, res_dev$powertab$asDF$power)
+
+  ## "custom" without a matrix fails validation (surfaced as NA results, per this
+  ## engine's convention of turning checkdata errors into warnings + empty tables)
+  res_bad <- suppressWarnings(pamlj::pamlmixed(
+    aim = "power", syntax = m, clusterpars = cl,
+    categorical = list(grp = list(levels = 3, coding = "custom")),
+    algo = "raw", verbose = FALSE))
+  testthat::expect_true(is.na(res_bad$powertab$asDF$power))
 })
 
 

@@ -12,9 +12,10 @@
 #'   kept instead), and \code{aim} defaults to \code{"power"} for the design observed in the
 #'   fitted model (cluster sizes/levels read off the fit). Random effects are extracted as
 #'   independent (diagonal) variances -- any estimated covariance between random terms is
-#'   dropped, with a warning -- and categorical predictors are re-coded with sum-to-zero
-#'   contrasts for the simulation, which may not exactly match the fitted model's own contrasts
-#'   (also warned). Only Gaussian and binomial mixed models are supported.
+#'   dropped, with a warning -- and categorical predictors are simulated with the exact contrast
+#'   coding read off the fitted model's own data.frame (see \code{categorical}'s `coding="custom"`
+#'   below), so the extracted fixed-effect coefficients remain correctly interpretable. Only
+#'   Gaussian and binomial mixed models are supported.
 #' @param model_type The model type or family: `linear` (default) for linear mixed model, `logistic` for binomial logistic mixed model. 
 #' @param sigma2 Residual variance. Ignored for `model_type="logistic"`
 #' @param power Minimal desired power
@@ -27,8 +28,15 @@
 #' @param clusterpars A named list of the form `list(cluster1=c(n=n1,k=k1))`, where `cluster1` is the name of the clustering variable
 #' in the model, `n1` is the expcted number of cases within each cluster, and `k1` is the expcted number of clusters. if \code{aim=n}, `n1` is
 #' used as starting point for sample size. If \code{aim=clusters}, `k1` is used as starting point for number of clusters.
-#' @param categorical A named list of the form `list(varname1=x1,varname2=x2)`, specifying which variable is categorical and the number of levels (x). 
-#'   Any variable in the model not mentioned in `categorical ` is assumed to be numeric.
+#' @param categorical A named list specifying which variable is categorical. Each entry can be
+#'   either a bare number of levels, `list(varname=x)`, which uses `deviation` (sum-to-zero)
+#'   coding, or `list(varname=list(levels=x, coding=c))`, which additionally selects a contrast
+#'   coding scheme `c`: `deviation` (default), `simple`, `dummy`, `difference`, `helmert`,
+#'   `repeated`, or `polynomial`. `coding="custom"` together with `contrasts=<matrix>` (an x by
+#'   x-1 numeric contrast matrix, e.g. as returned by `contr.sum()`/`contr.treatment()`/etc.)
+#'   assigns that matrix verbatim; this is how `model=` extracts a fitted model's own coding, and
+#'   can also be supplied directly. Any variable in the model not mentioned in `categorical` is
+#'   assumed to be numeric.
 #' @param seed the seed for Monte Carlo simulations, default=42.
 #' @param run TRUE (default) run the simulations, otherwise print out the model without results
 #' @param verbose (Boolean) `getOption("pamlj.messages")` (default). Print out updates of the simulation steps. 
@@ -108,7 +116,23 @@ pamlmixed <- function(
   ### build var_type out of defaults and categorical option (which is not in jamovi)
   var_type<-lapply(synmodel$varnames, function(x) list(name=x,type="continuous",levels="---"))
   names(var_type)<-synmodel$varnames
-  for (x in names(categorical)) var_type[[x]]<-list(name=x,type="categorical",levels=categorical[[x]])
+  ## categorical[[x]] is either a bare level count (backward-compatible shorthand,
+  ## defaults to "deviation" coding) or list(levels=, coding=, contrasts=) for an
+  ## explicit coding scheme / a verbatim custom contrast matrix (see .mixed_from_fit()
+  ## and .mixed_contrast_matrix(), R/S3_mixed.R)
+  for (x in names(categorical)) {
+    cx <- categorical[[x]]
+    if (is.list(cx)) {
+      contr <- cx$contrasts
+      if (!is.null(contr) && is.matrix(contr)) contr <- .mixed_encode_contrasts(contr)
+      var_type[[x]]<-list(name=x, type="categorical", levels=as.character(cx$levels),
+                           coding=if (is.null(cx$coding)) "deviation" else cx$coding,
+                           contrasts=if (is.null(contr)) "" else contr)
+    } else {
+      var_type[[x]]<-list(name=x, type="categorical", levels=as.character(cx),
+                           coding="deviation", contrasts="")
+    }
+  }
 
   # fix clusterpars that in jamovi has a name element
   try_hard(

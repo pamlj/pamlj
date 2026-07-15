@@ -2,7 +2,7 @@ var fun=require('./functions');
 
 const events = {
 
- 
+
  aim_changed: function(ui) {
  
   fixclusters(ui, ui.clusterpars.value());  
@@ -36,7 +36,7 @@ const events = {
     var newclusters = computeRandomClusters(str, clusters);
     ui.clusterpars.setValue(newclusters);
     if (newclusters.length > 0)
-        fixclusters(ui, newclusters);   // keep your existing helper
+        fixclusters(ui, newclusters);   // keep  existing helper
 
     // --- FIXED EFFECT VARIABLES PART ----------------------------
     var newvartype = computeVarTypes(str, vartype);
@@ -44,19 +44,28 @@ const events = {
 },
 
  var_type_changed: function(ui) {
-   
+
     console.log("var_type_changed");
-    var vartype =  utils.clone(ui.var_type.value(), []);  
+    var vartype =  utils.clone(ui.var_type.value(), []);
 
     var found = false;
     var newvartype = vartype.map(item => {
-    
+
       if (item.type === "categorical" && item.levels === "---") {
           item.levels = "?"
           found=true;
       }
+      if (item.type === "categorical" && item.coding == "custom") {
+          item.coding = "deviation";
+          found=true;
+      }
+
       if (item.type === "continuous" && item.levels !== "---") {
           item.levels = "---"
+          found=true;
+      }
+      if (item.type === "continuous" && item.coding !== "custom") {
+          item.coding = "custom";
           found=true;
       }
       return(item)

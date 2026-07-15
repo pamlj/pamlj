@@ -10,6 +10,7 @@
       syntaxobj<-try_hard(syntax_digest(obj$options$code))
       if (!isFALSE(syntaxobj$error)) obj$stop("Model formula not correct: " %+% syntaxobj$error)
       model<-syntaxobj$obj
+      mark(model)
       if (is.null(model$terms)) {
           obj$warning<-list(topic="issues",message="Please insert a mixed model in the syntax", head="info")
           obj$ok<-FALSE
@@ -154,7 +155,6 @@
       obj$info$test <- obj$options$test
       obj$info$model  <- model
      
-#      dat<-.make_data(obj,k=100)
       jinfo("Checking data for pamlmixed done")
 }
 
@@ -486,7 +486,7 @@
   ### at this point, we can factor the categorical variables and give them a contrast
     for (x in cats) {
       data[[x$name]]<-factor(data[[x$name]])
-      contrasts(data[[x$name]])<-contr.sum(x$levels)
+      contrasts(data[[x$name]])<-.mixed_contrast_matrix(x$coding, x$levels, x$contrasts)
     }
   } ### end of factors
   
@@ -1084,9 +1084,76 @@ standardize_between <- function(data, x, cluster) {
   trimws(strsplit(term, ":", fixed = TRUE)[[1]])
 }
 
+## ---- factor contrast coding -----------------------------------------------
+## Named coding schemes selectable via var_type$coding (jamovi UI) or
+## categorical=list(var=list(levels=,coding=)) (R). Every scheme below produces
+## a k x (k-1) matrix, matching what check_coefs_length() already assumes for
+## a k-level categorical term regardless of coding.
+.mixed_named_contrasts <- function(coding, k) {
+  switch(coding,
+    dummy      = stats::contr.treatment(k),
+    simple     = stats::contr.treatment(k) - 1 / k,
+    deviation  = stats::contr.sum(k),
+    difference = MASS::contr.sdif(k),
+    helmert    = stats::contr.helmert(k),
+    repeated   = .mixed_contr_repeated(k),
+    polynomial = stats::contr.poly(k),
+    stats::contr.sum(k)   ## fallback for "" / NULL / unrecognized: prior hardcoded default
+  )
+}
+
+## adjacent-levels ("repeated") contrasts: level i vs level i+1, unscaled --
+## not built into base R (unlike contr.helmert/contr.poly/contr.treatment)
+.mixed_contr_repeated <- function(k) {
+  m <- matrix(0, k, k - 1)
+  for (i in seq_len(k - 1)) {
+    m[i, i]     <-  1
+    m[i + 1, i] <- -1
+  }
+  dimnames(m) <- list(NULL, paste0(seq_len(k - 1), "-", seq_len(k - 1) + 1))
+  m
+}
+
+## var_type$contrasts is a plain String option (jamovi has no matrix-valued
+## option type), so a custom contrast matrix travels as ";"/","-separated text
+.mixed_encode_contrasts <- function(mat) {
+  paste(apply(mat, 1, function(r) paste(sprintf("%.10g", r), collapse = ",")), collapse = ";")
+}
+
+.mixed_decode_contrasts <- function(str, k) {
+  rows <- strsplit(str, ";", fixed = TRUE)[[1]]
+  vals <- lapply(rows, function(r) as.numeric(strsplit(r, ",", fixed = TRUE)[[1]]))
+  mat <- do.call(rbind, vals)
+  dimnames(mat) <- NULL
+  if (nrow(mat) != k)
+    stop("Custom contrasts matrix has " %+% nrow(mat) %+% " rows but the variable has " %+% k %+% " levels.")
+  mat
+}
+
+## resolve a var_type row's coding/levels/contrasts into the k x (k-1) matrix
+## to assign via contrasts<-(); "custom" (only produced by .mixed_from_fit())
+## carries its matrix pre-encoded in `custom`, everything else is a named scheme
+.mixed_contrast_matrix <- function(coding, k, custom = NULL) {
+  coding <- if (is.null(coding) || !nzchar(coding)) "deviation" else coding
+  if (identical(coding, "custom")) {
+    if (is.null(custom) || !nzchar(custom))
+      stop("Coding scheme 'custom' requires a contrast matrix, but none was supplied. ",
+           "Custom coding is produced automatically by pamlmixed(model = <fitted lme4 model>); ",
+           "for hand-written syntax, pick one of the named coding schemes instead ",
+           "(deviation, simple, dummy, difference, helmert, repeated, polynomial).")
+    mat <- .mixed_decode_contrasts(custom, k)
+  } else {
+    mat <- .mixed_named_contrasts(coding, k)
+  }
+  if (ncol(mat) != k - 1)
+    stop("Contrast matrix for a " %+% k %+% "-level variable must have " %+% (k - 1) %+%
+         " columns, got " %+% ncol(mat) %+% ".")
+  mat
+}
+
 .mixed_from_fit <- function(model) {
 
-  if (!inherits(model, "merMod"))
+  if (!(inherits(model, "merMod")  | inherits(model, "glmerMod")))
     stop("`model` must be a fitted lme4 model (lmer() or glmer()).")
 
   warnings <- character(0)
@@ -1134,18 +1201,25 @@ standardize_between <- function(data, x, cluster) {
   pred_names <- setdiff(names(mf)[-1], cluster_names)
   pred_names <- pred_names[!grepl("^\\(", pred_names)]   # drop "(weights)" etc.
 
+  ## the fitted coefficients (fixef_vals, above) are only correctly interpreted
+  ## under the SAME contrast basis the model was actually fit with -- so rather
+  ## than re-coding factors (e.g. to contr.sum) and risking a basis mismatch,
+  ## the exact contrast matrix is read off the model's own data.frame and
+  ## carried through as coding="custom" (applied verbatim in .mixed_contrast_matrix())
   categorical <- list()
   for (v in pred_names) {
     col <- mf[[v]]
-    if (is.factor(col) || is.character(col))
-      categorical[[v]] <- nlevels(factor(col))
+    if (is.factor(col) || is.character(col)) {
+      f <- if (is.factor(col)) col else factor(col)
+      k <- nlevels(f)
+      categorical[[v]] <- list(levels = k, coding = "custom",
+                                contrasts = .mixed_encode_contrasts(stats::contrasts(f)))
+    }
   }
   if (length(categorical) > 0)
     warnings <- c(warnings, paste0(
       "Categorical predictor(s) ", paste(names(categorical), collapse = ", "),
-      " were re-coded with sum-to-zero contrasts for the power simulation; the extracted ",
-      "coefficients come from the fitted model's own contrasts and may not align exactly ",
-      "with pamlj's contr.sum coding."))
+      " are simulated with the exact contrast coding read from the fitted model's."))
 
   ## ---- one syntax term per model term, in column order ---------------------
   build_term <- function(term, vals) {
@@ -1175,7 +1249,7 @@ standardize_between <- function(data, x, cluster) {
     is_cat <- any(names(categorical) %in% .mixed_term_vars(term))
     if (!is_cat) return(paste0("+0*", term))
     lv <- vapply(.mixed_term_vars(term), function(v) {
-      L <- categorical[[v]]; if (is.null(L)) 2 else L
+      L <- categorical[[v]]$levels; if (is.null(L)) 2 else L
     }, numeric(1))
     paste0("+[", paste(rep("0", prod(lv - 1)), collapse = ","), "]*", term)
   }

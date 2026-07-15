@@ -39,16 +39,24 @@ supplied, \code{syntax}, \code{clusterpars}, \code{categorical}, \code{sigma2} a
 kept instead), and \code{aim} defaults to \code{"power"} for the design observed in the
 fitted model (cluster sizes/levels read off the fit). Random effects are extracted as
 independent (diagonal) variances -- any estimated covariance between random terms is
-dropped, with a warning -- and categorical predictors are re-coded with sum-to-zero
-contrasts for the simulation, which may not exactly match the fitted model's own contrasts
-(also warned). Only Gaussian and binomial mixed models are supported.}
+dropped, with a warning -- and categorical predictors are simulated with the exact contrast
+coding read off the fitted model's own data.frame (see \code{categorical}'s `coding="custom"`
+below), so the extracted fixed-effect coefficients remain correctly interpretable. Only
+Gaussian and binomial mixed models are supported.}
 
 \item{clusterpars}{A named list of the form `list(cluster1=c(n=n1,k=k1))`, where `cluster1` is the name of the clustering variable
 in the model, `n1` is the expcted number of cases within each cluster, and `k1` is the expcted number of clusters. if \code{aim=n}, `n1` is
 used as starting point for sample size. If \code{aim=clusters}, `k1` is used as starting point for number of clusters.}
 
-\item{categorical}{A named list of the form `list(varname1=x1,varname2=x2)`, specifying which variable is categorical and the number of levels (x). 
-Any variable in the model not mentioned in `categorical ` is assumed to be numeric.}
+\item{categorical}{A named list specifying which variable is categorical. Each entry can be
+either a bare number of levels, `list(varname=x)`, which uses `deviation` (sum-to-zero)
+coding, or `list(varname=list(levels=x, coding=c))`, which additionally selects a contrast
+coding scheme `c`: `deviation` (default), `simple`, `dummy`, `difference`, `helmert`,
+`repeated`, or `polynomial`. `coding="custom"` together with `contrasts=<matrix>` (an x by
+x-1 numeric contrast matrix, e.g. as returned by `contr.sum()`/`contr.treatment()`/etc.)
+assigns that matrix verbatim; this is how `model=` extracts a fitted model's own coding, and
+can also be supplied directly. Any variable in the model not mentioned in `categorical` is
+assumed to be numeric.}
 
 \item{model_type}{The model type or family: `linear` (default) for linear mixed model, `logistic` for binomial logistic mixed model.}
 
