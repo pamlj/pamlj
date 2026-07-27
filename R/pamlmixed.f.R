@@ -5,18 +5,38 @@
 #' @param aim The aim of the analysis: \code{n} (default) sample size,
 #'   \code{power} to estimate power
 #' @param find When \code{aim='n'}, indicates whether to find number of clusters \code{find='k'} or number of cases within each cluster \code{find='n'} (default).
-#' @param syntax The model to be analysed with possible options
+#' @param syntax The model to be analysed with possible options. A random-effect term can attach
+#'   a one-letter symbol to a coefficient, e.g. `(a*1*1+b*1*x|cluster)`, so that two such symbols
+#'   can be correlated with a `cor(a,b)=<correlation>` or `cov(a,b)=<covariance>` command line;
+#'   both symbols must label single-value (non-categorical) random terms of the same cluster.
 #' @param model A fitted \code{lme4::lmer()} or \code{lme4::glmer()} (binomial) model. When
 #'   supplied, \code{syntax}, \code{clusterpars}, \code{categorical}, \code{sigma2} and
 #'   \code{model_type} are extracted from it (any of these the user also passes explicitly are
 #'   kept instead), and \code{aim} defaults to \code{"power"} for the design observed in the
-#'   fitted model (cluster sizes/levels read off the fit). Random effects are extracted as
-#'   independent (diagonal) variances -- any estimated covariance between random terms is
-#'   dropped, with a warning -- and categorical predictors are simulated with the exact contrast
-#'   coding read off the fitted model's own data.frame (see \code{categorical}'s `coding="custom"`
-#'   below), so the extracted fixed-effect coefficients remain correctly interpretable. Only
-#'   Gaussian and binomial mixed models are supported.
-#' @param model_type The model type or family: `linear` (default) for linear mixed model, `logistic` for binomial logistic mixed model. 
+#'   fitted model (cluster sizes/levels read off the fit). Random effects, including any
+#'   covariance between single-value (non-categorical) random terms of the same group, are read
+#'   off `VarCorr(model)` and reproduced exactly (as `cor()`/`cov()` commands in the extracted
+#'   syntax, see \code{syntax} above); covariance touching a categorical random term cannot be
+#'   represented and is dropped, with a warning. Categorical predictors are simulated with the
+#'   exact contrast coding read off the fitted model's own data.frame (see \code{categorical}'s
+#'   `coding="custom"` below), so the extracted fixed-effect coefficients remain correctly
+#'   interpretable. Only Gaussian and binomial mixed models are supported. When the fit has two
+#'   or more (crossed) clustering/grouping factors (e.g. `subject` and `item`), only the first
+#'   carries the shared replication factor needed to reproduce the fit's total sample size, so
+#'   the simulated dataset is not needlessly squared in size; a predictor found to be constant
+#'   within every level of one of the clustering factors (e.g. a stimulus property fixed per
+#'   `item`) is automatically marked `between: var|cluster`, so it isn't required to vary within
+#'   every combination of clusters. A predictor that genuinely varies within every cluster (a
+#'   true trial-level, counterbalanced factor) has no such shortcut and still requires enough
+#'   real replication per combination of clusters to realize its levels; if the fit doesn't have
+#'   that, model construction fails with "N per cluster too small for the planned design".
+#' @param focus Only used together with \code{model}: the name of the fixed-effect term (as it
+#'   appears in \code{attr(terms(model), "term.labels")}, e.g. \code{"Days"}, \code{"grp"}, or an
+#'   interaction label such as \code{"x:z"}; \code{"1"}/\code{"(Intercept)"} selects the
+#'   intercept) to focus the search/power computation on, instead of the default of using the
+#'   worst-case (minimum) power across all effects. Equivalent to attaching a symbol to a term
+#'   and adding a \code{test:} command when writing \code{syntax} by hand.
+#' @param model_type The model type or family: `linear` (default) for linear mixed model, `logistic` for binomial logistic mixed model.
 #' @param sigma2 Residual variance. Ignored for `model_type="logistic"`
 #' @param power Minimal desired power
 #' @param sig.level Type I error rate (significance cut-off or alpha)
@@ -64,6 +84,7 @@ pamlmixed <- function(
     find = "n",
     syntax = NULL,
     model = NULL,
+    focus = NULL,
     clusterpars = list(),
     categorical = list(),    
     model_type= "linear",
@@ -77,6 +98,7 @@ pamlmixed <- function(
     seed = 42,
     run=TRUE,
     verbose=getOption("pamlj.messages"),
+    show_data=FALSE,
     ...
     ) {
   
@@ -88,7 +110,7 @@ pamlmixed <- function(
   ## Arguments the user also passed explicitly are kept; the aim defaults to
   ## "power" (evaluated at the design observed in the fit) unless overridden.
   if (!is.null(model)) {
-      ext <- .mixed_from_fit(model)
+      ext <- .mixed_from_fit(model, focus = focus)
       if (missing(syntax))      syntax      <- ext$syntax
       if (missing(clusterpars)) clusterpars <- ext$clusterpars
       if (missing(categorical)) categorical <- ext$categorical
@@ -97,6 +119,10 @@ pamlmixed <- function(
       if (missing(aim))         aim         <- "power"
       if (length(ext$warnings) > 0 && isTRUE(verbose))
           for (w in ext$warnings) message(w)
+  } else if (!is.null(focus)) {
+      stop("`focus` is only used together with `model`; for a hand-written `syntax`, ",
+           "attach a symbol to the term you want to focus on and add a `test:` command, ",
+           "e.g. `y~1*1+a*.5*x` with a `test: a` line.")
   }
 
   if (is.null(syntax))
@@ -172,7 +198,8 @@ pamlmixed <- function(
     .interface = .interface,
     .caller = .caller,
     .info   = .info,
-    .run=run
+    .run=run,
+    show_data=show_data
     )
   
   analysis <- pamlmixedClass$new(

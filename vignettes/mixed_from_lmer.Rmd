@@ -1,0 +1,171 @@
+---
+title: "Power analysis for mixed models, starting from a fitted lmer()/glmer() model"
+author: "Marcello Gallucci"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Power analysis for mixed models, starting from a fitted lmer()/glmer() model}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>"
+)
+library(pamlj)
+library(lme4)
+```
+
+`pamlj::pamlmixed()` runs a power analysis for a linear or generalized linear
+mixed model. Normally you describe the model by hand, writing a **syntax**
+string in which every fixed effect carries an expected coefficient and every
+random effect an expected variance (see `?pamlmixed`). This is convenient when
+you are planning a study from scratch, but often you already have a fitted
+`lme4::lmer()`/`glmer()` model — a pilot study, a previous experiment, or
+published data you want to use as the basis for planning a new, adequately
+powered study. Retyping that model as a syntax string is tedious and error
+prone.
+
+`pamlmixed()` can instead take the fitted model directly, via the `model =`
+argument, and extract everything it needs from it.
+
+# A simple example
+
+We use `lme4`'s built-in `sleepstudy` data: reaction time measured on 18
+subjects over 10 days of sleep deprivation, with a random intercept and slope
+for `Days` by `Subject`.
+
+```{r}
+fit <- lmer(Reaction ~ Days + (Days | Subject), data = sleepstudy)
+summary(fit)
+```
+
+Passing the fitted model to `pamlmixed()` computes the power of the design
+actually observed in the fit — the same number of subjects, the same number of
+observations per subject, the same fixed-effect coefficients, residual
+variance and random-effect (co)variances:
+
+```{r, warning = FALSE}
+res <- pamlmixed(model = fit, algo = "mc", mcR = 200, set_seed = TRUE, seed = 1)
+res$powertab$asDF
+```
+
+That's the whole workflow: fit the model as you normally would, then hand it
+to `pamlmixed()`. (`mcR = 200` and `set_seed = TRUE` are used here only to
+keep this vignette fast and reproducible; for a real analysis use the default
+Monte Carlo settings, or more repetitions, e.g. `mcR = 2000`.)
+
+# What gets extracted automatically
+
+When `model` is supplied, `pamlmixed()` fills in the arguments it would
+otherwise need by hand:
+
+* **`syntax`** — the fixed-effect coefficients (`fixef(fit)`) and the
+  random-effect variances (from `VarCorr(fit)`), turned into pamlj's model
+  syntax.
+* **`clusterpars`** — the number of levels and cases per cluster for every
+  grouping factor, read off the fit (`ngrps(fit)`, `nobs(fit)`).
+* **`categorical`** — any factor predictor, together with the *exact* contrast
+  coding it was fitted with (so the extracted coefficients stay correctly
+  interpretable — see below).
+* **`sigma2`** and **`model_type`** — the residual variance and whether the
+  model is linear (`lmer`) or binomial logistic (`glmer`).
+* **`aim`** defaults to `"power"` — computing the power of the observed
+  design — instead of the usual default `"n"`.
+
+Any of these can still be overridden explicitly; an explicit argument always
+wins over what was extracted from the model. `pamlmixed()` also reports, via
+`message()`, anything about the extraction worth knowing (e.g. a factor's
+contrast coding, or a random-effect covariance that couldn't be preserved) —
+suppress these with `verbose = FALSE`, as in the examples above.
+
+# Asking a different question: sample size for a follow-up study
+
+The fitted model tells you the power *of the study you already ran*. Often the
+real question is different: how large would a *follow-up* study need to be to
+reach a target power? Override `aim` and `power`:
+
+```{r, warning = FALSE}
+res <- pamlmixed(model = fit, aim = "n", power = .90,
+                  algo = "mc", mcR = 200, set_seed = TRUE, seed = 1)
+res$powertab$asDF
+```
+
+By default this searches for the number of cases per cluster (`find = "n"`,
+i.e. how many measurement occasions per subject); pass `find = "k"` to search
+for the number of clusters (subjects) instead.
+
+# Focusing on one specific effect
+
+A model can have several fixed effects, each with its own power; by default
+`pamlmixed()` reports (and, for `aim = "n"`, targets) the *worst-case* one. To
+focus the search on one specific effect instead, use `focus =`, giving the
+term's name exactly as it appears in the fitted model
+(`attr(terms(fit), "term.labels")`):
+
+```{r, warning = FALSE}
+res <- pamlmixed(model = fit, focus = "Days", aim = "n", power = .90,
+                  algo = "mc", mcR = 200, set_seed = TRUE, seed = 1)
+res$powertab$asDF
+```
+
+# Categorical predictors
+
+Factor predictors are handled automatically. Here we add a 3-level grouping
+factor to the fixed effects:
+
+```{r, warning = FALSE}
+sleepstudy2 <- sleepstudy
+sleepstudy2$grp <- factor(rep(c("A", "B", "C"), length.out = nrow(sleepstudy)))
+fit2 <- lmer(Reaction ~ Days + grp + (Days | Subject), data = sleepstudy2)
+
+res <- pamlmixed(model = fit2, algo = "mc", mcR = 200, set_seed = TRUE, seed = 1)
+res$powertab$asDF
+```
+
+`pamlmixed()` reads the *exact* contrast matrix `grp` was fitted with directly
+off the model's data, rather than guessing or re-coding it, so the extracted
+coefficients keep meaning the same thing they did in the original fit.
+
+# Two (crossed) grouping factors
+
+Designs with two crossed grouping factors — for instance subjects and items in
+a repeated-measures experiment, `(1 | subject) + (1 | item)` — are supported
+as well. `pamlmixed()` reproduces the random-effect covariance between
+subject/item terms when the fit has one, and, importantly, checks whether a
+fixed-effect predictor is *constant within* one of the two grouping factors
+(e.g. a property of the item that never changes across subjects). When it is,
+it is simulated as a **between-cluster** effect, so the simulated design does
+not need to needlessly balloon in size to represent it. A predictor that
+genuinely varies within *every* combination of subject and item (a true
+trial-level, counterbalanced factor) has no such shortcut, and still needs
+enough real replication in the original data to be simulated at all.
+
+```{r, warning = FALSE}
+set.seed(1)
+nsubj <- 20; nitem <- 20
+cond_per_subject <- factor(sample(c("control", "treatment"), nsubj, replace = TRUE))
+d <- expand.grid(subject = factor(1:nsubj), item = factor(1:nitem))
+d$cond <- cond_per_subject[as.integer(d$subject)]
+d$y <- rnorm(nrow(d), mean = ifelse(d$cond == "treatment", .3, 0))
+
+fit3 <- lmer(y ~ cond + (1 | subject) + (1 | item), data = d)
+res <- pamlmixed(model = fit3, algo = "mc", mcR = 200, set_seed = TRUE, seed = 1)
+res$powertab$asDF
+```
+
+# Limitations
+
+* Only Gaussian (`lmer`) and binomial (`glmer`) models are supported.
+* Random-effect covariances are preserved for single-value (non-categorical)
+  random terms only; a covariance touching a categorical random slope cannot
+  be represented and is dropped, with a message.
+* A fixed-effect predictor that varies freely within every grouping factor
+  (rather than being constant within at least one of them) needs enough real
+  replication per combination of grouping factors to be simulated; if the fit
+  doesn't have that, model construction fails with an explanatory message.
+
+For the full set of options — correlated random effects, custom contrast
+coding, etc. — see `?pamlmixed`.

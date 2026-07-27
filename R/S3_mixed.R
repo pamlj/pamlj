@@ -550,13 +550,32 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
   
   varcor<-lapply(infomod$random,function(x) {
     coefs<-unlist(x$coefs)
-    diag(x=coefs,nrow=length(coefs))
+    mat<-diag(x=coefs,nrow=length(coefs))
+    ## off-diagonal covariances from cor()/cov() commands (extract_syntax_commands())
+    ## or extracted verbatim from a fitted model's VarCorr() (.mixed_from_fit())
+    for (cv in x$covariances) {
+      mat[cv$i,cv$j]<-cv$cov
+      mat[cv$j,cv$i]<-cv$cov
+    }
+    mat
   })
   fixed<-unlist(infomod$coefs)
 
+  ## as.formula()'s default environment is parent.frame(), i.e. THIS function's
+  ## caller (.fast_onerun()/.slow_onerun()) -- whose own locals include `obj`
+  ## (the whole Runner instance) and, once assigned, `model` itself (circularly,
+  ## since the formula is an attribute of `model`). Left alone, that drags the
+  ## entire pamlj object graph along as a formula environment; when Monte Carlo
+  ## runs in parallel (.slow_onerun(), algo="mc") that whole graph gets counted
+  ## as a "global" future must export to each worker, which can balloon to
+  ## several GiB and trip future's maxSizeOfObjects guard. Nothing in these
+  ## formulas needs a calling-scope lookup (every symbol resolves against
+  ## `data`), so give them an inert, minimal environment instead.
+  form <- as.formula(infomod$formula, env = baseenv())
+
   if (is.null(infomod$family)) {
   modelobj<-try_hard({
-             simr::makeLmer(formula=as.formula(infomod$formula),
+             simr::makeLmer(formula=form,
                    fixef=fixed,
                    VarCorr=varcor,
                    sigma=infomod$sigma,
@@ -565,7 +584,7 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
   })
   } else {
     modelobj<-try_hard({
-      simr::makeGlmer(formula=as.formula(infomod$formula),
+      simr::makeGlmer(formula=form,
                       family=infomod$family,
                      fixef=fixed,
                      VarCorr=varcor,
@@ -687,27 +706,33 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
 
 
 .slow_onerun <- function(obj,n=NULL,k=NULL) {
-  
+
   master_seed<-obj$info$seed
   model<-pamlmixed_makemodel(obj,n,k)
   R <- obj$info$R
+  test <- obj$info$test   # pulled out as a plain scalar -- see the comment below
   base::RNGkind("L'Ecuyer-CMRG")
-    
+
   if (isTRUE(obj$info$parallel)) {
       plan <- if (Sys.info()[["sysname"]] == "Windows") future::multisession else future::multicore
       future::plan(plan)
+      ## the %dofuture% block is exported to every worker, so it must reference
+      ## only `model` (its formula environment is decoupled from `obj` in
+      ## pamlmixed_makemodel(), see there) and `test`, never `obj` itself --
+      ## `obj` is the whole Runner instance (analysis options, data, model info),
+      ## which can be very large and would otherwise get shipped to each worker
       sims <- foreach::foreach(
         i = seq_len(R),
         .options.future = list(seed = master_seed)  # common random numbers CRN: deterministic substream per i
       ) %dofuture% {
-        .sim_fun(model,obj$info$test)
+        .sim_fun(model,test)
       }
     } else {
       # serial, still CRN: use per-rep substreams derived from the master seed
       set.seed(master_seed, kind = "L'Ecuyer-CMRG")
       sims <- lapply(seq_len(R), function(i) {
         set.seed(master_seed + i, kind = "L'Ecuyer-CMRG")
-        .sim_fun(model,obj$info$test)
+        .sim_fun(model,test)
       })
     }
   res<-as.data.frame(do.call(rbind,sims))
@@ -823,8 +848,66 @@ extract_syntax_commands<-function(obj,model) {
      else
          obj$warning<-list(topic="issues",messages="Cluster variable `" %+% cmd$expand %+% "` in command `expand` not found. Command ignored",head="warning")
   }
-    
-    
+
+  ## correlated random effects: cor(a,b)=.3 (correlation) or cov(a,b)=.3 (raw
+  ## covariance), where a,b are the symbolic labels attached to two random-effect
+  ## terms of the SAME cluster's random block, e.g. `(a*1*1+b*1*x|cluster)`.
+  ## pamlmixed_makemodel() reads model$random[[cluster]]$covariances back out to
+  ## fill the off-diagonal entries of that cluster's VarCorr matrix.
+  for (kw in intersect(c("cor","cov"), names(cmd))) {
+    for (x in cmd[[kw]]) {
+      if (is.null(x$args) || length(x$args) != 2) {
+        obj$warning<-list(topic="issues",message=kw %+% "() requires exactly two random-effect symbols, e.g. `" %+% kw %+% "(a,b)=.3`. Command ignored",head="warning")
+        next
+      }
+      syms<-x$args
+      val<-suppressWarnings(as.numeric(x$value))
+      if (is.na(val)) {
+        obj$warning<-list(topic="issues",message=kw %+% "(" %+% paste(syms,collapse=",") %+% ") has a non-numeric value. Command ignored",head="warning")
+        next
+      }
+      found_cluster<-NULL
+      for (cl in names(model$random)) {
+        cs<-model$random[[cl]]$coef_symbs
+        if (is.something(cs) && all(syms %in% cs)) {
+          found_cluster<-cl
+          break
+        }
+      }
+      if (is.null(found_cluster)) {
+        obj$warning<-list(topic="issues",message=kw %+% "(" %+% paste(syms,collapse=",") %+% "): both random-effect symbols must be attached to random terms of the same cluster, as in `(a*1*1+b*1*x|cluster)`. Command ignored",head="warning")
+        next
+      }
+      ## coef_symbs has one entry per random TERM, but pamlmixed_makemodel()
+      ## indexes the VarCorr matrix by unlist(coefs), which has one entry per
+      ## individual value -- a bracketed (categorical) term contributes more
+      ## than one. Map each symbol to its term's position in the flattened
+      ## vector, and only allow scalar (non-bracket) terms.
+      rnd<-model$random[[found_cluster]]
+      cs<-rnd$coef_symbs
+      term_lengths<-vapply(rnd$coefs,length,integer(1))
+      term_start<-cumsum(c(1,term_lengths))[seq_along(term_lengths)]
+      symbol_index<-function(sym) {
+        ti<-which(cs==sym)[1]
+        if (is.na(ti) || term_lengths[ti]!=1) return(NA_integer_)
+        term_start[ti]
+      }
+      i<-symbol_index(syms[1])
+      j<-symbol_index(syms[2])
+      if (is.na(i) || is.na(j)) {
+        obj$warning<-list(topic="issues",message=kw %+% "(" %+% paste(syms,collapse=",") %+% "): both symbols must label a single-value (non-categorical) random term. Command ignored",head="warning")
+        next
+      }
+      vars<-unlist(rnd$coefs)
+      covval<-if (kw=="cor") val*sqrt(vars[i]*vars[j]) else val
+      if (abs(covval) > sqrt(vars[i]*vars[j]) + 1e-8) {
+        obj$warning<-list(topic="issues",message=kw %+% "(" %+% paste(syms,collapse=",") %+% "): the implied correlation exceeds 1 given the variances of `" %+% syms[1] %+% "` and `" %+% syms[2] %+% "`. Command ignored",head="warning")
+        next
+      }
+      ladd(model$random[[found_cluster]]$covariances)<-list(i=i,j=j,cov=covval)
+    }
+  }
+
   return(model)
 }
 
@@ -1151,7 +1234,7 @@ standardize_between <- function(data, x, cluster) {
   mat
 }
 
-.mixed_from_fit <- function(model) {
+.mixed_from_fit <- function(model, focus = NULL) {
 
   if (!(inherits(model, "merMod")  | inherits(model, "glmerMod")))
     stop("`model` must be a fitted lme4 model (lmer() or glmer()).")
@@ -1221,19 +1304,83 @@ standardize_between <- function(data, x, cluster) {
       "Categorical predictor(s) ", paste(names(categorical), collapse = ", "),
       " are simulated with the exact contrast coding read from the fitted model's."))
 
-  ## ---- one syntax term per model term, in column order ---------------------
-  build_term <- function(term, vals) {
-    is_cat <- term != "1" && any(names(categorical) %in% .mixed_term_vars(term))
-    if (term == "1" || (!is_cat && length(vals) == 1)) {
-      v    <- unname(vals[[1]])
-      sign <- if (v < 0) "-" else "+"
-      paste0(sign, .mixed_fmt_num(abs(v)), "*", term)
-    } else {
-      paste0("+[", paste(.mixed_fmt_num(unname(vals)), collapse = ","), "]*", term)
+  ## ---- detect "between-cluster" predictors ----------------------------------
+  ## If a predictor is CONSTANT within every level of a clustering factor (e.g.
+  ## a stimulus property that is fixed per `item`), mark it with a
+  ## `between: var|cluster` command (read back by extract_syntax_commands()).
+  ## This tells .make_data() the predictor doesn't need to vary WITHIN that
+  ## cluster's groups, avoiding the "within-cluster full factorial" replication
+  ## requirement that would otherwise force every combination of clusters
+  ## (e.g. every subject x item pairing) to repeat the predictor's full level
+  ## set. A predictor that genuinely varies within every cluster (a true
+  ## trial-level, counterbalanced factor) is left unmarked -- pamlj's
+  ## simulator can only represent such a factor via within-cell replication,
+  ## so it still requires enough of it to realize the factor's levels.
+  between_map <- list()
+  for (v in pred_names) {
+    for (g in cluster_names) {
+      n_unique <- tapply(mf[[v]], mf[[g]], function(x) length(unique(x)))
+      if (all(n_unique == 1)) {
+        between_map[[v]] <- g
+        break
+      }
     }
+  }
+  between_lines <- if (length(between_map) > 0)
+    paste0("between: ", names(between_map), "|", unlist(between_map))
+  else character(0)
+  if (length(between_map) > 0)
+    warnings <- c(warnings, paste0(
+      "Predictor(s) ", paste(paste0(names(between_map), " (constant within ", unlist(between_map), ")"), collapse = ", ")))
+
+  ## the syntax grammar only recognizes a SINGLE alphabetic character as a
+  ## coefficient symbol (get_coefs_symb(), R/syntax.R: `[[:alpha:]](?=\\*)`),
+  ## not a multi-character token -- so symbols are single letters, a..z then A..Z.
+  ## Shared by the `focus` term (below) and the random-effect covariances
+  ## (further down), so the generated syntax never repeats a letter.
+  sym_pool <- c(letters, LETTERS)
+  sym_n <- 0L
+  next_sym <- function() {
+    sym_n <<- sym_n + 1L
+    if (sym_n > length(sym_pool)) {
+      warnings <<- c(warnings, "More than " %+% length(sym_pool) %+%
+                     " symbols were needed; ran out of single letters, so some correlations/foci could not be labeled and were dropped.")
+      return(NA_character_)
+    }
+    sym_pool[sym_n]
   }
 
   ord <- unique(term_of_col[cn])   # preserve column order, one entry per term
+
+  ## ---- `focus`: which fixed-effect term to drive the search/power on -------
+  ## (mirrors the `test: <symbol>` syntax command available in hand-written
+  ## syntax) -- resolved to a term label and a symbol before fixed_parts is
+  ## built, so build_term() below can attach the symbol to the right term.
+  focus_term <- NULL
+  focus_sym  <- NULL
+  if (!is.null(focus)) {
+    focus_term <- if (focus %in% c("(Intercept)", "1")) "1" else focus
+    if (!(focus_term %in% ord))
+      stop("`focus` = '", focus, "' does not match any fixed-effect term of the fitted model. ",
+           "Available terms: ", paste(setdiff(ord, "1"), collapse = ", "),
+           if ("1" %in% ord) ", or \"1\"/\"(Intercept)\" for the intercept" else "", ".")
+    focus_sym <- next_sym()
+  }
+
+  ## ---- one syntax term per model term, in column order ---------------------
+  build_term <- function(term, vals) {
+    is_cat <- term != "1" && any(names(categorical) %in% .mixed_term_vars(term))
+    sym    <- if (!is.null(focus_term) && identical(term, focus_term)) focus_sym else NULL
+    if (term == "1" || (!is_cat && length(vals) == 1)) {
+      v    <- unname(vals[[1]])
+      sign <- if (v < 0) "-" else "+"
+      paste0(sign, if (!is.null(sym)) paste0(sym, "*") else "", .mixed_fmt_num(abs(v)), "*", term)
+    } else {
+      paste0("+", if (!is.null(sym)) paste0(sym, "*") else "",
+             "[", paste(.mixed_fmt_num(unname(vals)), collapse = ","), "]*", term)
+    }
+  }
+
   fixed_parts <- vapply(ord, function(term) {
     cols <- cn[term_of_col == term]
     build_term(term, fixef_vals[cols])
@@ -1255,27 +1402,23 @@ standardize_between <- function(data, x, cluster) {
   }
 
   ## ---- random effects: one bracketed block per grouping factor -------------
-  ## pamlj only simulates INDEPENDENT random effects (diagonal VarCorr), so any
-  ## estimated covariance between random terms of the same group is dropped
-  ## (with a warning); each random slope is matched back to its fixed-effect
-  ## term grouping when possible, so a factor random slope also collapses into
-  ## one bracketed term instead of one synthetic term per dummy column.
+  ## random effects are extracted with their real covariance structure where
+  ## possible: each SINGLE-VALUE (non-bracket) term gets a symbolic label, and
+  ## any non-negligible off-diagonal covariance between two such terms of the
+  ## same group is emitted as a `cov(sym_i,sym_j)=value` command (read back by
+  ## extract_syntax_commands()/pamlmixed_makemodel()). Bracket (categorical)
+  ## terms cannot carry a symbol (cor()/cov() only support scalar random
+  ## terms -- see extract_syntax_commands()), so any covariance touching one is
+  ## dropped, with a warning.
   vc <- lme4::VarCorr(model)
   random_blocks <- character(0)
   extra_fixed_parts <- character(0)
+  cov_lines <- character(0)
+
   for (g in names(vc)) {
     mat    <- as.matrix(vc[[g]])
     dvals  <- diag(mat)
     dnames <- rownames(mat)
-
-    off <- mat; diag(off) <- 0
-    if (length(dvals) > 1 && any(abs(off) > 1e-6)) {
-      corr_range <- range(stats::cov2cor(mat)[upper.tri(mat)])
-      warnings <- c(warnings, paste0(
-        "Random effects for '", g, "' are correlated in the fitted model (correlation range ",
-        .mixed_fmt_num(corr_range[1]), " to ", .mixed_fmt_num(corr_range[2]),
-        "); pamlj only supports independent random effects, so the covariance was dropped."))
-    }
 
     resolved <- vapply(dnames, function(nm) {
       if (identical(nm, "(Intercept)")) return("1")
@@ -1284,15 +1427,52 @@ standardize_between <- function(data, x, cluster) {
       nm   # fallback: no match found, keep as its own synthetic term
     }, character(1))
 
-    terms_ord <- unique(resolved)
+    terms_ord   <- unique(resolved)
+    term_scalar <- vapply(terms_ord, function(term) sum(resolved == term) == 1, logical(1))
+    ## one representative row index per scalar term, for reading off mat[i,j] below
+    term_row    <- vapply(terms_ord, function(term) which(resolved == term)[1], integer(1))
+    term_sym    <- setNames(rep(NA_character_, length(terms_ord)), terms_ord)
+
+    off <- mat; diag(off) <- 0
+    if (any(abs(off) > 1e-6)) {
+      bracket_terms <- terms_ord[!term_scalar]
+      if (length(bracket_terms) > 0) {
+        touched <- vapply(bracket_terms, function(term) any(abs(off[resolved == term, ]) > 1e-6), logical(1))
+        if (any(touched))
+          warnings <- c(warnings, paste0(
+            "Random effect(s) for categorical term(s) ", paste(bracket_terms[touched], collapse = ", "),
+            " in group '", g, "' are correlated with other random effects in the fitted model; ",
+            "pamlj only supports correlated *scalar* random terms, so that covariance was dropped."))
+      }
+    }
+
     block_parts <- vapply(terms_ord, function(term) {
       vals <- dvals[resolved == term]
-      if (term == "1" || length(vals) == 1) {
+      if (term_scalar[[term]]) {
+        ## only bother with a symbol if this term actually covaries with
+        ## another scalar term -- checked once symbols are assigned, below
         paste0("+", .mixed_fmt_num(unname(vals[1])), "*", term)
       } else {
         paste0("+[", paste(.mixed_fmt_num(unname(vals)), collapse = ","), "]*", term)
       }
     }, character(1))
+    names(block_parts) <- terms_ord
+
+    scalar_terms <- terms_ord[term_scalar]
+    if (length(scalar_terms) > 1) {
+      pairs <- utils::combn(scalar_terms, 2, simplify = FALSE)
+      for (p in pairs) {
+        covval <- mat[term_row[[p[1]]], term_row[[p[2]]]]
+        if (abs(covval) <= 1e-6) next
+        for (term in p) if (is.na(term_sym[[term]])) term_sym[[term]] <- next_sym()
+        if (is.na(term_sym[[p[1]]]) || is.na(term_sym[[p[2]]])) next   # ran out of symbols
+        cov_lines <- c(cov_lines, paste0("cov(", term_sym[[p[1]]], ",", term_sym[[p[2]]], ")=", .mixed_fmt_num(covval)))
+      }
+      for (term in scalar_terms) {
+        if (!is.na(term_sym[[term]]))
+          block_parts[[term]] <- paste0("+", term_sym[[term]], "*", .mixed_fmt_num(unname(dvals[resolved == term][1])), "*", term)
+      }
+    }
 
     random_blocks <- c(random_blocks, paste0("(", paste(block_parts, collapse = ""), "|", g, ")"))
 
@@ -1305,12 +1485,28 @@ standardize_between <- function(data, x, cluster) {
 
   fixed_str <- paste(c(fixed_parts, extra_fixed_parts), collapse = "")
   syntax <- paste0(lhs, "~", fixed_str, "+", paste(random_blocks, collapse = "+"))
+  cmd_lines <- c(between_lines, cov_lines)
+  if (!is.null(focus_sym) && !is.na(focus_sym)) cmd_lines <- c(cmd_lines, paste0("test: ", focus_sym))
+  if (length(cmd_lines) > 0)
+    syntax <- paste0(syntax, "\n", paste(cmd_lines, collapse = "\n"))
 
   ## ---- clusterpars: the design actually observed in the fitted model -------
-  ## (n per cluster is the balanced approximation nobs/k for unbalanced data)
+  ## .make_data() (R/S3_mixed.R) builds the simulated dataset by crossing EVERY
+  ## cluster's k (level count) via cdata, AND EVERY cluster's n (cases per
+  ## cluster) via wdata, then crossing cdata x wdata -- correct for a single
+  ## clustering factor (rows = n*k), but for two or more CROSSED clustering
+  ## factors (e.g. subject x item), giving every one of them its own
+  ## n = nobs/k double-counts the crossing already captured by k: rows would
+  ## become prod(k_i) * prod(n_i) instead of the actual prod(k_i). So only the
+  ## first cluster (the one .checkdata.pamlmixed() defaults `expand` to, and
+  ## the target of aim="n" searches) carries the shared replication factor
+  ## R = nobs / prod(k_i) (>= 1, rounded for unbalanced designs); every other
+  ## cluster gets n = 1, since its contribution is already fully accounted for
+  ## by its own k in the cdata cross.
   ks      <- lme4::ngrps(model)
   n_total <- stats::nobs(model)
-  clusterpars <- lapply(names(ks), function(g) list(n = round(n_total / ks[[g]]), k = unname(ks[[g]])))
+  R       <- max(1, round(n_total / prod(ks)))
+  clusterpars <- lapply(seq_along(ks), function(i) list(n = if (i == 1) R else 1, k = unname(ks[[i]])))
   names(clusterpars) <- names(ks)
 
   list(syntax = syntax, clusterpars = clusterpars, categorical = categorical,

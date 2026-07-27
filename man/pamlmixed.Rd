@@ -9,6 +9,7 @@ pamlmixed(
   find = "n",
   syntax = NULL,
   model = NULL,
+  focus = NULL,
   clusterpars = list(),
   categorical = list(),
   model_type = "linear",
@@ -22,6 +23,7 @@ pamlmixed(
   seed = 42,
   run = TRUE,
   verbose = getOption("pamlj.messages"),
+  show_data = FALSE,
   ...
 )
 }
@@ -31,18 +33,39 @@ pamlmixed(
 
 \item{find}{When \code{aim='n'}, indicates whether to find number of clusters \code{find='k'} or number of cases within each cluster \code{find='n'} (default).}
 
-\item{syntax}{The model to be analysed with possible options}
+\item{syntax}{The model to be analysed with possible options. A random-effect term can attach
+a one-letter symbol to a coefficient, e.g. `(a*1*1+b*1*x|cluster)`, so that two such symbols
+can be correlated with a `cor(a,b)=<correlation>` or `cov(a,b)=<covariance>` command line;
+both symbols must label single-value (non-categorical) random terms of the same cluster.}
 
 \item{model}{A fitted \code{lme4::lmer()} or \code{lme4::glmer()} (binomial) model. When
 supplied, \code{syntax}, \code{clusterpars}, \code{categorical}, \code{sigma2} and
 \code{model_type} are extracted from it (any of these the user also passes explicitly are
 kept instead), and \code{aim} defaults to \code{"power"} for the design observed in the
-fitted model (cluster sizes/levels read off the fit). Random effects are extracted as
-independent (diagonal) variances -- any estimated covariance between random terms is
-dropped, with a warning -- and categorical predictors are simulated with the exact contrast
-coding read off the fitted model's own data.frame (see \code{categorical}'s `coding="custom"`
-below), so the extracted fixed-effect coefficients remain correctly interpretable. Only
-Gaussian and binomial mixed models are supported.}
+fitted model (cluster sizes/levels read off the fit). Random effects, including any
+covariance between single-value (non-categorical) random terms of the same group, are read
+off `VarCorr(model)` and reproduced exactly (as `cor()`/`cov()` commands in the extracted
+syntax, see \code{syntax} above); covariance touching a categorical random term cannot be
+represented and is dropped, with a warning. Categorical predictors are simulated with the
+exact contrast coding read off the fitted model's own data.frame (see \code{categorical}'s
+`coding="custom"` below), so the extracted fixed-effect coefficients remain correctly
+interpretable. Only Gaussian and binomial mixed models are supported. When the fit has two
+or more (crossed) clustering/grouping factors (e.g. `subject` and `item`), only the first
+carries the shared replication factor needed to reproduce the fit's total sample size, so
+the simulated dataset is not needlessly squared in size; a predictor found to be constant
+within every level of one of the clustering factors (e.g. a stimulus property fixed per
+`item`) is automatically marked `between: var|cluster`, so it isn't required to vary within
+every combination of clusters. A predictor that genuinely varies within every cluster (a
+true trial-level, counterbalanced factor) has no such shortcut and still requires enough
+real replication per combination of clusters to realize its levels; if the fit doesn't have
+that, model construction fails with "N per cluster too small for the planned design".}
+
+\item{focus}{Only used together with \code{model}: the name of the fixed-effect term (as it
+appears in \code{attr(terms(model), "term.labels")}, e.g. \code{"Days"}, \code{"grp"}, or an
+interaction label such as \code{"x:z"}; \code{"1"}/\code{"(Intercept)"} selects the
+intercept) to focus the search/power computation on, instead of the default of using the
+worst-case (minimum) power across all effects. Equivalent to attaching a symbol to a term
+and adding a \code{test:} command when writing \code{syntax} by hand.}
 
 \item{clusterpars}{A named list of the form `list(cluster1=c(n=n1,k=k1))`, where `cluster1` is the name of the clustering variable
 in the model, `n1` is the expcted number of cases within each cluster, and `k1` is the expcted number of clusters. if \code{aim=n}, `n1` is
