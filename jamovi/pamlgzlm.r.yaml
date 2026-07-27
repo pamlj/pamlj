@@ -20,7 +20,7 @@ items:
       visible: false
 
     - name:  powertab
-      title: A Priori Power Analysis
+      title: Power Analysis Results
       type: Table
       rows:  1
       refs:
@@ -59,34 +59,6 @@ items:
           title: 'α'
           type: number
 
-    - name:  effectsize
-      title: Computed Parameters
-      type: Table
-      visible: (mode:r2)
-      clearWith:
-        - mode
-        - eta_es
-        - eta_df_model
-        - r2_es
-        - r2_df_model
-        - power
-        - n
-        - sig.level
-        - aim
-        - alternative
-        - covs
-        - factors
-        - factors_list
-        - covs_order
-        - factors_order
-        - mixed_order
-      columns:
-        - name: index
-          title: 'Index'
-          type: text
-        - name: value
-          title: 'Value'
-          type: number
 
     - name:  powerbyes
       title: Power by Effect Size

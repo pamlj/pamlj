@@ -12,7 +12,7 @@
         `type`="software", 
         `author`="Marcello Gallucci", 
         `year`=2024, 
-        `title`="pamlj: Power analysis in jamovi (Version 1.1.1)", 
+        `title`="pamlj: Power analysis in jamovi (Version 1.2.0)", 
         `url`="https://pamlj.github.io/", 
         `versioning`="pamlj: Power analysis in jamovi"), 
     `jpower`=list(

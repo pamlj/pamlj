@@ -392,7 +392,6 @@ pamlgzlmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         extrainfo = function() private$.items[["extrainfo"]],
         issues = function() private$.items[["issues"]],
         powertab = function() private$.items[["powertab"]],
-        effectsize = function() private$.items[["effectsize"]],
         powerbyes = function() private$.items[["powerbyes"]],
         plotnotes = function() private$.items[["plotnotes"]],
         powerContour = function() private$.items[["powerContour"]],
@@ -425,7 +424,7 @@ pamlgzlmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$add(jmvcore::Table$new(
                 options=options,
                 name="powertab",
-                title="A Priori Power Analysis",
+                title="Power Analysis Results",
                 rows=1,
                 refs=list(
                     "pamlj"),
@@ -466,37 +465,6 @@ pamlgzlmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     list(
                         `name`="sig.level", 
                         `title`="\u03B1", 
-                        `type`="number"))))
-            self$add(jmvcore::Table$new(
-                options=options,
-                name="effectsize",
-                title="Computed Parameters",
-                visible="(mode:r2)",
-                clearWith=list(
-                    "mode",
-                    "eta_es",
-                    "eta_df_model",
-                    "r2_es",
-                    "r2_df_model",
-                    "power",
-                    "n",
-                    "sig.level",
-                    "aim",
-                    "alternative",
-                    "covs",
-                    "factors",
-                    "factors_list",
-                    "covs_order",
-                    "factors_order",
-                    "mixed_order"),
-                columns=list(
-                    list(
-                        `name`="index", 
-                        `title`="Index", 
-                        `type`="text"),
-                    list(
-                        `name`="value", 
-                        `title`="Value", 
                         `type`="number"))))
             self$add(jmvcore::Table$new(
                 options=options,
