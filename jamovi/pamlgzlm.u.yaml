@@ -102,8 +102,6 @@ children:
           - name: sig.level
             type: TextBox
             format: number
-          - type: ComboBox
-            name: alternative
       - type: Label
         label: Info
         children:

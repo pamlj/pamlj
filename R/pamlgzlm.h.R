@@ -18,7 +18,6 @@ pamlgzlmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             power = 0.9,
             n = 20,
             sig.level = 0.05,
-            alternative = "two.sided",
             plot_contour = FALSE,
             plot_escurve = FALSE,
             plot_ncurve = FALSE,
@@ -113,13 +112,6 @@ pamlgzlmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 "sig.level",
                 sig.level,
                 default=0.05)
-            private$..alternative <- jmvcore::OptionList$new(
-                "alternative",
-                alternative,
-                default="two.sided",
-                options=list(
-                    "two.sided",
-                    "one.sided"))
             private$..plot_contour <- jmvcore::OptionBool$new(
                 "plot_contour",
                 plot_contour,
@@ -283,7 +275,6 @@ pamlgzlmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
             self$.addOption(private$..power)
             self$.addOption(private$..n)
             self$.addOption(private$..sig.level)
-            self$.addOption(private$..alternative)
             self$.addOption(private$..plot_contour)
             self$.addOption(private$..plot_escurve)
             self$.addOption(private$..plot_ncurve)
@@ -321,7 +312,6 @@ pamlgzlmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         power = function() private$..power$value,
         n = function() private$..n$value,
         sig.level = function() private$..sig.level$value,
-        alternative = function() private$..alternative$value,
         plot_contour = function() private$..plot_contour$value,
         plot_escurve = function() private$..plot_escurve$value,
         plot_ncurve = function() private$..plot_ncurve$value,
@@ -358,7 +348,6 @@ pamlgzlmOptions <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
         ..power = NA,
         ..n = NA,
         ..sig.level = NA,
-        ..alternative = NA,
         ..plot_contour = NA,
         ..plot_escurve = NA,
         ..plot_ncurve = NA,

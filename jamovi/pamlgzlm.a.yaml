@@ -103,15 +103,6 @@ options:
       type:  Number
       default: .05
 
-    - name: alternative
-      title: Tails  
-      type:  List
-      default: two.sided
-      options:
-        - name:  two.sided
-          title: Two-tailed
-        - name:  one.sided
-          title: One-tailed
 
     - name: plot_contour
       title: Power contour plot
