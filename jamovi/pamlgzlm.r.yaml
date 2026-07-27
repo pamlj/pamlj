@@ -27,6 +27,7 @@ items:
          - pamlj
       clearWith:
         - mode
+        - model_type
         - eta_es
         - eta_df
         - r2_es
@@ -42,6 +43,8 @@ items:
         - covs_order
         - factors_order
         - mixed_order
+        - y_levels
+        - y_prop
       columns:
         - name: n
           title: 'N'
@@ -66,6 +69,7 @@ items:
       rows:  4
       clearWith:
         - mode
+        - model_type
         - eta_es
         - eta_df_model
         - r2_es
@@ -81,6 +85,9 @@ items:
         - covs_order
         - factors_order
         - mixed_order
+        - y_levels
+        - y_prop
+
       columns:
         - name: es
           title: 'True effect size'
@@ -106,6 +113,7 @@ items:
       visible: (plot_contour)
       clearWith:
         - mode
+        - model_type
         - eta_es
         - eta_df_model
         - r2_es
@@ -123,6 +131,8 @@ items:
         - covs_order
         - factors_order
         - mixed_order
+        - y_levels
+        - y_prop
 
     - name: powerEscurve
       title: Power Curve by Effect Size
@@ -133,6 +143,7 @@ items:
       visible: (plot_escurve)
       clearWith:
         - mode
+        - model_type
         - eta_es
         - eta_df_model
         - r2_es
@@ -150,6 +161,8 @@ items:
         - covs_order
         - factors_order
         - mixed_order
+        - y_levels
+        - y_prop
 
     - name: powerNcurve
       title: Power Curve by N
@@ -160,6 +173,7 @@ items:
       visible: (plot_ncurve)
       clearWith:
         - mode
+        - model_type
         - eta_es
         - eta_df_model
         - r2_es
@@ -177,6 +191,8 @@ items:
         - covs_order
         - factors_order
         - mixed_order
+        - y_levels
+        - y_prop
 
     - name: powerCustom
       title: Power Parameters

@@ -18,6 +18,7 @@
                          power = obj$options$power,
                          df    = obj$options$r2_df,
                          sig.level = obj$options$sig.level)
+  
   .checkdata_gzlm(obj)
 }
 
@@ -47,18 +48,21 @@
     obj$stop("GZLM power analysis based on eta-squared requires the expected degrees of freedom of the test")
   }
   ### fix the probabilities
-  level <- obj$options$y_levels
+  levels <- obj$options$y_levels
   prop <-  obj$options$y_prop
   obj$info$prob<-switch(obj$info$model_type,
                         logistic= {
                           c(prop,1-prop)
                         },
                         multinomial={
+                          if (levels<3) obj$stop("Multinomial model requires more than 2 levels in the dependent variable")
                           y0<-prop
                           y1<-(1-prop)/(levels-1)
+                          obj$data$df<-obj$data$df*(levels-1)
                           c(y0,rep(y1,(levels-1)))
                         },
                         ordinal={
+                          if (levels<3) obj$stop("Multinomial model requires more than 2 levels in the dependent variable")
                           y0<-prop
                           y1<-(1-prop)/(levels-1)
                           c(y0,rep(y1,(levels-1)))

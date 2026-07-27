@@ -11,6 +11,25 @@ const events = {
         update_df(ui);
         fun.update_z_value(ui);
     },
+    y_levels_changed: function(ui) {
+      
+        const k = ui.y_levels.value();
+        ui.y_prop.setValue(Number(1/k));
+
+    },
+    model_type_changed: function(ui) {
+      
+      const mt = ui.model_type.value();
+      if (mt=="logistic") {
+         ui.y_levels.setValue(2);
+      }
+      else {
+        const k = ui.y_levels.value();
+        if (k<3) ui.y_levels.setValue(3);
+        ui.y_prop.setValue(Number(1/Number(ui.y_levels.value())));
+      }
+
+    },
 
     onChange_factors: function(ui) {
         update_model(ui);

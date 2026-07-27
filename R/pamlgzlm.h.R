@@ -419,6 +419,7 @@ pamlgzlmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "pamlj"),
                 clearWith=list(
                     "mode",
+                    "model_type",
                     "eta_es",
                     "eta_df",
                     "r2_es",
@@ -433,7 +434,9 @@ pamlgzlmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "factors_list",
                     "covs_order",
                     "factors_order",
-                    "mixed_order"),
+                    "mixed_order",
+                    "y_levels",
+                    "y_prop"),
                 columns=list(
                     list(
                         `name`="n", 
@@ -462,6 +465,7 @@ pamlgzlmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 rows=4,
                 clearWith=list(
                     "mode",
+                    "model_type",
                     "eta_es",
                     "eta_df_model",
                     "r2_es",
@@ -476,7 +480,9 @@ pamlgzlmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "factors_list",
                     "covs_order",
                     "factors_order",
-                    "mixed_order"),
+                    "mixed_order",
+                    "y_levels",
+                    "y_prop"),
                 columns=list(
                     list(
                         `name`="es", 
@@ -505,6 +511,7 @@ pamlgzlmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 visible="(plot_contour)",
                 clearWith=list(
                     "mode",
+                    "model_type",
                     "eta_es",
                     "eta_df_model",
                     "r2_es",
@@ -521,7 +528,9 @@ pamlgzlmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "factors_list",
                     "covs_order",
                     "factors_order",
-                    "mixed_order")))
+                    "mixed_order",
+                    "y_levels",
+                    "y_prop")))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerEscurve",
@@ -532,6 +541,7 @@ pamlgzlmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 visible="(plot_escurve)",
                 clearWith=list(
                     "mode",
+                    "model_type",
                     "eta_es",
                     "eta_df_model",
                     "r2_es",
@@ -548,7 +558,9 @@ pamlgzlmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "factors_list",
                     "covs_order",
                     "factors_order",
-                    "mixed_order")))
+                    "mixed_order",
+                    "y_levels",
+                    "y_prop")))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerNcurve",
@@ -559,6 +571,7 @@ pamlgzlmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 visible="(plot_ncurve)",
                 clearWith=list(
                     "mode",
+                    "model_type",
                     "eta_es",
                     "eta_df_model",
                     "r2_es",
@@ -575,7 +588,9 @@ pamlgzlmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "factors_list",
                     "covs_order",
                     "factors_order",
-                    "mixed_order")))
+                    "mixed_order",
+                    "y_levels",
+                    "y_prop")))
             self$add(jmvcore::Image$new(
                 options=options,
                 name="powerCustom",
