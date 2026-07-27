@@ -1,39 +1,41 @@
-title: General Linear Model Power Analysis
-name: pamlglm
+title: Generalized Linear Model Power Analysis
+name: pamlgzlm
 jus: '3.0'
 stage: 0
 compilerMode: tame
 events:
-  update: ./pamlglm::update
+  update: ./pamlgzlm::update
 children:
   - type: LayoutBox
     margin: large
     children:
       - type: ComboBox
         name: aim
+
+  - type: LayoutBox
+    margin: large
+    children:
+          - type: Label
+            label: Model Type
+            children:
+              - type: RadioButton
+                name: model_type_logistic
+                optionName: model_type
+                optionPart: logistic
+              - type: RadioButton
+                name: model_type_ordinal
+                optionName: model_type
+                optionPart: ordinal
+              - type: RadioButton
+                name: model_type_multinomial
+                optionName: model_type
+                optionPart: multinomial
+                
+
   - type: ModeSelector
     name: mode
     stretchFactor: 1
     children:
-      - type: Content
-        name: peta
-        children:
-          - type: LayoutBox
-            margin: large
-            children:
-              - type: Label
-                label: Effect information
-                children:
-                  - name: v_es
-                    type: TextBox
-                    format: number
-                    enable: (!aim:es)
-                  - type: TextBox
-                    name: v_df_effect
-                    format: number
-                  - type: TextBox
-                    name: v_df_model
-                    format: number
       - type: Content
         name: eta
         children:
@@ -43,21 +45,15 @@ children:
               - type: Label
                 label: Effect information
                 children:
-                  - name: e_es
+                  - name: eta_es
                     type: TextBox
                     format: number
                     enable: (!aim:es)
                   - type: TextBox
-                    name: e_df_effect
-                    format: number
-                  - name: e_r2
-                    type: TextBox
-                    format: number
-                  - type: TextBox
-                    name: e_df_model
+                    name: eta_df
                     format: number
       - type: Content
-        name: beta
+        name: r2
         children:
           - type: LayoutBox
             margin: large
@@ -65,18 +61,28 @@ children:
               - type: Label
                 label: Effect information
                 children:
-                  - name: b_es
+                  - name: r2_es
                     type: TextBox
                     format: number
                     enable: (!aim:es)
-                  - name: b_r2
-                    type: TextBox
-                    format: number
                   - type: TextBox
-                    name: b_df_model
+                    name: r2_df
                     format: number
-                  - type: ComboBox
-                    name: alternative
+  - type: LayoutBox
+    margin: large
+    children:
+      - type: Label
+        label: Dependent variable
+        style: inline
+        children:
+          - name: y_levels
+            type: TextBox
+            format: number
+            enable: (!model_type:logistic)
+          - name: y_prop
+            type: TextBox
+            format: number
+
   - type: LayoutBox
     margin: large
     children:
@@ -88,7 +94,7 @@ children:
             label: Minimum desired power
             format: number
             enable: (!aim:power)
-          - name: 'n'
+          - name: n
             type: TextBox
             label: N (Sample size)
             format: number
@@ -96,7 +102,8 @@ children:
           - name: sig.level
             type: TextBox
             format: number
-            enable: (!aim:alpha)
+          - type: ComboBox
+            name: alternative
       - type: Label
         label: Info
         children:
@@ -223,11 +230,11 @@ children:
                     type: TextBox
                     format: number
                     events:
-                      change: ./pamlglm::onChange_factors_list_change
+                      change: ./pamlgzlm::onChange_factors_list_change
                   - name: covs_order
                     type: ComboBox
                     events:
-                      change: ./pamlglm::onChange_factors_list_change
+                      change: ./pamlgzlm::onChange_factors_list_change
               - type: LayoutBox
                 style: inline
                 children:
@@ -235,11 +242,11 @@ children:
                     type: TextBox
                     format: number
                     events:
-                      change: ./pamlglm::onChange_factors
+                      change: ./pamlgzlm::onChange_factors
                   - name: factors_order
                     type: ComboBox
                     events:
-                      change: ./pamlglm::onChange_factors_list_change
+                      change: ./pamlgzlm::onChange_factors_list_change
           - type: Label
             name: factors_group
             label: Factors definition
@@ -249,7 +256,7 @@ children:
                 fullRowSelect: true
                 height: large
                 events:
-                  change: ./pamlglm::onChange_factors_list_change
+                  change: ./pamlgzlm::onChange_factors_list_change
                 showColumnHeaders: true
                 columns:
                   - name: var
@@ -265,115 +272,4 @@ children:
               - name: mixed_order
                 type: ComboBox
                 events:
-                  change: ./pamlglm::onChange_factors_list_change
-  - type: CollapseBox
-    label: Options
-    name: panel_options
-    collapsed: true
-    stretchFactor: 1
-    children:
-      - type: LayoutBox
-        name: other_stuff
-        style: inline
-        children:
-          - type: Label
-            label: Non-Centrality Parameter (NCP)
-            children:
-              - name: ncp_type_model
-                type: RadioButton
-                optionName: ncp_type
-                optionPart: model
-              - name: ncp_type_liberal
-                type: RadioButton
-                optionName: ncp_type
-                optionPart: liberal
-              - name: ncp_type_strict
-                type: RadioButton
-                optionName: ncp_type
-                optionPart: strict
-  - type: CollapseBox
-    label: Effect Size Conversion
-    name: panel_effectsize
-    collapsed: true
-    stretchFactor: 1
-    children:
-      - type: LayoutBox
-        name: convert_es
-        style: inline
-        children:
-          - type: Label
-            label: Convert effect size indices
-            children:
-              - type: TextBox
-                name: eta
-                format: string
-              - type: TextBox
-                name: f
-                format: string
-              - type: TextBox
-                name: eta_df_error
-                format: number
-
-              - type: TextBox
-                name: omega
-                format: number
-              - type: TextBox
-                name: epsilon
-                format: number
-              - type: TextBox
-                name: gpower
-                format: number
-              - type: TextBox
-                name: f2
-                format: number
-                events:
-                  change: ./pamlglm::onChange_use
-          - type: Label
-            label: Use as effect size
-            children:
-              - name: use_none
-                type: RadioButton
-                optionName: use
-                optionPart: none
-              - name: use_omega
-                type: RadioButton
-                optionName: use
-                optionPart: omega
-                events:
-                  change: ./pamlglm::onChange_use
-              - type: RadioButton
-                name: use_epsilon
-                optionName: use
-                optionPart: epsilon
-                events:
-                  change: ./pamlglm::onChange_use
-              - type: RadioButton
-                name: use_gpower
-                optionName: use
-                optionPart: gpower
-                events:
-                  change: ./pamlglm::onChange_use
-              - type: RadioButton
-                name: use_f2
-                optionName: use
-                optionPart: f2
-                events:
-                  change: ./pamlglm::onChange_use
-  - type: CollapseBox
-    label: Correlations
-    name: panel_correlations
-    collapsed: true
-    stretchFactor: 1
-    children:
-      - name: correlationsupplier
-        type: VariableSupplier
-        persistentItems: false
-        stretchFactor: 1
-        children:
-          - type: TargetLayoutBox
-            children:
-              - type: VariablesListBox
-                name: rx
-                isTarget: true
-                events:
-                  change: ./pamlglm::onChange_rx
+                  change: ./pamlgzlm::onChange_factors_list_change

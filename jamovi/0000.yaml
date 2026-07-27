@@ -59,6 +59,16 @@ analyses:
       coefficients, partial eta-squared, or eta-squared effect sizes.
     menuGroup: Power
     category: analyses
+  - title: Generalized Linear Model
+    name: pamlgzlm
+    ns: pamlj
+    menuSubgroup: Pamlj
+    menuTitle: Generalized Linear Model
+    description: >
+      Power analysis for regression, ANOVA, and ANCOVA models using standardized
+      coefficients, partial eta-squared, or eta-squared effect sizes.
+    menuGroup: Power
+    category: analyses
   - title: Factorial Designs
     name: pamlfactorial
     ns: pamlj

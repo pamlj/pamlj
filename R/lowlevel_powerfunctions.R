@@ -72,6 +72,40 @@ pamlj.glm <- function(u=NULL,v=NULL,f2=NULL,power=NULL,sig.level=NULL,df_model=N
         power = power, n = n, encp=ncp(f2,u,v), method=method))
 
 }
+
+### this is taken verbatim from https://github.com/mcfanda/gzlmpower
+
+pamlj.gzlm <- function(es=NULL,prob,df=NULL, n=NULL,sig.level=.05, power=NULL) {
+  
+  if (is.null(prob))
+    stop("Dependent variable levels proportion should be defined")
+  
+  if (sum(sapply(list(es, n, df, power, sig.level), is.null)) !=  1)
+    stop("exactly one of es, N, df, power, and sig.level must be NULL")
+  if (sum(prob)!=1)
+    stop("Dependent variable levels proportion should sum to 1")
+  D0<--2*sum(prob*log(prob))
+  lambda<-sqrt(es*D0)
+  if (length(lambda)==0) lambda<-NULL
+  res<-pwr::pwr.chisq.test(lambda,df=df,power = power,sig.level = sig.level,N=n)
+  res$n<-res$N
+  res$N<-NULL
+  if (is.null(es))
+    res$w<-res$w^2/D0
+  else
+    res$w<-es
+  
+  names(res)[1]<-"es"
+  # The proportional-odds (ordinal) model always carries exactly 1 df per predictor
+  # regardless of the number of outcome categories, unlike the nominal (multinomial)
+  # coding this check otherwise assumes -- so that specific, valid pattern is exempted
+  # rather than flagged as a likely df mistake.
+  if ((length(prob)-1)>df && !(df==1 && length(prob)>2))
+    stop("DF are less than the number of dummies representing the dependent variable. Please be sure that the df are correct.")
+  res
+  
+}
+
 ### These two functions are from jpower https://github.com/richarddmorey/jpower/blob/master/jpower/R/utils.R with some adjustment
 
 pamlj.ttestind<-function(n= NULL, n_ratio=NULL, n1 = NULL, n2 = NULL, d = NULL, sig.level = NULL, power = NULL, alternative = "two.sided") {

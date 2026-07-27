@@ -33,7 +33,6 @@ Runner <- R6::R6Class("Runner",
                                  rundata(self)
                                  if (!self$ok) return()
                                  jinfo("PAMLj: Runner: first estimation")
-                                 self$data$precise <- TRUE
                                  resobj <- try_hard(powervector(self,self$data) )
                                  if (!isFALSE(resobj$warning))
                                      warning(resobj$warning)

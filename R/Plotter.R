@@ -222,7 +222,7 @@ Plotter <- R6::R6Class(
       esmin <- data$es/obj$plots$esrange
       if (esmin < obj$info$esmin) esmin<-obj$info$esmin
       .data<-data
-      .data$precise <- FALSE
+      if ("precise" %in% names(data)) .data$precise <- FALSE
       .data$es<-esmin
       .data$n<-NULL
       nmax<-powervector(obj,.data)$n

@@ -1,6 +1,6 @@
 ---
-name:  pamlglm
-title: 'Power: General Linear Model'
+name:  pamlgzlm
+title: 'Power: Generalized Linear Model'
 jrs:   "1.1"
 
 items:
@@ -8,7 +8,7 @@ items:
     - name: intro
       title: Introduction
       type: Html
-      
+
     - name: extrainfo
       title: Extra Info
       type: Html
@@ -19,7 +19,6 @@ items:
       type: Html
       visible: false
 
-
     - name:  powertab
       title: A Priori Power Analysis
       type: Table
@@ -28,23 +27,21 @@ items:
          - pamlj
       clearWith:
         - mode
-        - b_es
-        - v_es
-        - e_es
+        - eta_es
+        - eta_df
+        - r2_es
+        - r2_df
         - power
         - n
         - sig.level
         - aim
         - alternative
-        - b_df_model
-        - v_df_model
-        - e_df_model
-        - v_df_effect
-        - e_df_effect
-        - e_r2
-        - b_r2
-        - ncp_type
-        - rx
+        - covs
+        - factors
+        - factors_list
+        - covs_order
+        - factors_order
+        - mixed_order
       columns:
         - name: n
           title: 'N'
@@ -52,17 +49,11 @@ items:
         - name: es
           title: 'Effect size'
           type: number
-        - name: f2
-          title: f²
-          type: number
         - name: power
           title: 'Power'
           type: number
-        - name: df1
+        - name: df
           title: 'df'
-          type: integer
-        - name: df2
-          title: 'df(res)'
           type: integer
         - name: sig.level
           title: 'α'
@@ -71,27 +62,24 @@ items:
     - name:  effectsize
       title: Computed Parameters
       type: Table
-      visible: (mode:beta || mode:eta)
+      visible: (mode:r2)
       clearWith:
         - mode
-        - b_es
-        - v_es
-        - e_es
+        - eta_es
+        - eta_df_model
+        - r2_es
+        - r2_df_model
         - power
         - n
         - sig.level
         - aim
         - alternative
-        - b_df_model
-        - v_df_model
-        - e_df_model
-        - v_df_effect
-        - e_df_effect
-        - e_r2
-        - b_r2
-        - ncp_type
-        - rx
-
+        - covs
+        - factors
+        - factors_list
+        - covs_order
+        - factors_order
+        - mixed_order
       columns:
         - name: index
           title: 'Index'
@@ -100,44 +88,37 @@ items:
           title: 'Value'
           type: number
 
-
     - name:  powerbyes
       title: Power by Effect Size
       type: Table
       rows:  4
       clearWith:
         - mode
-        - b_es
-        - v_es
-        - e_es
+        - eta_es
+        - eta_df_model
+        - r2_es
+        - r2_df_model
         - power
         - n
         - sig.level
         - aim
         - alternative
-        - b_df_model
-        - v_df_model
-        - e_df_model
-        - v_df_effect
-        - e_df_effect
-        - e_r2
-        - b_r2
-        - ncp_type
-        - rx
-
+        - covs
+        - factors
+        - factors_list
+        - covs_order
+        - factors_order
+        - mixed_order
       columns:
         - name: es
           title: 'True effect size'
           type: number
-
         - name: power
           title: 'Power to detect'
           type: text
-
         - name: desc
           title: 'Description'
           type: text
-
 
     - name: plotnotes
       title: Plot notes
@@ -153,21 +134,24 @@ items:
       visible: (plot_contour)
       clearWith:
         - mode
-        - b_es
-        - v_es
-        - e_es
+        - eta_es
+        - eta_df_model
+        - r2_es
+        - r2_df_model
         - power
         - n
         - sig.level
         - aim
         - alternative
-        - b_df_model
-        - v_df_model
-        - e_df_model
-        - e_r2
-        - ncp_type
         - plot_log
         - plot_palette
+        - covs
+        - factors
+        - factors_list
+        - covs_order
+        - factors_order
+        - mixed_order
+
     - name: powerEscurve
       title: Power Curve by Effect Size
       type: Image
@@ -177,21 +161,23 @@ items:
       visible: (plot_escurve)
       clearWith:
         - mode
-        - b_es
-        - v_es
-        - e_es
+        - eta_es
+        - eta_df_model
+        - r2_es
+        - r2_df_model
         - power
         - n
         - sig.level
         - aim
         - alternative
-        - b_df_model
-        - v_df_model
-        - e_df_model
-        - e_r2
-        - ncp_type
         - plot_log
         - plot_palette
+        - covs
+        - factors
+        - factors_list
+        - covs_order
+        - factors_order
+        - mixed_order
 
     - name: powerNcurve
       title: Power Curve by N
@@ -202,21 +188,23 @@ items:
       visible: (plot_ncurve)
       clearWith:
         - mode
-        - b_es
-        - v_es
-        - e_es
+        - eta_es
+        - eta_df_model
+        - r2_es
+        - r2_df_model
         - power
         - n
         - sig.level
         - aim
         - alternative
-        - b_df_model
-        - v_df_model
-        - e_df_model
-        - e_r2
-        - ncp_type
         - plot_log
         - plot_palette
+        - covs
+        - factors
+        - factors_list
+        - covs_order
+        - factors_order
+        - mixed_order
 
     - name: powerCustom
       title: Power Parameters
@@ -225,7 +213,7 @@ items:
       height: 350
       renderFun: .plot_custom
       visible: false
-      
+
     - name: customnotes
       title: Plot notes
       type: Html
@@ -235,7 +223,7 @@ items:
       title: Power Analysis parameters
       type: Table
       visible: (plot_to_table && !plot_x:none && !plot_y:none)
-      columns: 
+      columns:
         - name:  y
           title: 'Y'
           type: number
@@ -254,4 +242,3 @@ items:
           title: N₂
           type: integer
           visible: false
-        
