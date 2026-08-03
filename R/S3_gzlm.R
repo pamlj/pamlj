@@ -26,7 +26,12 @@
   
   obj$data[[obj$aim]] <- NULL
   obj$info$model_type  <- obj$options$model_type
-  obj$info$letter      <- letter_eta2
+  obj$info$letter<-switch(obj$mode,
+                          eta=letter_eta2,
+                          r2=letter_r2,
+                          stop("no mode defined")
+                          )
+    
   obj$info$esmax       <- .999999
   obj$info$esmin       <- .001
   obj$info$eslbound    <- 0
