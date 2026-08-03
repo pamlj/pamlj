@@ -418,7 +418,7 @@ pamlfactorialResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Cla
             self$add(jmvcore::Table$new(
                 options=options,
                 name="powertab",
-                title="A Priori Power Analysis",
+                title="Power Analysis Results",
                 refs=list(
                     "pamlj"),
                 clearWith=list(

@@ -4,9 +4,39 @@
 #' 
 #' @param aim The aim of the analysis: \code{n} (default) sample size,
 #'   \code{power} to estimate power
-#' @param find When \code{aim='n'}, indicates whether to find number of clusters \code{find='k'} or number of cases within each cluster \code{find='n'} (default). 
-#' @param syntax The model to be analysed with possible options
-#' @param model_type The model type or family: `linear` (default) for linear mixed model, `logistic` for binomial logistic mixed model. 
+#' @param find When \code{aim='n'}, indicates whether to find number of clusters \code{find='k'} or number of cases within each cluster \code{find='n'} (default).
+#' @param syntax The model to be analysed with possible options. A random-effect term can attach
+#'   a one-letter symbol to a coefficient, e.g. `(a*1*1+b*1*x|cluster)`, so that two such symbols
+#'   can be correlated with a `cor(a,b)=<correlation>` or `cov(a,b)=<covariance>` command line;
+#'   both symbols must label single-value (non-categorical) random terms of the same cluster.
+#' @param model A fitted \code{lme4::lmer()} or \code{lme4::glmer()} (binomial) model. When
+#'   supplied, \code{syntax}, \code{clusterpars}, \code{categorical}, \code{sigma2} and
+#'   \code{model_type} are extracted from it (any of these the user also passes explicitly are
+#'   kept instead), and \code{aim} defaults to \code{"power"} for the design observed in the
+#'   fitted model (cluster sizes/levels read off the fit). Random effects, including any
+#'   covariance between single-value (non-categorical) random terms of the same group, are read
+#'   off `VarCorr(model)` and reproduced exactly (as `cor()`/`cov()` commands in the extracted
+#'   syntax, see \code{syntax} above); covariance touching a categorical random term cannot be
+#'   represented and is dropped, with a warning. Categorical predictors are simulated with the
+#'   exact contrast coding read off the fitted model's own data.frame (see \code{categorical}'s
+#'   `coding="custom"` below), so the extracted fixed-effect coefficients remain correctly
+#'   interpretable. Only Gaussian and binomial mixed models are supported. When the fit has two
+#'   or more (crossed) clustering/grouping factors (e.g. `subject` and `item`), only the first
+#'   carries the shared replication factor needed to reproduce the fit's total sample size, so
+#'   the simulated dataset is not needlessly squared in size; a predictor found to be constant
+#'   within every level of one of the clustering factors (e.g. a stimulus property fixed per
+#'   `item`) is automatically marked `between: var|cluster`, so it isn't required to vary within
+#'   every combination of clusters. A predictor that genuinely varies within every cluster (a
+#'   true trial-level, counterbalanced factor) has no such shortcut and still requires enough
+#'   real replication per combination of clusters to realize its levels; if the fit doesn't have
+#'   that, model construction fails with "N per cluster too small for the planned design".
+#' @param focus Only used together with \code{model}: the name of the fixed-effect term (as it
+#'   appears in \code{attr(terms(model), "term.labels")}, e.g. \code{"Days"}, \code{"grp"}, or an
+#'   interaction label such as \code{"x:z"}; \code{"1"}/\code{"(Intercept)"} selects the
+#'   intercept) to focus the search/power computation on, instead of the default of using the
+#'   worst-case (minimum) power across all effects. Equivalent to attaching a symbol to a term
+#'   and adding a \code{test:} command when writing \code{syntax} by hand.
+#' @param model_type The model type or family: `linear` (default) for linear mixed model, `logistic` for binomial logistic mixed model.
 #' @param sigma2 Residual variance. Ignored for `model_type="logistic"`
 #' @param power Minimal desired power
 #' @param sig.level Type I error rate (significance cut-off or alpha)
@@ -18,8 +48,15 @@
 #' @param clusterpars A named list of the form `list(cluster1=c(n=n1,k=k1))`, where `cluster1` is the name of the clustering variable
 #' in the model, `n1` is the expcted number of cases within each cluster, and `k1` is the expcted number of clusters. if \code{aim=n}, `n1` is
 #' used as starting point for sample size. If \code{aim=clusters}, `k1` is used as starting point for number of clusters.
-#' @param categorical A named list of the form `list(varname1=x1,varname2=x2)`, specifying which variable is categorical and the number of levels (x). 
-#'   Any variable in the model not mentioned in `categorical ` is assumed to be numeric.
+#' @param categorical A named list specifying which variable is categorical. Each entry can be
+#'   either a bare number of levels, `list(varname=x)`, which uses `deviation` (sum-to-zero)
+#'   coding, or `list(varname=list(levels=x, coding=c))`, which additionally selects a contrast
+#'   coding scheme `c`: `deviation` (default), `simple`, `dummy`, `difference`, `helmert`,
+#'   `repeated`, or `polynomial`. `coding="custom"` together with `contrasts=<matrix>` (an x by
+#'   x-1 numeric contrast matrix, e.g. as returned by `contr.sum()`/`contr.treatment()`/etc.)
+#'   assigns that matrix verbatim; this is how `model=` extracts a fitted model's own coding, and
+#'   can also be supplied directly. Any variable in the model not mentioned in `categorical` is
+#'   assumed to be numeric.
 #' @param seed the seed for Monte Carlo simulations, default=42.
 #' @param run TRUE (default) run the simulations, otherwise print out the model without results
 #' @param verbose (Boolean) `getOption("pamlj.messages")` (default). Print out updates of the simulation steps. 
@@ -46,6 +83,8 @@ pamlmixed <- function(
     aim = "n",
     find = "n",
     syntax = NULL,
+    model = NULL,
+    focus = NULL,
     clusterpars = list(),
     categorical = list(),    
     model_type= "linear",
@@ -59,15 +98,37 @@ pamlmixed <- function(
     seed = 42,
     run=TRUE,
     verbose=getOption("pamlj.messages"),
+    show_data=FALSE,
     ...
     ) {
   
   if ( ! requireNamespace("jmvcore", quietly=TRUE))
     stop("pamlmixed requires jmvcore to be installed (restart may be required)")
-  
+
+  ## `model`: a fitted lme4 fit, extracted into the same syntax/options the
+  ## user would otherwise type by hand (see .mixed_from_fit(), R/S3_mixed.R).
+  ## Arguments the user also passed explicitly are kept; the aim defaults to
+  ## "power" (evaluated at the design observed in the fit) unless overridden.
+  if (!is.null(model)) {
+      ext <- .mixed_from_fit(model, focus = focus)
+      if (missing(syntax))      syntax      <- ext$syntax
+      if (missing(clusterpars)) clusterpars <- ext$clusterpars
+      if (missing(categorical)) categorical <- ext$categorical
+      if (missing(sigma2))      sigma2      <- ext$sigma2
+      if (missing(model_type))  model_type  <- ext$model_type
+      if (missing(aim))         aim         <- "power"
+      if (length(ext$warnings) > 0 && isTRUE(verbose))
+          for (w in ext$warnings) message(w)
+  } else if (!is.null(focus)) {
+      stop("`focus` is only used together with `model`; for a hand-written `syntax`, ",
+           "attach a symbol to the term you want to focus on and add a `test:` command, ",
+           "e.g. `y~1*1+a*.5*x` with a `test: a` line.")
+  }
+
   if (is.null(syntax))
-     stop("Please speficy a model with expected coefficient with the parameter `syntax`")
-  
+     stop("Please specify a model with expected coefficients with the parameter `syntax`, ",
+          "or pass a fitted lme4 model with `model`")
+
   pamlj_messages<-getOption("pamlj.messages")
   options("pamlj.messages"=verbose)
   
@@ -75,13 +136,29 @@ pamlmixed <- function(
   ## get some info to pass to   pamlmixedClass
   modelobj    <-  try_hard(syntax_digest(syntax))
   if (!isFALSE(modelobj$error)) stop("Model formula not correct:" %+% modelobj$error)
-  model <- modelobj$obj
+  synmodel <- modelobj$obj   # digested syntax model (distinct from the `model` argument: a fitted lme4 fit)
   ## check the model syntax, functions used are in S3_mixed.R
 
   ### build var_type out of defaults and categorical option (which is not in jamovi)
-  var_type<-lapply(model$varnames, function(x) list(name=x,type="continuous",levels="---"))
-  names(var_type)<-model$varnames
-  for (x in names(categorical)) var_type[[x]]<-list(name=x,type="categorical",levels=categorical[[x]])
+  var_type<-lapply(synmodel$varnames, function(x) list(name=x,type="continuous",levels="---"))
+  names(var_type)<-synmodel$varnames
+  ## categorical[[x]] is either a bare level count (backward-compatible shorthand,
+  ## defaults to "deviation" coding) or list(levels=, coding=, contrasts=) for an
+  ## explicit coding scheme / a verbatim custom contrast matrix (see .mixed_from_fit()
+  ## and .mixed_contrast_matrix(), R/S3_mixed.R)
+  for (x in names(categorical)) {
+    cx <- categorical[[x]]
+    if (is.list(cx)) {
+      contr <- cx$contrasts
+      if (!is.null(contr) && is.matrix(contr)) contr <- .mixed_encode_contrasts(contr)
+      var_type[[x]]<-list(name=x, type="categorical", levels=as.character(cx$levels),
+                           coding=if (is.null(cx$coding)) "deviation" else cx$coding,
+                           contrasts=if (is.null(contr)) "" else contr)
+    } else {
+      var_type[[x]]<-list(name=x, type="categorical", levels=as.character(cx),
+                           coding="deviation", contrasts="")
+    }
+  }
 
   # fix clusterpars that in jamovi has a name element
   try_hard(
@@ -121,7 +198,8 @@ pamlmixed <- function(
     .interface = .interface,
     .caller = .caller,
     .info   = .info,
-    .run=run
+    .run=run,
+    show_data=show_data
     )
   
   analysis <- pamlmixedClass$new(

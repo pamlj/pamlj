@@ -37,7 +37,7 @@ items:
           - pamlj
  
     - name:  powertab
-      title: A Priori Power Analysis
+      title: Power Analysis Results
       type: Table
       refs:
          - pamlj

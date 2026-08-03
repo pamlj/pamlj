@@ -73,13 +73,12 @@ powerbyes <- function(x, ...) UseMethod(".powerbyes")
 
 .powerbyes.default <- function(obj) {
 
-           
             power = c(.5, .8, .95)
             data<-obj$data
             data$power<-NULL
             suppressWarnings(dd<-as.data.frame(cbind(power,data)))
             dd$es<-NULL
-            dd$precise <- FALSE
+            if ("precise" %in% names(data)) dd$precise <- FALSE
             res<-powervector(obj,dd)
             probs_es<-format(res$es,digits=3)
             check<-which(is.na(res$es))

@@ -6,6 +6,7 @@
 .Rhistor*
 # Session Data files
 .RData
+SESSION_*
 # jamovi
 build/
 build*/
@@ -44,3 +45,5 @@ vignettes/*.pdf
 # docs sources
 inst/doc
 .positai
+paper/*
+paper*

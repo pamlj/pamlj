@@ -84,4 +84,7 @@ link_help <- function(obj, ...) UseMethod(".link_help")
   return(text)
 }
 
-
+clean_args<-function(data,fun) {
+  clean<-intersect(names(data),rlang::fn_fmls_names(fun))
+  data[,clean,drop=FALSE]
+}

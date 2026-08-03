@@ -1,6 +1,6 @@
 ---
-name:  pamlcorr
-title: Correlation power analysis
+name:  pamlgzlm
+title: 'Power: Generalized Linear Model'
 jrs:   "1.1"
 
 items:
@@ -13,26 +13,39 @@ items:
       title: Extra Info
       type: Html
       visible: false
-      
+
     - name: issues
       title: Issues
       type: Html
       visible: false
- 
+
     - name:  powertab
       title: Power Analysis Results
       type: Table
       rows:  1
-      refs: 
+      refs:
          - pamlj
       clearWith:
-        - es
+        - mode
+        - model_type
+        - eta_es
+        - eta_df
+        - r2_es
+        - r2_df
         - power
         - n
         - sig.level
         - aim
         - alternative
-      columns: 
+        - covs
+        - factors
+        - factors_list
+        - covs_order
+        - factors_order
+        - mixed_order
+        - y_levels
+        - y_prop
+      columns:
         - name: n
           title: 'N'
           type: integer
@@ -42,8 +55,11 @@ items:
         - name: power
           title: 'Power'
           type: number
+        - name: df
+          title: 'df'
+          type: integer
         - name: sig.level
-          title: α
+          title: 'α'
           type: number
 
 
@@ -52,26 +68,36 @@ items:
       type: Table
       rows:  4
       clearWith:
-        - es
+        - mode
+        - model_type
+        - eta_es
+        - eta_df_model
+        - r2_es
+        - r2_df_model
         - power
         - n
         - sig.level
         - aim
         - alternative
-        
+        - covs
+        - factors
+        - factors_list
+        - covs_order
+        - factors_order
+        - mixed_order
+        - y_levels
+        - y_prop
+
       columns:
         - name: es
           title: 'True effect size'
           type: number
-
         - name: power
           title: 'Power to detect'
           type: text
-
         - name: desc
           title: 'Description'
           type: text
-
 
     - name: plotnotes
       title: Plot notes
@@ -85,6 +111,28 @@ items:
       height: 350
       renderFun: .plot_contour
       visible: (plot_contour)
+      clearWith:
+        - mode
+        - model_type
+        - eta_es
+        - eta_df_model
+        - r2_es
+        - r2_df_model
+        - power
+        - n
+        - sig.level
+        - aim
+        - alternative
+        - plot_log
+        - plot_palette
+        - covs
+        - factors
+        - factors_list
+        - covs_order
+        - factors_order
+        - mixed_order
+        - y_levels
+        - y_prop
 
     - name: powerEscurve
       title: Power Curve by Effect Size
@@ -93,6 +141,28 @@ items:
       height: 350
       renderFun: .plot_escurve
       visible: (plot_escurve)
+      clearWith:
+        - mode
+        - model_type
+        - eta_es
+        - eta_df_model
+        - r2_es
+        - r2_df_model
+        - power
+        - n
+        - sig.level
+        - aim
+        - alternative
+        - plot_log
+        - plot_palette
+        - covs
+        - factors
+        - factors_list
+        - covs_order
+        - factors_order
+        - mixed_order
+        - y_levels
+        - y_prop
 
     - name: powerNcurve
       title: Power Curve by N
@@ -101,6 +171,28 @@ items:
       height: 350
       renderFun: .plot_ncurve
       visible: (plot_ncurve)
+      clearWith:
+        - mode
+        - model_type
+        - eta_es
+        - eta_df_model
+        - r2_es
+        - r2_df_model
+        - power
+        - n
+        - sig.level
+        - aim
+        - alternative
+        - plot_log
+        - plot_palette
+        - covs
+        - factors
+        - factors_list
+        - covs_order
+        - factors_order
+        - mixed_order
+        - y_levels
+        - y_prop
 
     - name: powerCustom
       title: Power Parameters
@@ -109,7 +201,7 @@ items:
       height: 350
       renderFun: .plot_custom
       visible: false
-      
+
     - name: customnotes
       title: Plot notes
       type: Html
@@ -119,7 +211,7 @@ items:
       title: Power Analysis parameters
       type: Table
       visible: (plot_to_table && !plot_x:none && !plot_y:none)
-      columns: 
+      columns:
         - name:  y
           title: 'Y'
           type: number
@@ -129,4 +221,12 @@ items:
         - name:  z
           title: "Z"
           type: number
+          visible: false
+        - name: n1
+          title: N₁
+          type: integer
+          visible: false
+        - name: n2
+          title: N₂
+          type: integer
           visible: false

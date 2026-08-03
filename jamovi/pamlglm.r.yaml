@@ -21,7 +21,7 @@ items:
 
 
     - name:  powertab
-      title: A Priori Power Analysis
+      title: Power Analysis Results
       type: Table
       rows:  1
       refs:
