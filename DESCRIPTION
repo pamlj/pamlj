@@ -14,7 +14,7 @@ License: GPL (>=2)
 Encoding: UTF-8
 LazyData: true
 Imports: R6, jmvcore (>= 0.8.0),ggplot2,emmeans,lme4,lmerTest,future,
-         stringr,pwr,viridis,rlang, qgraph, foreach, doFuture, semPower, MASS, lavaan,semPlot, simr,car,cli
+         stringr,pwr,viridis,rlang, qgraph, foreach, doFuture, semPower, MASS, lavaan,semPlot,car,cli
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
 Config/roxygen2/version: 8.0.0

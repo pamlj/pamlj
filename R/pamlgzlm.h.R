@@ -416,7 +416,8 @@ pamlgzlmResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 title="Power Analysis Results",
                 rows=1,
                 refs=list(
-                    "pamlj"),
+                    "pamlj",
+                    "pwr"),
                 clearWith=list(
                     "mode",
                     "model_type",

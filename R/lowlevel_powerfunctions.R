@@ -323,7 +323,11 @@ pamlj.semmc <- function(type,
        else                 
                      plan<-future::multicore
   
+       old_kind <- RNGkind()
+       on.exit(RNGkind(old_kind[1]), add = TRUE)
        RNGkind("L'Ecuyer-CMRG")
+       old_plan <- future::plan()
+       on.exit(future::plan(old_plan), add = TRUE)
        future::plan(plan)
   } else  jinfo("SEM MC does not go parallel")
 

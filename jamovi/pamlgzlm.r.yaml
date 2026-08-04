@@ -25,6 +25,7 @@ items:
       rows:  1
       refs:
          - pamlj
+         - pwr
       clearWith:
         - mode
         - model_type

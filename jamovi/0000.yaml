@@ -65,8 +65,8 @@ analyses:
     menuSubgroup: Pamlj
     menuTitle: Generalized Linear Model
     description: >
-      Power analysis for regression, ANOVA, and ANCOVA models using standardized
-      coefficients, partial eta-squared, or eta-squared effect sizes.
+      Power analysis for generalized linear models with binary, ordinal, or
+      multinomial outcomes, based on eta-squared or R-squared effect sizes.
     menuGroup: Power
     category: analyses
   - title: Factorial Designs

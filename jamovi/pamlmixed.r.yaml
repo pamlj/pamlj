@@ -41,6 +41,8 @@ items:
           type: text
       refs:
           - pamlj
+          - lme4
+          - lmerTest
     - name:  powertab
       title: Power Parameters
       type: Table

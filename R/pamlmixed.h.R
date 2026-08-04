@@ -371,7 +371,9 @@ pamlmixedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                         `title`="", 
                         `type`="text")),
                 refs=list(
-                    "pamlj")))
+                    "pamlj",
+                    "lme4",
+                    "lmerTest")))
             self$add(jmvcore::Table$new(
                 options=options,
                 name="powertab",

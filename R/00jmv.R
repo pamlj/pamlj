@@ -40,4 +40,18 @@
         `author`="Epskamp S. , Stuber S., Nak J., Veenman M,, Jorgensen T.D.", 
         `year`=2019, 
         `publisher`="[R Package]. Retrieved from https://CRAN.R-project.org/package=semPlot", 
-        `url`="https://CRAN.R-project.org/package=semPlot"))
+        `url`="https://CRAN.R-project.org/package=semPlot"), 
+    `lme4`=list(
+        `type`="article", 
+        `author`="Bates D., Machler M., Bolker B., Walker S.", 
+        `year`=2015, 
+        `title`="Fitting Linear Mixed-Effects Models Using lme4", 
+        `publisher`="Journal of Statistical Software, 67(1), 1-48", 
+        `url`="https://www.jstatsoft.org/v67/i01/"), 
+    `lmerTest`=list(
+        `type`="article", 
+        `author`="Kuznetsova A., Brockhoff P.B., Christensen R.H.B.", 
+        `year`=2017, 
+        `title`="lmerTest Package: Tests in Linear Mixed Effects Models", 
+        `publisher`="Journal of Statistical Software, 82(13), 1-26", 
+        `url`="https://www.jstatsoft.org/v82/i13/"))

@@ -550,7 +550,6 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 clearWith=list(
                     "a",
                     "b",
-                    "c",
                     "a1",
                     "b1",
                     "a2",
@@ -575,7 +574,6 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 clearWith=list(
                     "a",
                     "b",
-                    "c",
                     "a1",
                     "b1",
                     "a2",
@@ -644,7 +642,6 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 clearWith=list(
                     "a",
                     "b",
-                    "c",
                     "a1",
                     "b1",
                     "a2",
@@ -653,7 +650,7 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                     "b3",
                     "r12",
                     "r13",
-                    "r22",
+                    "r23",
                     "d1",
                     "aim",
                     "mode",
@@ -692,7 +689,6 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 clearWith=list(
                     "a",
                     "b",
-                    "c",
                     "a1",
                     "b1",
                     "a2",
@@ -740,7 +736,6 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 clearWith=list(
                     "a",
                     "b",
-                    "c",
                     "a1",
                     "b1",
                     "a2",
@@ -794,7 +789,6 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 clearWith=list(
                     "a",
                     "b",
-                    "c",
                     "a1",
                     "b1",
                     "a2",
@@ -889,7 +883,6 @@ pamlmedResults <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
                 clearWith=list(
                     "a",
                     "b",
-                    "c",
                     "a1",
                     "b1",
                     "a2",
