@@ -71,9 +71,9 @@ items:
         - mode
         - model_type
         - eta_es
-        - eta_df_model
+        - eta_df
         - r2_es
-        - r2_df_model
+        - r2_df
         - power
         - n
         - sig.level
@@ -115,9 +115,9 @@ items:
         - mode
         - model_type
         - eta_es
-        - eta_df_model
+        - eta_df
         - r2_es
-        - r2_df_model
+        - r2_df
         - power
         - n
         - sig.level
@@ -145,9 +145,9 @@ items:
         - mode
         - model_type
         - eta_es
-        - eta_df_model
+        - eta_df
         - r2_es
-        - r2_df_model
+        - r2_df
         - power
         - n
         - sig.level
@@ -175,9 +175,9 @@ items:
         - mode
         - model_type
         - eta_es
-        - eta_df_model
+        - eta_df
         - r2_es
-        - r2_df_model
+        - r2_df
         - power
         - n
         - sig.level

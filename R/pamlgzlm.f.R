@@ -88,17 +88,17 @@ pamlgzlm <- function(
         data <- data.frame()
 
     eta_es <- if (identical(mode, "eta")) es else 0.2
-    eta_df_model <- if (identical(mode, "eta")) df_model else 1
+    eta_df <- if (identical(mode, "eta")) df_model else 1
     r2_es <- if (identical(mode, "r2")) es else 0.05
-    r2_df_model <- if (identical(mode, "r2")) df_model else 1
+    r2_df <- if (identical(mode, "r2")) df_model else 1
 
     options <- pamlgzlmOptions$new(
         aim = aim,
         mode = mode,
         r2_es = r2_es,
-        r2_df_model = r2_df_model,
+        r2_df = r2_df,
         eta_es = eta_es,
-        eta_df_model = eta_df_model,
+        eta_df = eta_df,
         power = power,
         n = n,
         sig.level = sig.level,
