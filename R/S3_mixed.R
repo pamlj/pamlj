@@ -398,10 +398,16 @@
 ###### local functions
 
 .make_data<-function(obj,n=NULL,k=NULL) {
-  
-  if (obj$options$stability=="l1")
+
+  if (obj$options$stability=="l1") {
+    old_seed <- if (exists(".Random.seed", envir = .GlobalEnv)) get(".Random.seed", envir = .GlobalEnv) else NULL
+    on.exit({
+      if (!is.null(old_seed)) assign(".Random.seed", old_seed, envir = .GlobalEnv)
+      else if (exists(".Random.seed", envir = .GlobalEnv)) rm(".Random.seed", envir = .GlobalEnv)
+    }, add = TRUE)
     set.seed(obj$info$seed)
-  
+  }
+
   model<-obj$info$model
   #### cluster data
   ks<-sapply(model$cluster_info, function(x) x$k)
@@ -711,10 +717,14 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
   model<-pamlmixed_makemodel(obj,n,k)
   R <- obj$info$R
   test <- obj$info$test   # pulled out as a plain scalar -- see the comment below
+  old_kind <- RNGkind()
+  on.exit(base::RNGkind(old_kind[1]), add = TRUE)
   base::RNGkind("L'Ecuyer-CMRG")
 
   if (isTRUE(obj$info$parallel)) {
       plan <- if (Sys.info()[["sysname"]] == "Windows") future::multisession else future::multicore
+      old_plan <- future::plan()
+      on.exit(future::plan(old_plan), add = TRUE)
       future::plan(plan)
       ## the %dofuture% block is exported to every worker, so it must reference
       ## only `model` (its formula environment is decoupled from `obj` in
