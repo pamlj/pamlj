@@ -549,6 +549,90 @@
 
 ### end of them
 
+### helper functions replacing simr::makeLmer/makeGlmer/doFit -- build an
+### *unfitted* merMod container carrying the user-specified fixef/VarCorr/sigma,
+### using lme4's own "no-op optimizer" trick (a no-op optimizer function that
+### just evaluates the deviance once at the given theta instead of searching
+### for it). Actual fitting (during Monte Carlo, .sim_fun()) happens later via
+### .refit_mixed(), a fresh lmer()/glmer() call against the simulated response.
+
+### VarCorr (variance/covariance matrix, or list of them for multiple grouping
+### factors) -> lme4's theta parameterization (Cholesky factor of the
+### correlation structure, scaled by sigma)
+.varcorr_to_theta1 <- function(V, sigma) {
+  L <- suppressWarnings(chol(V, pivot = TRUE))
+  p <- order(attr(L, "pivot"))
+  L <- t(L[p, p])
+  L[lower.tri(L, diag = TRUE)] / sigma
+}
+.varcorr_to_theta <- function(VarCorr, sigma) {
+  if (!is.list(VarCorr)) VarCorr <- list(VarCorr)
+  unname(unlist(lapply(VarCorr, .varcorr_to_theta1, sigma = sigma)))
+}
+
+### optimizer that skips optimization entirely and reports the supplied theta
+### as already-converged -- lme4 still builds the full merMod object (model
+### matrices, response module, etc.), it just never searches for theta
+.no_op_optimizer <- function(fn, par, lower, upper, control) {
+  theta <- control$theta
+  if (is.null(theta)) theta <- rep(1, length(par))
+  list(fval = fn(theta), par = theta, convergence = 0,
+       message = "No optimisation", control = list())
+}
+
+.make_lmer <- function(formula, fixef, VarCorr, sigma, data) {
+  theta <- .varcorr_to_theta(VarCorr, sigma)
+  ctrl  <- lme4::lmerControl(optimizer = .no_op_optimizer, optCtrl = list(theta = theta),
+                              restart_edge = FALSE, boundary.tol = 0, calc.derivs = FALSE)
+  model <- suppressWarnings(lme4::lmer(formula, data = data, control = ctrl))
+  model@beta  <- unname(fixef)
+  model@theta <- theta
+  REML <- model@devcomp$dims[["REML"]]
+  model@devcomp$cmp[[if (REML) "sigmaREML" else "sigmaML"]] <- sigma
+  model
+}
+
+.make_glmer <- function(formula, family, fixef, VarCorr, data) {
+  theta <- .varcorr_to_theta(VarCorr, sigma = 1)
+  ctrl  <- lme4::glmerControl(optimizer = .no_op_optimizer, optCtrl = list(theta = theta),
+                               restart_edge = FALSE, boundary.tol = 0, calc.derivs = FALSE)
+  ## nAGQ=0 (profiled PIRLS fit) is required here: lme4's nAGQ>=1 (Laplace) path
+  ## expects the optimizer to search over a combined [theta, fixef] vector, which
+  ## a no-op optimizer can't produce -- nAGQ=0 keeps theta as the sole parameter.
+  ## This only affects the unfitted container itself (used for the analytic Wald
+  ## test and as a simulate() template); .refit_mixed() below does a fresh glmer()
+  ## call per Monte Carlo replication, so those refits use the real default (nAGQ=1).
+  model <- suppressWarnings(lme4::glmer(formula, family = family, data = data,
+                                         control = ctrl, nAGQ = 0))
+  model@beta  <- unname(fixef)
+  model@theta <- theta
+  model
+}
+
+### refit a construction/refit product with a newly simulated response, for use
+### during Monte Carlo replications (.sim_fun()). lme4::refit() would be the
+### obvious choice, but it keeps the model's ORIGINAL @call (and therefore its
+### original data) untouched -- lmerTest::as_lmerModLmerTest() later re-derives
+### the deviance function by re-evaluating that call, so a plain refit() ends up
+### silently computing Satterthwaite df/SE against the placeholder response
+### instead of this replication's `y`. Rebuilding the call against a fresh
+### environment (mirroring what simr::doFit() used to do) avoids that.
+.refit_mixed <- function(y, model) {
+  respname <- deparse(stats::formula(model)[[2]])
+  newdata  <- model@frame
+  newdata[[respname]] <- y
+
+  form <- stats::formula(model)
+  env  <- new.env(parent = environment(form))
+  assign("newdata", newdata, envir = env)
+  environment(form) <- env
+
+  if (lme4::isGLMM(model))
+    lme4::glmer(form, family = stats::family(model), data = newdata)
+  else
+    lme4::lmer(form, data = newdata)
+}
+
 pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
 
   infomod<-obj$info$model
@@ -581,7 +665,7 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
 
   if (is.null(infomod$family)) {
   modelobj<-try_hard({
-             simr::makeLmer(formula=form,
+             .make_lmer(formula=form,
                    fixef=fixed,
                    VarCorr=varcor,
                    sigma=infomod$sigma,
@@ -590,7 +674,7 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
   })
   } else {
     modelobj<-try_hard({
-      simr::makeGlmer(formula=form,
+      .make_glmer(formula=form,
                       family=infomod$family,
                      fixef=fixed,
                      VarCorr=varcor,
@@ -644,7 +728,7 @@ pamlmixed_makemodel <- function(obj,n=NULL,k=NULL) {
   # 2) fit while capturing warnings
   warn_buf <- character(0)
   fit <- withCallingHandlers(
-    expr = simr::doFit(y, model),
+    expr = .refit_mixed(y, model),
     warning = function(w) {
       warn_buf <<- c(warn_buf, conditionMessage(w))
       invokeRestart("muffleWarning")
@@ -1154,7 +1238,7 @@ standardize_between <- function(data, x, cluster) {
 
 
 ## ============================================================================
-##  .mixed_from_fit() : inverts the syntax -> simr::makeLmer/makeGlmer mapping
+##  .mixed_from_fit() : inverts the syntax -> .make_lmer()/.make_glmer() mapping
 ##  used by pamlmixed_makemodel(), turning a FITTED lme4 model back into the
 ##  arguments pamlmixed() accepts (syntax, clusterpars, categorical, sigma2,
 ##  model_type). Lets `pamlmixed(model = fit, ...)` run a power analysis for

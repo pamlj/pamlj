@@ -47,22 +47,18 @@ summary.ResultsElement<-function(object,...) {
 }
 
 
-#'  S3 methods for class palmj_list 
+#'  S3 methods for class palmj_list
 #'
-#' These functions extract all visible tables from a list of tables produced by pamlj3
+#' These functions extract all visible tables from a list of tables produced by pamlj
 #' and print them in R style.
 
 #' @param object a pamlj results object of the class `pamlj`
-#' @param ... additional arguments passed to the pamlj3 estimation function
+#' @param ... additional arguments passed to the pamlj estimation function
 #' @return a list of tables as data.frame
 #' @author Marcello Gallucci
 #' @examples
-#' data(fivegroups)
-#' fivegroups$Group<-factor(fivegroups$Group)
-#' gmod<-pamlj3::pamlj_lm(
-#'   formula = Score ~Group,
-#'   data = fivegroups)
-#' 
+#' gmod<-list(pamlj::pamlcorr(es=.1), pamlj::pamlcorr(es=.3))
+#' class(gmod)<-"pamlj_list"
 #' summary(gmod)
 #' @rdname s3methods
 #' 
@@ -142,8 +138,6 @@ plots <- function(x, ...) {
   
   results<-list()
   if ("powerContour" %in% names(x))
-    results$powerContour=x$powerContour$plot
-  if ("powerNcurve" %in% names(x))
     results$powerContour=x$powerContour$plot
   if ("powerEscurve" %in% names(x))
     results$powerEscurve=x$powerEscurve$plot

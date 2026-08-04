@@ -49,3 +49,5 @@ paper/*
 paper*
 AGENTS.md
 AI/
+tests/testthat/Rplots.pdf
+tests/testthat/_problems/

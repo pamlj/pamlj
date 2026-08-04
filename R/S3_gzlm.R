@@ -41,16 +41,16 @@
   
   if (is.something(obj$data$es)) {
     if (obj$data$es < 0)
-      obj$stop("Eta-squared value cannot be less than 0.")
+      obj$stop(obj$info$letter %+% " value cannot be less than 0.")
     if (obj$data$es > obj$info$esmax)
-      obj$stop("Eta-squared value cannot be more than " %+% obj$info$esmax)
+      obj$stop(obj$info$letter %+% " value cannot be more than " %+% obj$info$esmax)
   }
-  
+
   if (is.something(obj$data$df)) {
     if (obj$data$df < 1)
       obj$stop("Degrees of freedom cannot be less than 1")
   } else {
-    obj$stop("GZLM power analysis based on eta-squared requires the expected degrees of freedom of the test")
+    obj$stop("GZLM power analysis based on " %+% obj$info$letter %+% " requires the expected degrees of freedom of the test")
   }
   ### fix the probabilities
   levels <- obj$options$y_levels
@@ -67,7 +67,7 @@
                           c(y0,rep(y1,(levels-1)))
                         },
                         ordinal={
-                          if (levels<3) obj$stop("Multinomial model requires more than 2 levels in the dependent variable")
+                          if (levels<3) obj$stop("Ordinal model requires more than 2 levels in the dependent variable")
                           y0<-prop
                           y1<-(1-prop)/(levels-1)
                           c(y0,rep(y1,(levels-1)))

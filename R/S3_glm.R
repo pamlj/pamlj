@@ -369,7 +369,6 @@
            analysis <-" an <b>ANOVA</b> "
            fterms    <- obj$options$factors
            inter    <- obj$options$factors_order
-           levels  <- obj$options$factor_list
            order    <- fterms
            switch(inter, 
                   main   = order<-1 ,
